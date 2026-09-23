@@ -4,67 +4,116 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>حسابداری دبیرستان دخترانه الهه مهر</title>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap');
 :root{--primary:#7c3aed;--primary2:#5b21b6;--bg:#f6f7fb;--card:#fff;--text:#172033;--muted:#667085;--line:#e7e9f0;--green:#16a34a;--orange:#f59e0b;--red:#dc2626;--blue:#2563eb;--shadow:0 10px 30px rgba(30,20,60,.07)}
-*{box-sizing:border-box}body{margin:0;font-family:Vazirmatn,Tahoma,sans-serif;background:var(--bg);color:var(--text)}
-button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.app{display:flex;min-height:100vh}
+*{box-sizing:border-box}
+body{margin:0;font-family:Vazirmatn,Tahoma,sans-serif;background:var(--bg);color:var(--text)}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;border:0}
+.app{display:flex;min-height:100vh}
 .sidebar{width:260px;background:#171329;color:#fff;padding:20px 14px;position:fixed;right:0;top:0;bottom:0;z-index:20;overflow:auto}
 .brand{display:flex;gap:12px;align-items:center;padding:8px 10px 24px;border-bottom:1px solid #302a47;margin-bottom:16px}
 .logo{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#a78bfa,#6d28d9);display:grid;place-items:center;font-size:23px}
-.brand h2{font-size:15px;margin:0}.brand small{color:#b9b3cf}
+.brand h2{font-size:15px;margin:0}
+.brand small{color:#b9b3cf}
 .nav button{width:100%;background:transparent;color:#d9d4e8;text-align:right;padding:12px 13px;border-radius:10px;margin:2px 0;display:flex;align-items:center;gap:10px}
-.nav button:hover,.nav button.active{background:#302750;color:#fff}.nav .icon{width:24px;text-align:center}
+.nav button:hover,.nav button.active{background:#302750;color:#fff}
 .main{margin-right:260px;width:calc(100% - 260px);padding:24px}
 .topbar{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:20px;flex-wrap:wrap}
-.topbar h1{font-size:23px;margin:0}.top-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.topbar h1{font-size:23px;margin:0}
+.top-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .search{background:#fff;border:1px solid var(--line);border-radius:11px;padding:10px 14px;min-width:260px}
-.btn{padding:10px 15px;border-radius:10px;background:#eee;color:#333;font-weight:600}.btn.primary{background:var(--primary);color:#fff}.btn.green{background:var(--green);color:#fff}.btn.red{background:#fee2e2;color:#991b1b}.btn.blue{background:#dbeafe;color:#1d4ed8}
-.btn.dark{background:#171329;color:#fff}
+.btn{padding:10px 15px;border-radius:10px;background:#eee;color:#333;font-weight:600;transition:.2s}
+.btn:hover{opacity:.9}
+.btn.primary{background:var(--primary);color:#fff}
+.btn.green{background:var(--green);color:#fff}
+.btn.red{background:#fee2e2;color:#991b1b}
+.btn.blue{background:#dbeafe;color:#1d4ed8}
 .user-chip{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:11px;padding:8px 12px;font-size:13px}
 .user-chip .avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#a78bfa,#6d28d9);display:grid;place-items:center;color:#fff;font-weight:700}
-.page{display:none}.page.active{display:block}.grid{display:grid;gap:15px}.stats{grid-template-columns:repeat(4,1fr)}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow)}
-.stat{position:relative;overflow:hidden}.stat .num{font-size:25px;font-weight:800;margin:7px 0}.stat .label{color:var(--muted);font-size:13px}.stat .ico{position:absolute;left:15px;top:15px;font-size:25px;opacity:.85}
-.section-head{display:flex;justify-content:space-between;align-items:center;margin:25px 0 12px;flex-wrap:wrap;gap:10px}.section-head h2{font-size:18px;margin:0}.charts{grid-template-columns:1fr 1fr}.chartbox{height:310px}.table-wrap{overflow:auto}.table{width:100%;border-collapse:collapse;min-width:850px}.table th,.table td{padding:11px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}.table th{background:#fafafa;color:#596174;font-size:13px}.badge{display:inline-flex;padding:5px 9px;border-radius:999px;font-size:11px;font-weight:700}.paid{background:#dcfce7;color:#166534}.debt{background:#ffedd5;color:#9a3412}.overdue{background:#fee2e2;color:#991b1b}
-.actions{display:flex;gap:6px;flex-wrap:wrap}.empty{text-align:center;color:var(--muted);padding:35px}.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}.filters input,.filters select,.form input,.form select,.form textarea{border:1px solid var(--line);background:#fff;border-radius:9px;padding:10px;outline:none}.filters input:focus,.form input:focus,.form select:focus,.form textarea:focus{border-color:var(--primary)}
-.modal{position:fixed;inset:0;background:rgba(10,7,20,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:15px}.modal.show{display:flex}.modalbox{background:#fff;width:min(900px,100%);max-height:92vh;overflow:auto;border-radius:18px;padding:22px}.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}.formgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.form label{display:block;font-size:12px;color:#555;margin-bottom:5px}.form textarea{min-height:80px;width:100%;resize:vertical}.full{grid-column:1/-1}.modalfoot{display:flex;justify-content:flex-start;gap:8px;margin-top:18px}
-.detail-grid{grid-template-columns:repeat(4,1fr)}.mini strong{display:block;font-size:19px;margin-top:6px}.mini span{color:var(--muted);font-size:12px}
-.alerts{display:grid;grid-template-columns:1fr 1fr;gap:15px}.alert-list{margin:0;padding:0;list-style:none}.alert-list li{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line)}
-.toast{position:fixed;left:20px;bottom:20px;background:#171329;color:#fff;padding:12px 16px;border-radius:10px;display:none;z-index:100;max-width:320px}.toast.show{display:block}
-.print-only{display:none}
+.page{display:none}
+.page.active{display:block}
+.grid{display:grid;gap:15px}
+.stats{grid-template-columns:repeat(4,1fr)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow)}
+.stat{position:relative;overflow:hidden}
+.stat .num{font-size:25px;font-weight:800;margin:7px 0}
+.stat .label{color:var(--muted);font-size:13px}
+.stat .ico{position:absolute;left:15px;top:15px;font-size:25px;opacity:.85}
+.section-head{display:flex;justify-content:space-between;align-items:center;margin:25px 0 12px;flex-wrap:wrap;gap:10px}
+.section-head h2{font-size:18px;margin:0}
+.charts{grid-template-columns:1fr 1fr}
+.chartbox{height:310px}
+.table-wrap{overflow:auto}
+.table{width:100%;border-collapse:collapse;min-width:850px}
+.table th,.table td{padding:11px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+.table th{background:#fafafa;color:#596174;font-size:13px}
+.badge{display:inline-flex;padding:5px 9px;border-radius:999px;font-size:11px;font-weight:700}
+.paid{background:#dcfce7;color:#166534}
+.debt{background:#ffedd5;color:#9a3412}
+.overdue{background:#fee2e2;color:#991b1b}
+.actions{display:flex;gap:6px;flex-wrap:wrap}
+.empty{text-align:center;color:var(--muted);padding:35px}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.filters input,.filters select,.form input,.form select,.form textarea{border:1px solid var(--line);background:#fff;border-radius:9px;padding:10px;outline:none}
+.filters input:focus,.form input:focus,.form select:focus,.form textarea:focus{border-color:var(--primary)}
+.modal{position:fixed;inset:0;background:rgba(10,7,20,.55);display:none;align-items:center;justify-content:center;z-index:50;padding:15px}
+.modal.show{display:flex}
+.modalbox{background:#fff;width:min(900px,100%);max-height:92vh;overflow:auto;border-radius:18px;padding:22px}
+.modalhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px}
+.formgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.form label{display:block;font-size:12px;color:#555;margin-bottom:5px}
+.form textarea{min-height:80px;width:100%;resize:vertical}
+.full{grid-column:1/-1}
+.modalfoot{display:flex;justify-content:flex-start;gap:8px;margin-top:18px}
+.detail-grid{grid-template-columns:repeat(4,1fr)}
+.mini strong{display:block;font-size:19px;margin-top:6px}
+.mini span{color:var(--muted);font-size:12px}
+.alerts{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.alert-list{margin:0;padding:0;list-style:none}
+.alert-list li{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line)}
+.toast{position:fixed;left:20px;bottom:20px;background:#171329;color:#fff;padding:12px 16px;border-radius:10px;display:none;z-index:100;max-width:340px;font-size:13px;line-height:1.6}
+.toast.show{display:block}
+.toast.error{background:#dc2626}
+.toast.success{background:#16a34a}
+#authScreen{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#f6f7fb,#ede9fe);display:grid;place-items:center;padding:20px}
+.auth-card{width:min(440px,100%);background:#fff;border:1px solid #e7e9f0;border-radius:22px;padding:28px;box-shadow:0 20px 60px rgba(30,20,60,.12)}
+.auth-card h2{margin:0 0 8px;color:#171329;font-size:20px}
+.auth-card p{color:#667085;margin:0 0 20px;font-size:13px}
+.auth-card label{display:block;font-size:12px;color:#555;margin-bottom:5px}
+.auth-card input{width:100%;padding:12px;border:1px solid #d9dce5;border-radius:10px;margin:7px 0 12px;outline:none}
+.auth-card input:focus{border-color:var(--primary)}
+.auth-card button{width:100%;padding:12px;border-radius:10px;margin-top:8px}
+.auth-msg{min-height:24px;margin-top:12px;color:#dc2626;font-size:13px;line-height:1.6;text-align:center}
+.auth-msg.ok{color:#16a34a}
 @media(max-width:1050px){.stats{grid-template-columns:repeat(2,1fr)}.charts,.alerts{grid-template-columns:1fr}.sidebar{width:220px}.main{margin-right:220px;width:calc(100% - 220px)}}
 @media(max-width:760px){.sidebar{position:static;width:100%;height:auto}.app{display:block}.main{margin:0;width:100%;padding:14px}.nav{display:grid;grid-template-columns:repeat(2,1fr)}.topbar{align-items:flex-start;flex-direction:column}.search{min-width:100%;width:100%}.stats{grid-template-columns:1fr 1fr}.formgrid{grid-template-columns:1fr}.detail-grid{grid-template-columns:1fr 1fr}}
-@media print{body{background:#fff}.sidebar,.topbar,.no-print,.modal{display:none!important}.main{margin:0;width:100%;padding:0}.page{display:none!important}.page.active{display:block!important}.card{box-shadow:none;border:0}.print-only{display:block}.table{min-width:0}.section-head{margin-top:10px}}
 </style>
-<style>
-#authScreen{position:fixed;inset:0;z-index:9999;background:#f6f7fb;display:grid;place-items:center;padding:20px}
-.auth-card{width:min(430px,100%);background:#fff;border:1px solid #e7e9f0;border-radius:22px;padding:28px;box-shadow:0 20px 60px rgba(30,20,60,.12)}
-.auth-card h2{margin:0 0 8px;color:#171329}.auth-card p{color:#667085;margin:0 0 20px}.auth-card input{width:100%;padding:12px;border:1px solid #d9dce5;border-radius:10px;margin:7px 0 12px}.auth-card button{width:100%;padding:12px;border-radius:10px;margin-top:8px}.auth-msg{min-height:24px;margin-top:12px;color:#dc2626;font-size:13px}
-.auth-tabs{display:flex;gap:8px;margin-bottom:15px}.auth-tabs button{flex:1;padding:10px;border-radius:10px;background:#f1f1f5;color:#555;font-weight:600}.auth-tabs button.active{background:var(--primary);color:#fff}
-</style></head>
+</head>
 <body>
 
 <!-- صفحه ورود -->
 <div id="authScreen">
   <div class="auth-card">
-    <h2>حسابداری دبیرستان دخترانه الهه مهر</h2>
+    <h2>🌸 حسابداری دبیرستان الهه مهر</h2>
     <p>ورود امن به سامانه مالی مدرسه</p>
     <label>ایمیل</label>
-    <input id="authEmail" type="email" placeholder="ایمیل مدیر یا مسئول مالی" autocomplete="email">
+    <input id="authEmail" type="email" placeholder="example@school.ir" autocomplete="email">
     <label>رمز عبور</label>
-    <input id="authPassword" type="password" placeholder="رمز عبور" autocomplete="current-password">
-    <button class="btn primary" onclick="signIn()">ورود</button>
-    <button class="btn" onclick="signUp()">ساخت حساب مدیر</button>
+    <input id="authPassword" type="password" placeholder="حداقل ۶ کاراکتر" autocomplete="current-password">
+    <button class="btn primary" id="btnSignIn">ورود به سیستم</button>
+    <button class="btn" id="btnSignUp">ساخت حساب مدیر</button>
     <div id="authMsg" class="auth-msg"></div>
   </div>
 </div>
 
-<div class="app">
+<div class="app" id="mainApp" style="display:none">
 <aside class="sidebar">
   <div class="brand"><div class="logo">🌸</div><div><h2>الهه مهر</h2><small>مدیریت مالی مدرسه</small></div></div>
-  <nav class="nav">
+  <nav class="nav" id="mainNav">
     <button class="active" data-page="dashboard">🏠 <span>داشبورد</span></button>
     <button data-page="students">👩🏻‍🎓 <span>دانش‌آموزان</span></button>
     <button data-page="payments">💳 <span>ثبت پرداخت</span></button>
@@ -75,10 +124,8 @@ button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.app{di
     <button data-page="installments">📅 <span>اقساط</span></button>
     <button data-page="discounts">🎁 <span>تخفیف‌ها</span></button>
     <button data-page="invoices">📑 <span>صورتحساب‌ها</span></button>
-    <button data-page="users">👤 <span>کاربران</span></button>
     <button data-page="settings">⚙️ <span>تنظیمات</span></button>
-    <button data-page="backup">💾 <span>پشتیبان‌گیری</span></button>
-    <button data-page="logs">🕘 <span>فعالیت کاربران</span></button>
+    <button data-page="logs">🕘 <span>فعالیت‌ها</span></button>
   </nav>
 </aside>
 
@@ -86,22 +133,22 @@ button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.app{di
 <header class="topbar">
   <div><h1 id="pageTitle">داشبورد مالی</h1><div style="color:#667085;font-size:12px;margin-top:4px">دبیرستان دخترانه الهه مهر | سال تحصیلی <span id="yearLabel">۱۴۰۵-۱۴۰۶</span></div></div>
   <div class="top-actions">
-    <input class="search" id="globalSearch" placeholder="جستجوی سریع نام، کد ملی یا کد دانش‌آموزی...">
-    <button class="btn primary" onclick="openPayment()">ثبت پرداخت +</button>
-    <div class="user-chip" id="userChip" style="display:none">
+    <input class="search" id="globalSearch" placeholder="جستجوی سریع...">
+    <button class="btn primary" id="btnOpenPayment">ثبت پرداخت +</button>
+    <div class="user-chip" id="userChip">
       <div class="avatar" id="userAvatar">م</div>
       <div>
-        <div style="font-weight:600" id="userName">کاربر</div>
+        <div style="font-weight:600;font-size:12px" id="userName">کاربر</div>
         <div style="color:#667085;font-size:11px" id="userRole">مدیر</div>
       </div>
-      <button class="btn red" style="padding:6px 10px;font-size:12px" onclick="signOut()">خروج</button>
+      <button class="btn red" style="padding:6px 10px;font-size:12px" id="btnSignOut">خروج</button>
     </div>
   </div>
 </header>
 
 <section class="page active" id="dashboard">
   <div class="grid stats" id="stats"></div>
-  <div class="section-head"><h2>نمای کلی مالی</h2><button class="btn" onclick="window.print()">🖨 چاپ داشبورد</button></div>
+  <div class="section-head"><h2>نمای کلی مالی</h2></div>
   <div class="grid charts">
     <div class="card chartbox"><h3>دریافت شهریه ماهانه</h3><canvas id="incomeChart"></canvas></div>
     <div class="card chartbox"><h3>وضعیت پرداخت دانش‌آموزان</h3><canvas id="statusChart"></canvas></div>
@@ -113,55 +160,70 @@ button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.app{di
 </section>
 
 <section class="page" id="students">
-  <div class="section-head"><h2>مدیریت دانش‌آموزان</h2><button class="btn primary" onclick="openStudent()">ثبت دانش‌آموز +</button></div>
-  <div class="card"><div class="filters"><input id="studentSearch" placeholder="جستجو..."><select id="gradeFilter"><option value="">همه پایه‌ها</option><option>دهم</option><option>یازدهم</option><option>دوازدهم</option><option>هفتم</option><option>هشتم</option><option>نهم</option></select><select id="classFilter"><option value="">همه کلاس‌ها</option><option>الف</option><option>ب</option><option>ج</option></select></div><div class="table-wrap"><table class="table"><thead><tr><th>کد</th><th>نام و نام خانوادگی</th><th>کد ملی</th><th>پایه</th><th>کلاس</th><th>شهریه</th><th>پرداخت</th><th>مانده</th><th>وضعیت</th><th>عملیات</th></tr></thead><tbody id="studentsTable"></tbody></table></div></div>
+  <div class="section-head"><h2>مدیریت دانش‌آموزان</h2><button class="btn primary" id="btnNewStudent">ثبت دانش‌آموز +</button></div>
+  <div class="card">
+    <div class="filters">
+      <input id="studentSearch" placeholder="جستجو...">
+      <select id="gradeFilter"><option value="">همه پایه‌ها</option><option>هفتم</option><option>هشتم</option><option>نهم</option><option>دهم</option><option>یازدهم</option><option>دوازدهم</option></select>
+      <select id="classFilter"><option value="">همه کلاس‌ها</option><option>الف</option><option>ب</option><option>ج</option><option>د</option></select>
+    </div>
+    <div class="table-wrap"><table class="table"><thead><tr><th>کد</th><th>نام و نام خانوادگی</th><th>کد ملی</th><th>پایه</th><th>کلاس</th><th>شهریه</th><th>پرداخت</th><th>مانده</th><th>وضعیت</th><th>عملیات</th></tr></thead><tbody id="studentsTable"></tbody></table></div>
+  </div>
 </section>
 
 <section class="page" id="payments">
-  <div class="section-head"><h2>ثبت پرداخت جدید</h2><button class="btn primary" onclick="openPayment()">ثبت پرداخت +</button></div>
-  <div class="card"><div class="filters"><input id="paymentSearch" placeholder="جستجوی پرداخت..."><select id="paymentMethodFilter"><option value="">همه روش‌ها</option><option>کارتخوان</option><option>کارت به کارت</option><option>واریز بانکی</option><option>نقدی</option><option>چک</option><option>سایر</option></select></div><div class="table-wrap"><table class="table"><thead><tr><th>رسید</th><th>دانش‌آموز</th><th>مبلغ</th><th>تاریخ</th><th>روش</th><th>پیگیری</th><th>عملیات</th></tr></thead><tbody id="paymentsTable"></tbody></table></div></div>
+  <div class="section-head"><h2>ثبت پرداخت</h2><button class="btn primary" id="btnNewPayment">ثبت پرداخت +</button></div>
+  <div class="card">
+    <div class="filters">
+      <input id="paymentSearch" placeholder="جستجوی پرداخت...">
+      <select id="paymentMethodFilter"><option value="">همه روش‌ها</option><option>کارتخوان</option><option>کارت به کارت</option><option>واریز بانکی</option><option>نقدی</option><option>چک</option><option>سایر</option></select>
+    </div>
+    <div class="table-wrap"><table class="table"><thead><tr><th>رسید</th><th>دانش‌آموز</th><th>مبلغ</th><th>تاریخ</th><th>روش</th><th>پیگیری</th><th>عملیات</th></tr></thead><tbody id="paymentsTable"></tbody></table></div>
+  </div>
 </section>
 
 <section class="page" id="receipts"><div class="section-head"><h2>رسیدها</h2></div><div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>شماره رسید</th><th>دانش‌آموز</th><th>مبلغ</th><th>تاریخ</th><th>روش</th><th>عملیات</th></tr></thead><tbody id="receiptsTable"></tbody></table></div></div></section>
 
 <section class="page" id="reports">
-  <div class="section-head"><h2>گزارش‌های مالی حرفه‌ای</h2><div class="actions"><button class="btn" onclick="window.print()">🖨 چاپ گزارش</button><button class="btn blue" onclick="exportCSV()">📥 خروجی Excel/CSV</button></div></div>
-  <div class="card"><div class="filters"><select id="reportType"><option value="all">گزارش شهریه</option><option value="debt">گزارش بدهکاران</option><option value="paid">گزارش تسویه‌شده‌ها</option><option value="payments">گزارش پرداخت‌ها</option><option value="expenses">گزارش هزینه‌ها</option><option value="profit">گزارش درآمد و هزینه</option></select><select id="reportGrade"><option value="">همه پایه‌ها</option><option>هفتم</option><option>هشتم</option><option>نهم</option><option>دهم</option><option>یازدهم</option><option>دوازدهم</option></select><button class="btn primary" onclick="renderReport()">نمایش گزارش</button></div><div id="reportResult"></div></div>
+  <div class="section-head"><h2>گزارش‌های مالی</h2><div class="actions"><button class="btn blue" id="btnExportCSV">📥 خروجی Excel/CSV</button></div></div>
+  <div class="card">
+    <div class="filters">
+      <select id="reportType"><option value="all">گزارش شهریه</option><option value="debt">گزارش بدهکاران</option><option value="paid">گزارش تسویه‌شده‌ها</option><option value="payments">گزارش پرداخت‌ها</option><option value="expenses">گزارش هزینه‌ها</option><option value="profit">گزارش درآمد و هزینه</option></select>
+      <select id="reportGrade"><option value="">همه پایه‌ها</option><option>هفتم</option><option>هشتم</option><option>نهم</option><option>دهم</option><option>یازدهم</option><option>دوازدهم</option></select>
+      <button class="btn primary" id="btnRenderReport">نمایش گزارش</button>
+    </div>
+    <div id="reportResult"></div>
+  </div>
 </section>
 
-<section class="page" id="incomes"><div class="section-head"><h2>درآمدها</h2><button class="btn primary" onclick="openIncome()">ثبت درآمد +</button></div><div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>عنوان</th><th>دسته</th><th>مبلغ</th><th>تاریخ</th><th>توضیحات</th><th>عملیات</th></tr></thead><tbody id="incomeTable"></tbody></table></div></div></section>
+<section class="page" id="incomes"><div class="section-head"><h2>درآمدها</h2><button class="btn primary" id="btnNewIncome">ثبت درآمد +</button></div><div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>عنوان</th><th>دسته</th><th>مبلغ</th><th>تاریخ</th><th>توضیحات</th><th>عملیات</th></tr></thead><tbody id="incomeTable"></tbody></table></div></div></section>
 
-<section class="page" id="expenses"><div class="section-head"><h2>هزینه‌های مدرسه</h2><button class="btn primary" onclick="openExpense()">ثبت هزینه +</button></div><div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>عنوان</th><th>دسته‌بندی</th><th>مبلغ</th><th>تاریخ</th><th>روش پرداخت</th><th>عملیات</th></tr></thead><tbody id="expenseTable"></tbody></table></div></div></section>
+<section class="page" id="expenses"><div class="section-head"><h2>هزینه‌های مدرسه</h2><button class="btn primary" id="btnNewExpense">ثبت هزینه +</button></div><div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>عنوان</th><th>دسته‌بندی</th><th>مبلغ</th><th>تاریخ</th><th>روش پرداخت</th><th>عملیات</th></tr></thead><tbody id="expenseTable"></tbody></table></div></div></section>
 
-<section class="page" id="installments"><div class="section-head"><h2>مدیریت اقساط</h2><button class="btn primary" onclick="openInstallment()">تعریف قسط +</button></div><div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>دانش‌آموز</th><th>مبلغ قسط</th><th>سررسید</th><th>وضعیت</th><th>عملیات</th></tr></thead><tbody id="installmentTable"></tbody></table></div></div></section>
+<section class="page" id="installments"><div class="section-head"><h2>مدیریت اقساط</h2><button class="btn primary" id="btnNewInstallment">تعریف قسط +</button></div><div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>دانش‌آموز</th><th>مبلغ قسط</th><th>سررسید</th><th>وضعیت</th><th>عملیات</th></tr></thead><tbody id="installmentTable"></tbody></table></div></div></section>
 
-<section class="page" id="discounts"><div class="section-head"><h2>مدیریت تخفیف</h2><button class="btn primary" onclick="openDiscount()">ثبت تخفیف +</button></div><div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>دانش‌آموز</th><th>مبلغ اصلی</th><th>تخفیف</th><th>مبلغ نهایی</th><th>علت</th><th>تاریخ</th><th>عملیات</th></tr></thead><tbody id="discountTable"></tbody></table></div></div></section>
+<section class="page" id="discounts"><div class="section-head"><h2>مدیریت تخفیف</h2><button class="btn primary" id="btnNewDiscount">ثبت تخفیف +</button></div><div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>دانش‌آموز</th><th>مبلغ اصلی</th><th>تخفیف</th><th>مبلغ نهایی</th><th>علت</th><th>تاریخ</th><th>عملیات</th></tr></thead><tbody id="discountTable"></tbody></table></div></div></section>
 
 <section class="page" id="invoices"><div class="section-head"><h2>صورتحساب دانش‌آموزان</h2></div><div class="card"><div class="filters"><input id="invoiceSearch" placeholder="نام یا کد دانش‌آموز..."></div><div id="invoiceResult"></div></div></section>
 
-<section class="page" id="users"><div class="section-head"><h2>کاربران و دسترسی‌ها</h2><button class="btn primary" onclick="openUser()">افزودن کاربر +</button></div><div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>نام کاربر</th><th>نام کاربری</th><th>سطح دسترسی</th><th>عملیات</th></tr></thead><tbody id="usersTable"></tbody></table></div></div></section>
-
-<section class="page" id="settings"><div class="section-head"><h2>تنظیمات</h2></div><div class="card form"><div class="formgrid"><div><label>نام مدرسه</label><input id="setSchool" value="دبیرستان دخترانه الهه مهر"></div><div><label>سال تحصیلی</label><input id="setYear" value="۱۴۰۵-۱۴۰۶"></div><div><label>شماره تماس</label><input id="setPhone" value=""></div><div class="full"><label>آدرس</label><input id="setAddress" value=""></div><div class="full"><label>متن پایین رسید</label><textarea id="setFooter">با تشکر از اعتماد شما به دبیرستان دخترانه الهه مهر</textarea></div></div><div class="modalfoot"><button class="btn primary" onclick="saveSettings()">ذخیره تنظیمات</button></div></div></section>
-
-<section class="page" id="backup"><div class="section-head"><h2>پشتیبان‌گیری و بازیابی اطلاعات</h2></div><div class="card"><p>تمام اطلاعات این نسخه در پایگاه داده Supabase ذخیره می‌شود. می‌توانید نسخه پشتیبان JSON دانلود کنید.</p><div class="actions"><button class="btn primary" onclick="backup()">💾 دانلود نسخه پشتیبان</button><label class="btn blue">📂 بازیابی اطلاعات<input type="file" accept=".json" onchange="restore(event)" hidden></label></div></div></section>
+<section class="page" id="settings"><div class="section-head"><h2>تنظیمات</h2></div><div class="card form"><div class="formgrid"><div><label>نام مدرسه</label><input id="setSchool"></div><div><label>سال تحصیلی</label><input id="setYear"></div><div><label>شماره تماس</label><input id="setPhone"></div><div class="full"><label>آدرس</label><input id="setAddress"></div><div class="full"><label>متن پایین رسید</label><textarea id="setFooter"></textarea></div></div><div class="modalfoot"><button class="btn primary" id="btnSaveSettings">ذخیره تنظیمات</button></div></div></section>
 
 <section class="page" id="logs"><div class="section-head"><h2>گزارش فعالیت کاربران</h2></div><div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>کاربر</th><th>عملیات</th><th>تاریخ</th><th>ساعت</th></tr></thead><tbody id="logsTable"></tbody></table></div></div></section>
 </main>
 </div>
 
-<div class="modal" id="modal"><div class="modalbox"><div class="modalhead"><h2 id="modalTitle"></h2><button class="btn" onclick="closeModal()">✕</button></div><div id="modalBody"></div></div></div>
+<div class="modal" id="modal"><div class="modalbox"><div class="modalhead"><h2 id="modalTitle"></h2><button class="btn" id="btnCloseModal">✕</button></div><div id="modalBody"></div></div></div>
 <div class="toast" id="toast"></div>
 
 <script>
 /* ============================================================
-   ۱. اتصال به Supabase
+   تنظیمات Supabase
 ============================================================ */
-const SUPABASE_URL = 'https://uqjgfekbghvjootfwugg.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_4z8suyR6-zG6cWtVi5IpRg_InMjs6G2';
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+const SUPABASE_URL = 'https://zfduxislgpnxpharyozv.supabase.co';
+const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_VJ1tVUpM8r-nMun8PkMT5Q__bYePVZW';
 
 /* ============================================================
-   ۲. وضعیت برنامه
+   وضعیت برنامه
 ============================================================ */
 const DEFAULT_SETTINGS = {
   school: 'دبیرستان دخترانه الهه مهر',
@@ -171,42 +233,41 @@ const DEFAULT_SETTINGS = {
   footer: 'با تشکر از اعتماد شما به دبیرستان دخترانه الهه مهر'
 };
 
+let sb = null;
+let currentUser = null;
 let db = {
   settings: { ...DEFAULT_SETTINGS },
-  students: [],
-  payments: [],
-  expenses: [],
-  incomes: [],
-  installments: [],
-  discounts: [],
-  users: [],
-  logs: []
+  students: [], payments: [], incomes: [], expenses: [],
+  installments: [], discounts: [], logs: []
 };
-let currentUser = null;
 let charts = [];
 
 /* ============================================================
-   ۳. توابع کمکی
+   توابع کمکی
 ============================================================ */
 function money(n){ return new Intl.NumberFormat('fa-IR').format(n||0) + ' ریال'; }
-function rawMoney(n){ return new Intl.NumberFormat('fa-IR').format(n||0); }
-function v(id){ const el = document.getElementById(id); return el ? (el.value?.trim?.() ?? el.value) : ''; }
+function v(id){ const el = document.getElementById(id); return el ? String(el.value || '').trim() : ''; }
 function num(id){ const n = parseFloat(v(id)); return isNaN(n) ? 0 : n; }
-function dateDefault(){ return new Date().toLocaleDateString('fa-IR'); }
+function today(){ return new Date().toLocaleDateString('fa-IR'); }
 
-function studentName(id){
-  const s = db.students.find(x => x.id == id);
-  return s ? `${s.name} ${s.family}` : '-';
-}
 function studentById(id){ return db.students.find(x => x.id == id); }
+function studentName(id){ const s = studentById(id); return s ? `${s.name} ${s.family}` : '-'; }
 function finalTuition(s){ return Math.max(0, (+s.tuition||0) - (+s.discount||0)); }
 function paid(s){ return db.payments.filter(p => p.studentId == s.id).reduce((a,b) => a + (+b.amount||0), 0); }
 function balance(s){ return Math.max(0, finalTuition(s) - paid(s)); }
 
-function isPast(j){
-  if(!j) return false;
-  const today = new Date().toLocaleDateString('fa-IR');
-  return String(j) < today;
+function isPast(dateStr){
+  if(!dateStr) return false;
+  try {
+    const now = new Date();
+    const parts = String(dateStr).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).split(/[\/\-]/).map(Number);
+    if(parts.length < 3) return false;
+    const [y, m, d] = parts;
+    // تبدیل سال شمسی به میلادی تقریبی
+    const gy = y + 621, gm = m - 1, gd = d;
+    const due = new Date(gy, gm, gd);
+    return due < now;
+  } catch { return false; }
 }
 
 function status(s){
@@ -216,36 +277,50 @@ function status(s){
   return late ? ['بدهی معوق', 'overdue'] : ['دارای بدهی', 'debt'];
 }
 
-function toast(t){
+function toast(msg, type){
   const e = document.getElementById('toast');
-  e.textContent = t;
-  e.classList.add('show');
+  e.textContent = msg;
+  e.className = 'toast show' + (type ? ' ' + type : '');
   clearTimeout(e._t);
-  e._t = setTimeout(() => e.classList.remove('show'), 2500);
+  e._t = setTimeout(() => e.className = 'toast', 3500);
 }
 
-function isValidEmail(email){
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+function authMsg(msg, ok){
+  const e = document.getElementById('authMsg');
+  e.textContent = msg || '';
+  e.className = 'auth-msg' + (ok ? ' ok' : '');
+}
+
+function isValidEmail(email){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
+
+/* ============================================================
+   مقداردهی اولیه Supabase
+============================================================ */
+function initSupabase(){
+  if(typeof window.supabase === 'undefined' || !window.supabase.createClient){
+    authMsg('خطا: کتابخانه Supabase لود نشد. اتصال اینترنت را بررسی کنید.');
+    return false;
+  }
+  try {
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+    return true;
+  } catch(e){
+    authMsg('خطا در اتصال به Supabase: ' + e.message);
+    return false;
+  }
 }
 
 /* ============================================================
-   ۴. نگاشت داده‌ها (Map)
+   نگاشت داده‌ها
 ============================================================ */
 function mapStudent(r){
-  return {
-    ...r,
-    class: r.class_name,
-    year: r.academic_year,
-    fatherPhone: r.father_phone,
-    motherPhone: r.mother_phone
-  };
+  return { ...r, class: r.class_name, year: r.academic_year, fatherPhone: r.father_phone, motherPhone: r.mother_phone };
 }
 function mapPayment(r){ return { ...r, studentId: r.student_id, date: r.payment_date, desc: r.description }; }
 function mapIncome(r){ return { ...r, date: r.income_date, desc: r.description }; }
 function mapExpense(r){ return { ...r, date: r.expense_date, doc: r.document, desc: r.description }; }
 function mapInstallment(r){ return { ...r, studentId: r.student_id, due: r.due_date }; }
 function mapDiscount(r){ return { ...r, studentId: r.student_id, base: r.base_amount, type: r.discount_type, date: r.discount_date }; }
-function mapProfile(r){ return { id: r.id, name: r.full_name || 'کاربر', username: r.email || '', role: r.role === 'admin' ? 'مدیر' : 'مسئول مالی' }; }
 
 function normalizeSettings(s){
   if(!s) return { ...DEFAULT_SETTINGS };
@@ -259,22 +334,24 @@ function normalizeSettings(s){
 }
 
 /* ============================================================
-   ۵. بارگذاری و همگام‌سازی داده‌ها
+   بارگذاری داده‌ها
 ============================================================ */
 async function loadData(){
+  if(!sb || !currentUser) throw new Error('کاربر وارد نشده است');
+
   const results = await Promise.all([
-    supabase.from('settings').select('*').eq('id', true).maybeSingle(),
-    supabase.from('students').select('*').order('created_at', { ascending: false }),
-    supabase.from('payments').select('*').order('created_at', { ascending: false }),
-    supabase.from('incomes').select('*').order('created_at', { ascending: false }),
-    supabase.from('expenses').select('*').order('created_at', { ascending: false }),
-    supabase.from('installments').select('*').order('created_at', { ascending: false }),
-    supabase.from('discounts').select('*').order('created_at', { ascending: false }),
-    supabase.from('profiles').select('*'),
-    supabase.from('activity_logs').select('*').order('created_at', { ascending: false }).limit(200)
+    sb.from('settings').select('*').eq('id', true).maybeSingle(),
+    sb.from('students').select('*').order('created_at', { ascending: false }),
+    sb.from('payments').select('*').order('created_at', { ascending: false }),
+    sb.from('incomes').select('*').order('created_at', { ascending: false }),
+    sb.from('expenses').select('*').order('created_at', { ascending: false }),
+    sb.from('installments').select('*').order('created_at', { ascending: false }),
+    sb.from('discounts').select('*').order('created_at', { ascending: false }),
+    sb.from('activity_logs').select('*').order('created_at', { ascending: false }).limit(200)
   ]);
-  const err = results.find(x => x.error)?.error;
-  if(err) throw err;
+
+  const firstError = results.find(x => x.error)?.error;
+  if(firstError) throw new Error(firstError.message);
 
   db.settings = normalizeSettings(results[0].data);
   db.students = (results[1].data || []).map(mapStudent);
@@ -283,112 +360,112 @@ async function loadData(){
   db.expenses = (results[4].data || []).map(mapExpense);
   db.installments = (results[5].data || []).map(mapInstallment);
   db.discounts = (results[6].data || []).map(mapDiscount);
-  db.users = (results[7].data || []).map(mapProfile);
-  db.logs = (results[8].data || []).map(x => ({
-    user: x.user_id,
+  db.logs = (results[7].data || []).map(x => ({
     action: x.action,
     date: new Date(x.created_at).toLocaleDateString('fa-IR'),
     time: new Date(x.created_at).toLocaleTimeString('fa-IR')
   }));
 }
 
-async function log(action){
-  if(!currentUser) return;
-  await supabase.from('activity_logs').insert({ user_id: currentUser.id, action });
+async function logAction(action){
+  if(!sb || !currentUser) return;
+  try { await sb.from('activity_logs').insert({ user_id: currentUser.id, action }); } catch(e){}
 }
 
+/* ============================================================
+   رفرش کل برنامه
+============================================================ */
 async function refreshApp(){
   if(!currentUser) return;
   await loadData();
-  document.getElementById('authScreen').style.display = 'none';
-  document.getElementById('yearLabel').textContent = db.settings.year;
 
-  // نمایش نام کاربر
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('mainApp').style.display = 'flex';
+
   const meta = currentUser.user_metadata || {};
   const name = meta.full_name || currentUser.email || 'کاربر';
   document.getElementById('userName').textContent = name;
   document.getElementById('userAvatar').textContent = (name[0] || 'ک').toUpperCase();
   document.getElementById('userRole').textContent = meta.role === 'admin' ? 'مدیر' : 'مسئول مالی';
-  document.getElementById('userChip').style.display = 'flex';
 
-  // پر کردن تنظیمات
-  const setEls = { setSchool: db.settings.school, setYear: db.settings.year, setPhone: db.settings.phone, setAddress: db.settings.address, setFooter: db.settings.footer };
-  Object.entries(setEls).forEach(([id, val]) => { const el = document.getElementById(id); if(el) el.value = val || ''; });
+  document.getElementById('setSchool').value = db.settings.school;
+  document.getElementById('setYear').value = db.settings.year;
+  document.getElementById('setPhone').value = db.settings.phone;
+  document.getElementById('setAddress').value = db.settings.address;
+  document.getElementById('setFooter').value = db.settings.footer;
 
   renderAll();
 }
 
 /* ============================================================
-   ۶. احراز هویت
+   ورود / ثبت‌نام / خروج
 ============================================================ */
-async function signIn(){
+async function doSignIn(){
   const email = v('authEmail'), password = v('authPassword');
-  const msg = document.getElementById('authMsg');
-  if(!email || !password) return msg.textContent = 'ایمیل و رمز عبور را وارد کنید.';
-  if(!isValidEmail(email)) return msg.textContent = 'ایمیل معتبر نیست.';
-  msg.textContent = '';
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-  if(error) return msg.textContent = error.message;
+  if(!email || !password) return authMsg('ایمیل و رمز عبور را وارد کنید.');
+  if(!isValidEmail(email)) return authMsg('فرمت ایمیل صحیح نیست.');
+  authMsg('در حال ورود...', true);
+
+  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  if(error) return authMsg('خطا: ' + error.message);
   currentUser = data.user;
-  msg.textContent = 'در حال ورود...';
+  authMsg('');
   try { await refreshApp(); }
-  catch(e){ msg.textContent = e.message; }
+  catch(e){ authMsg('خطا در بارگذاری: ' + e.message); }
 }
 
-async function signUp(){
+async function doSignUp(){
   const email = v('authEmail'), password = v('authPassword');
-  const msg = document.getElementById('authMsg');
-  if(!isValidEmail(email)) return msg.textContent = 'ایمیل معتبر وارد کنید.';
-  if(password.length < 6) return msg.textContent = 'رمز عبور حداقل ۶ کاراکتر باشد.';
-  msg.textContent = '';
-  const { data, error } = await supabase.auth.signUp({ email, password, data: { full_name: 'مدیر مدرسه', role: 'admin' } });
-  if(error) return msg.textContent = error.message;
-  if(data.session){ currentUser = data.user; await refreshApp(); }
-  else msg.textContent = 'حساب ساخته شد؛ اگر تأیید ایمیل فعال باشد، ایمیل خود را تأیید کنید و سپس وارد شوید.';
+  if(!isValidEmail(email)) return authMsg('ایمیل معتبر وارد کنید.');
+  if(password.length < 6) return authMsg('رمز عبور حداقل ۶ کاراکتر باشد.');
+  authMsg('در حال ساخت حساب...', true);
+
+  const { data, error } = await sb.auth.signUp({
+    email, password,
+    options: { data: { full_name: 'مدیر مدرسه', role: 'admin' } }
+  });
+  if(error) return authMsg('خطا: ' + error.message);
+
+  if(data.session){
+    currentUser = data.user;
+    await refreshApp();
+  } else {
+    authMsg('حساب ساخته شد. حالا با همان ایمیل و رمز وارد شوید.', true);
+  }
 }
 
-async function signOut(){
-  await supabase.auth.signOut();
+async function doSignOut(){
+  if(sb) await sb.auth.signOut();
   currentUser = null;
   document.getElementById('authScreen').style.display = 'grid';
-  document.getElementById('userChip').style.display = 'none';
+  document.getElementById('mainApp').style.display = 'none';
+  document.getElementById('authPassword').value = '';
 }
 
 /* ============================================================
-   ۷. ناوبری
+   ناوبری
 ============================================================ */
 function nav(page){
   document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
-  document.getElementById(page)?.classList.add('active');
+  const target = document.getElementById(page);
+  if(target) target.classList.add('active');
   document.querySelectorAll('.nav button').forEach(x => x.classList.toggle('active', x.dataset.page === page));
+
   const titles = {
-    dashboard: 'داشبورد مالی', students: 'مدیریت دانش‌آموزان', payments: 'ثبت و مدیریت پرداخت‌ها',
-    receipts: 'رسیدها', reports: 'گزارش‌های مالی', incomes: 'درآمدها', expenses: 'هزینه‌های مدرسه',
-    installments: 'اقساط', discounts: 'تخفیف‌ها', invoices: 'صورتحساب‌ها', users: 'کاربران',
-    settings: 'تنظیمات', backup: 'پشتیبان‌گیری و بازیابی', logs: 'گزارش فعالیت کاربران'
+    dashboard: 'داشبورد مالی', students: 'مدیریت دانش‌آموزان', payments: 'ثبت پرداخت',
+    receipts: 'رسیدها', reports: 'گزارش‌های مالی', incomes: 'درآمدها', expenses: 'هزینه‌ها',
+    installments: 'اقساط', discounts: 'تخفیف‌ها', invoices: 'صورتحساب‌ها',
+    settings: 'تنظیمات', logs: 'فعالیت کاربران'
   };
   document.getElementById('pageTitle').textContent = titles[page] || '';
   renderAll();
 }
 
-document.querySelectorAll('.nav button').forEach(b => b.onclick = () => nav(b.dataset.page));
-
-document.getElementById('globalSearch').addEventListener('input', e => {
-  const q = e.target.value.trim();
-  if(!q) return;
-  const s = db.students.find(x => `${x.name} ${x.family} ${x.code} ${x.national}`.includes(q));
-  if(s){
-    nav('invoices');
-    document.getElementById('invoiceSearch').value = q;
-    renderInvoices();
-  }
-});
-
 /* ============================================================
-   ۸. رندر کلی
+   رندر کل
 ============================================================ */
 function renderAll(){
-  document.getElementById('yearLabel').textContent = db.settings.year;
+  document.getElementById('yearLabel').textContent = db.settings.year || '—';
   renderStats();
   renderStudents();
   renderPayments();
@@ -398,24 +475,19 @@ function renderAll(){
   renderInstallments();
   renderDiscounts();
   renderInvoices();
-  renderUsers();
   renderLogs();
   renderDashboardLists();
   renderReport();
 }
 
-/* ============================================================
-   ۹. رندر بخش‌ها
-============================================================ */
 function renderStats(){
   const total = db.students.length;
   const debt = db.students.filter(s => balance(s) > 0).length;
   const settled = total - debt;
   const tuition = db.students.reduce((a,s) => a + finalTuition(s), 0);
   const received = db.payments.reduce((a,p) => a + (+p.amount||0), 0);
-  const deb = Math.max(0, tuition - received);
+  const rem = Math.max(0, tuition - received);
   const disc = db.students.reduce((a,s) => a + (+s.discount||0), 0);
-  const monthPay = db.payments.reduce((a,p) => a + (+p.amount||0), 0);
 
   document.getElementById('stats').innerHTML = [
     ['👩🏻‍🎓','تعداد کل دانش‌آموزان', total],
@@ -423,16 +495,14 @@ function renderStats(){
     ['🟢','تسویه‌شده‌ها', settled],
     ['💰','مجموع شهریه', money(tuition)],
     ['💳','مجموع دریافت', money(received)],
-    ['⚠️','مجموع بدهی', money(deb)],
+    ['⚠️','مجموع بدهی', money(rem)],
     ['🎁','مجموع تخفیف', money(disc)],
-    ['📅','پرداخت‌های این ماه', money(monthPay)]
+    ['📊','تعداد پرداخت‌ها', db.payments.length]
   ].map(x => `<div class="card stat"><div class="ico">${x[0]}</div><div class="label">${x[1]}</div><div class="num">${x[2]}</div></div>`).join('');
 }
 
 function renderStudents(){
-  const q = (document.getElementById('studentSearch')?.value || '').trim();
-  const g = document.getElementById('gradeFilter')?.value || '';
-  const c = document.getElementById('classFilter')?.value || '';
+  const q = v('studentSearch'), g = v('gradeFilter'), c = v('classFilter');
   const arr = db.students.filter(s =>
     (!q || `${s.name} ${s.family} ${s.code} ${s.national}`.includes(q)) &&
     (!g || s.grade === g) && (!c || s.class === c)
@@ -440,74 +510,65 @@ function renderStudents(){
   document.getElementById('studentsTable').innerHTML = arr.map(s => {
     const st = status(s);
     return `<tr>
-      <td>${s.code}</td><td><b>${s.name} ${s.family}</b></td><td>${s.national||'-'}</td>
-      <td>${s.grade}</td><td>${s.class||'-'}</td>
+      <td>${s.code||'-'}</td><td><b>${s.name} ${s.family}</b></td><td>${s.national||'-'}</td>
+      <td>${s.grade||'-'}</td><td>${s.class||'-'}</td>
       <td>${money(finalTuition(s))}</td><td>${money(paid(s))}</td><td>${money(balance(s))}</td>
       <td><span class="badge ${st[1]}">${st[0]}</span></td>
       <td class="actions">
-        <button class="btn blue" onclick="studentDetails(${s.id})">پرونده</button>
-        <button class="btn" onclick="openStudent(${s.id})">ویرایش</button>
-        <button class="btn red" onclick="deleteItem('students', ${s.id})">حذف</button>
+        <button class="btn blue" data-action="details" data-id="${s.id}">پرونده</button>
+        <button class="btn" data-action="edit" data-id="${s.id}">ویرایش</button>
+        <button class="btn red" data-action="del-student" data-id="${s.id}">حذف</button>
       </td>
     </tr>`;
   }).join('') || `<tr><td colspan="10" class="empty">دانش‌آموزی یافت نشد.</td></tr>`;
 }
-['studentSearch','gradeFilter','classFilter'].forEach(id => {
-  const el = document.getElementById(id);
-  if(el) el.addEventListener('input', renderStudents);
-});
 
 function renderPayments(){
-  const q = (document.getElementById('paymentSearch')?.value || '').trim();
-  const m = document.getElementById('paymentMethodFilter')?.value || '';
+  const q = v('paymentSearch'), m = v('paymentMethodFilter');
   const arr = db.payments.filter(p =>
     (!q || `${studentName(p.studentId)} ${p.receipt} ${p.tracking}`.includes(q)) &&
     (!m || p.method === m)
   );
-  document.getElementById('paymentsTable').innerHTML = arr.slice().reverse().map(p => `
+  document.getElementById('paymentsTable').innerHTML = arr.map(p => `
     <tr><td>${p.receipt}</td><td>${studentName(p.studentId)}</td><td>${money(p.amount)}</td>
-    <td>${p.date}</td><td>${p.method}</td><td>${p.tracking||'-'}</td>
+    <td>${p.date||'-'}</td><td>${p.method||'-'}</td><td>${p.tracking||'-'}</td>
     <td class="actions">
-      <button class="btn blue" onclick="printReceipt(${p.id})">رسید</button>
-      <button class="btn red" onclick="deleteItem('payments', ${p.id})">حذف</button>
+      <button class="btn blue" data-action="print-receipt" data-id="${p.id}">رسید</button>
+      <button class="btn red" data-action="del-payment" data-id="${p.id}">حذف</button>
     </td></tr>`).join('') || `<tr><td colspan="7" class="empty">پرداختی ثبت نشده است.</td></tr>`;
 }
-['paymentSearch','paymentMethodFilter'].forEach(id => {
-  const el = document.getElementById(id);
-  if(el) el.addEventListener('input', renderPayments);
-});
 
 function renderReceipts(){
-  document.getElementById('receiptsTable').innerHTML = db.payments.slice().reverse().map(p => `
+  document.getElementById('receiptsTable').innerHTML = db.payments.map(p => `
     <tr><td>${p.receipt}</td><td>${studentName(p.studentId)}</td><td>${money(p.amount)}</td>
-    <td>${p.date}</td><td>${p.method}</td>
-    <td><button class="btn blue" onclick="printReceipt(${p.id})">چاپ / PDF</button></td></tr>`).join('')
+    <td>${p.date||'-'}</td><td>${p.method||'-'}</td>
+    <td><button class="btn blue" data-action="print-receipt" data-id="${p.id}">چاپ</button></td></tr>`).join('')
     || `<tr><td colspan="6" class="empty">رسیدی ثبت نشده است.</td></tr>`;
 }
 
 function renderIncomes(){
-  document.getElementById('incomeTable').innerHTML = db.incomes.slice().reverse().map(x => `
-    <tr><td>${x.title}</td><td>${x.category}</td><td>${money(x.amount)}</td>
-    <td>${x.date}</td><td>${x.desc||'-'}</td>
-    <td><button class="btn red" onclick="deleteItem('incomes', ${x.id})">حذف</button></td></tr>`).join('')
+  document.getElementById('incomeTable').innerHTML = db.incomes.map(x => `
+    <tr><td>${x.title}</td><td>${x.category||'-'}</td><td>${money(x.amount)}</td>
+    <td>${x.date||'-'}</td><td>${x.desc||'-'}</td>
+    <td><button class="btn red" data-action="del-item" data-table="incomes" data-id="${x.id}">حذف</button></td></tr>`).join('')
     || `<tr><td colspan="6" class="empty">درآمدی ثبت نشده است.</td></tr>`;
 }
 
 function renderExpenses(){
-  document.getElementById('expenseTable').innerHTML = db.expenses.slice().reverse().map(x => `
-    <tr><td>${x.title}</td><td>${x.category}</td><td>${money(x.amount)}</td>
-    <td>${x.date}</td><td>${x.method}</td>
-    <td><button class="btn red" onclick="deleteItem('expenses', ${x.id})">حذف</button></td></tr>`).join('')
+  document.getElementById('expenseTable').innerHTML = db.expenses.map(x => `
+    <tr><td>${x.title}</td><td>${x.category||'-'}</td><td>${money(x.amount)}</td>
+    <td>${x.date||'-'}</td><td>${x.method||'-'}</td>
+    <td><button class="btn red" data-action="del-item" data-table="expenses" data-id="${x.id}">حذف</button></td></tr>`).join('')
     || `<tr><td colspan="6" class="empty">هزینه‌ای ثبت نشده است.</td></tr>`;
 }
 
 function renderInstallments(){
   document.getElementById('installmentTable').innerHTML = db.installments.map(x => `
-    <tr><td>${studentName(x.studentId)}</td><td>${money(x.amount)}</td><td>${x.due}</td>
+    <tr><td>${studentName(x.studentId)}</td><td>${money(x.amount)}</td><td>${x.due||'-'}</td>
     <td><span class="badge ${x.paid?'paid':(isPast(x.due)?'overdue':'debt')}">${x.paid?'پرداخت شده':(isPast(x.due)?'معوق':'پرداخت نشده')}</span></td>
     <td class="actions">
-      ${!x.paid ? `<button class="btn green" onclick="markInstallment(${x.id})">تسویه</button>` : ''}
-      <button class="btn red" onclick="deleteItem('installments', ${x.id})">حذف</button>
+      ${!x.paid ? `<button class="btn green" data-action="pay-installment" data-id="${x.id}">تسویه</button>` : ''}
+      <button class="btn red" data-action="del-item" data-table="installments" data-id="${x.id}">حذف</button>
     </td></tr>`).join('') || `<tr><td colspan="5" class="empty">قسطی تعریف نشده است.</td></tr>`;
 }
 
@@ -515,21 +576,14 @@ function renderDiscounts(){
   document.getElementById('discountTable').innerHTML = db.discounts.map(x => `
     <tr><td>${studentName(x.studentId)}</td><td>${money(x.base)}</td>
     <td>${x.type==='percent' ? x.value+'٪' : money(x.value)}</td>
-    <td>${money(x.final)}</td><td>${x.reason||'-'}</td><td>${x.date}</td>
-    <td><button class="btn red" onclick="deleteItem('discounts', ${x.id})">حذف</button></td></tr>`).join('')
+    <td>${money(x.final)}</td><td>${x.reason||'-'}</td><td>${x.date||'-'}</td>
+    <td><button class="btn red" data-action="del-item" data-table="discounts" data-id="${x.id}">حذف</button></td></tr>`).join('')
     || `<tr><td colspan="7" class="empty">تخفیفی ثبت نشده است.</td></tr>`;
-}
-
-function renderUsers(){
-  document.getElementById('usersTable').innerHTML = db.users.map(x => `
-    <tr><td>${x.name}</td><td>${x.username}</td><td>${x.role}</td>
-    <td>${x.id !== currentUser?.id ? `<button class="btn red" onclick="deleteUser('${x.id}')">حذف</button>` : 'شما'}</td></tr>`).join('')
-    || `<tr><td colspan="4" class="empty">کاربری یافت نشد.</td></tr>`;
 }
 
 function renderLogs(){
   document.getElementById('logsTable').innerHTML = db.logs.map(x => `
-    <tr><td>${x.user}</td><td>${x.action}</td><td>${x.date}</td><td>${x.time}</td></tr>`).join('')
+    <tr><td>${x.user||'-'}</td><td>${x.action}</td><td>${x.date}</td><td>${x.time}</td></tr>`).join('')
     || `<tr><td colspan="4" class="empty">هنوز فعالیتی ثبت نشده است.</td></tr>`;
 }
 
@@ -549,19 +603,23 @@ function renderDashboardLists(){
 }
 
 /* ============================================================
-   ۱۰. نمودارها
+   نمودارها
 ============================================================ */
 function drawCharts(){
-  charts.forEach(c => c.destroy());
+  if(typeof Chart === 'undefined') return;
+  charts.forEach(c => { try { c.destroy(); } catch(e){} });
   charts = [];
-  if(!document.getElementById('incomeChart')) return;
+  const c1 = document.getElementById('incomeChart');
+  const c2 = document.getElementById('statusChart');
+  const c3 = document.getElementById('gradeChart');
+  if(!c1 || !c2 || !c3) return;
 
   const months = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان'];
   const vals = months.map((m, i) =>
-    db.payments.filter(p => String(p.date||'').includes(String(i+1).padStart(2,'0')))
+    db.payments.filter(p => String(p.date||'').includes('/' + String(i+1).padStart(2,'0') + '/'))
       .reduce((a,p) => a + (+p.amount||0), 0)
   );
-  charts.push(new Chart(document.getElementById('incomeChart'), {
+  charts.push(new Chart(c1, {
     type: 'line',
     data: { labels: months, datasets: [{ label: 'دریافت', data: vals, tension: .3, borderColor: '#7c3aed', backgroundColor: 'rgba(124,58,237,.15)', fill: true }] },
     options: { responsive: true, maintainAspectRatio: false }
@@ -569,25 +627,22 @@ function drawCharts(){
 
   const paidN = db.students.filter(s => balance(s) <= 0).length;
   const debtN = db.students.filter(s => balance(s) > 0).length;
-  charts.push(new Chart(document.getElementById('statusChart'), {
+  charts.push(new Chart(c2, {
     type: 'doughnut',
     data: { labels: ['تسویه‌شده','بدهکار'], datasets: [{ data: [paidN, debtN], backgroundColor: ['#16a34a','#f59e0b'] }] },
     options: { responsive: true, maintainAspectRatio: false }
   }));
 
   const grades = [...new Set(db.students.map(s => s.grade).filter(Boolean))];
-  charts.push(new Chart(document.getElementById('gradeChart'), {
+  charts.push(new Chart(c3, {
     type: 'bar',
-    data: {
-      labels: grades,
-      datasets: [{ label: 'دریافت', data: grades.map(g => db.students.filter(s => s.grade === g).reduce((a,s) => a + paid(s), 0)), backgroundColor: '#7c3aed' }]
-    },
+    data: { labels: grades, datasets: [{ label: 'دریافت', data: grades.map(g => db.students.filter(s => s.grade === g).reduce((a,s) => a + paid(s), 0)), backgroundColor: '#7c3aed' }] },
     options: { responsive: true, maintainAspectRatio: false }
   }));
 }
 
 /* ============================================================
-   ۱۱. مودال
+   مودال
 ============================================================ */
 function openModal(title, body){
   document.getElementById('modalTitle').textContent = title;
@@ -595,22 +650,17 @@ function openModal(title, body){
   document.getElementById('modal').classList.add('show');
 }
 function closeModal(){ document.getElementById('modal').classList.remove('show'); }
-document.getElementById('modal').addEventListener('click', e => { if(e.target.id === 'modal') closeModal(); });
-
-function studentOptions(){
-  if(!db.students.length) return '<option value="">— دانش‌آموزی ثبت نشده —</option>';
-  return db.students.map(s => `<option value="${s.id}">${s.name} ${s.family} — ${s.code}</option>`).join('');
-}
 
 /* ============================================================
-   ۱۲. دانش‌آموز
+   دانش‌آموز
 ============================================================ */
-function openStudent(id = null){
+function openStudent(id){
   const s = id ? studentById(id) : {
-    id: '', code: '', name: '', family: '', national: '', grade: 'دهم', field: '',
-    class: 'الف', year: db.settings.year, father: '', fatherPhone: '', motherPhone: '',
-    emergency: '', address: '', notes: '', tuition: 60000000, discount: 0
+    id:'', code:'', name:'', family:'', national:'', grade:'دهم', field:'',
+    class:'الف', year: db.settings.year, father:'', fatherPhone:'', motherPhone:'',
+    emergency:'', address:'', notes:'', tuition:60000000, discount:0
   };
+  if(!s) return;
   openModal(id ? 'ویرایش دانش‌آموز' : 'ثبت دانش‌آموز جدید', `
   <div class="form"><div class="formgrid">
     <div><label>کد دانش‌آموزی</label><input id="f_code" value="${s.code||''}"></div>
@@ -626,11 +676,13 @@ function openStudent(id = null){
     <div><label>شماره مادر</label><input id="f_motherPhone" value="${s.motherPhone||''}"></div>
     <div><label>شماره ضروری</label><input id="f_emergency" value="${s.emergency||''}"></div>
     <div class="full"><label>آدرس</label><input id="f_address" value="${s.address||''}"></div>
-    <div><label>شهریه مصوب (ریال)</label><input type="number" id="f_tuition" value="${s.tuition||0}"></div>
+    <div><label>شهریه (ریال)</label><input type="number" id="f_tuition" value="${s.tuition||0}"></div>
     <div><label>تخفیف (ریال)</label><input type="number" id="f_discount" value="${s.discount||0}"></div>
     <div class="full"><label>توضیحات</label><textarea id="f_notes">${s.notes||''}</textarea></div>
   </div>
-  <div class="modalfoot"><button class="btn primary" onclick="saveStudent(${id||0})">ذخیره اطلاعات</button></div></div>`);
+  <div class="modalfoot"><button class="btn primary" id="btnSaveStudent" data-id="${id||0}">ذخیره</button></div></div>`);
+
+  document.getElementById('btnSaveStudent').onclick = () => saveStudent(id || 0);
 }
 
 async function saveStudent(id){
@@ -641,75 +693,76 @@ async function saveStudent(id){
     emergency: v('f_emergency'), address: v('f_address'), notes: v('f_notes'),
     tuition: num('f_tuition'), discount: num('f_discount')
   };
-  if(!s.name || !s.family || !s.code) return toast('نام، نام خانوادگی و کد الزامی است');
+  if(!s.name || !s.family || !s.code) return toast('نام، نام خانوادگی و کد الزامی است', 'error');
+
   let error;
-  if(id){ ({ error } = await supabase.from('students').update(s).eq('id', id)); }
-  else { ({ error } = await supabase.from('students').insert(s)); }
-  if(error) return toast(error.message);
-  await log(id ? 'ویرایش اطلاعات دانش‌آموز' : `ثبت دانش‌آموز ${s.name} ${s.family}`);
-  await refreshApp();
+  if(id){ ({ error } = await sb.from('students').update(s).eq('id', id)); }
+  else { ({ error } = await sb.from('students').insert(s)); }
+  if(error) return toast('خطا: ' + error.message, 'error');
+
+  await logAction(id ? 'ویرایش دانش‌آموز' : `ثبت دانش‌آموز ${s.name} ${s.family}`);
   closeModal();
-  toast('اطلاعات با موفقیت ذخیره شد');
+  await refreshApp();
+  toast('ذخیره شد', 'success');
 }
 
 function studentDetails(id){
   const s = studentById(id);
   if(!s) return;
   const ps = db.payments.filter(p => p.studentId == id);
-  openModal('پرونده مالی دانش‌آموز', `
+  openModal('پرونده مالی', `
   <div class="grid detail-grid">
     <div class="card mini"><span>شهریه کل</span><strong>${money(s.tuition)}</strong></div>
     <div class="card mini"><span>تخفیف</span><strong>${money(s.discount)}</strong></div>
     <div class="card mini"><span>پرداخت‌شده</span><strong>${money(paid(s))}</strong></div>
     <div class="card mini"><span>مانده</span><strong>${money(balance(s))}</strong></div>
   </div>
-  <div class="section-head"><h3>${s.name} ${s.family} | ${s.grade} | ${s.class||'-'}</h3>
-    <button class="btn primary" onclick="openPaymentFor(${id})">ثبت پرداخت</button></div>
-  <div class="table-wrap"><table class="table"><thead><tr><th>تاریخ</th><th>مبلغ</th><th>روش</th><th>رسید</th><th>پیگیری</th></tr></thead>
-  <tbody>${ps.map(p => `<tr><td>${p.date}</td><td>${money(p.amount)}</td><td>${p.method}</td><td>${p.receipt}</td><td>${p.tracking||'-'}</td></tr>`).join('') || '<tr><td colspan="5" class="empty">پرداختی ثبت نشده است.</td></tr>'}</tbody></table></div>`);
-}
-
-function openPaymentFor(id){
-  closeModal();
-  setTimeout(() => {
-    openPayment();
-    setTimeout(() => { const el = document.getElementById('p_student'); if(el) el.value = id; }, 30);
-  }, 50);
+  <div class="section-head"><h3>${s.name} ${s.family} | ${s.grade||''} | ${s.class||''}</h3></div>
+  <div class="table-wrap"><table class="table"><thead><tr><th>تاریخ</th><th>مبلغ</th><th>روش</th><th>رسید</th></tr></thead>
+  <tbody>${ps.map(p => `<tr><td>${p.date}</td><td>${money(p.amount)}</td><td>${p.method}</td><td>${p.receipt}</td></tr>`).join('') || '<tr><td colspan="4" class="empty">پرداختی ثبت نشده</td></tr>'}</tbody></table></div>`);
 }
 
 /* ============================================================
-   ۱۳. پرداخت
+   پرداخت
 ============================================================ */
+function studentOptions(){
+  if(!db.students.length) return '<option value="">— دانش‌آموزی ثبت نشده —</option>';
+  return db.students.map(s => `<option value="${s.id}">${s.name} ${s.family} — ${s.code||''}</option>`).join('');
+}
+
 function openPayment(){
   openModal('ثبت پرداخت جدید', `
   <div class="form"><div class="formgrid">
     <div class="full"><label>دانش‌آموز</label><select id="p_student"><option value="">انتخاب کنید</option>${studentOptions()}</select></div>
-    <div><label>مبلغ پرداختی (ریال)</label><input type="number" id="p_amount"></div>
-    <div><label>تاریخ</label><input id="p_date" value="${dateDefault()}"></div>
+    <div><label>مبلغ (ریال)</label><input type="number" id="p_amount"></div>
+    <div><label>تاریخ</label><input id="p_date" value="${today()}"></div>
     <div><label>روش پرداخت</label><select id="p_method"><option>کارتخوان</option><option>کارت به کارت</option><option>واریز بانکی</option><option>نقدی</option><option>چک</option><option>سایر</option></select></div>
     <div><label>شماره پیگیری</label><input id="p_tracking"></div>
     <div><label>شماره رسید</label><input id="p_receipt"></div>
     <div class="full"><label>توضیحات</label><textarea id="p_desc"></textarea></div>
   </div>
-  <div class="modalfoot"><button class="btn primary" onclick="savePayment()">ثبت پرداخت و صدور رسید</button></div></div>`);
+  <div class="modalfoot"><button class="btn primary" id="btnSavePayment">ثبت پرداخت</button></div></div>`);
+
+  document.getElementById('btnSavePayment').onclick = savePayment;
 }
 
 async function savePayment(){
   const sid = v('p_student'), amt = num('p_amount');
-  if(!sid || amt <= 0) return toast('دانش‌آموز و مبلغ را وارد کنید');
+  if(!sid || amt <= 0) return toast('دانش‌آموز و مبلغ را وارد کنید', 'error');
   const receipt = v('p_receipt') || 'R' + Date.now();
-  if(db.payments.some(p => p.receipt === receipt)) return toast('شماره رسید تکراری است');
+  if(db.payments.some(p => p.receipt === receipt)) return toast('شماره رسید تکراری است', 'error');
+
   const p = {
     student_id: sid, amount: amt, payment_date: v('p_date'), method: v('p_method'),
-    tracking: v('p_tracking'), receipt, description: v('p_desc'), created_by: currentUser?.id
+    tracking: v('p_tracking'), receipt, description: v('p_desc'), created_by: currentUser.id
   };
-  const { data, error } = await supabase.from('payments').insert(p).select().single();
-  if(error) return toast(error.message);
-  await log('ثبت پرداخت برای ' + studentName(sid));
-  await refreshApp();
+  const { error } = await sb.from('payments').insert(p);
+  if(error) return toast('خطا: ' + error.message, 'error');
+
+  await logAction('ثبت پرداخت برای ' + studentName(sid));
   closeModal();
-  toast('پرداخت ثبت شد');
-  setTimeout(() => printReceipt(data.id), 200);
+  await refreshApp();
+  toast('پرداخت ثبت شد', 'success');
 }
 
 function printReceipt(id){
@@ -717,17 +770,17 @@ function printReceipt(id){
   const s = p ? studentById(p.studentId) : null;
   if(!p || !s) return;
   const w = window.open('', '_blank');
-  if(!w) return toast('مرورگر پنجره چاپ را مسدود کرده است');
+  if(!w) return toast('پنجره چاپ مسدود شد', 'error');
   w.document.write(`
   <html dir="rtl"><head><meta charset="UTF-8"><title>رسید ${p.receipt}</title>
-  <style>body{font-family:Tahoma;padding:40px;direction:rtl}h1{text-align:center}table{width:100%;border-collapse:collapse;margin-top:25px}td,th{border:1px solid #ddd;padding:12px;text-align:right}.sum{font-size:20px;font-weight:bold;margin-top:20px}</style>
+  <style>body{font-family:Tahoma;padding:40px;direction:rtl}h1{text-align:center}table{width:100%;border-collapse:collapse;margin-top:25px}td,th{border:1px solid #ddd;padding:12px;text-align:right}</style>
   </head><body>
   <h1>${db.settings.school}</h1><h3 style="text-align:center">رسید پرداخت</h3>
   <table>
-    <tr><th>نام دانش‌آموز</th><td>${s.name} ${s.family}</td><th>کد</th><td>${s.code}</td></tr>
-    <tr><th>پایه</th><td>${s.grade}</td><th>شماره رسید</th><td>${p.receipt}</td></tr>
-    <tr><th>مبلغ پرداختی</th><td>${money(p.amount)}</td><th>تاریخ</th><td>${p.date}</td></tr>
-    <tr><th>روش پرداخت</th><td>${p.method}</td><th>پیگیری</th><td>${p.tracking||'-'}</td></tr>
+    <tr><th>دانش‌آموز</th><td>${s.name} ${s.family}</td><th>کد</th><td>${s.code||'-'}</td></tr>
+    <tr><th>پایه</th><td>${s.grade||'-'}</td><th>رسید</th><td>${p.receipt}</td></tr>
+    <tr><th>مبلغ</th><td>${money(p.amount)}</td><th>تاریخ</th><td>${p.date}</td></tr>
+    <tr><th>روش</th><td>${p.method}</td><th>پیگیری</th><td>${p.tracking||'-'}</td></tr>
     <tr><th>شهریه نهایی</th><td>${money(finalTuition(s))}</td><th>پرداخت‌شده</th><td>${money(paid(s))}</td></tr>
     <tr><th>مانده</th><td colspan="3">${money(balance(s))}</td></tr>
   </table>
@@ -738,155 +791,151 @@ function printReceipt(id){
 }
 
 /* ============================================================
-   ۱۴. درآمد
+   درآمد و هزینه
 ============================================================ */
 function openIncome(){
   openModal('ثبت درآمد', `
   <div class="form"><div class="formgrid">
     <div><label>عنوان</label><input id="i_title"></div>
-    <div><label>دسته‌بندی</label><select id="i_cat"><option>شهریه</option><option>ثبت‌نام</option><option>کلاس‌های فوق‌برنامه</option><option>اردو</option><option>خدمات آموزشی</option><option>سایر درآمدها</option></select></div>
+    <div><label>دسته‌بندی</label><select id="i_cat"><option>شهریه</option><option>ثبت‌نام</option><option>کلاس فوق‌برنامه</option><option>اردو</option><option>سایر</option></select></div>
     <div><label>مبلغ</label><input type="number" id="i_amount"></div>
-    <div><label>تاریخ</label><input id="i_date" value="${dateDefault()}"></div>
+    <div><label>تاریخ</label><input id="i_date" value="${today()}"></div>
     <div class="full"><label>توضیحات</label><textarea id="i_desc"></textarea></div>
   </div>
-  <div class="modalfoot"><button class="btn primary" onclick="saveIncome()">ذخیره</button></div></div>`);
+  <div class="modalfoot"><button class="btn primary" id="btnSaveIncome">ذخیره</button></div></div>`);
+  document.getElementById('btnSaveIncome').onclick = saveIncome;
 }
 
 async function saveIncome(){
-  const x = { title: v('i_title'), category: v('i_cat'), amount: num('i_amount'), income_date: v('i_date'), description: v('i_desc'), created_by: currentUser?.id };
-  if(!x.title || x.amount <= 0) return toast('عنوان و مبلغ الزامی است');
-  const { error } = await supabase.from('incomes').insert(x);
-  if(error) return toast(error.message);
-  await log('ثبت درآمد');
-  await refreshApp();
+  const x = { title: v('i_title'), category: v('i_cat'), amount: num('i_amount'), income_date: v('i_date'), description: v('i_desc'), created_by: currentUser.id };
+  if(!x.title || x.amount <= 0) return toast('عنوان و مبلغ الزامی است', 'error');
+  const { error } = await sb.from('incomes').insert(x);
+  if(error) return toast('خطا: ' + error.message, 'error');
+  await logAction('ثبت درآمد');
   closeModal();
-  toast('درآمد ثبت شد');
+  await refreshApp();
+  toast('درآمد ثبت شد', 'success');
 }
 
-/* ============================================================
-   ۱۵. هزینه
-============================================================ */
 function openExpense(){
-  openModal('ثبت هزینه مدرسه', `
+  openModal('ثبت هزینه', `
   <div class="form"><div class="formgrid">
     <div><label>عنوان</label><input id="e_title"></div>
-    <div><label>دسته‌بندی</label><select id="e_cat"><option>حقوق</option><option>آب</option><option>برق</option><option>گاز</option><option>اینترنت</option><option>خرید تجهیزات</option><option>لوازم آموزشی</option><option>تعمیرات</option><option>خدمات</option><option>تبلیغات</option><option>اجاره</option><option>سایر هزینه‌ها</option></select></div>
+    <div><label>دسته‌بندی</label><select id="e_cat"><option>حقوق</option><option>آب</option><option>برق</option><option>گاز</option><option>اینترنت</option><option>تجهیزات</option><option>لوازم آموزشی</option><option>تعمیرات</option><option>خدمات</option><option>اجاره</option><option>سایر</option></select></div>
     <div><label>مبلغ</label><input type="number" id="e_amount"></div>
-    <div><label>تاریخ</label><input id="e_date" value="${dateDefault()}"></div>
+    <div><label>تاریخ</label><input id="e_date" value="${today()}"></div>
     <div><label>روش پرداخت</label><select id="e_method"><option>کارتخوان</option><option>کارت به کارت</option><option>واریز بانکی</option><option>نقدی</option><option>چک</option></select></div>
     <div><label>شماره سند</label><input id="e_doc"></div>
     <div class="full"><label>توضیحات</label><textarea id="e_desc"></textarea></div>
   </div>
-  <div class="modalfoot"><button class="btn primary" onclick="saveExpense()">ذخیره</button></div></div>`);
+  <div class="modalfoot"><button class="btn primary" id="btnSaveExpense">ذخیره</button></div></div>`);
+  document.getElementById('btnSaveExpense').onclick = saveExpense;
 }
 
 async function saveExpense(){
-  const x = { title: v('e_title'), category: v('e_cat'), amount: num('e_amount'), expense_date: v('e_date'), method: v('e_method'), document: v('e_doc'), description: v('e_desc'), created_by: currentUser?.id };
-  if(!x.title || x.amount <= 0) return toast('عنوان و مبلغ الزامی است');
-  const { error } = await supabase.from('expenses').insert(x);
-  if(error) return toast(error.message);
-  await log('ثبت هزینه');
-  await refreshApp();
+  const x = { title: v('e_title'), category: v('e_cat'), amount: num('e_amount'), expense_date: v('e_date'), method: v('e_method'), document: v('e_doc'), description: v('e_desc'), created_by: currentUser.id };
+  if(!x.title || x.amount <= 0) return toast('عنوان و مبلغ الزامی است', 'error');
+  const { error } = await sb.from('expenses').insert(x);
+  if(error) return toast('خطا: ' + error.message, 'error');
+  await logAction('ثبت هزینه');
   closeModal();
-  toast('هزینه ثبت شد');
+  await refreshApp();
+  toast('هزینه ثبت شد', 'success');
 }
 
 /* ============================================================
-   ۱۶. قسط
+   قسط
 ============================================================ */
 function openInstallment(){
   openModal('تعریف قسط', `
   <div class="form"><div class="formgrid">
     <div class="full"><label>دانش‌آموز</label><select id="n_student">${studentOptions()}</select></div>
     <div><label>مبلغ قسط</label><input type="number" id="n_amount"></div>
-    <div><label>تاریخ سررسید</label><input id="n_due" placeholder="۱۴۰۵/۰۷/۱۵"></div>
+    <div><label>سررسید (۱۴۰۵/۰۷/۱۵)</label><input id="n_due"></div>
   </div>
-  <div class="modalfoot"><button class="btn primary" onclick="saveInstallment()">ذخیره</button></div></div>`);
+  <div class="modalfoot"><button class="btn primary" id="btnSaveInstallment">ذخیره</button></div></div>`);
+  document.getElementById('btnSaveInstallment').onclick = saveInstallment;
 }
 
 async function saveInstallment(){
   const sid = v('n_student'), amt = num('n_amount'), due = v('n_due');
-  if(!sid || amt <= 0 || !due) return toast('همه فیلدها الزامی است');
-  const x = { student_id: sid, amount: amt, due_date: due, paid: false };
-  const { error } = await supabase.from('installments').insert(x);
-  if(error) return toast(error.message);
-  await log('تعریف قسط');
-  await refreshApp();
+  if(!sid || amt <= 0 || !due) return toast('همه فیلدها الزامی است', 'error');
+  const { error } = await sb.from('installments').insert({ student_id: sid, amount: amt, due_date: due, paid: false });
+  if(error) return toast('خطا: ' + error.message, 'error');
+  await logAction('تعریف قسط');
   closeModal();
-  toast('قسط ثبت شد');
+  await refreshApp();
+  toast('قسط ثبت شد', 'success');
 }
 
-async function markInstallment(id){
+async function payInstallment(id){
   const inst = db.installments.find(i => i.id == id);
   if(!inst) return;
   if(!confirm(`قسط ${studentName(inst.studentId)} به مبلغ ${money(inst.amount)} تسویه شود؟`)) return;
 
-  // ثبت پرداخت خودکار
   const receipt = 'R' + Date.now();
-  const { error: e1 } = await supabase.from('payments').insert({
-    student_id: inst.studentId, amount: inst.amount, payment_date: dateDefault(),
-    method: 'نقدی', receipt, description: `تسویه قسط سررسید ${inst.due}`, created_by: currentUser?.id
+  const { error: e1 } = await sb.from('payments').insert({
+    student_id: inst.studentId, amount: inst.amount, payment_date: today(),
+    method: 'نقدی', receipt, description: `تسویه قسط سررسید ${inst.due}`, created_by: currentUser.id
   });
-  if(e1) return toast(e1.message);
+  if(e1) return toast('خطا: ' + e1.message, 'error');
 
-  // علامت‌گذاری قسط
-  const { error: e2 } = await supabase.from('installments').update({ paid: true }).eq('id', id);
-  if(e2) return toast(e2.message);
+  const { error: e2 } = await sb.from('installments').update({ paid: true }).eq('id', id);
+  if(e2) return toast('خطا: ' + e2.message, 'error');
 
-  await log('تسویه قسط ' + studentName(inst.studentId));
+  await logAction('تسویه قسط ' + studentName(inst.studentId));
   await refreshApp();
-  toast('قسط تسویه شد');
+  toast('قسط تسویه شد', 'success');
 }
 
 /* ============================================================
-   ۱۷. تخفیف
+   تخفیف
 ============================================================ */
 function openDiscount(){
   openModal('ثبت تخفیف', `
   <div class="form"><div class="formgrid">
     <div class="full"><label>دانش‌آموز</label><select id="d_student">${studentOptions()}</select></div>
-    <div><label>نوع تخفیف</label><select id="d_type"><option value="amount">مبلغ ثابت</option><option value="percent">درصدی</option></select></div>
+    <div><label>نوع</label><select id="d_type"><option value="amount">مبلغ ثابت</option><option value="percent">درصدی</option></select></div>
     <div><label>میزان</label><input type="number" id="d_value"></div>
     <div><label>علت</label><input id="d_reason"></div>
-    <div><label>تاریخ</label><input id="d_date" value="${dateDefault()}"></div>
+    <div><label>تاریخ</label><input id="d_date" value="${today()}"></div>
   </div>
-  <div class="modalfoot"><button class="btn primary" onclick="saveDiscount()">ذخیره</button></div></div>`);
+  <div class="modalfoot"><button class="btn primary" id="btnSaveDiscount">ذخیره</button></div></div>`);
+  document.getElementById('btnSaveDiscount').onclick = saveDiscount;
 }
 
 async function saveDiscount(){
   const sid = v('d_student');
   const s = studentById(sid);
-  if(!s) return toast('دانش‌آموز را انتخاب کنید');
+  if(!s) return toast('دانش‌آموز را انتخاب کنید', 'error');
   const type = v('d_type'), val = num('d_value');
-  if(val <= 0) return toast('میزان تخفیف را وارد کنید');
+  if(val <= 0) return toast('میزان تخفیف را وارد کنید', 'error');
   const disc = type === 'percent' ? Math.round(s.tuition * val / 100) : val;
 
-  // به‌روزرسانی دانش‌آموز
-  const { error: e1 } = await supabase.from('students').update({ discount: disc }).eq('id', s.id);
-  if(e1) return toast(e1.message);
+  const { error: e1 } = await sb.from('students').update({ discount: disc }).eq('id', s.id);
+  if(e1) return toast('خطا: ' + e1.message, 'error');
 
-  // ثبت در جدول تخفیف‌ها
   const x = {
     student_id: s.id, base_amount: s.tuition, discount_type: type, value: val,
     final_amount: Math.max(0, s.tuition - disc), reason: v('d_reason'),
-    discount_date: v('d_date'), created_by: currentUser?.id
+    discount_date: v('d_date'), created_by: currentUser.id
   };
-  const { error: e2 } = await supabase.from('discounts').insert(x);
-  if(e2) return toast(e2.message);
+  const { error: e2 } = await sb.from('discounts').insert(x);
+  if(e2) return toast('خطا: ' + e2.message, 'error');
 
-  await log('ثبت تخفیف برای ' + studentName(s.id));
-  await refreshApp();
+  await logAction('ثبت تخفیف برای ' + studentName(s.id));
   closeModal();
-  toast('تخفیف ثبت شد');
+  await refreshApp();
+  toast('تخفیف ثبت شد', 'success');
 }
 
 /* ============================================================
-   ۱۸. صورتحساب
+   صورتحساب
 ============================================================ */
 function invoiceRows(s){
   const rows = [];
   let bal = finalTuition(s);
-  rows.push(`<tr><td>-</td><td>شهریه مصوب پس از تخفیف</td><td>${money(bal)}</td><td>-</td><td>${money(bal)}</td></tr>`);
+  rows.push(`<tr><td>-</td><td>شهریه پس از تخفیف</td><td>${money(bal)}</td><td>-</td><td>${money(bal)}</td></tr>`);
   db.payments.filter(p => p.studentId == s.id).forEach(p => {
     bal -= p.amount;
     rows.push(`<tr><td>${p.date}</td><td>پرداخت - ${p.method}</td><td>-</td><td>${money(p.amount)}</td><td>${money(Math.max(0, bal))}</td></tr>`);
@@ -895,24 +944,23 @@ function invoiceRows(s){
 }
 
 function renderInvoices(){
-  const q = document.getElementById('invoiceSearch')?.value || '';
+  const q = v('invoiceSearch');
   const arr = db.students.filter(s => !q || `${s.name} ${s.family} ${s.code} ${s.national}`.includes(q));
   document.getElementById('invoiceResult').innerHTML = arr.map(s => `
     <div class="card" style="margin-bottom:12px">
-      <div class="section-head"><h3>${s.name} ${s.family} — ${s.code}</h3>
-        <button class="btn" onclick="printInvoice(${s.id})">🖨 چاپ صورتحساب</button></div>
+      <div class="section-head"><h3>${s.name} ${s.family} — ${s.code||'-'}</h3>
+        <button class="btn" data-action="print-invoice" data-id="${s.id}">🖨 چاپ</button></div>
       <div class="table-wrap"><table class="table">
         <thead><tr><th>تاریخ</th><th>شرح</th><th>بدهکار</th><th>بستانکار</th><th>مانده</th></tr></thead>
         <tbody>${invoiceRows(s)}</tbody></table></div>
     </div>`).join('') || '<div class="empty">دانش‌آموزی یافت نشد.</div>';
 }
-document.getElementById('invoiceSearch').addEventListener('input', renderInvoices);
 
 function printInvoice(id){
   const s = studentById(id);
   if(!s) return;
   const w = window.open('', '_blank');
-  if(!w) return toast('مرورگر پنجره چاپ را مسدود کرده است');
+  if(!w) return toast('پنجره چاپ مسدود شد', 'error');
   w.document.write(`
   <html dir="rtl"><head><meta charset="UTF-8"><title>صورتحساب</title>
   <style>body{font-family:Tahoma;padding:35px}table{width:100%;border-collapse:collapse}td,th{border:1px solid #ddd;padding:10px}</style>
@@ -921,68 +969,18 @@ function printInvoice(id){
   <h3>صورتحساب ${s.name} ${s.family}</h3>
   <table><thead><tr><th>تاریخ</th><th>شرح</th><th>بدهکار</th><th>بستانکار</th><th>مانده</th></tr></thead>
   <tbody>${invoiceRows(s)}</tbody></table>
-  <p>تاریخ تهیه: ${dateDefault()}</p>
+  <p>تاریخ تهیه: ${today()}</p>
   </body></html>`);
   w.document.close();
   setTimeout(() => w.print(), 300);
 }
 
 /* ============================================================
-   ۱۹. کاربران
-============================================================ */
-function openUser(){
-  openModal('افزودن کاربر', `
-  <div class="form"><div class="formgrid">
-    <div><label>نام</label><input id="u_name"></div>
-    <div><label>ایمیل (نام کاربری)</label><input type="email" id="u_user"></div>
-    <div><label>رمز عبور</label><input type="password" id="u_pass"></div>
-    <div><label>سطح دسترسی</label><select id="u_role"><option>مسئول مالی</option><option>مدیر</option></select></div>
-  </div>
-  <div class="modalfoot"><button class="btn primary" onclick="saveUser()">ذخیره</button></div></div>`);
-}
-
-async function saveUser(){
-  const email = v('u_user'), password = v('u_pass'), name = v('u_name'), role = v('u_role') === 'مدیر' ? 'admin' : 'staff';
-  if(!name) return toast('نام کاربر را وارد کنید');
-  if(!isValidEmail(email)) return toast('ایمیل معتبر وارد کنید');
-  if(password.length < 6) return toast('رمز عبور حداقل ۶ کاراکتر باشد');
-  const { data, error } = await supabase.auth.signUp({ email, password, data: { full_name: name, role } });
-  if(error) return toast(error.message);
-  if(data.user) {
-    await supabase.from('profiles').update({ full_name: name, role }).eq('id', data.user.id);
-  }
-  await log('افزودن کاربر');
-  closeModal();
-  await refreshApp();
-  toast('کاربر اضافه شد');
-}
-
-async function deleteUser(id){
-  if(!confirm('حذف این کاربر؟')) return;
-  const { error } = await supabase.from('profiles').delete().eq('id', id);
-  if(error) return toast(error.message);
-  await log('حذف کاربر');
-  await refreshApp();
-}
-
-/* ============================================================
-   ۲۰. حذف عمومی
-============================================================ */
-async function deleteItem(collection, id){
-  if(!confirm('حذف این مورد؟')) return;
-  const { error } = await supabase.from(collection).delete().eq('id', id);
-  if(error) return toast(error.message);
-  await log('حذف از ' + collection);
-  await refreshApp();
-  toast('حذف شد');
-}
-
-/* ============================================================
-   ۲۱. گزارش‌ها
+   گزارش‌ها
 ============================================================ */
 function renderReport(){
-  const type = document.getElementById('reportType')?.value || 'all';
-  const g = document.getElementById('reportGrade')?.value || '';
+  const type = v('reportType') || 'all';
+  const g = v('reportGrade');
   const arr = db.students.filter(s => !g || s.grade === g);
   const el = document.getElementById('reportResult');
   if(!el) return;
@@ -992,15 +990,16 @@ function renderReport(){
             : type === 'paid' ? arr.filter(s => balance(s) <= 0)
             : arr;
     el.innerHTML = `<div class="table-wrap"><table class="table"><thead><tr><th>نام</th><th>پایه</th><th>شهریه</th><th>پرداخت‌شده</th><th>بدهی</th><th>وضعیت</th></tr></thead>
-    <tbody>${a.map(s => { const st = status(s); return `<tr><td>${s.name} ${s.family}</td><td>${s.grade}</td><td>${money(finalTuition(s))}</td><td>${money(paid(s))}</td><td>${money(balance(s))}</td><td>${st[0]}</td></tr>`; }).join('')}</tbody></table></div>`;
+    <tbody>${a.map(s => { const st = status(s); return `<tr><td>${s.name} ${s.family}</td><td>${s.grade||'-'}</td><td>${money(finalTuition(s))}</td><td>${money(paid(s))}</td><td>${money(balance(s))}</td><td>${st[0]}</td></tr>`; }).join('')}</tbody></table></div>`;
   }
   else if(type === 'payments'){
     el.innerHTML = `<div class="table-wrap"><table class="table"><thead><tr><th>تاریخ</th><th>دانش‌آموز</th><th>مبلغ</th><th>روش</th><th>رسید</th></tr></thead>
     <tbody>${db.payments.map(p => `<tr><td>${p.date}</td><td>${studentName(p.studentId)}</td><td>${money(p.amount)}</td><td>${p.method}</td><td>${p.receipt}</td></tr>`).join('')}</tbody></table></div>`;
   }
   else if(type === 'expenses'){
-    el.innerHTML = `<h3>جمع هزینه‌ها: ${money(db.expenses.reduce((a,x) => a + (+x.amount||0), 0))}</h3>` +
-      tableSimple(db.expenses, ['title','category','amount','date']);
+    const total = db.expenses.reduce((a,x) => a + (+x.amount||0), 0);
+    el.innerHTML = `<h3>جمع هزینه‌ها: ${money(total)}</h3><div class="table-wrap"><table class="table"><thead><tr><th>عنوان</th><th>دسته</th><th>مبلغ</th><th>تاریخ</th></tr></thead>
+    <tbody>${db.expenses.map(x => `<tr><td>${x.title}</td><td>${x.category||'-'}</td><td>${money(x.amount)}</td><td>${x.date}</td></tr>`).join('')}</tbody></table></div>`;
   }
   else {
     const inc = db.incomes.reduce((a,x) => a + (+x.amount||0), 0) + db.payments.reduce((a,x) => a + (+x.amount||0), 0);
@@ -1008,34 +1007,26 @@ function renderReport(){
     el.innerHTML = `<div class="grid stats">
       <div class="card stat"><span class="label">کل درآمد</span><div class="num">${money(inc)}</div></div>
       <div class="card stat"><span class="label">کل هزینه</span><div class="num">${money(exp)}</div></div>
-      <div class="card stat"><span class="label">مانده مالی</span><div class="num">${money(inc - exp)}</div></div>
+      <div class="card stat"><span class="label">مانده</span><div class="num">${money(inc - exp)}</div></div>
     </div>`;
   }
 }
 
-function tableSimple(arr, keys){
-  const labels = { title: 'عنوان', category: 'دسته', amount: 'مبلغ', date: 'تاریخ' };
-  return `<div class="table-wrap"><table class="table"><thead><tr>${keys.map(k => `<th>${labels[k]||k}</th>`).join('')}</tr></thead>
-  <tbody>${arr.map(x => `<tr>${keys.map(k => `<td>${k === 'amount' ? money(x[k]) : (x[k]||'-')}</td>`).join('')}</tr>`).join('')}</tbody></table></div>`;
-}
-
-/* ============================================================
-   ۲۲. خروجی CSV
-============================================================ */
 function exportCSV(){
   const rows = [
     ['نام','کد','پایه','شهریه','پرداخت','بدهی'],
-    ...db.students.map(s => [s.name + ' ' + s.family, s.code, s.grade, finalTuition(s), paid(s), balance(s)])
+    ...db.students.map(s => [s.name + ' ' + s.family, s.code||'', s.grade||'', finalTuition(s), paid(s), balance(s)])
   ];
   const csv = '\uFEFF' + rows.map(r => r.join(',')).join('\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
-  a.download = 'گزارش-مالی-الهه-مهر.csv';
+  a.download = 'گزارش-مالی.csv';
   a.click();
+  toast('فایل CSV دانلود شد', 'success');
 }
 
 /* ============================================================
-   ۲۳. تنظیمات
+   تنظیمات
 ============================================================ */
 async function saveSettings(){
   const x = {
@@ -1047,82 +1038,133 @@ async function saveSettings(){
     footer: v('setFooter'),
     updated_at: new Date().toISOString()
   };
-  const { error } = await supabase.from('settings').upsert(x);
-  if(error) return toast(error.message);
-  await log('تغییر تنظیمات');
+  const { error } = await sb.from('settings').upsert(x);
+  if(error) return toast('خطا: ' + error.message, 'error');
+  await logAction('تغییر تنظیمات');
   await refreshApp();
-  toast('تنظیمات ذخیره شد');
+  toast('تنظیمات ذخیره شد', 'success');
 }
 
 /* ============================================================
-   ۲۴. پشتیبان‌گیری و بازیابی
+   حذف آیتم
 ============================================================ */
-async function backup(){
-  if(!currentUser) return toast('ابتدا وارد شوید');
-  try { await loadData(); } catch(e) { return toast(e.message); }
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([JSON.stringify(db, null, 2)], { type: 'application/json' }));
-  a.download = 'پشتیبان-الهه-مهر.json';
-  a.click();
-  toast('نسخه پشتیبان آماده شد');
-}
-
-function restore(e){
-  const f = e.target.files[0];
-  if(!f) return;
-  const r = new FileReader();
-  r.onload = async () => {
-    try {
-      const x = JSON.parse(r.result);
-      if(!x.students || !x.payments) throw 0;
-
-      if(x.students.length){
-        const { error } = await supabase.from('students').upsert(x.students.map(s => ({
-          id: s.id, code: s.code, name: s.name, family: s.family, national: s.national,
-          grade: s.grade, field: s.field, class_name: s.class, academic_year: s.year,
-          father: s.father, father_phone: s.fatherPhone, mother_phone: s.motherPhone,
-          emergency: s.emergency, address: s.address, notes: s.notes,
-          tuition: s.tuition, discount: s.discount
-        })));
-        if(error) throw error;
-      }
-
-      if(x.payments.length){
-        const { error } = await supabase.from('payments').upsert(x.payments.map(p => ({
-          id: p.id, student_id: p.studentId, amount: p.amount, payment_date: p.date,
-          method: p.method, tracking: p.tracking, receipt: p.receipt, description: p.desc
-        })));
-        if(error) throw error;
-      }
-
-      await refreshApp();
-      toast('اطلاعات بازیابی شد');
-    } catch(err){
-      toast('فایل پشتیبان معتبر نیست: ' + (err.message || ''));
-    }
-  };
-  r.readAsText(f);
+async function deleteItem(table, id){
+  if(!confirm('حذف این مورد؟')) return;
+  const { error } = await sb.from(table).delete().eq('id', id);
+  if(error) return toast('خطا: ' + error.message, 'error');
+  await logAction('حذف از ' + table);
+  await refreshApp();
+  toast('حذف شد', 'success');
 }
 
 /* ============================================================
-   ۲۵. راه‌اندازی اولیه
+   اتصال رویدادها (Event Delegation)
 ============================================================ */
-supabase.auth.onAuthStateChange((event, session) => {
-  if(event === 'SIGNED_OUT'){
-    currentUser = null;
-    document.getElementById('authScreen').style.display = 'grid';
-    document.getElementById('userChip').style.display = 'none';
-  }
+document.addEventListener('click', function(e){
+  const btn = e.target.closest('[data-action]');
+  if(!btn) return;
+  const action = btn.dataset.action;
+  const id = btn.dataset.id;
+  const table = btn.dataset.table;
+
+  if(action === 'details') studentDetails(id);
+  else if(action === 'edit') openStudent(id);
+  else if(action === 'del-student') deleteItem('students', id);
+  else if(action === 'print-receipt') printReceipt(id);
+  else if(action === 'del-payment') deleteItem('payments', id);
+  else if(action === 'del-item') deleteItem(table, id);
+  else if(action === 'pay-installment') payInstallment(id);
+  else if(action === 'print-invoice') printInvoice(id);
 });
 
-(async function init(){
-  const { data } = await supabase.auth.getSession();
-  if(data.session){
-    currentUser = data.session.user;
-    try { await refreshApp(); }
-    catch(e){ document.getElementById('authMsg').textContent = e.message; }
+/* ============================================================
+   اتصال دکمه‌های ثابت
+============================================================ */
+function bindStaticButtons(){
+  document.getElementById('btnSignIn').onclick = doSignIn;
+  document.getElementById('btnSignUp').onclick = doSignUp;
+  document.getElementById('btnSignOut').onclick = doSignOut;
+  document.getElementById('btnOpenPayment').onclick = openPayment;
+  document.getElementById('btnNewPayment').onclick = openPayment;
+  document.getElementById('btnNewStudent').onclick = () => openStudent();
+  document.getElementById('btnNewIncome').onclick = openIncome;
+  document.getElementById('btnNewExpense').onclick = openExpense;
+  document.getElementById('btnNewInstallment').onclick = openInstallment;
+  document.getElementById('btnNewDiscount').onclick = openDiscount;
+  document.getElementById('btnSaveSettings').onclick = saveSettings;
+  document.getElementById('btnExportCSV').onclick = exportCSV;
+  document.getElementById('btnRenderReport').onclick = renderReport;
+  document.getElementById('btnCloseModal').onclick = closeModal;
+
+  document.getElementById('modal').onclick = (e) => { if(e.target.id === 'modal') closeModal(); };
+
+  // ناوبری
+  document.querySelectorAll('.nav button').forEach(b => b.onclick = () => nav(b.dataset.page));
+
+  // فیلترها
+  ['studentSearch','gradeFilter','classFilter'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('input', renderStudents);
+  });
+  ['paymentSearch','paymentMethodFilter'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('input', renderPayments);
+  });
+  const inv = document.getElementById('invoiceSearch');
+  if(inv) inv.addEventListener('input', renderInvoices);
+
+  // جستجوی سراسری
+  const gs = document.getElementById('globalSearch');
+  if(gs) gs.addEventListener('input', e => {
+    const q = e.target.value.trim();
+    if(!q) return;
+    const s = db.students.find(x => `${x.name} ${x.family} ${x.code} ${x.national}`.includes(q));
+    if(s){
+      nav('invoices');
+      document.getElementById('invoiceSearch').value = q;
+      renderInvoices();
+    }
+  });
+
+  // ورود با Enter
+  ['authEmail','authPassword'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('keydown', e => { if(e.key === 'Enter') doSignIn(); });
+  });
+}
+
+/* ============================================================
+   راه‌اندازی
+============================================================ */
+window.addEventListener('DOMContentLoaded', async () => {
+  bindStaticButtons();
+
+  if(!initSupabase()) return;
+
+  // بررسی session موجود
+  try {
+    const { data } = await sb.auth.getSession();
+    if(data && data.session){
+      currentUser = data.session.user;
+      await refreshApp();
+    }
+  } catch(e){
+    console.error('init error', e);
   }
-})();
+
+  // گوش دادن به تغییرات auth
+  sb.auth.onAuthStateChange(async (event, session) => {
+    if(event === 'SIGNED_IN' && session){
+      currentUser = session.user;
+      try { await refreshApp(); } catch(e){ console.error(e); }
+    }
+    if(event === 'SIGNED_OUT'){
+      currentUser = null;
+      document.getElementById('authScreen').style.display = 'grid';
+      document.getElementById('mainApp').style.display = 'none';
+    }
+  });
+});
 </script>
 </body>
 </html>
