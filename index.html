@@ -48,8 +48,8 @@ button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.app{di
     <input id="authEmail" type="email" placeholder="ایمیل مدیر یا مسئول مالی">
     <label>رمز عبور</label>
     <input id="authPassword" type="password" placeholder="رمز عبور">
-    <button class="btn primary" onclick="signIn()">ورود</button>
-    <button class="btn" onclick="signUp()">ساخت حساب مدیر</button>
+    <button type="button" class="btn primary" onclick="signIn()">ورود</button>
+    <button type="button" class="btn" onclick="signUp()">ساخت حساب مدیر</button>
     <div id="authMsg" class="auth-msg"></div>
   </div>
 </div>
@@ -136,7 +136,40 @@ button,input,select,textarea{font:inherit}button{cursor:pointer;border:0}.app{di
 
 <script>const SUPABASE_URL='https://uqjgfekbghvjootfwugg.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY='sb_publishable_4z8suyR6-zG6cWtVi5IpRg_InMjs6G2';
-const supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+let supabase=null;
+
+async function ensureSupabase(){
+  if(supabase) return supabase;
+  if(window.supabase?.createClient){
+    supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+    return supabase;
+  }
+  const urls=[
+    'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js',
+    'https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js'
+  ];
+  for(const url of urls){
+    try{
+      await new Promise((resolve,reject)=>{
+        const sc=document.createElement('script');
+        sc.src=url; sc.async=true;
+        sc.onload=resolve; sc.onerror=reject;
+        document.head.appendChild(sc);
+      });
+      if(window.supabase?.createClient){
+        supabase=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+        return supabase;
+      }
+    }catch(e){}
+  }
+  throw new Error('کتابخانه اتصال به Supabase بارگذاری نشد. اینترنت مرورگر را بررسی کنید و صفحه را دوباره باز کنید.');
+}
+
+function authMessage(msg){
+  const el=document.getElementById('authMsg');
+  if(el) el.textContent=msg;
+}
+
 
 let db={settings:{school:'دبیرستان دخترانه الهه مهر',year:'۱۴۰۵-۱۴۰۶',phone:'',address:'',footer:'با تشکر از اعتماد شما به دبیرستان دخترانه الهه مهر'},students:[],payments:[],expenses:[],incomes:[],installments:[],discounts:[],users:[],logs:[]};
 let currentUser=null;
@@ -202,30 +235,61 @@ async function refreshApp(){
 }
 
 async function signIn(){
-  const email=v('authEmail'),password=v('authPassword');
-  if(!email||!password)return document.getElementById('authMsg').textContent='ایمیل و رمز عبور را وارد کنید.';
-  const {data,error}=await supabase.auth.signInWithPassword({email,password});
-  if(error)return document.getElementById('authMsg').textContent=error.message;
-  currentUser=data.user; document.getElementById('authMsg').textContent='در حال ورود...';
-  try{await refreshApp();}catch(e){document.getElementById('authMsg').textContent=e.message}
+  const email=v('authEmail').trim(),password=v('authPassword');
+  if(!email||!password){authMessage('ایمیل و رمز عبور را وارد کنید.');return;}
+  const btns=document.querySelectorAll('#authScreen button');btns.forEach(b=>b.disabled=true);
+  authMessage('در حال اتصال و ورود...');
+  try{
+    const sb=await ensureSupabase();
+    const {data,error}=await sb.auth.signInWithPassword({email,password});
+    if(error) throw error;
+    currentUser=data.user;
+    await refreshApp();
+  }catch(e){
+    console.error(e);
+    authMessage('خطا در ورود: '+(e?.message||e));
+  }finally{btns.forEach(b=>b.disabled=false);}
 }
 
 async function signUp(){
-  const email=v('authEmail'),password=v('authPassword');
-  if(!email||password.length<6)return document.getElementById('authMsg').textContent='ایمیل معتبر و رمز حداقل ۶ کاراکتری وارد کنید.';
-  const {data,error}=await supabase.auth.signUp({email,password,data:{full_name:'مدیر مدرسه'}});
-  if(error)return document.getElementById('authMsg').textContent=error.message;
-  if(data.session){currentUser=data.user;await refreshApp();}
-  else document.getElementById('authMsg').textContent='حساب ساخته شد؛ اگر تأیید ایمیل فعال باشد، ایمیل خود را تأیید کنید و سپس وارد شوید.';
+  const email=v('authEmail').trim(),password=v('authPassword');
+  if(!email||password.length<6){authMessage('ایمیل معتبر و رمز حداقل ۶ کاراکتری وارد کنید.');return;}
+  const btns=document.querySelectorAll('#authScreen button');btns.forEach(b=>b.disabled=true);
+  authMessage('در حال ساخت حساب مدیر...');
+  try{
+    const sb=await ensureSupabase();
+    const {data,error}=await sb.auth.signUp({email,password,data:{full_name:'مدیر مدرسه',role:'admin'}});
+    if(error) throw error;
+    if(data.session){
+      currentUser=data.user;
+      await refreshApp();
+    }else{
+      authMessage('حساب ساخته شد. اگر تأیید ایمیل فعال باشد، ایمیل را تأیید کنید و سپس با همین ایمیل و رمز وارد شوید.');
+    }
+  }catch(e){
+    console.error(e);
+    authMessage('خطا در ساخت حساب: '+(e?.message||e));
+  }finally{btns.forEach(b=>b.disabled=false);}
 }
 
 async function signOut(){
   await supabase.auth.signOut(); currentUser=null; document.getElementById('authScreen').style.display='grid';
 }
 
-supabase.auth.getSession().then(async ({data})=>{
-  if(data.session){currentUser=data.session.user;try{await refreshApp()}catch(e){document.getElementById('authMsg').textContent=e.message}}
-});
+(async function initAuth(){
+  try{
+    const sb=await ensureSupabase();
+    const {data,error}=await sb.auth.getSession();
+    if(error) throw error;
+    if(data.session){
+      currentUser=data.session.user;
+      try{await refreshApp()}catch(e){authMessage(e.message)}
+    }
+  }catch(e){
+    console.error(e);
+    authMessage('آماده‌سازی اتصال انجام نشد: '+(e?.message||e));
+  }
+})();
 function nav(page){
  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(page).classList.add('active');
  document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x.dataset.page===page));
