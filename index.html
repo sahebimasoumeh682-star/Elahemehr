@@ -309,24 +309,9 @@ function savePayment(){
 function deletePayment(id){if(confirm('حذف این تراکنش؟')){db.payments=db.payments.filter(p=>p.id!==id);save();log('حذف تراکنش مالی');renderAll()}}
 function printReceipt(id){
  let p=db.payments.find(x=>x.id===id),s=db.students.find(x=>x.id===p.studentId);if(!p||!s)return;
- let w=window.open('','_blank');w.document.write(`<html dir="rtl"><head><meta charset="UTF-8"><title>رسید ${p.receipt}</title><style>body{font-family:Tahoma;padding:40px;direction:rtl}h1{text-align:center}table{width:100%;border-collapse:collapse;margin-top:25px}td,th{border:1px solid #ddd;padding:12px;text-align:right}.sum{font-size:20px;font-weight:bold;margin-top:20px}</style><style>
-#authScreen{position:fixed;inset:0;z-index:9999;background:#f6f7fb;display:grid;place-items:center;padding:20px}
-.auth-card{width:min(430px,100%);background:#fff;border:1px solid #e7e9f0;border-radius:22px;padding:28px;box-shadow:0 20px 60px rgba(30,20,60,.12)}
-.auth-card h2{margin:0 0 8px;color:#171329}.auth-card p{color:#667085;margin:0 0 20px}.auth-card input{width:100%;padding:12px;border:1px solid #d9dce5;border-radius:10px;margin:7px 0 12px}.auth-card button{width:100%;padding:12px;border-radius:10px;margin-top:8px}.auth-msg{min-height:24px;margin-top:12px;color:#dc2626;font-size:13px}
-</style></head><body><div id="authScreen">
-  <div class="auth-card">
-    <h2>حسابداری دبیرستان دخترانه الهه مهر</h2>
-    <p>ورود امن به سامانه مالی مدرسه</p>
-    <label>ایمیل</label>
-    <input id="authEmail" type="email" placeholder="ایمیل مدیر یا مسئول مالی">
-    <label>رمز عبور</label>
-    <input id="authPassword" type="password" placeholder="رمز عبور">
-    <button class="btn primary" onclick="signIn()">ورود</button>
-    <button class="btn" onclick="signUp()">ساخت حساب مدیر</button>
-    <div id="authMsg" class="auth-msg"></div>
-  </div>
-</div>
-<h1>${db.settings.school}</h1><h3 style="text-align:center">رسید پرداخت</h3><table><tr><th>نام دانش‌آموز</th><td>${s.name} ${s.family}</td><th>کد</th><td>${s.code}</td></tr><tr><th>پایه</th><td>${s.grade}</td><th>شماره رسید</th><td>${p.receipt}</td></tr><tr><th>مبلغ پرداختی</th><td>${money(p.amount)}</td><th>تاریخ</th><td>${p.date}</td></tr><tr><th>روش پرداخت</th><td>${p.method}</td><th>پیگیری</th><td>${p.tracking||'-'}</td></tr><tr><th>شهریه نهایی</th><td>${money(finalTuition(s))}</td><th>پرداخت‌شده</th><td>${money(paid(s))}</td></tr><tr><th>مانده</th><td colspan="3">${money(balance(s))}</td></tr></table><p style="margin-top:35px">${db.settings.footer}</p><script>window.onload=()=>window.print()<\/script></body></html>`);w.document.close();
+ let w=window.open('','_blank');
+ w.document.write(`<html dir="rtl"><head><meta charset="UTF-8"><title>رسید ${p.receipt}</title><style>body{font-family:Tahoma;padding:40px;direction:rtl}h1{text-align:center}table{width:100%;border-collapse:collapse;margin-top:25px}td,th{border:1px solid #ddd;padding:12px;text-align:right}.sum{font-size:20px;font-weight:bold;margin-top:20px}</style></head><body><h1>${db.settings.school}</h1><h3 style="text-align:center">رسید پرداخت</h3><table><tr><th>نام دانش‌آموز</th><td>${s.name} ${s.family}</td><th>کد</th><td>${s.code}</td></tr><tr><th>پایه</th><td>${s.grade}</td><th>شماره رسید</th><td>${p.receipt}</td></tr><tr><th>مبلغ پرداختی</th><td>${money(p.amount)}</td><th>تاریخ</th><td>${p.date}</td></tr><tr><th>روش پرداخت</th><td>${p.method}</td><th>پیگیری</th><td>${p.tracking||'-'}</td></tr><tr><th>شهریه نهایی</th><td>${money(finalTuition(s))}</td><th>پرداخت‌شده</th><td>${money(paid(s))}</td></tr><tr><th>مانده</th><td colspan="3">${money(balance(s))}</td></tr></table><p style="margin-top:35px">${db.settings.footer}</p></body></html>`);
+ w.document.close();setTimeout(()=>w.print(),300);
 }
 function studentDetails(id){
  let s=db.students.find(x=>x.id===id), ps=db.payments.filter(p=>p.studentId===id);
@@ -345,7 +330,11 @@ function saveDiscount(){let s=db.students.find(x=>x.id==v('d_student')),type=v('
 function renderInvoices(){let q=document.getElementById('invoiceSearch')?.value||'';let arr=db.students.filter(s=>!q||`${s.name} ${s.family} ${s.code} ${s.national}`.includes(q));document.getElementById('invoiceResult').innerHTML=arr.map(s=>`<div class="card" style="margin-bottom:12px"><div class="section-head"><h3>${s.name} ${s.family} — ${s.code}</h3><button class="btn" onclick="printInvoice(${s.id})">🖨 چاپ صورتحساب</button></div><div class="table-wrap"><table class="table"><thead><tr><th>تاریخ</th><th>شرح</th><th>بدهکار</th><th>بستانکار</th><th>مانده</th></tr></thead><tbody>${invoiceRows(s)}</tbody></table></div></div>`).join('')||'<div class="empty">دانش‌آموزی یافت نشد.</div>'}
 function invoiceRows(s){let rows=[],bal=finalTuition(s);rows.push(`<tr><td>-</td><td>شهریه مصوب پس از تخفیف</td><td>${money(bal)}</td><td>-</td><td>${money(bal)}</td></tr>`);db.payments.filter(p=>p.studentId===s.id).forEach(p=>{bal-=p.amount;rows.push(`<tr><td>${p.date}</td><td>پرداخت - ${p.method}</td><td>-</td><td>${money(p.amount)}</td><td>${money(Math.max(0,bal))}</td></tr>`)});return rows.join('')}
 document.getElementById('invoiceSearch').addEventListener('input',renderInvoices);
-function printInvoice(id){let s=db.students.find(x=>x.id===id),w=window.open('','_blank');w.document.write(`<html dir="rtl"><meta charset="UTF-8"><title>صورتحساب</title><style>body{font-family:Tahoma;padding:35px}table{width:100%;border-collapse:collapse}td,th{border:1px solid #ddd;padding:10px}</style><h2 style="text-align:center">${db.settings.school}</h2><h3>صورتحساب ${s.name} ${s.family}</h3><table><thead><tr><th>تاریخ</th><th>شرح</th><th>بدهکار</th><th>بستانکار</th><th>مانده</th></tr></thead><tbody>${invoiceRows(s)}</tbody></table><p>تاریخ تهیه: ${dateDefault()}</p><script>window.onload=()=>window.print()<\/script></html>`);w.document.close()}
+function printInvoice(id){
+ let s=db.students.find(x=>x.id===id),w=window.open('','_blank');
+ w.document.write(`<html dir="rtl"><meta charset="UTF-8"><title>صورتحساب</title><style>body{font-family:Tahoma;padding:35px}table{width:100%;border-collapse:collapse}td,th{border:1px solid #ddd;padding:10px}</style><h2 style="text-align:center">${db.settings.school}</h2><h3>صورتحساب ${s.name} ${s.family}</h3><table><thead><tr><th>تاریخ</th><th>شرح</th><th>بدهکار</th><th>بستانکار</th><th>مانده</th></tr></thead><tbody>${invoiceRows(s)}</tbody></table><p>تاریخ تهیه: ${dateDefault()}</p></html>`);
+ w.document.close();setTimeout(()=>w.print(),300);
+}
 function openUser(){openModal('افزودن کاربر',`<div class="form"><div class="formgrid"><div><label>نام</label><input id="u_name"></div><div><label>نام کاربری</label><input id="u_user"></div><div><label>رمز عبور</label><input type="password" id="u_pass"></div><div><label>سطح دسترسی</label><select id="u_role"><option>مسئول مالی</option><option>مدیر</option></select></div></div><div class="modalfoot"><button class="btn primary" onclick="saveUser()">ذخیره</button></div></div>`)}
 function saveUser(){db.users.push({id:Date.now(),name:v('u_name'),username:v('u_user'),password:v('u_pass'),role:v('u_role')});save();log('افزودن کاربر');closeModal();renderAll()}
 function deleteItem(collection,id){if(confirm('حذف این مورد؟')){db[collection]=db[collection].filter(x=>x.id!==id);save();log('حذف از '+collection);renderAll()}}
