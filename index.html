@@ -75,10 +75,12 @@ button{cursor:pointer;border:0}
 .alerts{display:grid;grid-template-columns:1fr 1fr;gap:15px}
 .alert-list{margin:0;padding:0;list-style:none}
 .alert-list li{display:flex;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--line)}
-.toast{position:fixed;left:20px;bottom:20px;background:#171329;color:#fff;padding:12px 16px;border-radius:10px;display:none;z-index:100;max-width:340px;font-size:13px;line-height:1.6}
-.toast.show{display:block}
+.toast{position:fixed;left:20px;bottom:20px;background:#171329;color:#fff;padding:14px 18px;border-radius:12px;display:none;z-index:100;max-width:380px;font-size:13px;line-height:1.7;box-shadow:0 10px 30px rgba(0,0,0,.3)}
+.toast.show{display:block;animation:slideIn .3s ease}
+@keyframes slideIn{from{transform:translateX(-20px);opacity:0}to{transform:translateX(0);opacity:1}}
 .toast.error{background:#dc2626}
 .toast.success{background:#16a34a}
+.toast.warning{background:#f59e0b}
 #authScreen{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#f6f7fb,#ede9fe);display:grid;place-items:center;padding:20px}
 .auth-card{width:min(440px,100%);background:#fff;border:1px solid #e7e9f0;border-radius:22px;padding:28px;box-shadow:0 20px 60px rgba(30,20,60,.12)}
 .auth-card h2{margin:0 0 8px;color:#171329;font-size:20px}
@@ -89,6 +91,8 @@ button{cursor:pointer;border:0}
 .auth-card button{width:100%;padding:12px;border-radius:10px;margin-top:8px}
 .auth-msg{min-height:24px;margin-top:12px;color:#dc2626;font-size:13px;line-height:1.6;text-align:center}
 .auth-msg.ok{color:#16a34a}
+.loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,.85);display:none;place-items:center;z-index:200;font-size:16px;color:var(--primary);font-weight:700}
+.loading-overlay.show{display:grid}
 @media(max-width:1050px){.stats{grid-template-columns:repeat(2,1fr)}.charts,.alerts{grid-template-columns:1fr}.sidebar{width:220px}.main{margin-right:220px;width:calc(100% - 220px)}}
 @media(max-width:760px){.sidebar{position:static;width:100%;height:auto}.app{display:block}.main{margin:0;width:100%;padding:14px}.nav{display:grid;grid-template-columns:repeat(2,1fr)}.topbar{align-items:flex-start;flex-direction:column}.search{min-width:100%;width:100%}.stats{grid-template-columns:1fr 1fr}.formgrid{grid-template-columns:1fr}.detail-grid{grid-template-columns:1fr 1fr}}
 </style>
@@ -208,12 +212,13 @@ button{cursor:pointer;border:0}
 
 <section class="page" id="settings"><div class="section-head"><h2>تنظیمات</h2></div><div class="card form"><div class="formgrid"><div><label>نام مدرسه</label><input id="setSchool"></div><div><label>سال تحصیلی</label><input id="setYear"></div><div><label>شماره تماس</label><input id="setPhone"></div><div class="full"><label>آدرس</label><input id="setAddress"></div><div class="full"><label>متن پایین رسید</label><textarea id="setFooter"></textarea></div></div><div class="modalfoot"><button class="btn primary" id="btnSaveSettings">ذخیره تنظیمات</button></div></div></section>
 
-<section class="page" id="logs"><div class="section-head"><h2>گزارش فعالیت کاربران</h2></div><div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>کاربر</th><th>عملیات</th><th>تاریخ</th><th>ساعت</th></tr></thead><tbody id="logsTable"></tbody></table></div></div></section>
+<section class="page" id="logs"><div class="section-head"><h2>گزارش فعالیت کاربران</h2></div><div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>عملیات</th><th>تاریخ</th><th>ساعت</th></tr></thead><tbody id="logsTable"></tbody></table></div></div></section>
 </main>
 </div>
 
 <div class="modal" id="modal"><div class="modalbox"><div class="modalhead"><h2 id="modalTitle"></h2><button class="btn" id="btnCloseModal">✕</button></div><div id="modalBody"></div></div></div>
 <div class="toast" id="toast"></div>
+<div class="loading-overlay" id="loadingOverlay">⏳ در حال بارگذاری...</div>
 
 <script>
 /* ============================================================
@@ -241,6 +246,7 @@ let db = {
   installments: [], discounts: [], logs: []
 };
 let charts = [];
+let isProcessing = false;
 
 /* ============================================================
    توابع کمکی
@@ -259,14 +265,11 @@ function balance(s){ return Math.max(0, finalTuition(s) - paid(s)); }
 function isPast(dateStr){
   if(!dateStr) return false;
   try {
-    const now = new Date();
     const parts = String(dateStr).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).split(/[\/\-]/).map(Number);
     if(parts.length < 3) return false;
     const [y, m, d] = parts;
-    // تبدیل سال شمسی به میلادی تقریبی
-    const gy = y + 621, gm = m - 1, gd = d;
-    const due = new Date(gy, gm, gd);
-    return due < now;
+    const due = new Date(y + 621, m - 1, d);
+    return due < new Date();
   } catch { return false; }
 }
 
@@ -282,7 +285,7 @@ function toast(msg, type){
   e.textContent = msg;
   e.className = 'toast show' + (type ? ' ' + type : '');
   clearTimeout(e._t);
-  e._t = setTimeout(() => e.className = 'toast', 3500);
+  e._t = setTimeout(() => e.className = 'toast', 4000);
 }
 
 function authMsg(msg, ok){
@@ -293,16 +296,49 @@ function authMsg(msg, ok){
 
 function isValidEmail(email){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
 
+function showLoading(show){
+  document.getElementById('loadingOverlay').classList.toggle('show', !!show);
+}
+
 /* ============================================================
-   مقداردهی اولیه Supabase
+   ترجمه خطاهای Supabase
+============================================================ */
+function translateError(error){
+  if(!error) return 'خطای نامشخص';
+  const code = error.code;
+  const msg = (error.message || '').toLowerCase();
+
+  if(code === '23505' || msg.includes('duplicate key')){
+    if(msg.includes('students_code')) return '⚠️ این کد دانش‌آموزی قبلاً ثبت شده است. لطفاً کد دیگری وارد کنید.';
+    if(msg.includes('receipt')) return '⚠️ این شماره رسید قبلاً استفاده شده است.';
+    return '⚠️ این اطلاعات تکراری است. لطفاً مقادیر یکتا وارد کنید.';
+  }
+  if(code === '23503' || msg.includes('foreign key')) return '⚠️ اطلاعات مرتبط یافت نشد.';
+  if(code === '23502' || msg.includes('not-null')) return '⚠️ فیلدهای اجباری را کامل کنید.';
+  if(code === '42501' || msg.includes('row-level security')) return '🔒 دسترسی ندارید. لطفاً دوباره وارد شوید.';
+  if(code === 'PGRST301' || msg.includes('jwt')) return '🔒 نشست منقضی شده. لطفاً دوباره وارد شوید.';
+  if(msg.includes('failed to fetch') || msg.includes('networkerror')) return '🌐 خطای اتصال. VPN را روشن کنید و دوباره امتحان کنید.';
+  return 'خطا: ' + (error.message || 'نامشخص');
+}
+
+/* ============================================================
+   مقداردهی اولیه Supabase (فقط یک بار)
 ============================================================ */
 function initSupabase(){
+  if(sb) return true;
   if(typeof window.supabase === 'undefined' || !window.supabase.createClient){
     authMsg('خطا: کتابخانه Supabase لود نشد. اتصال اینترنت را بررسی کنید.');
     return false;
   }
   try {
-    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+      auth: {
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: false,
+        storageKey: 'haleh-mehr-auth'
+      }
+    });
     return true;
   } catch(e){
     authMsg('خطا در اتصال به Supabase: ' + e.message);
@@ -351,7 +387,7 @@ async function loadData(){
   ]);
 
   const firstError = results.find(x => x.error)?.error;
-  if(firstError) throw new Error(firstError.message);
+  if(firstError) throw new Error(translateError(firstError));
 
   db.settings = normalizeSettings(results[0].data);
   db.students = (results[1].data || []).map(mapStudent);
@@ -401,36 +437,58 @@ async function refreshApp(){
    ورود / ثبت‌نام / خروج
 ============================================================ */
 async function doSignIn(){
+  if(isProcessing) return;
   const email = v('authEmail'), password = v('authPassword');
   if(!email || !password) return authMsg('ایمیل و رمز عبور را وارد کنید.');
   if(!isValidEmail(email)) return authMsg('فرمت ایمیل صحیح نیست.');
+
+  isProcessing = true;
   authMsg('در حال ورود...', true);
 
-  const { data, error } = await sb.auth.signInWithPassword({ email, password });
-  if(error) return authMsg('خطا: ' + error.message);
-  currentUser = data.user;
-  authMsg('');
-  try { await refreshApp(); }
-  catch(e){ authMsg('خطا در بارگذاری: ' + e.message); }
+  try {
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    if(error){
+      if(error.message.includes('Invalid login')) return authMsg('ایمیل یا رمز عبور اشتباه است.');
+      if(error.message.includes('Email not confirmed')) return authMsg('ایمیل تأیید نشده است. با مدیر تماس بگیرید.');
+      if(error.message.includes('Failed to fetch')) return authMsg('اتصال به سرور برقرار نشد. VPN را روشن کنید.');
+      return authMsg('خطا: ' + error.message);
+    }
+    currentUser = data.user;
+    authMsg('');
+    await refreshApp();
+  } catch(e){
+    authMsg('خطا: ' + e.message);
+  } finally {
+    isProcessing = false;
+  }
 }
 
 async function doSignUp(){
+  if(isProcessing) return;
   const email = v('authEmail'), password = v('authPassword');
   if(!isValidEmail(email)) return authMsg('ایمیل معتبر وارد کنید.');
   if(password.length < 6) return authMsg('رمز عبور حداقل ۶ کاراکتر باشد.');
+
+  isProcessing = true;
   authMsg('در حال ساخت حساب...', true);
 
-  const { data, error } = await sb.auth.signUp({
-    email, password,
-    options: { data: { full_name: 'مدیر مدرسه', role: 'admin' } }
-  });
-  if(error) return authMsg('خطا: ' + error.message);
+  try {
+    const { data, error } = await sb.auth.signUp({
+      email, password,
+      options: { data: { full_name: 'مدیر مدرسه', role: 'admin' } }
+    });
+    if(error) return authMsg('خطا: ' + error.message);
 
-  if(data.session){
-    currentUser = data.user;
-    await refreshApp();
-  } else {
-    authMsg('حساب ساخته شد. حالا با همان ایمیل و رمز وارد شوید.', true);
+    if(data.session){
+      currentUser = data.user;
+      await refreshApp();
+    } else {
+      authMsg('حساب ساخته شد. حالا با همان ایمیل و رمز وارد شوید.', true);
+    }
+  } catch(e){
+    authMsg('خطا: ' + e.message);
+  } finally {
+    isProcessing = false;
   }
 }
 
@@ -478,6 +536,7 @@ function renderAll(){
   renderLogs();
   renderDashboardLists();
   renderReport();
+  drawCharts();
 }
 
 function renderStats(){
@@ -583,8 +642,8 @@ function renderDiscounts(){
 
 function renderLogs(){
   document.getElementById('logsTable').innerHTML = db.logs.map(x => `
-    <tr><td>${x.user||'-'}</td><td>${x.action}</td><td>${x.date}</td><td>${x.time}</td></tr>`).join('')
-    || `<tr><td colspan="4" class="empty">هنوز فعالیتی ثبت نشده است.</td></tr>`;
+    <tr><td>${x.action}</td><td>${x.date}</td><td>${x.time}</td></tr>`).join('')
+    || `<tr><td colspan="3" class="empty">هنوز فعالیتی ثبت نشده است.</td></tr>`;
 }
 
 function renderDashboardLists(){
@@ -663,9 +722,9 @@ function openStudent(id){
   if(!s) return;
   openModal(id ? 'ویرایش دانش‌آموز' : 'ثبت دانش‌آموز جدید', `
   <div class="form"><div class="formgrid">
-    <div><label>کد دانش‌آموزی</label><input id="f_code" value="${s.code||''}"></div>
-    <div><label>نام</label><input id="f_name" value="${s.name||''}"></div>
-    <div><label>نام خانوادگی</label><input id="f_family" value="${s.family||''}"></div>
+    <div><label>کد دانش‌آموزی *</label><input id="f_code" value="${s.code||''}" placeholder="مثال: 1001"></div>
+    <div><label>نام *</label><input id="f_name" value="${s.name||''}"></div>
+    <div><label>نام خانوادگی *</label><input id="f_family" value="${s.family||''}"></div>
     <div><label>کد ملی</label><input id="f_national" value="${s.national||''}"></div>
     <div><label>پایه</label><select id="f_grade">${['هفتم','هشتم','نهم','دهم','یازدهم','دوازدهم'].map(x => `<option ${x===s.grade?'selected':''}>${x}</option>`).join('')}</select></div>
     <div><label>رشته</label><input id="f_field" value="${s.field||''}"></div>
@@ -686,6 +745,8 @@ function openStudent(id){
 }
 
 async function saveStudent(id){
+  if(isProcessing) return;
+
   const s = {
     code: v('f_code'), name: v('f_name'), family: v('f_family'), national: v('f_national'),
     grade: v('f_grade'), field: v('f_field'), class_name: v('f_class'), academic_year: v('f_year'),
@@ -693,17 +754,42 @@ async function saveStudent(id){
     emergency: v('f_emergency'), address: v('f_address'), notes: v('f_notes'),
     tuition: num('f_tuition'), discount: num('f_discount')
   };
-  if(!s.name || !s.family || !s.code) return toast('نام، نام خانوادگی و کد الزامی است', 'error');
 
-  let error;
-  if(id){ ({ error } = await sb.from('students').update(s).eq('id', id)); }
-  else { ({ error } = await sb.from('students').insert(s)); }
-  if(error) return toast('خطا: ' + error.message, 'error');
+  // اعتبارسنجی سمت کاربر
+  if(!s.code) return toast('کد دانش‌آموزی الزامی است', 'error');
+  if(!s.name) return toast('نام الزامی است', 'error');
+  if(!s.family) return toast('نام خانوادگی الزامی است', 'error');
 
-  await logAction(id ? 'ویرایش دانش‌آموز' : `ثبت دانش‌آموز ${s.name} ${s.family}`);
-  closeModal();
-  await refreshApp();
-  toast('ذخیره شد', 'success');
+  // چک تکراری بودن کد در حافظه (سریع‌تر)
+  const duplicate = db.students.find(x => x.code === s.code && x.id != id);
+  if(duplicate){
+    return toast(`⚠️ کد "${s.code}" قبلاً برای "${duplicate.name} ${duplicate.family}" ثبت شده است.`, 'error');
+  }
+
+  isProcessing = true;
+  const btn = document.getElementById('btnSaveStudent');
+  if(btn){ btn.disabled = true; btn.textContent = 'در حال ذخیره...'; }
+
+  try {
+    let error;
+    if(id){
+      ({ error } = await sb.from('students').update(s).eq('id', id));
+    } else {
+      ({ error } = await sb.from('students').insert(s));
+    }
+
+    if(error) return toast(translateError(error), 'error');
+
+    await logAction(id ? 'ویرایش دانش‌آموز' : `ثبت دانش‌آموز ${s.name} ${s.family}`);
+    closeModal();
+    await refreshApp();
+    toast(id ? 'اطلاعات ویرایش شد ✅' : 'دانش‌آموز با موفقیت ثبت شد ✅', 'success');
+  } catch(e){
+    toast('خطا: ' + e.message, 'error');
+  } finally {
+    isProcessing = false;
+    if(btn){ btn.disabled = false; btn.textContent = 'ذخیره'; }
+  }
 }
 
 function studentDetails(id){
@@ -733,12 +819,12 @@ function studentOptions(){
 function openPayment(){
   openModal('ثبت پرداخت جدید', `
   <div class="form"><div class="formgrid">
-    <div class="full"><label>دانش‌آموز</label><select id="p_student"><option value="">انتخاب کنید</option>${studentOptions()}</select></div>
-    <div><label>مبلغ (ریال)</label><input type="number" id="p_amount"></div>
+    <div class="full"><label>دانش‌آموز *</label><select id="p_student"><option value="">انتخاب کنید</option>${studentOptions()}</select></div>
+    <div><label>مبلغ (ریال) *</label><input type="number" id="p_amount"></div>
     <div><label>تاریخ</label><input id="p_date" value="${today()}"></div>
     <div><label>روش پرداخت</label><select id="p_method"><option>کارتخوان</option><option>کارت به کارت</option><option>واریز بانکی</option><option>نقدی</option><option>چک</option><option>سایر</option></select></div>
     <div><label>شماره پیگیری</label><input id="p_tracking"></div>
-    <div><label>شماره رسید</label><input id="p_receipt"></div>
+    <div><label>شماره رسید (خالی = خودکار)</label><input id="p_receipt"></div>
     <div class="full"><label>توضیحات</label><textarea id="p_desc"></textarea></div>
   </div>
   <div class="modalfoot"><button class="btn primary" id="btnSavePayment">ثبت پرداخت</button></div></div>`);
@@ -747,22 +833,38 @@ function openPayment(){
 }
 
 async function savePayment(){
+  if(isProcessing) return;
   const sid = v('p_student'), amt = num('p_amount');
-  if(!sid || amt <= 0) return toast('دانش‌آموز و مبلغ را وارد کنید', 'error');
+  if(!sid) return toast('دانش‌آموز را انتخاب کنید', 'error');
+  if(amt <= 0) return toast('مبلغ را وارد کنید', 'error');
+
   const receipt = v('p_receipt') || 'R' + Date.now();
-  if(db.payments.some(p => p.receipt === receipt)) return toast('شماره رسید تکراری است', 'error');
+  if(db.payments.some(p => p.receipt === receipt)){
+    return toast('⚠️ این شماره رسید قبلاً استفاده شده است', 'error');
+  }
 
-  const p = {
-    student_id: sid, amount: amt, payment_date: v('p_date'), method: v('p_method'),
-    tracking: v('p_tracking'), receipt, description: v('p_desc'), created_by: currentUser.id
-  };
-  const { error } = await sb.from('payments').insert(p);
-  if(error) return toast('خطا: ' + error.message, 'error');
+  isProcessing = true;
+  const btn = document.getElementById('btnSavePayment');
+  if(btn){ btn.disabled = true; btn.textContent = 'در حال ثبت...'; }
 
-  await logAction('ثبت پرداخت برای ' + studentName(sid));
-  closeModal();
-  await refreshApp();
-  toast('پرداخت ثبت شد', 'success');
+  try {
+    const p = {
+      student_id: sid, amount: amt, payment_date: v('p_date'), method: v('p_method'),
+      tracking: v('p_tracking'), receipt, description: v('p_desc'), created_by: currentUser.id
+    };
+    const { error } = await sb.from('payments').insert(p);
+    if(error) return toast(translateError(error), 'error');
+
+    await logAction('ثبت پرداخت برای ' + studentName(sid));
+    closeModal();
+    await refreshApp();
+    toast('پرداخت با موفقیت ثبت شد ✅', 'success');
+  } catch(e){
+    toast('خطا: ' + e.message, 'error');
+  } finally {
+    isProcessing = false;
+    if(btn){ btn.disabled = false; btn.textContent = 'ثبت پرداخت'; }
+  }
 }
 
 function printReceipt(id){
@@ -796,9 +898,9 @@ function printReceipt(id){
 function openIncome(){
   openModal('ثبت درآمد', `
   <div class="form"><div class="formgrid">
-    <div><label>عنوان</label><input id="i_title"></div>
+    <div><label>عنوان *</label><input id="i_title"></div>
     <div><label>دسته‌بندی</label><select id="i_cat"><option>شهریه</option><option>ثبت‌نام</option><option>کلاس فوق‌برنامه</option><option>اردو</option><option>سایر</option></select></div>
-    <div><label>مبلغ</label><input type="number" id="i_amount"></div>
+    <div><label>مبلغ *</label><input type="number" id="i_amount"></div>
     <div><label>تاریخ</label><input id="i_date" value="${today()}"></div>
     <div class="full"><label>توضیحات</label><textarea id="i_desc"></textarea></div>
   </div>
@@ -807,22 +909,35 @@ function openIncome(){
 }
 
 async function saveIncome(){
+  if(isProcessing) return;
   const x = { title: v('i_title'), category: v('i_cat'), amount: num('i_amount'), income_date: v('i_date'), description: v('i_desc'), created_by: currentUser.id };
-  if(!x.title || x.amount <= 0) return toast('عنوان و مبلغ الزامی است', 'error');
-  const { error } = await sb.from('incomes').insert(x);
-  if(error) return toast('خطا: ' + error.message, 'error');
-  await logAction('ثبت درآمد');
-  closeModal();
-  await refreshApp();
-  toast('درآمد ثبت شد', 'success');
+  if(!x.title) return toast('عنوان الزامی است', 'error');
+  if(x.amount <= 0) return toast('مبلغ را وارد کنید', 'error');
+
+  isProcessing = true;
+  const btn = document.getElementById('btnSaveIncome');
+  if(btn){ btn.disabled = true; btn.textContent = 'در حال ذخیره...'; }
+  try {
+    const { error } = await sb.from('incomes').insert(x);
+    if(error) return toast(translateError(error), 'error');
+    await logAction('ثبت درآمد');
+    closeModal();
+    await refreshApp();
+    toast('درآمد ثبت شد ✅', 'success');
+  } catch(e){
+    toast('خطا: ' + e.message, 'error');
+  } finally {
+    isProcessing = false;
+    if(btn){ btn.disabled = false; btn.textContent = 'ذخیره'; }
+  }
 }
 
 function openExpense(){
   openModal('ثبت هزینه', `
   <div class="form"><div class="formgrid">
-    <div><label>عنوان</label><input id="e_title"></div>
+    <div><label>عنوان *</label><input id="e_title"></div>
     <div><label>دسته‌بندی</label><select id="e_cat"><option>حقوق</option><option>آب</option><option>برق</option><option>گاز</option><option>اینترنت</option><option>تجهیزات</option><option>لوازم آموزشی</option><option>تعمیرات</option><option>خدمات</option><option>اجاره</option><option>سایر</option></select></div>
-    <div><label>مبلغ</label><input type="number" id="e_amount"></div>
+    <div><label>مبلغ *</label><input type="number" id="e_amount"></div>
     <div><label>تاریخ</label><input id="e_date" value="${today()}"></div>
     <div><label>روش پرداخت</label><select id="e_method"><option>کارتخوان</option><option>کارت به کارت</option><option>واریز بانکی</option><option>نقدی</option><option>چک</option></select></div>
     <div><label>شماره سند</label><input id="e_doc"></div>
@@ -833,14 +948,27 @@ function openExpense(){
 }
 
 async function saveExpense(){
+  if(isProcessing) return;
   const x = { title: v('e_title'), category: v('e_cat'), amount: num('e_amount'), expense_date: v('e_date'), method: v('e_method'), document: v('e_doc'), description: v('e_desc'), created_by: currentUser.id };
-  if(!x.title || x.amount <= 0) return toast('عنوان و مبلغ الزامی است', 'error');
-  const { error } = await sb.from('expenses').insert(x);
-  if(error) return toast('خطا: ' + error.message, 'error');
-  await logAction('ثبت هزینه');
-  closeModal();
-  await refreshApp();
-  toast('هزینه ثبت شد', 'success');
+  if(!x.title) return toast('عنوان الزامی است', 'error');
+  if(x.amount <= 0) return toast('مبلغ را وارد کنید', 'error');
+
+  isProcessing = true;
+  const btn = document.getElementById('btnSaveExpense');
+  if(btn){ btn.disabled = true; btn.textContent = 'در حال ذخیره...'; }
+  try {
+    const { error } = await sb.from('expenses').insert(x);
+    if(error) return toast(translateError(error), 'error');
+    await logAction('ثبت هزینه');
+    closeModal();
+    await refreshApp();
+    toast('هزینه ثبت شد ✅', 'success');
+  } catch(e){
+    toast('خطا: ' + e.message, 'error');
+  } finally {
+    isProcessing = false;
+    if(btn){ btn.disabled = false; btn.textContent = 'ذخیره'; }
+  }
 }
 
 /* ============================================================
@@ -849,43 +977,65 @@ async function saveExpense(){
 function openInstallment(){
   openModal('تعریف قسط', `
   <div class="form"><div class="formgrid">
-    <div class="full"><label>دانش‌آموز</label><select id="n_student">${studentOptions()}</select></div>
-    <div><label>مبلغ قسط</label><input type="number" id="n_amount"></div>
-    <div><label>سررسید (۱۴۰۵/۰۷/۱۵)</label><input id="n_due"></div>
+    <div class="full"><label>دانش‌آموز *</label><select id="n_student">${studentOptions()}</select></div>
+    <div><label>مبلغ قسط *</label><input type="number" id="n_amount"></div>
+    <div><label>سررسید (۱۴۰۵/۰۷/۱۵) *</label><input id="n_due" placeholder="1405/07/15"></div>
   </div>
   <div class="modalfoot"><button class="btn primary" id="btnSaveInstallment">ذخیره</button></div></div>`);
   document.getElementById('btnSaveInstallment').onclick = saveInstallment;
 }
 
 async function saveInstallment(){
+  if(isProcessing) return;
   const sid = v('n_student'), amt = num('n_amount'), due = v('n_due');
-  if(!sid || amt <= 0 || !due) return toast('همه فیلدها الزامی است', 'error');
-  const { error } = await sb.from('installments').insert({ student_id: sid, amount: amt, due_date: due, paid: false });
-  if(error) return toast('خطا: ' + error.message, 'error');
-  await logAction('تعریف قسط');
-  closeModal();
-  await refreshApp();
-  toast('قسط ثبت شد', 'success');
+  if(!sid) return toast('دانش‌آموز را انتخاب کنید', 'error');
+  if(amt <= 0) return toast('مبلغ قسط را وارد کنید', 'error');
+  if(!due) return toast('تاریخ سررسید را وارد کنید', 'error');
+
+  isProcessing = true;
+  const btn = document.getElementById('btnSaveInstallment');
+  if(btn){ btn.disabled = true; btn.textContent = 'در حال ذخیره...'; }
+  try {
+    const { error } = await sb.from('installments').insert({ student_id: sid, amount: amt, due_date: due, paid: false });
+    if(error) return toast(translateError(error), 'error');
+    await logAction('تعریف قسط');
+    closeModal();
+    await refreshApp();
+    toast('قسط ثبت شد ✅', 'success');
+  } catch(e){
+    toast('خطا: ' + e.message, 'error');
+  } finally {
+    isProcessing = false;
+    if(btn){ btn.disabled = false; btn.textContent = 'ذخیره'; }
+  }
 }
 
 async function payInstallment(id){
   const inst = db.installments.find(i => i.id == id);
   if(!inst) return;
   if(!confirm(`قسط ${studentName(inst.studentId)} به مبلغ ${money(inst.amount)} تسویه شود؟`)) return;
+  if(isProcessing) return;
+  isProcessing = true;
 
-  const receipt = 'R' + Date.now();
-  const { error: e1 } = await sb.from('payments').insert({
-    student_id: inst.studentId, amount: inst.amount, payment_date: today(),
-    method: 'نقدی', receipt, description: `تسویه قسط سررسید ${inst.due}`, created_by: currentUser.id
-  });
-  if(e1) return toast('خطا: ' + e1.message, 'error');
+  try {
+    const receipt = 'R' + Date.now();
+    const { error: e1 } = await sb.from('payments').insert({
+      student_id: inst.studentId, amount: inst.amount, payment_date: today(),
+      method: 'نقدی', receipt, description: `تسویه قسط سررسید ${inst.due}`, created_by: currentUser.id
+    });
+    if(e1) return toast(translateError(e1), 'error');
 
-  const { error: e2 } = await sb.from('installments').update({ paid: true }).eq('id', id);
-  if(e2) return toast('خطا: ' + e2.message, 'error');
+    const { error: e2 } = await sb.from('installments').update({ paid: true }).eq('id', id);
+    if(e2) return toast(translateError(e2), 'error');
 
-  await logAction('تسویه قسط ' + studentName(inst.studentId));
-  await refreshApp();
-  toast('قسط تسویه شد', 'success');
+    await logAction('تسویه قسط ' + studentName(inst.studentId));
+    await refreshApp();
+    toast('قسط تسویه شد ✅', 'success');
+  } catch(e){
+    toast('خطا: ' + e.message, 'error');
+  } finally {
+    isProcessing = false;
+  }
 }
 
 /* ============================================================
@@ -894,9 +1044,9 @@ async function payInstallment(id){
 function openDiscount(){
   openModal('ثبت تخفیف', `
   <div class="form"><div class="formgrid">
-    <div class="full"><label>دانش‌آموز</label><select id="d_student">${studentOptions()}</select></div>
+    <div class="full"><label>دانش‌آموز *</label><select id="d_student">${studentOptions()}</select></div>
     <div><label>نوع</label><select id="d_type"><option value="amount">مبلغ ثابت</option><option value="percent">درصدی</option></select></div>
-    <div><label>میزان</label><input type="number" id="d_value"></div>
+    <div><label>میزان *</label><input type="number" id="d_value"></div>
     <div><label>علت</label><input id="d_reason"></div>
     <div><label>تاریخ</label><input id="d_date" value="${today()}"></div>
   </div>
@@ -905,6 +1055,7 @@ function openDiscount(){
 }
 
 async function saveDiscount(){
+  if(isProcessing) return;
   const sid = v('d_student');
   const s = studentById(sid);
   if(!s) return toast('دانش‌آموز را انتخاب کنید', 'error');
@@ -912,21 +1063,32 @@ async function saveDiscount(){
   if(val <= 0) return toast('میزان تخفیف را وارد کنید', 'error');
   const disc = type === 'percent' ? Math.round(s.tuition * val / 100) : val;
 
-  const { error: e1 } = await sb.from('students').update({ discount: disc }).eq('id', s.id);
-  if(e1) return toast('خطا: ' + e1.message, 'error');
+  isProcessing = true;
+  const btn = document.getElementById('btnSaveDiscount');
+  if(btn){ btn.disabled = true; btn.textContent = 'در حال ذخیره...'; }
 
-  const x = {
-    student_id: s.id, base_amount: s.tuition, discount_type: type, value: val,
-    final_amount: Math.max(0, s.tuition - disc), reason: v('d_reason'),
-    discount_date: v('d_date'), created_by: currentUser.id
-  };
-  const { error: e2 } = await sb.from('discounts').insert(x);
-  if(e2) return toast('خطا: ' + e2.message, 'error');
+  try {
+    const { error: e1 } = await sb.from('students').update({ discount: disc }).eq('id', s.id);
+    if(e1) return toast(translateError(e1), 'error');
 
-  await logAction('ثبت تخفیف برای ' + studentName(s.id));
-  closeModal();
-  await refreshApp();
-  toast('تخفیف ثبت شد', 'success');
+    const x = {
+      student_id: s.id, base_amount: s.tuition, discount_type: type, value: val,
+      final_amount: Math.max(0, s.tuition - disc), reason: v('d_reason'),
+      discount_date: v('d_date'), created_by: currentUser.id
+    };
+    const { error: e2 } = await sb.from('discounts').insert(x);
+    if(e2) return toast(translateError(e2), 'error');
+
+    await logAction('ثبت تخفیف برای ' + studentName(s.id));
+    closeModal();
+    await refreshApp();
+    toast('تخفیف ثبت شد ✅', 'success');
+  } catch(e){
+    toast('خطا: ' + e.message, 'error');
+  } finally {
+    isProcessing = false;
+    if(btn){ btn.disabled = false; btn.textContent = 'ذخیره'; }
+  }
 }
 
 /* ============================================================
@@ -1022,27 +1184,39 @@ function exportCSV(){
   a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
   a.download = 'گزارش-مالی.csv';
   a.click();
-  toast('فایل CSV دانلود شد', 'success');
+  toast('فایل CSV دانلود شد ✅', 'success');
 }
 
 /* ============================================================
    تنظیمات
 ============================================================ */
 async function saveSettings(){
-  const x = {
-    id: true,
-    school_name: v('setSchool'),
-    academic_year: v('setYear'),
-    phone: v('setPhone'),
-    address: v('setAddress'),
-    footer: v('setFooter'),
-    updated_at: new Date().toISOString()
-  };
-  const { error } = await sb.from('settings').upsert(x);
-  if(error) return toast('خطا: ' + error.message, 'error');
-  await logAction('تغییر تنظیمات');
-  await refreshApp();
-  toast('تنظیمات ذخیره شد', 'success');
+  if(isProcessing) return;
+  isProcessing = true;
+  const btn = document.getElementById('btnSaveSettings');
+  if(btn){ btn.disabled = true; btn.textContent = 'در حال ذخیره...'; }
+
+  try {
+    const x = {
+      id: true,
+      school_name: v('setSchool'),
+      academic_year: v('setYear'),
+      phone: v('setPhone'),
+      address: v('setAddress'),
+      footer: v('setFooter'),
+      updated_at: new Date().toISOString()
+    };
+    const { error } = await sb.from('settings').upsert(x);
+    if(error) return toast(translateError(error), 'error');
+    await logAction('تغییر تنظیمات');
+    await refreshApp();
+    toast('تنظیمات ذخیره شد ✅', 'success');
+  } catch(e){
+    toast('خطا: ' + e.message, 'error');
+  } finally {
+    isProcessing = false;
+    if(btn){ btn.disabled = false; btn.textContent = 'ذخیره تنظیمات'; }
+  }
 }
 
 /* ============================================================
@@ -1050,15 +1224,24 @@ async function saveSettings(){
 ============================================================ */
 async function deleteItem(table, id){
   if(!confirm('حذف این مورد؟')) return;
-  const { error } = await sb.from(table).delete().eq('id', id);
-  if(error) return toast('خطا: ' + error.message, 'error');
-  await logAction('حذف از ' + table);
-  await refreshApp();
-  toast('حذف شد', 'success');
+  if(isProcessing) return;
+  isProcessing = true;
+
+  try {
+    const { error } = await sb.from(table).delete().eq('id', id);
+    if(error) return toast(translateError(error), 'error');
+    await logAction('حذف از ' + table);
+    await refreshApp();
+    toast('حذف شد ✅', 'success');
+  } catch(e){
+    toast('خطا: ' + e.message, 'error');
+  } finally {
+    isProcessing = false;
+  }
 }
 
 /* ============================================================
-   اتصال رویدادها (Event Delegation)
+   اتصال رویدادها
 ============================================================ */
 document.addEventListener('click', function(e){
   const btn = e.target.closest('[data-action]');
@@ -1077,9 +1260,6 @@ document.addEventListener('click', function(e){
   else if(action === 'print-invoice') printInvoice(id);
 });
 
-/* ============================================================
-   اتصال دکمه‌های ثابت
-============================================================ */
 function bindStaticButtons(){
   document.getElementById('btnSignIn').onclick = doSignIn;
   document.getElementById('btnSignUp').onclick = doSignUp;
@@ -1097,11 +1277,8 @@ function bindStaticButtons(){
   document.getElementById('btnCloseModal').onclick = closeModal;
 
   document.getElementById('modal').onclick = (e) => { if(e.target.id === 'modal') closeModal(); };
-
-  // ناوبری
   document.querySelectorAll('.nav button').forEach(b => b.onclick = () => nav(b.dataset.page));
 
-  // فیلترها
   ['studentSearch','gradeFilter','classFilter'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.addEventListener('input', renderStudents);
@@ -1113,7 +1290,6 @@ function bindStaticButtons(){
   const inv = document.getElementById('invoiceSearch');
   if(inv) inv.addEventListener('input', renderInvoices);
 
-  // جستجوی سراسری
   const gs = document.getElementById('globalSearch');
   if(gs) gs.addEventListener('input', e => {
     const q = e.target.value.trim();
@@ -1126,7 +1302,6 @@ function bindStaticButtons(){
     }
   });
 
-  // ورود با Enter
   ['authEmail','authPassword'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.addEventListener('keydown', e => { if(e.key === 'Enter') doSignIn(); });
@@ -1141,7 +1316,6 @@ window.addEventListener('DOMContentLoaded', async () => {
 
   if(!initSupabase()) return;
 
-  // بررسی session موجود
   try {
     const { data } = await sb.auth.getSession();
     if(data && data.session){
@@ -1151,19 +1325,6 @@ window.addEventListener('DOMContentLoaded', async () => {
   } catch(e){
     console.error('init error', e);
   }
-
-  // گوش دادن به تغییرات auth
-  sb.auth.onAuthStateChange(async (event, session) => {
-    if(event === 'SIGNED_IN' && session){
-      currentUser = session.user;
-      try { await refreshApp(); } catch(e){ console.error(e); }
-    }
-    if(event === 'SIGNED_OUT'){
-      currentUser = null;
-      document.getElementById('authScreen').style.display = 'grid';
-      document.getElementById('mainApp').style.display = 'none';
-    }
-  });
 });
 </script>
 </body>
