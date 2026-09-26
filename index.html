@@ -7,6 +7,8 @@
 <link rel="icon" href="logo.png" type="image/png">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jalali-date-picker@1.0.5/dist/jalali-date-picker.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jalali-date-picker@1.0.5/dist/jalali-date-picker.min.css">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap');
 :root{--primary:#2563eb;--primary2:#1e40af;--bg:#f6f7fb;--card:#fff;--text:#172033;--muted:#667085;--line:#e7e9f0;--green:#16a34a;--orange:#f59e0b;--red:#dc2626;--blue:#2563eb;--shadow:0 10px 30px rgba(30,20,60,.07)}
@@ -99,11 +101,13 @@ button{cursor:pointer;border:0}
 .loading-overlay.show{display:grid}
 .clickable{cursor:pointer;color:var(--primary);font-weight:600}
 .clickable:hover{text-decoration:underline}
+.checkbox-cell{text-align:center}
+.checkbox-cell input{width:18px;height:18px;cursor:pointer}
+.date-input{cursor:pointer;background:#fff}
 @media(max-width:1050px){.stats{grid-template-columns:repeat(2,1fr)}.charts,.alerts{grid-template-columns:1fr}.sidebar{width:220px}.main{margin-right:220px;width:calc(100% - 220px)}}
 @media(max-width:760px){.sidebar{position:static;width:100%;height:auto}.app{display:block}.main{margin:0;width:100%;padding:14px}.nav{display:grid;grid-template-columns:repeat(2,1fr)}.topbar{align-items:flex-start;flex-direction:column}.search{min-width:100%;width:100%}.stats{grid-template-columns:1fr 1fr}.formgrid{grid-template-columns:1fr}.detail-grid{grid-template-columns:1fr 1fr}}
 </style>
-</head>
-<body>
+</head><body>
 
 <!-- صفحه ورود -->
 <div id="authScreen">
@@ -147,16 +151,24 @@ button{cursor:pointer;border:0}
     <div class="nav-section">گزارش‌ها</div>
     <button data-page="reports">📊 <span>گزارش‌ها</span></button>
     <button data-page="invoices">📑 <span>صورتحساب‌ها</span></button>
+    <button data-page="bulk">🖨 <span>چاپ دسته‌ای</span></button>
     <button data-page="logs">🕘 <span>فعالیت‌ها</span></button>
 
     <div class="nav-section">سیستم</div>
+    <button data-page="users">👥 <span>کاربران</span></button>
     <button data-page="settings">⚙️ <span>تنظیمات</span></button>
+    <button data-page="backup">💾 <span>پشتیبان‌گیری</span></button>
   </nav>
 </aside>
 
 <main class="main">
 <header class="topbar">
-  <div><h1 id="pageTitle">داشبورد مالی</h1><div style="color:#667085;font-size:12px;margin-top:4px">دبیرستان دخترانه الهه مهر | سال تحصیلی <span id="yearLabel">۱۴۰۵-۱۴۰۶</span></div></div>
+  <div>
+    <h1 id="pageTitle">داشبورد مالی</h1>
+    <div style="color:#667085;font-size:12px;margin-top:4px">
+      دبیرستان دخترانه الهه مهر | سال تحصیلی <span id="yearLabel">۱۴۰۵-۱۴۰۶</span>
+    </div>
+  </div>
   <div class="top-actions">
     <input class="search" id="globalSearch" placeholder="جستجوی سریع...">
     <button class="btn primary" id="btnOpenPayment">ثبت پرداخت +</button>
@@ -169,9 +181,7 @@ button{cursor:pointer;border:0}
       <button class="btn red" style="padding:6px 10px;font-size:12px" id="btnSignOut">خروج</button>
     </div>
   </div>
-</header>
-
-<!-- داشبورد -->
+</header><!-- داشبورد -->
 <section class="page active" id="dashboard">
   <div class="grid stats" id="stats"></div>
   <div class="section-head"><h2>نمای کلی مالی</h2></div>
@@ -182,67 +192,115 @@ button{cursor:pointer;border:0}
     <div class="card"><h3>آخرین پرداخت‌ها</h3><div id="recentPayments"></div></div>
   </div>
   <div class="section-head"><h2>اقساط نزدیک و معوق</h2></div>
-  <div class="grid alerts"><div class="card"><h3>نزدیک به سررسید</h3><ul class="alert-list" id="dueSoon"></ul></div><div class="card"><h3>معوق</h3><ul class="alert-list" id="overdueList"></ul></div></div>
+  <div class="grid alerts">
+    <div class="card"><h3>نزدیک به سررسید</h3><ul class="alert-list" id="dueSoon"></ul></div>
+    <div class="card"><h3>معوق</h3><ul class="alert-list" id="overdueList"></ul></div>
+  </div>
 </section>
 
 <!-- دانش‌آموزان -->
 <section class="page" id="students">
-  <div class="section-head"><h2>مدیریت دانش‌آموزان</h2><button class="btn primary" id="btnNewStudent">ثبت دانش‌آموز +</button></div>
+  <div class="section-head">
+    <h2>مدیریت دانش‌آموزان</h2>
+    <button class="btn primary" id="btnNewStudent">ثبت دانش‌آموز +</button>
+  </div>
   <div class="card">
     <div class="filters">
       <input id="studentSearch" placeholder="جستجو...">
-      <select id="gradeFilter"><option value="">همه پایه‌ها</option><option>هفتم</option><option>هشتم</option><option>نهم</option><option>دهم</option><option>یازدهم</option><option>دوازدهم</option></select>
-      <select id="classFilter"><option value="">همه کلاس‌ها</option><option>الف</option><option>ب</option><option>ج</option><option>د</option></select>
-    </div>
-    <div class="table-wrap"><table class="table"><thead><tr><th>کد</th><th>نام و نام خانوادگی</th><th>پایه</th><th>کلاس</th><th>شهریه</th><th>پرداخت</th><th>مانده</th><th>وضعیت</th><th>عملیات</th></tr></thead><tbody id="studentsTable"></tbody></table></div>
-  </div>
-</section>
-
-<!-- پرداخت -->
-<section class="page" id="payments">
-  <div class="section-head"><h2>ثبت پرداخت</h2><button class="btn primary" id="btnNewPayment">ثبت پرداخت +</button></div>
-  <div class="card">
-    <div class="filters">
-      <input id="paymentSearch" placeholder="جستجوی پرداخت...">
-      <select id="paymentMethodFilter"><option value="">همه روش‌ها</option><option>کارتخوان</option><option>کارت به کارت</option><option>واریز بانکی</option><option>نقدی</option><option>چک</option><option>سایر</option></select>
-    </div>
-    <div class="table-wrap"><table class="table"><thead><tr><th>رسید</th><th>دانش‌آموز</th><th>مبلغ</th><th>تاریخ</th><th>روش</th><th>پیگیری</th><th>عملیات</th></tr></thead><tbody id="paymentsTable"></tbody></table></div>
-  </div>
-</section>
-
-<!-- رسیدها -->
-<section class="page" id="receipts"><div class="section-head"><h2>رسیدها</h2></div><div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>شماره رسید</th><th>دانش‌آموز</th><th>مبلغ</th><th>تاریخ</th><th>روش</th><th>عملیات</th></tr></thead><tbody id="receiptsTable"></tbody></table></div></div></section>
-
-<!-- کارکنان و دبیران -->
-<section class="page" id="staff">
-  <div class="section-head"><h2>مدیریت کارکنان و دبیران</h2><button class="btn primary" id="btnNewStaff">ثبت کارمند جدید +</button></div>
-  <div class="card">
-    <div class="filters">
-      <input id="staffSearch" placeholder="جستجوی نام، کد ملی یا سمت...">
-      <select id="staffRoleFilter">
-        <option value="">همه سمت‌ها</option>
-        <option>دبیر</option>
-        <option>مدیر</option>
-        <option>معاون</option>
-        <option>مشاور</option>
-        <option>حسابدار</option>
-        <option>منشی</option>
-        <option>خدمات</option>
-        <option>سایر</option>
+      <select id="gradeFilter">
+        <option value="">همه پایه‌ها</option>
+        <option>هفتم</option><option>هشتم</option><option>نهم</option>
+        <option>دهم</option><option>یازدهم</option><option>دوازدهم</option>
+      </select>
+      <select id="classFilter">
+        <option value="">همه کلاس‌ها</option>
+        <option>الف</option><option>ب</option><option>ج</option><option>د</option>
       </select>
     </div>
     <div class="table-wrap">
       <table class="table">
         <thead>
           <tr>
-            <th>کد پرسنلی</th>
-            <th>نام و نام خانوادگی</th>
-            <th>سمت</th>
-            <th>شماره همراه</th>
-            <th>حقوق پایه</th>
-            <th>واریز شده</th>
-            <th>مانده</th>
-            <th>عملیات</th>
+            <th>کد</th><th>نام و نام خانوادگی</th><th>پایه</th><th>کلاس</th>
+            <th>شهریه</th><th>پرداخت</th><th>مانده</th><th>وضعیت</th><th>عملیات</th>
+          </tr>
+        </thead>
+        <tbody id="studentsTable"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- پرداخت -->
+<section class="page" id="payments">
+  <div class="section-head">
+    <h2>ثبت پرداخت</h2>
+    <button class="btn primary" id="btnNewPayment">ثبت پرداخت +</button>
+  </div>
+  <div class="card">
+    <div class="filters">
+      <input id="paymentSearch" placeholder="جستجوی پرداخت...">
+      <select id="paymentMethodFilter">
+        <option value="">همه روش‌ها</option>
+        <option>کارتخوان</option><option>کارت به کارت</option><option>واریز بانکی</option>
+        <option>نقدی</option><option>چک</option><option>سایر</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>رسید</th><th>دانش‌آموز</th><th>مبلغ</th><th>تاریخ</th>
+            <th>روش</th><th>پیگیری</th><th>عملیات</th>
+          </tr>
+        </thead>
+        <tbody id="paymentsTable"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- رسیدها -->
+<section class="page" id="receipts">
+  <div class="section-head"><h2>رسیدها</h2></div>
+  <div class="card">
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>شماره رسید</th><th>دانش‌آموز</th><th>مبلغ</th>
+            <th>تاریخ</th><th>روش</th><th>عملیات</th>
+          </tr>
+        </thead>
+        <tbody id="receiptsTable"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- کارکنان و دبیران -->
+<section class="page" id="staff">
+  <div class="section-head">
+    <h2>مدیریت کارکنان و دبیران</h2>
+    <button class="btn primary" id="btnNewStaff">ثبت کارمند جدید +</button>
+  </div>
+  <div class="card">
+    <div class="filters">
+      <input id="staffSearch" placeholder="جستجوی نام، کد ملی یا سمت...">
+      <select id="staffRoleFilter">
+        <option value="">همه سمت‌ها</option>
+        <option>دبیر</option><option>مدیر</option><option>معاون</option>
+        <option>مشاور</option><option>حسابدار</option><option>منشی</option>
+        <option>خدمات</option><option>سایر</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>کد پرسنلی</th><th>نام و نام خانوادگی</th><th>سمت</th>
+            <th>شماره همراه</th><th>حقوق پایه</th><th>واریز شده</th>
+            <th>مانده</th><th>عملیات</th>
           </tr>
         </thead>
         <tbody id="staffTable"></tbody>
@@ -253,7 +311,10 @@ button{cursor:pointer;border:0}
 
 <!-- واریز حقوق -->
 <section class="page" id="salaries">
-  <div class="section-head"><h2>واریز حقوق کارکنان</h2><button class="btn primary" id="btnNewSalary">ثبت واریز حقوق +</button></div>
+  <div class="section-head">
+    <h2>واریز حقوق کارکنان</h2>
+    <button class="btn primary" id="btnNewSalary">ثبت واریز حقوق +</button>
+  </div>
   <div class="card">
     <div class="filters">
       <input id="salarySearch" placeholder="جستجوی واریز...">
@@ -269,38 +330,107 @@ button{cursor:pointer;border:0}
       <table class="table">
         <thead>
           <tr>
-            <th>کارمند</th>
-            <th>ماه</th>
-            <th>حقوق پایه</th>
-            <th>پاداش</th>
-            <th>کسورات</th>
-            <th>مبلغ خالص</th>
-            <th>تاریخ واریز</th>
-            <th>روش</th>
-            <th>عملیات</th>
+            <th>کارمند</th><th>ماه</th><th>حقوق پایه</th><th>پاداش</th>
+            <th>کسورات</th><th>مبلغ خالص</th><th>تاریخ واریز</th>
+            <th>روش</th><th>عملیات</th>
           </tr>
         </thead>
         <tbody id="salaryTable"></tbody>
       </table>
     </div>
   </div>
+</section><!-- درآمدها -->
+<section class="page" id="incomes">
+  <div class="section-head">
+    <h2>درآمدها</h2>
+    <button class="btn primary" id="btnNewIncome">ثبت درآمد +</button>
+  </div>
+  <div class="card">
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>عنوان</th><th>دسته</th><th>مبلغ</th>
+            <th>تاریخ</th><th>توضیحات</th><th>عملیات</th>
+          </tr>
+        </thead>
+        <tbody id="incomeTable"></tbody>
+      </table>
+    </div>
+  </div>
 </section>
 
-<!-- درآمدها -->
-<section class="page" id="incomes"><div class="section-head"><h2>درآمدها</h2><button class="btn primary" id="btnNewIncome">ثبت درآمد +</button></div><div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>عنوان</th><th>دسته</th><th>مبلغ</th><th>تاریخ</th><th>توضیحات</th><th>عملیات</th></tr></thead><tbody id="incomeTable"></tbody></table></div></div></section>
-
 <!-- هزینه‌ها -->
-<section class="page" id="expenses"><div class="section-head"><h2>هزینه‌های مدرسه</h2><button class="btn primary" id="btnNewExpense">ثبت هزینه +</button></div><div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>عنوان</th><th>دسته‌بندی</th><th>مبلغ</th><th>تاریخ</th><th>روش پرداخت</th><th>عملیات</th></tr></thead><tbody id="expenseTable"></tbody></table></div></div></section>
+<section class="page" id="expenses">
+  <div class="section-head">
+    <h2>هزینه‌های مدرسه</h2>
+    <button class="btn primary" id="btnNewExpense">ثبت هزینه +</button>
+  </div>
+  <div class="card">
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>عنوان</th><th>دسته‌بندی</th><th>مبلغ</th>
+            <th>تاریخ</th><th>روش پرداخت</th><th>عملیات</th>
+          </tr>
+        </thead>
+        <tbody id="expenseTable"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
 
 <!-- اقساط -->
-<section class="page" id="installments"><div class="section-head"><h2>مدیریت اقساط</h2><button class="btn primary" id="btnNewInstallment">تعریف قسط +</button></div><div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>دانش‌آموز</th><th>مبلغ قسط</th><th>سررسید</th><th>وضعیت</th><th>عملیات</th></tr></thead><tbody id="installmentTable"></tbody></table></div></div></section>
+<section class="page" id="installments">
+  <div class="section-head">
+    <h2>مدیریت اقساط</h2>
+    <button class="btn primary" id="btnNewInstallment">تعریف قسط +</button>
+  </div>
+  <div class="card">
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>دانش‌آموز</th><th>مبلغ قسط</th><th>سررسید</th>
+            <th>وضعیت</th><th>عملیات</th>
+          </tr>
+        </thead>
+        <tbody id="installmentTable"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
 
 <!-- تخفیف‌ها -->
-<section class="page" id="discounts"><div class="section-head"><h2>مدیریت تخفیف</h2><button class="btn primary" id="btnNewDiscount">ثبت تخفیف +</button></div><div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>دانش‌آموز</th><th>مبلغ اصلی</th><th>تخفیف</th><th>مبلغ نهایی</th><th>علت</th><th>تاریخ</th><th>عملیات</th></tr></thead><tbody id="discountTable"></tbody></table></div></div></section>
+<section class="page" id="discounts">
+  <div class="section-head">
+    <h2>مدیریت تخفیف</h2>
+    <button class="btn primary" id="btnNewDiscount">ثبت تخفیف +</button>
+  </div>
+  <div class="card">
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>دانش‌آموز</th><th>مبلغ اصلی</th><th>تخفیف</th>
+            <th>مبلغ نهایی</th><th>علت</th><th>تاریخ</th><th>عملیات</th>
+          </tr>
+        </thead>
+        <tbody id="discountTable"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
 
 <!-- گزارش‌ها -->
 <section class="page" id="reports">
-  <div class="section-head"><h2>گزارش‌های مالی</h2><div class="actions"><button class="btn blue" id="btnExportCSV">📥 خروجی Excel/CSV</button></div></div>
+  <div class="section-head">
+    <h2>گزارش‌های مالی</h2>
+    <div class="actions">
+      <button class="btn blue" id="btnExportCSV">📥 خروجی Excel/CSV</button>
+    </div>
+  </div>
   <div class="card">
     <div class="filters">
       <select id="reportType">
@@ -312,7 +442,11 @@ button{cursor:pointer;border:0}
         <option value="expenses">گزارش هزینه‌ها</option>
         <option value="profit">گزارش درآمد و هزینه</option>
       </select>
-      <select id="reportGrade"><option value="">همه پایه‌ها</option><option>هفتم</option><option>هشتم</option><option>نهم</option><option>دهم</option><option>یازدهم</option><option>دوازدهم</option></select>
+      <select id="reportGrade">
+        <option value="">همه پایه‌ها</option>
+        <option>هفتم</option><option>هشتم</option><option>نهم</option>
+        <option>دهم</option><option>یازدهم</option><option>دوازدهم</option>
+      </select>
       <button class="btn primary" id="btnRenderReport">نمایش گزارش</button>
     </div>
     <div id="reportResult"></div>
@@ -320,21 +454,184 @@ button{cursor:pointer;border:0}
 </section>
 
 <!-- صورتحساب -->
-<section class="page" id="invoices"><div class="section-head"><h2>صورتحساب دانش‌آموزان</h2></div><div class="card"><div class="filters"><input id="invoiceSearch" placeholder="نام یا کد دانش‌آموز..."></div><div id="invoiceResult"></div></div></section>
+<section class="page" id="invoices">
+  <div class="section-head"><h2>صورتحساب دانش‌آموزان</h2></div>
+  <div class="card">
+    <div class="filters">
+      <input id="invoiceSearch" placeholder="نام یا کد دانش‌آموز...">
+    </div>
+    <div id="invoiceResult"></div>
+  </div>
+</section>
+
+<!-- چاپ دسته‌ای رسیدها -->
+<section class="page" id="bulk">
+  <div class="section-head">
+    <h2>🖨 چاپ دسته‌ای رسیدها</h2>
+  </div>
+  <div class="card">
+    <div class="filters">
+      <input id="bulkSearch" placeholder="جستجوی نام، کد یا شماره رسید...">
+      <select id="bulkMethodFilter">
+        <option value="">همه روش‌ها</option>
+        <option>کارتخوان</option><option>کارت به کارت</option><option>واریز بانکی</option>
+        <option>نقدی</option><option>چک</option><option>سایر</option>
+      </select>
+      <input id="bulkDateFrom" placeholder="از تاریخ..." class="date-input" readonly>
+      <input id="bulkDateTo" placeholder="تا تاریخ..." class="date-input" readonly>
+    </div>
+    <div class="actions" style="margin-bottom:12px">
+      <button class="btn" id="btnBulkSelectAll">انتخاب همه</button>
+      <button class="btn" id="btnBulkDeselectAll">لغو انتخاب</button>
+      <button class="btn primary" id="btnBulkPrint">🖨 چاپ موارد انتخاب‌شده</button>
+      <span id="bulkCounter" style="margin-right:auto;color:var(--muted);font-size:13px"></span>
+    </div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th class="checkbox-cell"><input type="checkbox" id="bulkCheckAll"></th>
+            <th>رسید</th><th>دانش‌آموز</th><th>مبلغ</th>
+            <th>تاریخ</th><th>روش</th><th>پیگیری</th>
+          </tr>
+        </thead>
+        <tbody id="bulkTable"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- کاربران -->
+<section class="page" id="users">
+  <div class="section-head">
+    <h2>👥 مدیریت کاربران</h2>
+    <button class="btn primary" id="btnNewUser">افزودن کاربر +</button>
+  </div>
+  <div class="card">
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>نام</th><th>ایمیل</th><th>سطح دسترسی</th>
+            <th>وضعیت</th><th>تاریخ عضویت</th><th>عملیات</th>
+          </tr>
+        </thead>
+        <tbody id="usersTable"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
 
 <!-- تنظیمات -->
-<section class="page" id="settings"><div class="section-head"><h2>تنظیمات</h2></div><div class="card form"><div class="formgrid"><div><label>نام مدرسه</label><input id="setSchool"></div><div><label>سال تحصیلی</label><input id="setYear"></div><div><label>شماره تماس</label><input id="setPhone"></div><div class="full"><label>آدرس</label><input id="setAddress"></div><div class="full"><label>متن پایین رسید</label><textarea id="setFooter"></textarea></div></div><div class="modalfoot"><button class="btn primary" id="btnSaveSettings">ذخیره تنظیمات</button></div></div></section>
+<section class="page" id="settings">
+  <div class="section-head"><h2>⚙️ تنظیمات</h2></div>
+  <div class="card form">
+    <div class="formgrid">
+      <div><label>نام مدرسه</label><input id="setSchool"></div>
+      <div><label>سال تحصیلی</label><input id="setYear"></div>
+      <div><label>شماره تماس</label><input id="setPhone"></div>
+      <div class="full"><label>آدرس</label><input id="setAddress"></div>
+      <div class="full"><label>متن پایین رسید</label><textarea id="setFooter"></textarea></div>
+    </div>
+    <div class="modalfoot">
+      <button class="btn primary" id="btnSaveSettings">ذخیره تنظیمات</button>
+    </div>
+  </div>
+</section>
+
+<!-- پشتیبان‌گیری -->
+<section class="page" id="backup">
+  <div class="section-head"><h2>💾 پشتیبان‌گیری و بازیابی</h2></div>
+
+  <div class="grid" style="grid-template-columns:1fr 1fr;gap:15px">
+    <div class="card">
+      <h3>📥 دانلود پشتیبان</h3>
+      <p style="color:var(--muted);font-size:13px;line-height:1.8">
+        از تمام اطلاعات مدرسه یک فایل JSON دانلود می‌شود. این فایل را در جای امن نگه‌داری کن.
+      </p>
+      <div style="background:#f0f9ff;padding:12px;border-radius:10px;margin:15px 0;font-size:13px">
+        <b>📊 آمار فعلی:</b><br>
+        <span id="backupStats"></span>
+      </div>
+      <button class="btn primary" id="btnDownloadBackup" style="width:100%">📥 دانلود فایل پشتیبان (JSON)</button>
+      <button class="btn green" id="btnDownloadExcelFull" style="width:100%;margin-top:8px">📊 دانلود Excel کامل (CSV)</button>
+    </div>
+
+    <div class="card">
+      <h3>📂 بازیابی از فایل</h3>
+      <p style="color:var(--muted);font-size:13px;line-height:1.8">
+        اگر می‌خواهی اطلاعات قبلی را برگردانی، فایل JSON پشتیبان را بارگذاری کن.
+      </p>
+      <div style="background:#fef3c7;padding:12px;border-radius:10px;margin:15px 0;font-size:13px">
+        ⚠️ <b>هشدار:</b> این کار اطلاعات موجود را با فایل پشتیبان <b>جایگزین</b> می‌کند.
+      </div>
+      <label class="btn blue" style="width:100%;text-align:center;display:block;padding:12px;border-radius:10px;cursor:pointer">
+        📂 انتخاب فایل پشتیبان
+        <input type="file" accept=".json" id="restoreFile" hidden>
+      </label>
+      <div id="restoreProgress" style="margin-top:15px;display:none">
+        <div style="background:#e5e7eb;border-radius:10px;height:20px;overflow:hidden">
+          <div id="restoreBar" style="background:var(--primary);height:100%;width:0%;transition:width .3s"></div>
+        </div>
+        <div id="restoreMsg" style="text-align:center;margin-top:8px;font-size:13px;color:var(--muted)">در حال بازیابی...</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:15px">
+    <h3>📋 راهنمای پشتیبان‌گیری</h3>
+    <ul style="line-height:2;color:#555;font-size:13px;padding-right:20px">
+      <li>✅ <b>هر هفته</b> یک بار پشتیبان بگیر و در <b>Google Drive یا ایمیل</b> ذخیره کن</li>
+      <li>✅ قبل از بازیابی، مطمئن شو فایل پشتیبان <b>معتبر</b> است</li>
+      <li>✅ فایل‌های پشتیبان را با نام تاریخ ذخیره کن</li>
+      <li>✅ فایل پشتیبان شامل <b>تمام اطلاعات</b> است ولی <b>رمز عبور کاربران</b> را شامل نمی‌شود</li>
+      <li>⚠️ فایل را در جای امن نگه‌دار (اطلاعات شخصی دانش‌آموزان در آن است)</li>
+    </ul>
+  </div>
+
+  <div class="card" style="margin-top:15px">
+    <h3>🗑️ پاک کردن اطلاعات (با احتیاط!)</h3>
+    <p style="color:var(--red);font-size:13px">
+      ⚠️ این کار تمام اطلاعات را از دیتابیس حذف می‌کند و قابل بازگشت نیست!
+    </p>
+    <button class="btn red" id="btnDangerReset" style="margin-top:10px">🗑️ پاک کردن کل اطلاعات</button>
+  </div>
+</section>
 
 <!-- فعالیت‌ها -->
-<section class="page" id="logs"><div class="section-head"><h2>گزارش فعالیت کاربران</h2></div><div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>عملیات</th><th>تاریخ</th><th>ساعت</th></tr></thead><tbody id="logsTable"></tbody></table></div></div></section>
+<section class="page" id="logs">
+  <div class="section-head"><h2>گزارش فعالیت کاربران</h2></div>
+  <div class="card">
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr><th>عملیات</th><th>تاریخ</th><th>ساعت</th></tr>
+        </thead>
+        <tbody id="logsTable"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
 </main>
 </div>
 
-<div class="modal" id="modal"><div class="modalbox"><div class="modalhead"><h2 id="modalTitle"></h2><button class="btn" id="btnCloseModal">✕</button></div><div id="modalBody"></div></div></div>
-<div class="toast" id="toast"></div>
-<div class="loading-overlay" id="loadingOverlay">⏳ در حال بارگذاری...</div>
+<!-- مودال عمومی -->
+<div class="modal" id="modal">
+  <div class="modalbox">
+    <div class="modalhead">
+      <h2 id="modalTitle"></h2>
+      <button class="btn" id="btnCloseModal">✕</button>
+    </div>
+    <div id="modalBody"></div>
+  </div>
+</div>
 
-<script>
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Loading -->
+<div class="loading-overlay" id="loadingOverlay">⏳ در حال بارگذاری...</div><script>
 /* ============================================================
    تنظیمات Supabase
 ============================================================ */
@@ -342,7 +639,7 @@ const SUPABASE_URL = 'https://zfduxislgpnxpharyozv.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_VJ1tVUpM8r-nMun8PkMT5Q__bYePVZW';
 
 /* ============================================================
-   وضعیت برنامه
+   مقادیر ثابت
 ============================================================ */
 const DEFAULT_SETTINGS = {
   school: 'دبیرستان دخترانه الهه مهر',
@@ -357,6 +654,9 @@ const CLASSES = ['الف','ب','ج','د'];
 const STAFF_ROLES = ['دبیر','مدیر','معاون','مشاور','حسابدار','منشی','خدمات','سایر'];
 const MONTHS = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
 
+/* ============================================================
+   وضعیت برنامه
+============================================================ */
 let sb = null;
 let currentUser = null;
 let db = {
@@ -366,6 +666,7 @@ let db = {
 };
 let charts = [];
 let isProcessing = false;
+let userRole = 'staff'; // admin | staff
 
 /* ============================================================
    توابع کمکی
@@ -423,7 +724,7 @@ function isValidEmail(email){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
 function showLoading(show){ document.getElementById('loadingOverlay').classList.toggle('show', !!show); }
 
 /* ============================================================
-   ترجمه خطاهای Supabase
+   ترجمه خطاها
 ============================================================ */
 function translateError(error){
   if(!error) return 'خطای نامشخص';
@@ -441,7 +742,7 @@ function translateError(error){
   if(code === '42501' || msg.includes('row-level security')) return '🔒 دسترسی ندارید. لطفاً دوباره وارد شوید.';
   if(code === 'PGRST301' || msg.includes('jwt')) return '🔒 نشست منقضی شده. لطفاً دوباره وارد شوید.';
   if(msg.includes('failed to fetch') || msg.includes('networkerror')) return '🌐 خطای اتصال. VPN را روشن کنید.';
-  if(msg.includes('email not confirmed')) return '📧 ایمیل تأیید نشده است. با مدیر تماس بگیرید.';
+  if(msg.includes('email not confirmed')) return '📧 ایمیل تأیید نشده است.';
   if(msg.includes('invalid login')) return '🔑 ایمیل یا رمز عبور اشتباه است.';
   return 'خطا: ' + (error.message || 'نامشخص');
 }
@@ -461,7 +762,7 @@ function initSupabase(){
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: false,
-        storageKey: 'haleh-mehr-auth-v2'
+        storageKey: 'haleh-mehr-auth-v3'
       }
     });
     return true;
@@ -475,7 +776,7 @@ function initSupabase(){
    نگاشت داده‌ها
 ============================================================ */
 function mapStudent(r){
-  return { ...r, class: r.class_name, year: r.academic_year, fatherPhone: r.father_phone, phone: r.phone || r.father_phone, motherPhone: r.mother_phone };
+  return { ...r, class: r.class_name, year: r.academic_year, phone: r.phone || r.father_phone, fatherPhone: r.father_phone, motherPhone: r.mother_phone };
 }
 function mapPayment(r){ return { ...r, studentId: r.student_id, date: r.payment_date, desc: r.description }; }
 function mapIncome(r){ return { ...r, date: r.income_date, desc: r.description }; }
@@ -540,7 +841,7 @@ async function logAction(action){
 }
 
 /* ============================================================
-   رفرش
+   رفرش کل برنامه
 ============================================================ */
 async function refreshApp(){
   if(!currentUser) return;
@@ -551,9 +852,15 @@ async function refreshApp(){
 
   const meta = currentUser.user_metadata || {};
   const name = meta.full_name || currentUser.email || 'کاربر';
+  userRole = meta.role === 'admin' ? 'admin' : 'staff';
+
   document.getElementById('userName').textContent = name;
   document.getElementById('userAvatar').textContent = (name[0] || 'ک').toUpperCase();
-  document.getElementById('userRole').textContent = meta.role === 'admin' ? 'مدیر' : 'مسئول مالی';
+  document.getElementById('userRole').textContent = userRole === 'admin' ? 'مدیر' : 'مسئول مالی';
+
+  // مخفی کردن بخش کاربران برای غیر مدیر
+  const usersBtn = document.querySelector('.nav button[data-page="users"]');
+  if(usersBtn) usersBtn.style.display = userRole === 'admin' ? 'flex' : 'none';
 
   document.getElementById('setSchool').value = db.settings.school;
   document.getElementById('setYear').value = db.settings.year;
@@ -562,6 +869,7 @@ async function refreshApp(){
   document.getElementById('setFooter').value = db.settings.footer;
 
   renderAll();
+  updateBackupStats();
 }
 
 /* ============================================================
@@ -578,10 +886,7 @@ async function doSignIn(){
 
   try {
     const { data, error } = await sb.auth.signInWithPassword({ email, password });
-    if(error){
-      authMsg(translateError(error));
-      return;
-    }
+    if(error){ authMsg(translateError(error)); return; }
     currentUser = data.user;
     authMsg('');
     await refreshApp();
@@ -642,13 +947,13 @@ function nav(page){
     dashboard: 'داشبورد مالی', students: 'مدیریت دانش‌آموزان', payments: 'ثبت پرداخت',
     receipts: 'رسیدها', staff: 'کارکنان و دبیران', salaries: 'واریز حقوق',
     incomes: 'درآمدها', expenses: 'هزینه‌ها', installments: 'اقساط', discounts: 'تخفیف‌ها',
-    reports: 'گزارش‌های مالی', invoices: 'صورتحساب‌ها', logs: 'فعالیت کاربران', settings: 'تنظیمات'
+    reports: 'گزارش‌های مالی', invoices: 'صورتحساب‌ها', bulk: 'چاپ دسته‌ای رسیدها',
+    users: 'مدیریت کاربران', logs: 'فعالیت کاربران', settings: 'تنظیمات', backup: 'پشتیبان‌گیری'
   };
   document.getElementById('pageTitle').textContent = titles[page] || '';
   renderAll();
-}
-
-/* ============================================================
+  if(page === 'backup') updateBackupStats();
+}/* ============================================================
    رندر کل
 ============================================================ */
 function renderAll(){
@@ -664,12 +969,17 @@ function renderAll(){
   renderInstallments();
   renderDiscounts();
   renderInvoices();
+  renderBulk();
+  renderUsers();
   renderLogs();
   renderDashboardLists();
   renderReport();
   drawCharts();
 }
 
+/* ============================================================
+   آمار داشبورد
+============================================================ */
 function renderStats(){
   const total = db.students.length;
   const debt = db.students.filter(s => balance(s) > 0).length;
@@ -696,7 +1006,7 @@ function renderStats(){
 function renderStudents(){
   const q = v('studentSearch'), g = v('gradeFilter'), c = v('classFilter');
   const arr = db.students.filter(s =>
-    (!q || `${s.name} ${s.family} ${s.code} ${s.national} ${s.phone}`.includes(q)) &&
+    (!q || `${s.name} ${s.family} ${s.code} ${s.phone}`.includes(q)) &&
     (!g || s.grade === g) && (!c || s.class === c)
   );
   document.getElementById('studentsTable').innerHTML = arr.map(s => {
@@ -717,7 +1027,7 @@ function renderStudents(){
 }
 
 /* ============================================================
-   فرم دانش‌آموز (ساده شده)
+   فرم دانش‌آموز
 ============================================================ */
 function openStudent(id){
   const s = id ? studentById(id) : {
@@ -747,16 +1057,11 @@ async function saveStudent(id){
   if(isProcessing) return;
 
   const s = {
-    code: v('f_code'),
-    name: v('f_name'),
-    family: v('f_family'),
-    grade: v('f_grade'),
-    class_name: v('f_class'),
-    phone: v('f_phone'),
-    father_phone: v('f_phone'),
+    code: v('f_code'), name: v('f_name'), family: v('f_family'),
+    grade: v('f_grade'), class_name: v('f_class'),
+    phone: v('f_phone'), father_phone: v('f_phone'),
     academic_year: v('f_year'),
-    tuition: num('f_tuition'),
-    discount: num('f_discount')
+    tuition: num('f_tuition'), discount: num('f_discount')
   };
 
   if(!s.code) return toast('کد دانش‌آموزی الزامی است', 'error');
@@ -779,7 +1084,6 @@ async function saveStudent(id){
     } else {
       ({ error } = await sb.from('students').insert(s));
     }
-
     if(error) return toast(translateError(error), 'error');
 
     await logAction(id ? 'ویرایش دانش‌آموز' : `ثبت دانش‌آموز ${s.name} ${s.family}`);
@@ -809,10 +1113,8 @@ function studentDetails(id){
   const sortedPays = [...ps].sort((a,b) => (a.date || '').localeCompare(b.date || ''));
 
   rows += `<tr style="background:#f0f9ff">
-    <td>-</td>
-    <td><b>شهریه پس از تخفیف</b></td>
-    <td><b>${money(finalTuition(s))}</b></td>
-    <td>-</td>
+    <td>-</td><td><b>شهریه پس از تخفیف</b></td>
+    <td><b>${money(finalTuition(s))}</b></td><td>-</td>
     <td><b>${money(finalTuition(s))}</b></td>
   </tr>`;
 
@@ -822,9 +1124,7 @@ function studentDetails(id){
     rows += `<tr>
       <td>${p.date||'-'}</td>
       <td>پرداخت - ${p.method||'-'} ${p.tracking ? '('+p.tracking+')' : ''}</td>
-      <td>-</td>
-      <td>${money(p.amount)}</td>
-      <td>${money(remaining)}</td>
+      <td>-</td><td>${money(p.amount)}</td><td>${money(remaining)}</td>
     </tr>`;
   });
 
@@ -835,14 +1135,12 @@ function studentDetails(id){
       کد: ${s.code||'-'} | پایه: ${s.grade||'-'} | کلاس: ${s.class||'-'} | همراه: ${s.phone||'-'}
     </div>
   </div>
-
   <div class="grid detail-grid">
     <div class="card mini"><span>شهریه کل</span><strong>${money(s.tuition)}</strong></div>
     <div class="card mini"><span>تخفیف</span><strong>${money(s.discount)}</strong></div>
     <div class="card mini"><span>پرداخت‌شده</span><strong style="color:var(--green)">${money(paid(s))}</strong></div>
     <div class="card mini"><span>مانده</span><strong style="color:${balance(s)>0?'var(--red)':'var(--green)'}">${money(balance(s))}</strong></div>
   </div>
-
   <div class="section-head" style="margin-top:20px">
     <h3 style="margin:0">📋 ریز تراکنش‌ها</h3>
     <div class="actions">
@@ -850,22 +1148,12 @@ function studentDetails(id){
       <button class="btn blue" data-action="print-invoice" data-id="${s.id}">🖨 چاپ صورتحساب</button>
     </div>
   </div>
-
   <div class="table-wrap">
     <table class="table">
-      <thead>
-        <tr>
-          <th>تاریخ</th>
-          <th>شرح</th>
-          <th>بدهکار</th>
-          <th>بستانکار</th>
-          <th>مانده</th>
-        </tr>
-      </thead>
+      <thead><tr><th>تاریخ</th><th>شرح</th><th>بدهکار</th><th>بستانکار</th><th>مانده</th></tr></thead>
       <tbody>${rows}</tbody>
     </table>
   </div>
-
   ${insts.length ? `
     <div class="section-head" style="margin-top:20px"><h3>📅 اقساط</h3></div>
     <div class="table-wrap">
@@ -873,14 +1161,11 @@ function studentDetails(id){
         <thead><tr><th>سررسید</th><th>مبلغ</th><th>وضعیت</th></tr></thead>
         <tbody>${insts.map(i => `
           <tr>
-            <td>${i.due}</td>
-            <td>${money(i.amount)}</td>
+            <td>${i.due}</td><td>${money(i.amount)}</td>
             <td><span class="badge ${i.paid?'paid':(isPast(i.due)?'overdue':'debt')}">${i.paid?'پرداخت شده':(isPast(i.due)?'معوق':'در انتظار')}</span></td>
-          </tr>
-        `).join('')}</tbody>
+          </tr>`).join('')}</tbody>
       </table>
-    </div>
-  ` : ''}
+    </div>` : ''}
   `);
 }
 
@@ -897,7 +1182,7 @@ function openPayment(){
   <div class="form"><div class="formgrid">
     <div class="full"><label>دانش‌آموز *</label><select id="p_student"><option value="">انتخاب کنید</option>${studentOptions()}</select></div>
     <div><label>مبلغ (ریال) *</label><input type="number" id="p_amount"></div>
-    <div><label>تاریخ</label><input id="p_date" value="${today()}"></div>
+    <div><label>تاریخ</label><input id="p_date" value="${today()}" class="date-input" readonly></div>
     <div><label>روش پرداخت</label><select id="p_method"><option>کارتخوان</option><option>کارت به کارت</option><option>واریز بانکی</option><option>نقدی</option><option>چک</option><option>سایر</option></select></div>
     <div><label>شماره پیگیری</label><input id="p_tracking"></div>
     <div><label>شماره رسید (خالی = خودکار)</label><input id="p_receipt"></div>
@@ -906,6 +1191,7 @@ function openPayment(){
   <div class="modalfoot"><button class="btn primary" id="btnSavePayment">ثبت پرداخت</button></div></div>`);
 
   document.getElementById('btnSavePayment').onclick = savePayment;
+  setTimeout(() => attachDatePicker('p_date'), 100);
 }
 
 function openPaymentFor(studentId){
@@ -963,8 +1249,7 @@ function renderPayments(){
   document.getElementById('paymentsTable').innerHTML = arr.map(p => `
     <tr><td>${p.receipt}</td>
     <td><span class="clickable" data-action="details" data-id="${p.studentId}">${studentName(p.studentId)}</span></td>
-    <td>${money(p.amount)}</td>
-    <td>${p.date||'-'}</td><td>${p.method||'-'}</td><td>${p.tracking||'-'}</td>
+    <td>${money(p.amount)}</td><td>${p.date||'-'}</td><td>${p.method||'-'}</td><td>${p.tracking||'-'}</td>
     <td class="actions">
       <button class="btn blue" data-action="print-receipt" data-id="${p.id}">رسید</button>
       <button class="btn red" data-action="del-payment" data-id="${p.id}">حذف</button>
@@ -975,8 +1260,7 @@ function renderReceipts(){
   document.getElementById('receiptsTable').innerHTML = db.payments.map(p => `
     <tr><td>${p.receipt}</td>
     <td><span class="clickable" data-action="details" data-id="${p.studentId}">${studentName(p.studentId)}</span></td>
-    <td>${money(p.amount)}</td>
-    <td>${p.date||'-'}</td><td>${p.method||'-'}</td>
+    <td>${money(p.amount)}</td><td>${p.date||'-'}</td><td>${p.method||'-'}</td>
     <td><button class="btn blue" data-action="print-receipt" data-id="${p.id}">چاپ</button></td></tr>`).join('')
     || `<tr><td colspan="6" class="empty">رسیدی ثبت نشده است.</td></tr>`;
 }
@@ -1008,9 +1292,7 @@ function printReceipt(id){
   </body></html>`);
   w.document.close();
   setTimeout(() => w.print(), 300);
-}
-
-/* ============================================================
+}/* ============================================================
    کارکنان و دبیران
 ============================================================ */
 function renderStaff(){
@@ -1067,14 +1349,9 @@ async function saveStaff(id){
   if(isProcessing) return;
 
   const s = {
-    staff_code: v('st_code'),
-    name: v('st_name'),
-    family: v('st_family'),
-    position: v('st_position'),
-    phone: v('st_phone'),
-    base_salary: num('st_base'),
-    bonus: num('st_bonus'),
-    notes: v('st_notes')
+    staff_code: v('st_code'), name: v('st_name'), family: v('st_family'),
+    position: v('st_position'), phone: v('st_phone'),
+    base_salary: num('st_base'), bonus: num('st_bonus'), notes: v('st_notes')
   };
 
   if(!s.staff_code) return toast('کد پرسنلی الزامی است', 'error');
@@ -1097,7 +1374,6 @@ async function saveStaff(id){
     } else {
       ({ error } = await sb.from('staff').insert(s));
     }
-
     if(error) return toast(translateError(error), 'error');
 
     await logAction(id ? 'ویرایش کارمند' : `ثبت کارمند ${s.name} ${s.family}`);
@@ -1144,7 +1420,6 @@ function renderSalaries(){
 }
 
 function openSalary(staffId){
-  const today_ = today();
   openModal('ثبت واریز حقوق', `
   <div class="form"><div class="formgrid">
     <div class="full"><label>کارمند *</label><select id="s_staff"><option value="">انتخاب کنید</option>${staffOptions()}</select></div>
@@ -1152,7 +1427,7 @@ function openSalary(staffId){
     <div><label>حقوق پایه (ریال) *</label><input type="number" id="s_base"></div>
     <div><label>پاداش (ریال)</label><input type="number" id="s_bonus" value="0"></div>
     <div><label>کسورات (ریال)</label><input type="number" id="s_deduction" value="0"></div>
-    <div><label>تاریخ واریز</label><input id="s_date" value="${today_}"></div>
+    <div><label>تاریخ واریز</label><input id="s_date" value="${today()}" class="date-input" readonly></div>
     <div><label>روش پرداخت</label><select id="s_method"><option>کارت به کارت</option><option>واریز بانکی</option><option>نقدی</option><option>چک</option></select></div>
     <div><label>شماره پیگیری</label><input id="s_tracking"></div>
     <div class="full"><label>توضیحات</label><textarea id="s_desc"></textarea></div>
@@ -1160,6 +1435,7 @@ function openSalary(staffId){
   <div class="modalfoot"><button class="btn primary" id="btnSaveSalary">ثبت واریز</button></div></div>`);
 
   document.getElementById('btnSaveSalary').onclick = saveSalary;
+  setTimeout(() => attachDatePicker('s_date'), 100);
 
   if(staffId){
     setTimeout(() => {
@@ -1194,17 +1470,10 @@ async function saveSalary(){
 
   try {
     const s = {
-      staff_id: sid,
-      salary_month: v('s_month'),
-      base_amount: base,
-      bonus_amount: bonus,
-      deduction: deduction,
-      net_amount: net,
-      payment_date: v('s_date'),
-      payment_method: v('s_method'),
-      tracking: v('s_tracking'),
-      description: v('s_desc'),
-      created_by: currentUser.id
+      staff_id: sid, salary_month: v('s_month'),
+      base_amount: base, bonus_amount: bonus, deduction: deduction, net_amount: net,
+      payment_date: v('s_date'), payment_method: v('s_method'),
+      tracking: v('s_tracking'), description: v('s_desc'), created_by: currentUser.id
     };
     const { error } = await sb.from('salaries').insert(s);
     if(error) return toast(translateError(error), 'error');
@@ -1248,7 +1517,7 @@ function printSalary(id){
 }
 
 /* ============================================================
-   درآمد / هزینه
+   درآمدها
 ============================================================ */
 function renderIncomes(){
   document.getElementById('incomeTable').innerHTML = db.incomes.map(x => `
@@ -1258,25 +1527,18 @@ function renderIncomes(){
     || `<tr><td colspan="6" class="empty">درآمدی ثبت نشده است.</td></tr>`;
 }
 
-function renderExpenses(){
-  document.getElementById('expenseTable').innerHTML = db.expenses.map(x => `
-    <tr><td>${x.title}</td><td>${x.category||'-'}</td><td>${money(x.amount)}</td>
-    <td>${x.date||'-'}</td><td>${x.method||'-'}</td>
-    <td><button class="btn red" data-action="del-item" data-table="expenses" data-id="${x.id}">حذف</button></td></tr>`).join('')
-    || `<tr><td colspan="6" class="empty">هزینه‌ای ثبت نشده است.</td></tr>`;
-}
-
 function openIncome(){
   openModal('ثبت درآمد', `
   <div class="form"><div class="formgrid">
     <div><label>عنوان *</label><input id="i_title"></div>
     <div><label>دسته‌بندی</label><select id="i_cat"><option>شهریه</option><option>ثبت‌نام</option><option>کلاس فوق‌برنامه</option><option>اردو</option><option>سایر</option></select></div>
     <div><label>مبلغ *</label><input type="number" id="i_amount"></div>
-    <div><label>تاریخ</label><input id="i_date" value="${today()}"></div>
+    <div><label>تاریخ</label><input id="i_date" value="${today()}" class="date-input" readonly></div>
     <div class="full"><label>توضیحات</label><textarea id="i_desc"></textarea></div>
   </div>
   <div class="modalfoot"><button class="btn primary" id="btnSaveIncome">ذخیره</button></div></div>`);
   document.getElementById('btnSaveIncome').onclick = saveIncome;
+  setTimeout(() => attachDatePicker('i_date'), 100);
 }
 
 async function saveIncome(){
@@ -1303,19 +1565,31 @@ async function saveIncome(){
   }
 }
 
+/* ============================================================
+   هزینه‌ها
+============================================================ */
+function renderExpenses(){
+  document.getElementById('expenseTable').innerHTML = db.expenses.map(x => `
+    <tr><td>${x.title}</td><td>${x.category||'-'}</td><td>${money(x.amount)}</td>
+    <td>${x.date||'-'}</td><td>${x.method||'-'}</td>
+    <td><button class="btn red" data-action="del-item" data-table="expenses" data-id="${x.id}">حذف</button></td></tr>`).join('')
+    || `<tr><td colspan="6" class="empty">هزینه‌ای ثبت نشده است.</td></tr>`;
+}
+
 function openExpense(){
   openModal('ثبت هزینه', `
   <div class="form"><div class="formgrid">
     <div><label>عنوان *</label><input id="e_title"></div>
     <div><label>دسته‌بندی</label><select id="e_cat"><option>حقوق</option><option>آب</option><option>برق</option><option>گاز</option><option>اینترنت</option><option>تجهیزات</option><option>لوازم آموزشی</option><option>تعمیرات</option><option>خدمات</option><option>اجاره</option><option>سایر</option></select></div>
     <div><label>مبلغ *</label><input type="number" id="e_amount"></div>
-    <div><label>تاریخ</label><input id="e_date" value="${today()}"></div>
+    <div><label>تاریخ</label><input id="e_date" value="${today()}" class="date-input" readonly></div>
     <div><label>روش پرداخت</label><select id="e_method"><option>کارتخوان</option><option>کارت به کارت</option><option>واریز بانکی</option><option>نقدی</option><option>چک</option></select></div>
     <div><label>شماره سند</label><input id="e_doc"></div>
     <div class="full"><label>توضیحات</label><textarea id="e_desc"></textarea></div>
   </div>
   <div class="modalfoot"><button class="btn primary" id="btnSaveExpense">ذخیره</button></div></div>`);
   document.getElementById('btnSaveExpense').onclick = saveExpense;
+  setTimeout(() => attachDatePicker('e_date'), 100);
 }
 
 async function saveExpense(){
@@ -1340,9 +1614,7 @@ async function saveExpense(){
     isProcessing = false;
     if(btn){ btn.disabled = false; btn.textContent = 'ذخیره'; }
   }
-}
-
-/* ============================================================
+}/* ============================================================
    اقساط
 ============================================================ */
 function renderInstallments(){
@@ -1363,10 +1635,11 @@ function openInstallment(){
   <div class="form"><div class="formgrid">
     <div class="full"><label>دانش‌آموز *</label><select id="n_student">${studentOptions()}</select></div>
     <div><label>مبلغ قسط *</label><input type="number" id="n_amount"></div>
-    <div><label>سررسید (۱۴۰۵/۰۷/۱۵) *</label><input id="n_due" placeholder="1405/07/15"></div>
+    <div><label>سررسید *</label><input id="n_due" class="date-input" placeholder="1405/07/15" readonly></div>
   </div>
   <div class="modalfoot"><button class="btn primary" id="btnSaveInstallment">ذخیره</button></div></div>`);
   document.getElementById('btnSaveInstallment').onclick = saveInstallment;
+  setTimeout(() => attachDatePicker('n_due'), 100);
 }
 
 async function saveInstallment(){
@@ -1423,7 +1696,7 @@ async function payInstallment(id){
 }
 
 /* ============================================================
-   تخفیف
+   تخفیف‌ها
 ============================================================ */
 function renderDiscounts(){
   document.getElementById('discountTable').innerHTML = db.discounts.map(x => `
@@ -1443,10 +1716,11 @@ function openDiscount(){
     <div><label>نوع</label><select id="d_type"><option value="amount">مبلغ ثابت</option><option value="percent">درصدی</option></select></div>
     <div><label>میزان *</label><input type="number" id="d_value"></div>
     <div><label>علت</label><input id="d_reason"></div>
-    <div><label>تاریخ</label><input id="d_date" value="${today()}"></div>
+    <div><label>تاریخ</label><input id="d_date" value="${today()}" class="date-input" readonly></div>
   </div>
   <div class="modalfoot"><button class="btn primary" id="btnSaveDiscount">ذخیره</button></div></div>`);
   document.getElementById('btnSaveDiscount').onclick = saveDiscount;
+  setTimeout(() => attachDatePicker('d_date'), 100);
 }
 
 async function saveDiscount(){
@@ -1502,7 +1776,7 @@ function invoiceRows(s){
 
 function renderInvoices(){
   const q = v('invoiceSearch');
-  const arr = db.students.filter(s => !q || `${s.name} ${s.family} ${s.code} ${s.national} ${s.phone}`.includes(q));
+  const arr = db.students.filter(s => !q || `${s.name} ${s.family} ${s.code} ${s.phone}`.includes(q));
   document.getElementById('invoiceResult').innerHTML = arr.map(s => `
     <div class="card" style="margin-bottom:12px">
       <div class="section-head">
@@ -1541,6 +1815,181 @@ function printInvoice(id){
   </body></html>`);
   w.document.close();
   setTimeout(() => w.print(), 300);
+}
+
+/* ============================================================
+   چاپ دسته‌ای رسیدها
+============================================================ */
+function renderBulk(){
+  const q = v('bulkSearch'), m = v('bulkMethodFilter');
+  const df = v('bulkDateFrom'), dt = v('bulkDateTo');
+  const arr = db.payments.filter(p => {
+    if(q && !`${studentName(p.studentId)} ${p.receipt} ${p.tracking}`.includes(q)) return false;
+    if(m && p.method !== m) return false;
+    if(df && p.date < df) return false;
+    if(dt && p.date > dt) return false;
+    return true;
+  });
+  document.getElementById('bulkTable').innerHTML = arr.map(p => `
+    <tr>
+      <td class="checkbox-cell"><input type="checkbox" class="bulk-check" value="${p.id}"></td>
+      <td>${p.receipt}</td>
+      <td>${studentName(p.studentId)}</td>
+      <td>${money(p.amount)}</td>
+      <td>${p.date||'-'}</td>
+      <td>${p.method||'-'}</td>
+      <td>${p.tracking||'-'}</td>
+    </tr>`).join('') || `<tr><td colspan="7" class="empty">پرداختی یافت نشد.</td></tr>`;
+  updateBulkCounter();
+}
+
+function updateBulkCounter(){
+  const n = document.querySelectorAll('.bulk-check:checked').length;
+  const el = document.getElementById('bulkCounter');
+  if(el) el.textContent = n ? `${n} مورد انتخاب شده` : '';
+}
+
+function bulkPrintSelected(){
+  const ids = [...document.querySelectorAll('.bulk-check:checked')].map(x => +x.value);
+  if(!ids.length) return toast('ابتدا موارد را انتخاب کنید', 'error');
+
+  const pays = ids.map(id => db.payments.find(p => p.id == id)).filter(Boolean);
+  if(!pays.length) return;
+
+  const w = window.open('', '_blank');
+  if(!w) return toast('پنجره چاپ مسدود شد', 'error');
+
+  const pages = pays.map(p => {
+    const s = studentById(p.studentId);
+    if(!s) return '';
+    return `
+    <div class="receipt-page">
+      <div class="head">
+        <img src="logo.png" class="logo" onerror="this.style.display='none'">
+        <h1 style="flex:1">${db.settings.school}</h1>
+      </div>
+      <h3 style="text-align:center">رسید پرداخت</h3>
+      <table>
+        <tr><th>دانش‌آموز</th><td>${s.name} ${s.family}</td><th>کد</th><td>${s.code||'-'}</td></tr>
+        <tr><th>پایه</th><td>${s.grade||'-'}</td><th>رسید</th><td>${p.receipt}</td></tr>
+        <tr><th>مبلغ</th><td>${money(p.amount)}</td><th>تاریخ</th><td>${p.date}</td></tr>
+        <tr><th>روش</th><td>${p.method}</td><th>پیگیری</th><td>${p.tracking||'-'}</td></tr>
+        <tr><th>شهریه نهایی</th><td>${money(finalTuition(s))}</td><th>پرداخت‌شده</th><td>${money(paid(s))}</td></tr>
+        <tr><th>مانده</th><td colspan="3">${money(balance(s))}</td></tr>
+      </table>
+      <p style="margin-top:35px">${db.settings.footer}</p>
+    </div>`;
+  }).join('');
+
+  w.document.write(`
+  <html dir="rtl"><head><meta charset="UTF-8"><title>چاپ دسته‌ای رسیدها</title>
+  <style>
+    body{font-family:Tahoma;padding:30px;direction:rtl}
+    h1{text-align:center}
+    table{width:100%;border-collapse:collapse;margin-top:25px}
+    td,th{border:1px solid #ddd;padding:12px;text-align:right}
+    .head{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #2563eb;padding-bottom:15px}
+    .logo{width:80px;height:80px;object-fit:contain}
+    .receipt-page{page-break-after:always;padding-bottom:30px;border-bottom:1px dashed #ccc}
+    .receipt-page:last-child{page-break-after:auto;border-bottom:0}
+    @media print{.receipt-page{page-break-after:always}.receipt-page:last-child{page-break-after:auto}}
+  </style>
+  </head><body>${pages}</body></html>`);
+  w.document.close();
+  setTimeout(() => w.print(), 500);
+  logAction(`چاپ دسته‌ای ${pays.length} رسید`);
+}
+
+/* ============================================================
+   مدیریت کاربران
+============================================================ */
+function renderUsers(){
+  const arr = db.users || [];
+  document.getElementById('usersTable').innerHTML = arr.map(u => `
+    <tr>
+      <td><b>${u.name||'-'}</b></td>
+      <td>${u.username||'-'}</td>
+      <td>${u.role||'-'}</td>
+      <td><span class="badge paid">فعال</span></td>
+      <td>${u.created_at ? new Date(u.created_at).toLocaleDateString('fa-IR') : '-'}</td>
+      <td class="actions">
+        ${u.id !== currentUser?.id ? `<button class="btn red" data-action="del-user" data-id="${u.id}">حذف</button>` : 'شما'}
+      </td>
+    </tr>`).join('') || `<tr><td colspan="6" class="empty">کاربری یافت نشد.</td></tr>`;
+}
+
+async function loadUsers(){
+  if(userRole !== 'admin') return;
+  try {
+    const { data, error } = await sb.from('profiles').select('*').order('created_at', { ascending: false });
+    if(error) return;
+    db.users = (data || []).map(r => ({
+      id: r.id,
+      name: r.full_name || 'کاربر',
+      username: r.email || '',
+      role: r.role === 'admin' ? 'مدیر' : 'مسئول مالی',
+      created_at: r.created_at
+    }));
+    renderUsers();
+  } catch(e){}
+}
+
+function openUser(){
+  if(userRole !== 'admin') return toast('فقط مدیر می‌تواند کاربر اضافه کند', 'error');
+  openModal('افزودن کاربر جدید', `
+  <div class="form"><div class="formgrid">
+    <div class="full"><label>نام و نام خانوادگی *</label><input id="u_name"></div>
+    <div><label>ایمیل *</label><input type="email" id="u_email"></div>
+    <div><label>رمز عبور *</label><input type="password" id="u_pass"></div>
+    <div><label>سطح دسترسی</label><select id="u_role"><option value="staff">مسئول مالی</option><option value="admin">مدیر</option></select></div>
+  </div>
+  <div class="modalfoot"><button class="btn primary" id="btnSaveUser">ذخیره</button></div></div>`);
+  document.getElementById('btnSaveUser').onclick = saveUser;
+}
+
+async function saveUser(){
+  const name = v('u_name'), email = v('u_email'), password = v('u_pass'), role = v('u_role');
+  if(!name) return toast('نام الزامی است', 'error');
+  if(!isValidEmail(email)) return toast('ایمیل معتبر وارد کنید', 'error');
+  if(password.length < 6) return toast('رمز حداقل ۶ کاراکتر', 'error');
+
+  isProcessing = true;
+  const btn = document.getElementById('btnSaveUser');
+  if(btn){ btn.disabled = true; btn.textContent = 'در حال ساخت...'; }
+
+  try {
+    const { data, error } = await sb.auth.signUp({
+      email, password,
+      options: { data: { full_name: name, role } }
+    });
+    if(error) return toast(translateError(error), 'error');
+
+    if(data.user){
+      await sb.from('profiles').upsert({ id: data.user.id, full_name: name, role });
+    }
+
+    await logAction(`افزودن کاربر ${name}`);
+    closeModal();
+    await loadUsers();
+    toast('کاربر ساخته شد. اگر تأیید ایمیل روشن باشد، کاربر باید ایمیلش را تأیید کند.', 'success');
+  } catch(e){
+    toast('خطا: ' + e.message, 'error');
+  } finally {
+    isProcessing = false;
+    if(btn){ btn.disabled = false; btn.textContent = 'ذخیره'; }
+  }
+}
+
+async function deleteUser(id){
+  if(userRole !== 'admin') return toast('فقط مدیر می‌تواند کاربر حذف کند', 'error');
+  if(!confirm('حذف این کاربر؟')) return;
+  try {
+    const { error } = await sb.from('profiles').delete().eq('id', id);
+    if(error) return toast(translateError(error), 'error');
+    await logAction('حذف کاربر');
+    await loadUsers();
+    toast('کاربر حذف شد', 'success');
+  } catch(e){ toast(e.message, 'error'); }
 }
 
 /* ============================================================
@@ -1590,7 +2039,7 @@ function exportCSV(){
     ['نام','کد','پایه','کلاس','شهریه','پرداخت','بدهی','همراه'],
     ...db.students.map(s => [s.name + ' ' + s.family, s.code||'', s.grade||'', s.class||'', finalTuition(s), paid(s), balance(s), s.phone||''])
   ];
-  const csv = '\uFEFF' + rows.map(r => r.join(',')).join('\n');
+  const csv = '\uFEFF' + rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
   a.download = 'گزارش-مالی.csv';
@@ -1631,19 +2080,262 @@ async function saveSettings(){
 }
 
 /* ============================================================
-   حذف
+   پشتیبان‌گیری
 ============================================================ */
-async function deleteItem(table, id){
-  if(!confirm('حذف این مورد؟')) return;
+function updateBackupStats(){
+  const el = document.getElementById('backupStats');
+  if(!el) return;
+  el.innerHTML = `
+    👩🏻‍🎓 دانش‌آموزان: <b>${db.students.length}</b> نفر<br>
+    👨‍🏫 کارکنان: <b>${db.staff.length}</b> نفر<br>
+    💳 پرداخت‌ها: <b>${db.payments.length}</b> تراکنش<br>
+    💰 واریز حقوق: <b>${db.salaries.length}</b> تراکنش<br>
+    📈 درآمدها: <b>${db.incomes.length}</b> ردیف<br>
+    📉 هزینه‌ها: <b>${db.expenses.length}</b> ردیف<br>
+    📅 اقساط: <b>${db.installments.length}</b> قسط<br>
+    🎁 تخفیف‌ها: <b>${db.discounts.length}</b> ردیف
+  `;
+}
+
+async function downloadBackup(){
   if(isProcessing) return;
   isProcessing = true;
+  const btn = document.getElementById('btnDownloadBackup');
+  if(btn){ btn.disabled = true; btn.textContent = '⏳ در حال آماده‌سازی...'; }
 
   try {
-    const { error } = await sb.from(table).delete().eq('id', id);
-    if(error) return toast(translateError(error), 'error');
-    await logAction('حذف از ' + table);
+    await loadData();
+
+    const backup = {
+      version: '3.0',
+      created_at: new Date().toISOString(),
+      created_at_fa: new Date().toLocaleString('fa-IR'),
+      created_by: currentUser?.email || 'نامشخص',
+      settings: db.settings,
+      stats: {
+        students: db.students.length,
+        payments: db.payments.length,
+        staff: db.staff.length,
+        salaries: db.salaries.length,
+        incomes: db.incomes.length,
+        expenses: db.expenses.length,
+        installments: db.installments.length,
+        discounts: db.discounts.length
+      },
+      data: {
+        students: db.students,
+        payments: db.payments,
+        staff: db.staff,
+        salaries: db.salaries,
+        incomes: db.incomes,
+        expenses: db.expenses,
+        installments: db.installments,
+        discounts: db.discounts
+      }
+    };
+
+    const json = JSON.stringify(backup, null, 2);
+    const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+    const date = new Date().toLocaleDateString('fa-IR').replace(/\//g, '-');
+    const time = new Date().toLocaleTimeString('fa-IR', { hour12: false }).replace(/:/g, '-');
+    const filename = `پشتیبان-الهه-مهر-${date}-${time}.json`;
+
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(a.href);
+
+    await logAction('دانلود پشتیبان');
+    toast(`✅ فایل پشتیبان دانلود شد (${filename})`, 'success');
+  } catch(e){
+    toast('خطا در پشتیبان‌گیری: ' + e.message, 'error');
+  } finally {
+    isProcessing = false;
+    if(btn){ btn.disabled = false; btn.textContent = '📥 دانلود فایل پشتیبان (JSON)'; }
+  }
+}
+
+function downloadExcelFull(){
+  const rows = [
+    ['=== دانش‌آموزان ==='],
+    ['کد','نام','نام خانوادگی','پایه','کلاس','شماره همراه','شهریه','تخفیف','پرداخت‌شده','مانده'],
+    ...db.students.map(s => [s.code||'', s.name, s.family, s.grade||'', s.class||'', s.phone||'', s.tuition||0, s.discount||0, paid(s), balance(s)]),
+    [],
+    ['=== پرداخت‌ها ==='],
+    ['تاریخ','دانش‌آموز','مبلغ','روش','رسید','پیگیری'],
+    ...db.payments.map(p => [p.date||'', studentName(p.studentId), p.amount, p.method||'', p.receipt||'', p.tracking||'']),
+    [],
+    ['=== کارکنان ==='],
+    ['کد پرسنلی','نام','نام خانوادگی','سمت','شماره همراه','حقوق پایه','پاداش'],
+    ...db.staff.map(s => [s.code||'', s.name, s.family, s.position||'', s.phone||'', s.base_salary||0, s.bonus||0]),
+    [],
+    ['=== واریز حقوق ==='],
+    ['کارمند','ماه','حقوق پایه','پاداش','کسورات','خالص','تاریخ','روش'],
+    ...db.salaries.map(s => [staffName(s.staffId), s.month||'', s.base||0, s.bonus||0, s.deduction||0, s.net_amount||0, s.date||'', s.method||'']),
+    [],
+    ['=== هزینه‌ها ==='],
+    ['عنوان','دسته','مبلغ','تاریخ','روش'],
+    ...db.expenses.map(x => [x.title, x.category||'', x.amount, x.date||'', x.method||'']),
+    [],
+    ['=== درآمدها ==='],
+    ['عنوان','دسته','مبلغ','تاریخ'],
+    ...db.incomes.map(x => [x.title, x.category||'', x.amount, x.date||''])
+  ];
+
+  const csv = '\uFEFF' + rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  const date = new Date().toLocaleDateString('fa-IR').replace(/\//g, '-');
+  a.download = `گزارش-کامل-الهه-مهر-${date}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('✅ فایل Excel دانلود شد', 'success');
+}
+
+async function restoreFromFile(event){
+  const file = event.target.files[0];
+  if(!file) return;
+
+  if(!confirm('⚠️ تمام اطلاعات فعلی با فایل پشتیبان جایگزین می‌شود. مطمئنی؟')) {
+    event.target.value = '';
+    return;
+  }
+
+  const reader = new FileReader();
+  const progress = document.getElementById('restoreProgress');
+  const bar = document.getElementById('restoreBar');
+  const msg = document.getElementById('restoreMsg');
+  progress.style.display = 'block';
+
+  reader.onload = async () => {
+    try {
+      const backup = JSON.parse(reader.result);
+      if(!backup.data || !backup.data.students) throw new Error('فایل معتبر نیست');
+
+      const d = backup.data;
+      const steps = [
+        { name: 'دانش‌آموزان', fn: () => restoreTable('students', d.students, mapStudentToDb) },
+        { name: 'کارکنان', fn: () => restoreTable('staff', d.staff, mapStaffToDb) },
+        { name: 'پرداخت‌ها', fn: () => restoreTable('payments', d.payments, mapPaymentToDb) },
+        { name: 'واریز حقوق', fn: () => restoreTable('salaries', d.salaries, mapSalaryToDb) },
+        { name: 'درآمدها', fn: () => restoreTable('incomes', d.incomes, mapIncomeToDb) },
+        { name: 'هزینه‌ها', fn: () => restoreTable('expenses', d.expenses, mapExpenseToDb) },
+        { name: 'اقساط', fn: () => restoreTable('installments', d.installments, mapInstallmentToDb) },
+        { name: 'تخفیف‌ها', fn: () => restoreTable('discounts', d.discounts, mapDiscountToDb) }
+      ];
+
+      for(let i = 0; i < steps.length; i++){
+        msg.textContent = `در حال بازیابی: ${steps[i].name}...`;
+        bar.style.width = `${((i+1) / steps.length) * 100}%`;
+        await steps[i].fn();
+      }
+
+      if(backup.settings){
+        await sb.from('settings').upsert({
+          id: true,
+          school_name: backup.settings.school,
+          academic_year: backup.settings.year,
+          phone: backup.settings.phone,
+          address: backup.settings.address,
+          footer: backup.settings.footer
+        });
+      }
+
+      msg.textContent = '✅ بازیابی کامل شد!';
+      await logAction('بازیابی پشتیبان');
+      await refreshApp();
+      setTimeout(() => {
+        progress.style.display = 'none';
+        bar.style.width = '0%';
+      }, 2000);
+      toast('اطلاعات با موفقیت بازیابی شد ✅', 'success');
+    } catch(e){
+      msg.textContent = '❌ خطا: ' + e.message;
+      toast('خطا در بازیابی: ' + e.message, 'error');
+      setTimeout(() => { progress.style.display = 'none'; bar.style.width = '0%'; }, 3000);
+    } finally {
+      event.target.value = '';
+    }
+  };
+  reader.readAsText(file);
+}
+
+async function restoreTable(table, data, mapper){
+  if(!data || !data.length) return;
+  // حذف اطلاعات قبلی
+  await sb.from(table).delete().neq('id', 0);
+  // درج اطلاعات جدید
+  const mapped = data.map(mapper);
+  const { error } = await sb.from(table).insert(mapped);
+  if(error) throw new Error(`خطا در بازیابی ${table}: ${error.message}`);
+}
+
+function mapStudentToDb(s){
+  return {
+    code: s.code, name: s.name, family: s.family,
+    grade: s.grade, class_name: s.class || s.class_name,
+    phone: s.phone, father_phone: s.phone || s.father_phone,
+    academic_year: s.year || s.academic_year,
+    tuition: s.tuition || 0, discount: s.discount || 0
+  };
+}
+function mapStaffToDb(s){
+  return {
+    staff_code: s.code || s.staff_code, name: s.name, family: s.family,
+    position: s.position, phone: s.phone,
+    base_salary: s.base_salary || 0, bonus: s.bonus || 0, notes: s.notes || ''
+  };
+}
+function mapPaymentToDb(p){
+  return {
+    student_id: p.studentId || p.student_id, amount: p.amount,
+    payment_date: p.date || p.payment_date, method: p.method,
+    tracking: p.tracking || '', receipt: p.receipt,
+    description: p.desc || p.description || ''
+  };
+}
+function mapSalaryToDb(s){
+  return {
+    staff_id: s.staffId || s.staff_id, salary_month: s.month || s.salary_month,
+    base_amount: s.base || s.base_amount || 0, bonus_amount: s.bonus || s.bonus_amount || 0,
+    deduction: s.deduction || 0, net_amount: s.net_amount || 0,
+    payment_date: s.date || s.payment_date, payment_method: s.method || s.payment_method,
+    tracking: s.tracking || '', description: s.description || ''
+  };
+}
+function mapIncomeToDb(x){
+  return { title: x.title, category: x.category, amount: x.amount, income_date: x.date || x.income_date, description: x.desc || x.description || '' };
+}
+function mapExpenseToDb(x){
+  return { title: x.title, category: x.category, amount: x.amount, expense_date: x.date || x.expense_date, method: x.method, document: x.doc || x.document || '', description: x.desc || x.description || '' };
+}
+function mapInstallmentToDb(i){
+  return { student_id: i.studentId || i.student_id, amount: i.amount, due_date: i.due || i.due_date, paid: i.paid || false };
+}
+function mapDiscountToDb(d){
+  return {
+    student_id: d.studentId || d.student_id,
+    base_amount: d.base || d.base_amount, discount_type: d.type || d.discount_type,
+    value: d.value, final_amount: d.final || d.final_amount,
+    reason: d.reason || '', discount_date: d.date || d.discount_date
+  };
+}
+
+async function dangerReset(){
+  if(!confirm('⚠️⚠️⚠️ تمام اطلاعات حذف خواهد شد! مطمئنی؟')) return;
+  if(!confirm('این آخرین هشدار است. آیا واقعاً می‌خواهی همه چیز پاک شود؟')) return;
+  if(!confirm('فقط برای اطمینان: تمام دانش‌آموزان، پرداخت‌ها، کارکنان، حقوق و... پاک می‌شوند!')) return;
+
+  isProcessing = true;
+  try {
+    const tables = ['payments', 'installments', 'discounts', 'salaries', 'students', 'staff', 'incomes', 'expenses'];
+    for(const t of tables){
+      await sb.from(t).delete().neq('id', 0);
+    }
+    await logAction('پاک کردن کل اطلاعات');
     await refreshApp();
-    toast('حذف شد ✅', 'success');
+    toast('تمام اطلاعات پاک شد', 'success');
   } catch(e){
     toast('خطا: ' + e.message, 'error');
   } finally {
@@ -1652,32 +2344,27 @@ async function deleteItem(table, id){
 }
 
 /* ============================================================
-   لاگ‌ها
+   تقویم شمسی (Date Picker)
 ============================================================ */
-function renderLogs(){
-  document.getElementById('logsTable').innerHTML = db.logs.map(x => `
-    <tr><td>${x.action}</td><td>${x.date}</td><td>${x.time}</td></tr>`).join('')
-    || `<tr><td colspan="3" class="empty">هنوز فعالیتی ثبت نشده است.</td></tr>`;
+function attachDatePicker(inputId){
+  const el = document.getElementById(inputId);
+  if(!el) return;
+
+  // اگر کتابخانه jalali-date-picker لود شده
+  if(typeof window.jalaliDatePicker !== 'undefined'){
+    try {
+      window.jalaliDatePicker.startWatch({ selector: '#' + inputId, zIndex: 9999 });
+    } catch(e){}
+  } else {
+    // fallback: ورودی معمولی
+    el.removeAttribute('readonly');
+    el.setAttribute('placeholder', '۱۴۰۵/۰۷/۱۵');
+  }
 }
 
 /* ============================================================
-   داشبورد
+   نمودارها
 ============================================================ */
-function renderDashboardLists(){
-  document.getElementById('recentPayments').innerHTML = db.payments.slice(0, 5).map(p => `
-    <div style="padding:9px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between">
-      <span>${studentName(p.studentId)}</span><b>${money(p.amount)}</b>
-    </div>`).join('') || '<div class="empty">پرداختی ثبت نشده است.</div>';
-
-  document.getElementById('dueSoon').innerHTML = db.installments.filter(x => !x.paid && !isPast(x.due)).slice(0, 6)
-    .map(x => `<li><span>${studentName(x.studentId)}</span><b>${x.due}</b></li>`).join('')
-    || '<li>موردی وجود ندارد</li>';
-
-  document.getElementById('overdueList').innerHTML = db.installments.filter(x => !x.paid && isPast(x.due)).slice(0, 6)
-    .map(x => `<li><span>${studentName(x.studentId)}</span><b>${money(x.amount)}</b></li>`).join('')
-    || '<li>موردی وجود ندارد</li>';
-}
-
 function drawCharts(){
   if(typeof Chart === 'undefined') return;
   charts.forEach(c => { try { c.destroy(); } catch(e){} });
@@ -1725,6 +2412,50 @@ function openModal(title, body){
 function closeModal(){ document.getElementById('modal').classList.remove('show'); }
 
 /* ============================================================
+   حذف عمومی
+============================================================ */
+async function deleteItem(table, id){
+  if(!confirm('حذف این مورد؟')) return;
+  if(isProcessing) return;
+  isProcessing = true;
+  try {
+    const { error } = await sb.from(table).delete().eq('id', id);
+    if(error) return toast(translateError(error), 'error');
+    await logAction('حذف از ' + table);
+    await refreshApp();
+    toast('حذف شد ✅', 'success');
+  } catch(e){
+    toast('خطا: ' + e.message, 'error');
+  } finally {
+    isProcessing = false;
+  }
+}
+
+/* ============================================================
+   لاگ‌ها و داشبورد
+============================================================ */
+function renderLogs(){
+  document.getElementById('logsTable').innerHTML = db.logs.map(x => `
+    <tr><td>${x.action}</td><td>${x.date}</td><td>${x.time}</td></tr>`).join('')
+    || `<tr><td colspan="3" class="empty">هنوز فعالیتی ثبت نشده است.</td></tr>`;
+}
+
+function renderDashboardLists(){
+  document.getElementById('recentPayments').innerHTML = db.payments.slice(0, 5).map(p => `
+    <div style="padding:9px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between">
+      <span>${studentName(p.studentId)}</span><b>${money(p.amount)}</b>
+    </div>`).join('') || '<div class="empty">پرداختی ثبت نشده است.</div>';
+
+  document.getElementById('dueSoon').innerHTML = db.installments.filter(x => !x.paid && !isPast(x.due)).slice(0, 6)
+    .map(x => `<li><span>${studentName(x.studentId)}</span><b>${x.due}</b></li>`).join('')
+    || '<li>موردی وجود ندارد</li>';
+
+  document.getElementById('overdueList').innerHTML = db.installments.filter(x => !x.paid && isPast(x.due)).slice(0, 6)
+    .map(x => `<li><span>${studentName(x.studentId)}</span><b>${money(x.amount)}</b></li>`).join('')
+    || '<li>موردی وجود ندارد</li>';
+}
+
+/* ============================================================
    اتصال رویدادها
 ============================================================ */
 document.addEventListener('click', function(e){
@@ -1747,6 +2478,7 @@ document.addEventListener('click', function(e){
   else if(action === 'del-staff') deleteItem('staff', id);
   else if(action === 'pay-salary-for') openSalary(id);
   else if(action === 'print-salary') printSalary(id);
+  else if(action === 'del-user') deleteUser(id);
 });
 
 function bindStaticButtons(){
@@ -1762,10 +2494,35 @@ function bindStaticButtons(){
   document.getElementById('btnNewExpense').onclick = openExpense;
   document.getElementById('btnNewInstallment').onclick = openInstallment;
   document.getElementById('btnNewDiscount').onclick = openDiscount;
+  document.getElementById('btnNewUser').onclick = openUser;
   document.getElementById('btnSaveSettings').onclick = saveSettings;
   document.getElementById('btnExportCSV').onclick = exportCSV;
   document.getElementById('btnRenderReport').onclick = renderReport;
   document.getElementById('btnCloseModal').onclick = closeModal;
+  document.getElementById('btnDownloadBackup').onclick = downloadBackup;
+  document.getElementById('btnDownloadExcelFull').onclick = downloadExcelFull;
+  document.getElementById('btnDangerReset').onclick = dangerReset;
+
+  const rf = document.getElementById('restoreFile');
+  if(rf) rf.addEventListener('change', restoreFromFile);
+
+  // چاپ دسته‌ای
+  document.getElementById('btnBulkPrint').onclick = bulkPrintSelected;
+  document.getElementById('btnBulkSelectAll').onclick = () => {
+    document.querySelectorAll('.bulk-check').forEach(c => c.checked = true);
+    updateBulkCounter();
+  };
+  document.getElementById('btnBulkDeselectAll').onclick = () => {
+    document.querySelectorAll('.bulk-check').forEach(c => c.checked = false);
+    updateBulkCounter();
+  };
+  document.getElementById('bulkCheckAll').onchange = (e) => {
+    document.querySelectorAll('.bulk-check').forEach(c => c.checked = e.target.checked);
+    updateBulkCounter();
+  };
+  document.addEventListener('change', (e) => {
+    if(e.target.classList.contains('bulk-check')) updateBulkCounter();
+  });
 
   document.getElementById('modal').onclick = (e) => { if(e.target.id === 'modal') closeModal(); };
   document.querySelectorAll('.nav button').forEach(b => b.onclick = () => nav(b.dataset.page));
@@ -1785,6 +2542,10 @@ function bindStaticButtons(){
   ['salarySearch','salaryMonthFilter'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.addEventListener('input', renderSalaries);
+  });
+  ['bulkSearch','bulkMethodFilter','bulkDateFrom','bulkDateTo'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('input', renderBulk);
   });
   const inv = document.getElementById('invoiceSearch');
   if(inv) inv.addEventListener('input', renderInvoices);
@@ -1808,7 +2569,7 @@ function bindStaticButtons(){
 }
 
 /* ============================================================
-   راه‌اندازی
+   راه‌اندازی اولیه
 ============================================================ */
 window.addEventListener('DOMContentLoaded', async () => {
   bindStaticButtons();
@@ -1820,11 +2581,25 @@ window.addEventListener('DOMContentLoaded', async () => {
     if(data && data.session){
       currentUser = data.session.user;
       await refreshApp();
+      await loadUsers();
     }
   } catch(e){
     console.error('init error', e);
   }
 });
+
+// جدا کردن date pickers بعد از باز شدن مودال‌ها
+const observer = new MutationObserver(() => {
+  ['p_date','s_date','i_date','e_date','n_due','d_date','bulkDateFrom','bulkDateTo'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el && !el.dataset.dpAttached){
+      el.dataset.dpAttached = '1';
+      attachDatePicker(id);
+    }
+  });
+});
+observer.observe(document.body, { childList: true, subtree: true });
+
 </script>
 </body>
 </html>
