@@ -4,23 +4,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>حسابداری دبیرستان دخترانه الهه مهر</title>
+<link rel="icon" href="logo.png" type="image/png">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap');
-:root{--primary:#7c3aed;--primary2:#5b21b6;--bg:#f6f7fb;--card:#fff;--text:#172033;--muted:#667085;--line:#e7e9f0;--green:#16a34a;--orange:#f59e0b;--red:#dc2626;--blue:#2563eb;--shadow:0 10px 30px rgba(30,20,60,.07)}
+:root{--primary:#2563eb;--primary2:#1e40af;--bg:#f6f7fb;--card:#fff;--text:#172033;--muted:#667085;--line:#e7e9f0;--green:#16a34a;--orange:#f59e0b;--red:#dc2626;--blue:#2563eb;--shadow:0 10px 30px rgba(30,20,60,.07)}
 *{box-sizing:border-box}
 body{margin:0;font-family:Vazirmatn,Tahoma,sans-serif;background:var(--bg);color:var(--text)}
 button,input,select,textarea{font:inherit}
 button{cursor:pointer;border:0}
 .app{display:flex;min-height:100vh}
-.sidebar{width:260px;background:#171329;color:#fff;padding:20px 14px;position:fixed;right:0;top:0;bottom:0;z-index:20;overflow:auto}
-.brand{display:flex;gap:12px;align-items:center;padding:8px 10px 24px;border-bottom:1px solid #302a47;margin-bottom:16px}
-.logo{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#a78bfa,#6d28d9);display:grid;place-items:center;font-size:23px}
+.sidebar{width:260px;background:linear-gradient(180deg,#0f172a 0%,#1e293b 100%);color:#fff;padding:20px 14px;position:fixed;right:0;top:0;bottom:0;z-index:20;overflow:auto}
+.brand{display:flex;gap:12px;align-items:center;padding:8px 10px 20px;border-bottom:1px solid #334155;margin-bottom:16px}
+.brand img{width:56px;height:56px;border-radius:12px;object-fit:contain;background:#fff;padding:4px}
 .brand h2{font-size:15px;margin:0}
-.brand small{color:#b9b3cf}
-.nav button{width:100%;background:transparent;color:#d9d4e8;text-align:right;padding:12px 13px;border-radius:10px;margin:2px 0;display:flex;align-items:center;gap:10px}
-.nav button:hover,.nav button.active{background:#302750;color:#fff}
+.brand small{color:#94a3b8;font-size:11px}
+.nav button{width:100%;background:transparent;color:#cbd5e1;text-align:right;padding:12px 13px;border-radius:10px;margin:2px 0;display:flex;align-items:center;gap:10px;font-size:13px}
+.nav button:hover,.nav button.active{background:#334155;color:#fff}
+.nav-section{padding:14px 12px 6px;font-size:10px;color:#64748b;font-weight:700;letter-spacing:1px}
 .main{margin-right:260px;width:calc(100% - 260px);padding:24px}
 .topbar{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:20px;flex-wrap:wrap}
 .topbar h1{font-size:23px;margin:0}
@@ -32,8 +34,9 @@ button{cursor:pointer;border:0}
 .btn.green{background:var(--green);color:#fff}
 .btn.red{background:#fee2e2;color:#991b1b}
 .btn.blue{background:#dbeafe;color:#1d4ed8}
+.btn.gold{background:#f59e0b;color:#fff}
 .user-chip{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:11px;padding:8px 12px;font-size:13px}
-.user-chip .avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#a78bfa,#6d28d9);display:grid;place-items:center;color:#fff;font-weight:700}
+.user-chip .avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#1e40af);display:grid;place-items:center;color:#fff;font-weight:700}
 .page{display:none}
 .page.active{display:block}
 .grid{display:grid;gap:15px}
@@ -81,11 +84,12 @@ button{cursor:pointer;border:0}
 .toast.error{background:#dc2626}
 .toast.success{background:#16a34a}
 .toast.warning{background:#f59e0b}
-#authScreen{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#f6f7fb,#ede9fe);display:grid;place-items:center;padding:20px}
-.auth-card{width:min(440px,100%);background:#fff;border:1px solid #e7e9f0;border-radius:22px;padding:28px;box-shadow:0 20px 60px rgba(30,20,60,.12)}
-.auth-card h2{margin:0 0 8px;color:#171329;font-size:20px}
+#authScreen{position:fixed;inset:0;z-index:9999;background:linear-gradient(135deg,#f6f7fb,#dbeafe);display:grid;place-items:center;padding:20px}
+.auth-card{width:min(440px,100%);background:#fff;border:1px solid #e7e9f0;border-radius:22px;padding:28px;box-shadow:0 20px 60px rgba(30,20,60,.12);text-align:center}
+.auth-card .auth-logo{width:100px;height:100px;object-fit:contain;margin:0 auto 10px;display:block}
+.auth-card h2{margin:0 0 8px;color:#171329;font-size:18px}
 .auth-card p{color:#667085;margin:0 0 20px;font-size:13px}
-.auth-card label{display:block;font-size:12px;color:#555;margin-bottom:5px}
+.auth-card label{display:block;font-size:12px;color:#555;margin-bottom:5px;text-align:right}
 .auth-card input{width:100%;padding:12px;border:1px solid #d9dce5;border-radius:10px;margin:7px 0 12px;outline:none}
 .auth-card input:focus{border-color:var(--primary)}
 .auth-card button{width:100%;padding:12px;border-radius:10px;margin-top:8px}
@@ -93,6 +97,8 @@ button{cursor:pointer;border:0}
 .auth-msg.ok{color:#16a34a}
 .loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,.85);display:none;place-items:center;z-index:200;font-size:16px;color:var(--primary);font-weight:700}
 .loading-overlay.show{display:grid}
+.clickable{cursor:pointer;color:var(--primary);font-weight:600}
+.clickable:hover{text-decoration:underline}
 @media(max-width:1050px){.stats{grid-template-columns:repeat(2,1fr)}.charts,.alerts{grid-template-columns:1fr}.sidebar{width:220px}.main{margin-right:220px;width:calc(100% - 220px)}}
 @media(max-width:760px){.sidebar{position:static;width:100%;height:auto}.app{display:block}.main{margin:0;width:100%;padding:14px}.nav{display:grid;grid-template-columns:repeat(2,1fr)}.topbar{align-items:flex-start;flex-direction:column}.search{min-width:100%;width:100%}.stats{grid-template-columns:1fr 1fr}.formgrid{grid-template-columns:1fr}.detail-grid{grid-template-columns:1fr 1fr}}
 </style>
@@ -102,7 +108,8 @@ button{cursor:pointer;border:0}
 <!-- صفحه ورود -->
 <div id="authScreen">
   <div class="auth-card">
-    <h2>🌸 حسابداری دبیرستان الهه مهر</h2>
+    <img src="logo.png" alt="لوگو" class="auth-logo" onerror="this.style.display='none'">
+    <h2>حسابداری دبیرستان الهه مهر</h2>
     <p>ورود امن به سامانه مالی مدرسه</p>
     <label>ایمیل</label>
     <input id="authEmail" type="email" placeholder="example@school.ir" autocomplete="email">
@@ -116,20 +123,34 @@ button{cursor:pointer;border:0}
 
 <div class="app" id="mainApp" style="display:none">
 <aside class="sidebar">
-  <div class="brand"><div class="logo">🌸</div><div><h2>الهه مهر</h2><small>مدیریت مالی مدرسه</small></div></div>
+  <div class="brand">
+    <img src="logo.png" alt="لوگو" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌸</text></svg>'">
+    <div><h2>الهه مهر</h2><small>مدیریت مالی مدرسه</small></div>
+  </div>
   <nav class="nav" id="mainNav">
+    <div class="nav-section">مدیریت اصلی</div>
     <button class="active" data-page="dashboard">🏠 <span>داشبورد</span></button>
     <button data-page="students">👩🏻‍🎓 <span>دانش‌آموزان</span></button>
     <button data-page="payments">💳 <span>ثبت پرداخت</span></button>
     <button data-page="receipts">🧾 <span>رسیدها</span></button>
-    <button data-page="reports">📊 <span>گزارش‌ها</span></button>
-    <button data-page="incomes">💰 <span>درآمدها</span></button>
-    <button data-page="expenses">💸 <span>هزینه‌ها</span></button>
+
+    <div class="nav-section">کارکنان و دبیران</div>
+    <button data-page="staff">👨‍🏫 <span>کارکنان و دبیران</span></button>
+    <button data-page="salaries">💰 <span>واریز حقوق</span></button>
+
+    <div class="nav-section">مالی</div>
+    <button data-page="incomes">📈 <span>درآمدها</span></button>
+    <button data-page="expenses">📉 <span>هزینه‌ها</span></button>
     <button data-page="installments">📅 <span>اقساط</span></button>
     <button data-page="discounts">🎁 <span>تخفیف‌ها</span></button>
+
+    <div class="nav-section">گزارش‌ها</div>
+    <button data-page="reports">📊 <span>گزارش‌ها</span></button>
     <button data-page="invoices">📑 <span>صورتحساب‌ها</span></button>
-    <button data-page="settings">⚙️ <span>تنظیمات</span></button>
     <button data-page="logs">🕘 <span>فعالیت‌ها</span></button>
+
+    <div class="nav-section">سیستم</div>
+    <button data-page="settings">⚙️ <span>تنظیمات</span></button>
   </nav>
 </aside>
 
@@ -150,6 +171,7 @@ button{cursor:pointer;border:0}
   </div>
 </header>
 
+<!-- داشبورد -->
 <section class="page active" id="dashboard">
   <div class="grid stats" id="stats"></div>
   <div class="section-head"><h2>نمای کلی مالی</h2></div>
@@ -163,6 +185,7 @@ button{cursor:pointer;border:0}
   <div class="grid alerts"><div class="card"><h3>نزدیک به سررسید</h3><ul class="alert-list" id="dueSoon"></ul></div><div class="card"><h3>معوق</h3><ul class="alert-list" id="overdueList"></ul></div></div>
 </section>
 
+<!-- دانش‌آموزان -->
 <section class="page" id="students">
   <div class="section-head"><h2>مدیریت دانش‌آموزان</h2><button class="btn primary" id="btnNewStudent">ثبت دانش‌آموز +</button></div>
   <div class="card">
@@ -171,10 +194,11 @@ button{cursor:pointer;border:0}
       <select id="gradeFilter"><option value="">همه پایه‌ها</option><option>هفتم</option><option>هشتم</option><option>نهم</option><option>دهم</option><option>یازدهم</option><option>دوازدهم</option></select>
       <select id="classFilter"><option value="">همه کلاس‌ها</option><option>الف</option><option>ب</option><option>ج</option><option>د</option></select>
     </div>
-    <div class="table-wrap"><table class="table"><thead><tr><th>کد</th><th>نام و نام خانوادگی</th><th>کد ملی</th><th>پایه</th><th>کلاس</th><th>شهریه</th><th>پرداخت</th><th>مانده</th><th>وضعیت</th><th>عملیات</th></tr></thead><tbody id="studentsTable"></tbody></table></div>
+    <div class="table-wrap"><table class="table"><thead><tr><th>کد</th><th>نام و نام خانوادگی</th><th>پایه</th><th>کلاس</th><th>شهریه</th><th>پرداخت</th><th>مانده</th><th>وضعیت</th><th>عملیات</th></tr></thead><tbody id="studentsTable"></tbody></table></div>
   </div>
 </section>
 
+<!-- پرداخت -->
 <section class="page" id="payments">
   <div class="section-head"><h2>ثبت پرداخت</h2><button class="btn primary" id="btnNewPayment">ثبت پرداخت +</button></div>
   <div class="card">
@@ -186,13 +210,108 @@ button{cursor:pointer;border:0}
   </div>
 </section>
 
+<!-- رسیدها -->
 <section class="page" id="receipts"><div class="section-head"><h2>رسیدها</h2></div><div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>شماره رسید</th><th>دانش‌آموز</th><th>مبلغ</th><th>تاریخ</th><th>روش</th><th>عملیات</th></tr></thead><tbody id="receiptsTable"></tbody></table></div></div></section>
 
+<!-- کارکنان و دبیران -->
+<section class="page" id="staff">
+  <div class="section-head"><h2>مدیریت کارکنان و دبیران</h2><button class="btn primary" id="btnNewStaff">ثبت کارمند جدید +</button></div>
+  <div class="card">
+    <div class="filters">
+      <input id="staffSearch" placeholder="جستجوی نام، کد ملی یا سمت...">
+      <select id="staffRoleFilter">
+        <option value="">همه سمت‌ها</option>
+        <option>دبیر</option>
+        <option>مدیر</option>
+        <option>معاون</option>
+        <option>مشاور</option>
+        <option>حسابدار</option>
+        <option>منشی</option>
+        <option>خدمات</option>
+        <option>سایر</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>کد پرسنلی</th>
+            <th>نام و نام خانوادگی</th>
+            <th>سمت</th>
+            <th>شماره همراه</th>
+            <th>حقوق پایه</th>
+            <th>واریز شده</th>
+            <th>مانده</th>
+            <th>عملیات</th>
+          </tr>
+        </thead>
+        <tbody id="staffTable"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- واریز حقوق -->
+<section class="page" id="salaries">
+  <div class="section-head"><h2>واریز حقوق کارکنان</h2><button class="btn primary" id="btnNewSalary">ثبت واریز حقوق +</button></div>
+  <div class="card">
+    <div class="filters">
+      <input id="salarySearch" placeholder="جستجوی واریز...">
+      <select id="salaryMonthFilter">
+        <option value="">همه ماه‌ها</option>
+        <option>فروردین</option><option>اردیبهشت</option><option>خرداد</option>
+        <option>تیر</option><option>مرداد</option><option>شهریور</option>
+        <option>مهر</option><option>آبان</option><option>آذر</option>
+        <option>دی</option><option>بهمن</option><option>اسفند</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>کارمند</th>
+            <th>ماه</th>
+            <th>حقوق پایه</th>
+            <th>پاداش</th>
+            <th>کسورات</th>
+            <th>مبلغ خالص</th>
+            <th>تاریخ واریز</th>
+            <th>روش</th>
+            <th>عملیات</th>
+          </tr>
+        </thead>
+        <tbody id="salaryTable"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- درآمدها -->
+<section class="page" id="incomes"><div class="section-head"><h2>درآمدها</h2><button class="btn primary" id="btnNewIncome">ثبت درآمد +</button></div><div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>عنوان</th><th>دسته</th><th>مبلغ</th><th>تاریخ</th><th>توضیحات</th><th>عملیات</th></tr></thead><tbody id="incomeTable"></tbody></table></div></div></section>
+
+<!-- هزینه‌ها -->
+<section class="page" id="expenses"><div class="section-head"><h2>هزینه‌های مدرسه</h2><button class="btn primary" id="btnNewExpense">ثبت هزینه +</button></div><div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>عنوان</th><th>دسته‌بندی</th><th>مبلغ</th><th>تاریخ</th><th>روش پرداخت</th><th>عملیات</th></tr></thead><tbody id="expenseTable"></tbody></table></div></div></section>
+
+<!-- اقساط -->
+<section class="page" id="installments"><div class="section-head"><h2>مدیریت اقساط</h2><button class="btn primary" id="btnNewInstallment">تعریف قسط +</button></div><div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>دانش‌آموز</th><th>مبلغ قسط</th><th>سررسید</th><th>وضعیت</th><th>عملیات</th></tr></thead><tbody id="installmentTable"></tbody></table></div></div></section>
+
+<!-- تخفیف‌ها -->
+<section class="page" id="discounts"><div class="section-head"><h2>مدیریت تخفیف</h2><button class="btn primary" id="btnNewDiscount">ثبت تخفیف +</button></div><div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>دانش‌آموز</th><th>مبلغ اصلی</th><th>تخفیف</th><th>مبلغ نهایی</th><th>علت</th><th>تاریخ</th><th>عملیات</th></tr></thead><tbody id="discountTable"></tbody></table></div></div></section>
+
+<!-- گزارش‌ها -->
 <section class="page" id="reports">
   <div class="section-head"><h2>گزارش‌های مالی</h2><div class="actions"><button class="btn blue" id="btnExportCSV">📥 خروجی Excel/CSV</button></div></div>
   <div class="card">
     <div class="filters">
-      <select id="reportType"><option value="all">گزارش شهریه</option><option value="debt">گزارش بدهکاران</option><option value="paid">گزارش تسویه‌شده‌ها</option><option value="payments">گزارش پرداخت‌ها</option><option value="expenses">گزارش هزینه‌ها</option><option value="profit">گزارش درآمد و هزینه</option></select>
+      <select id="reportType">
+        <option value="all">گزارش شهریه</option>
+        <option value="debt">گزارش بدهکاران</option>
+        <option value="paid">گزارش تسویه‌شده‌ها</option>
+        <option value="payments">گزارش پرداخت‌ها</option>
+        <option value="salaries">گزارش حقوق</option>
+        <option value="expenses">گزارش هزینه‌ها</option>
+        <option value="profit">گزارش درآمد و هزینه</option>
+      </select>
       <select id="reportGrade"><option value="">همه پایه‌ها</option><option>هفتم</option><option>هشتم</option><option>نهم</option><option>دهم</option><option>یازدهم</option><option>دوازدهم</option></select>
       <button class="btn primary" id="btnRenderReport">نمایش گزارش</button>
     </div>
@@ -200,18 +319,13 @@ button{cursor:pointer;border:0}
   </div>
 </section>
 
-<section class="page" id="incomes"><div class="section-head"><h2>درآمدها</h2><button class="btn primary" id="btnNewIncome">ثبت درآمد +</button></div><div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>عنوان</th><th>دسته</th><th>مبلغ</th><th>تاریخ</th><th>توضیحات</th><th>عملیات</th></tr></thead><tbody id="incomeTable"></tbody></table></div></div></section>
-
-<section class="page" id="expenses"><div class="section-head"><h2>هزینه‌های مدرسه</h2><button class="btn primary" id="btnNewExpense">ثبت هزینه +</button></div><div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>عنوان</th><th>دسته‌بندی</th><th>مبلغ</th><th>تاریخ</th><th>روش پرداخت</th><th>عملیات</th></tr></thead><tbody id="expenseTable"></tbody></table></div></div></section>
-
-<section class="page" id="installments"><div class="section-head"><h2>مدیریت اقساط</h2><button class="btn primary" id="btnNewInstallment">تعریف قسط +</button></div><div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>دانش‌آموز</th><th>مبلغ قسط</th><th>سررسید</th><th>وضعیت</th><th>عملیات</th></tr></thead><tbody id="installmentTable"></tbody></table></div></div></section>
-
-<section class="page" id="discounts"><div class="section-head"><h2>مدیریت تخفیف</h2><button class="btn primary" id="btnNewDiscount">ثبت تخفیف +</button></div><div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>دانش‌آموز</th><th>مبلغ اصلی</th><th>تخفیف</th><th>مبلغ نهایی</th><th>علت</th><th>تاریخ</th><th>عملیات</th></tr></thead><tbody id="discountTable"></tbody></table></div></div></section>
-
+<!-- صورتحساب -->
 <section class="page" id="invoices"><div class="section-head"><h2>صورتحساب دانش‌آموزان</h2></div><div class="card"><div class="filters"><input id="invoiceSearch" placeholder="نام یا کد دانش‌آموز..."></div><div id="invoiceResult"></div></div></section>
 
+<!-- تنظیمات -->
 <section class="page" id="settings"><div class="section-head"><h2>تنظیمات</h2></div><div class="card form"><div class="formgrid"><div><label>نام مدرسه</label><input id="setSchool"></div><div><label>سال تحصیلی</label><input id="setYear"></div><div><label>شماره تماس</label><input id="setPhone"></div><div class="full"><label>آدرس</label><input id="setAddress"></div><div class="full"><label>متن پایین رسید</label><textarea id="setFooter"></textarea></div></div><div class="modalfoot"><button class="btn primary" id="btnSaveSettings">ذخیره تنظیمات</button></div></div></section>
 
+<!-- فعالیت‌ها -->
 <section class="page" id="logs"><div class="section-head"><h2>گزارش فعالیت کاربران</h2></div><div class="card"><div class="table-wrap"><table class="table"><thead><tr><th>عملیات</th><th>تاریخ</th><th>ساعت</th></tr></thead><tbody id="logsTable"></tbody></table></div></div></section>
 </main>
 </div>
@@ -238,12 +352,17 @@ const DEFAULT_SETTINGS = {
   footer: 'با تشکر از اعتماد شما به دبیرستان دخترانه الهه مهر'
 };
 
+const GRADES = ['هفتم','هشتم','نهم','دهم','یازدهم','دوازدهم'];
+const CLASSES = ['الف','ب','ج','د'];
+const STAFF_ROLES = ['دبیر','مدیر','معاون','مشاور','حسابدار','منشی','خدمات','سایر'];
+const MONTHS = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+
 let sb = null;
 let currentUser = null;
 let db = {
   settings: { ...DEFAULT_SETTINGS },
   students: [], payments: [], incomes: [], expenses: [],
-  installments: [], discounts: [], logs: []
+  installments: [], discounts: [], staff: [], salaries: [], logs: []
 };
 let charts = [];
 let isProcessing = false;
@@ -258,9 +377,15 @@ function today(){ return new Date().toLocaleDateString('fa-IR'); }
 
 function studentById(id){ return db.students.find(x => x.id == id); }
 function studentName(id){ const s = studentById(id); return s ? `${s.name} ${s.family}` : '-'; }
+function staffById(id){ return db.staff.find(x => x.id == id); }
+function staffName(id){ const s = staffById(id); return s ? `${s.name} ${s.family}` : '-'; }
 function finalTuition(s){ return Math.max(0, (+s.tuition||0) - (+s.discount||0)); }
 function paid(s){ return db.payments.filter(p => p.studentId == s.id).reduce((a,b) => a + (+b.amount||0), 0); }
 function balance(s){ return Math.max(0, finalTuition(s) - paid(s)); }
+
+function staffTotalSalary(staff){ return (+staff.base_salary||0) + (+staff.bonus||0); }
+function staffPaid(id){ return db.salaries.filter(s => s.staffId == id).reduce((a,b) => a + (+b.net_amount||0), 0); }
+function staffBalance(staff){ return Math.max(0, staffTotalSalary(staff) * 12 - staffPaid(staff.id)); }
 
 function isPast(dateStr){
   if(!dateStr) return false;
@@ -295,10 +420,7 @@ function authMsg(msg, ok){
 }
 
 function isValidEmail(email){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
-
-function showLoading(show){
-  document.getElementById('loadingOverlay').classList.toggle('show', !!show);
-}
+function showLoading(show){ document.getElementById('loadingOverlay').classList.toggle('show', !!show); }
 
 /* ============================================================
    ترجمه خطاهای Supabase
@@ -309,25 +431,28 @@ function translateError(error){
   const msg = (error.message || '').toLowerCase();
 
   if(code === '23505' || msg.includes('duplicate key')){
-    if(msg.includes('students_code')) return '⚠️ این کد دانش‌آموزی قبلاً ثبت شده است. لطفاً کد دیگری وارد کنید.';
+    if(msg.includes('students_code')) return '⚠️ این کد دانش‌آموزی قبلاً ثبت شده است.';
+    if(msg.includes('staff_code')) return '⚠️ این کد پرسنلی قبلاً ثبت شده است.';
     if(msg.includes('receipt')) return '⚠️ این شماره رسید قبلاً استفاده شده است.';
-    return '⚠️ این اطلاعات تکراری است. لطفاً مقادیر یکتا وارد کنید.';
+    return '⚠️ این اطلاعات تکراری است.';
   }
   if(code === '23503' || msg.includes('foreign key')) return '⚠️ اطلاعات مرتبط یافت نشد.';
   if(code === '23502' || msg.includes('not-null')) return '⚠️ فیلدهای اجباری را کامل کنید.';
   if(code === '42501' || msg.includes('row-level security')) return '🔒 دسترسی ندارید. لطفاً دوباره وارد شوید.';
   if(code === 'PGRST301' || msg.includes('jwt')) return '🔒 نشست منقضی شده. لطفاً دوباره وارد شوید.';
-  if(msg.includes('failed to fetch') || msg.includes('networkerror')) return '🌐 خطای اتصال. VPN را روشن کنید و دوباره امتحان کنید.';
+  if(msg.includes('failed to fetch') || msg.includes('networkerror')) return '🌐 خطای اتصال. VPN را روشن کنید.';
+  if(msg.includes('email not confirmed')) return '📧 ایمیل تأیید نشده است. با مدیر تماس بگیرید.';
+  if(msg.includes('invalid login')) return '🔑 ایمیل یا رمز عبور اشتباه است.';
   return 'خطا: ' + (error.message || 'نامشخص');
 }
 
 /* ============================================================
-   مقداردهی اولیه Supabase (فقط یک بار)
+   Supabase init
 ============================================================ */
 function initSupabase(){
   if(sb) return true;
   if(typeof window.supabase === 'undefined' || !window.supabase.createClient){
-    authMsg('خطا: کتابخانه Supabase لود نشد. اتصال اینترنت را بررسی کنید.');
+    authMsg('خطا: کتابخانه Supabase لود نشد.');
     return false;
   }
   try {
@@ -336,12 +461,12 @@ function initSupabase(){
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: false,
-        storageKey: 'haleh-mehr-auth'
+        storageKey: 'haleh-mehr-auth-v2'
       }
     });
     return true;
   } catch(e){
-    authMsg('خطا در اتصال به Supabase: ' + e.message);
+    authMsg('خطا در اتصال: ' + e.message);
     return false;
   }
 }
@@ -350,13 +475,15 @@ function initSupabase(){
    نگاشت داده‌ها
 ============================================================ */
 function mapStudent(r){
-  return { ...r, class: r.class_name, year: r.academic_year, fatherPhone: r.father_phone, motherPhone: r.mother_phone };
+  return { ...r, class: r.class_name, year: r.academic_year, fatherPhone: r.father_phone, phone: r.phone || r.father_phone, motherPhone: r.mother_phone };
 }
 function mapPayment(r){ return { ...r, studentId: r.student_id, date: r.payment_date, desc: r.description }; }
 function mapIncome(r){ return { ...r, date: r.income_date, desc: r.description }; }
 function mapExpense(r){ return { ...r, date: r.expense_date, doc: r.document, desc: r.description }; }
 function mapInstallment(r){ return { ...r, studentId: r.student_id, due: r.due_date }; }
 function mapDiscount(r){ return { ...r, studentId: r.student_id, base: r.base_amount, type: r.discount_type, date: r.discount_date }; }
+function mapStaff(r){ return { ...r, code: r.staff_code, phone: r.phone, base_salary: r.base_salary, bonus: r.bonus, position: r.position }; }
+function mapSalary(r){ return { ...r, staffId: r.staff_id, month: r.salary_month, base: r.base_amount, bonus: r.bonus_amount, deduction: r.deduction, net_amount: r.net_amount, date: r.payment_date, method: r.payment_method }; }
 
 function normalizeSettings(s){
   if(!s) return { ...DEFAULT_SETTINGS };
@@ -383,7 +510,9 @@ async function loadData(){
     sb.from('expenses').select('*').order('created_at', { ascending: false }),
     sb.from('installments').select('*').order('created_at', { ascending: false }),
     sb.from('discounts').select('*').order('created_at', { ascending: false }),
-    sb.from('activity_logs').select('*').order('created_at', { ascending: false }).limit(200)
+    sb.from('activity_logs').select('*').order('created_at', { ascending: false }).limit(200),
+    sb.from('staff').select('*').order('created_at', { ascending: false }).then(r => r.error ? { data: [], error: null } : r),
+    sb.from('salaries').select('*').order('created_at', { ascending: false }).then(r => r.error ? { data: [], error: null } : r)
   ]);
 
   const firstError = results.find(x => x.error)?.error;
@@ -401,6 +530,8 @@ async function loadData(){
     date: new Date(x.created_at).toLocaleDateString('fa-IR'),
     time: new Date(x.created_at).toLocaleTimeString('fa-IR')
   }));
+  db.staff = (results[8].data || []).map(mapStaff);
+  db.salaries = (results[9].data || []).map(mapSalary);
 }
 
 async function logAction(action){
@@ -409,7 +540,7 @@ async function logAction(action){
 }
 
 /* ============================================================
-   رفرش کل برنامه
+   رفرش
 ============================================================ */
 async function refreshApp(){
   if(!currentUser) return;
@@ -448,10 +579,8 @@ async function doSignIn(){
   try {
     const { data, error } = await sb.auth.signInWithPassword({ email, password });
     if(error){
-      if(error.message.includes('Invalid login')) return authMsg('ایمیل یا رمز عبور اشتباه است.');
-      if(error.message.includes('Email not confirmed')) return authMsg('ایمیل تأیید نشده است. با مدیر تماس بگیرید.');
-      if(error.message.includes('Failed to fetch')) return authMsg('اتصال به سرور برقرار نشد. VPN را روشن کنید.');
-      return authMsg('خطا: ' + error.message);
+      authMsg(translateError(error));
+      return;
     }
     currentUser = data.user;
     authMsg('');
@@ -477,7 +606,7 @@ async function doSignUp(){
       email, password,
       options: { data: { full_name: 'مدیر مدرسه', role: 'admin' } }
     });
-    if(error) return authMsg('خطا: ' + error.message);
+    if(error) return authMsg(translateError(error));
 
     if(data.session){
       currentUser = data.user;
@@ -511,9 +640,9 @@ function nav(page){
 
   const titles = {
     dashboard: 'داشبورد مالی', students: 'مدیریت دانش‌آموزان', payments: 'ثبت پرداخت',
-    receipts: 'رسیدها', reports: 'گزارش‌های مالی', incomes: 'درآمدها', expenses: 'هزینه‌ها',
-    installments: 'اقساط', discounts: 'تخفیف‌ها', invoices: 'صورتحساب‌ها',
-    settings: 'تنظیمات', logs: 'فعالیت کاربران'
+    receipts: 'رسیدها', staff: 'کارکنان و دبیران', salaries: 'واریز حقوق',
+    incomes: 'درآمدها', expenses: 'هزینه‌ها', installments: 'اقساط', discounts: 'تخفیف‌ها',
+    reports: 'گزارش‌های مالی', invoices: 'صورتحساب‌ها', logs: 'فعالیت کاربران', settings: 'تنظیمات'
   };
   document.getElementById('pageTitle').textContent = titles[page] || '';
   renderAll();
@@ -528,6 +657,8 @@ function renderAll(){
   renderStudents();
   renderPayments();
   renderReceipts();
+  renderStaff();
+  renderSalaries();
   renderIncomes();
   renderExpenses();
   renderInstallments();
@@ -542,202 +673,70 @@ function renderAll(){
 function renderStats(){
   const total = db.students.length;
   const debt = db.students.filter(s => balance(s) > 0).length;
-  const settled = total - debt;
   const tuition = db.students.reduce((a,s) => a + finalTuition(s), 0);
   const received = db.payments.reduce((a,p) => a + (+p.amount||0), 0);
-  const rem = Math.max(0, tuition - received);
-  const disc = db.students.reduce((a,s) => a + (+s.discount||0), 0);
+  const salariesPaid = db.salaries.reduce((a,s) => a + (+s.net_amount||0), 0);
+  const staffCount = db.staff.length;
 
   document.getElementById('stats').innerHTML = [
-    ['👩🏻‍🎓','تعداد کل دانش‌آموزان', total],
-    ['🟠','دانش‌آموزان بدهکار', debt],
-    ['🟢','تسویه‌شده‌ها', settled],
+    ['👩🏻‍🎓','دانش‌آموزان', total],
+    ['👨‍🏫','کارکنان', staffCount],
     ['💰','مجموع شهریه', money(tuition)],
     ['💳','مجموع دریافت', money(received)],
-    ['⚠️','مجموع بدهی', money(rem)],
-    ['🎁','مجموع تخفیف', money(disc)],
+    ['🟠','بدهکاران', debt],
+    ['💵','مجموع حقوق پرداختی', money(salariesPaid)],
+    ['🎁','مجموع تخفیف', money(db.students.reduce((a,s) => a + (+s.discount||0), 0))],
     ['📊','تعداد پرداخت‌ها', db.payments.length]
   ].map(x => `<div class="card stat"><div class="ico">${x[0]}</div><div class="label">${x[1]}</div><div class="num">${x[2]}</div></div>`).join('');
 }
 
+/* ============================================================
+   دانش‌آموزان
+============================================================ */
 function renderStudents(){
   const q = v('studentSearch'), g = v('gradeFilter'), c = v('classFilter');
   const arr = db.students.filter(s =>
-    (!q || `${s.name} ${s.family} ${s.code} ${s.national}`.includes(q)) &&
+    (!q || `${s.name} ${s.family} ${s.code} ${s.national} ${s.phone}`.includes(q)) &&
     (!g || s.grade === g) && (!c || s.class === c)
   );
   document.getElementById('studentsTable').innerHTML = arr.map(s => {
     const st = status(s);
     return `<tr>
-      <td>${s.code||'-'}</td><td><b>${s.name} ${s.family}</b></td><td>${s.national||'-'}</td>
+      <td>${s.code||'-'}</td>
+      <td><span class="clickable" data-action="details" data-id="${s.id}">${s.name} ${s.family}</span></td>
       <td>${s.grade||'-'}</td><td>${s.class||'-'}</td>
       <td>${money(finalTuition(s))}</td><td>${money(paid(s))}</td><td>${money(balance(s))}</td>
       <td><span class="badge ${st[1]}">${st[0]}</span></td>
       <td class="actions">
-        <button class="btn blue" data-action="details" data-id="${s.id}">پرونده</button>
+        <button class="btn blue" data-action="details" data-id="${s.id}">صورتحساب</button>
         <button class="btn" data-action="edit" data-id="${s.id}">ویرایش</button>
         <button class="btn red" data-action="del-student" data-id="${s.id}">حذف</button>
       </td>
     </tr>`;
-  }).join('') || `<tr><td colspan="10" class="empty">دانش‌آموزی یافت نشد.</td></tr>`;
-}
-
-function renderPayments(){
-  const q = v('paymentSearch'), m = v('paymentMethodFilter');
-  const arr = db.payments.filter(p =>
-    (!q || `${studentName(p.studentId)} ${p.receipt} ${p.tracking}`.includes(q)) &&
-    (!m || p.method === m)
-  );
-  document.getElementById('paymentsTable').innerHTML = arr.map(p => `
-    <tr><td>${p.receipt}</td><td>${studentName(p.studentId)}</td><td>${money(p.amount)}</td>
-    <td>${p.date||'-'}</td><td>${p.method||'-'}</td><td>${p.tracking||'-'}</td>
-    <td class="actions">
-      <button class="btn blue" data-action="print-receipt" data-id="${p.id}">رسید</button>
-      <button class="btn red" data-action="del-payment" data-id="${p.id}">حذف</button>
-    </td></tr>`).join('') || `<tr><td colspan="7" class="empty">پرداختی ثبت نشده است.</td></tr>`;
-}
-
-function renderReceipts(){
-  document.getElementById('receiptsTable').innerHTML = db.payments.map(p => `
-    <tr><td>${p.receipt}</td><td>${studentName(p.studentId)}</td><td>${money(p.amount)}</td>
-    <td>${p.date||'-'}</td><td>${p.method||'-'}</td>
-    <td><button class="btn blue" data-action="print-receipt" data-id="${p.id}">چاپ</button></td></tr>`).join('')
-    || `<tr><td colspan="6" class="empty">رسیدی ثبت نشده است.</td></tr>`;
-}
-
-function renderIncomes(){
-  document.getElementById('incomeTable').innerHTML = db.incomes.map(x => `
-    <tr><td>${x.title}</td><td>${x.category||'-'}</td><td>${money(x.amount)}</td>
-    <td>${x.date||'-'}</td><td>${x.desc||'-'}</td>
-    <td><button class="btn red" data-action="del-item" data-table="incomes" data-id="${x.id}">حذف</button></td></tr>`).join('')
-    || `<tr><td colspan="6" class="empty">درآمدی ثبت نشده است.</td></tr>`;
-}
-
-function renderExpenses(){
-  document.getElementById('expenseTable').innerHTML = db.expenses.map(x => `
-    <tr><td>${x.title}</td><td>${x.category||'-'}</td><td>${money(x.amount)}</td>
-    <td>${x.date||'-'}</td><td>${x.method||'-'}</td>
-    <td><button class="btn red" data-action="del-item" data-table="expenses" data-id="${x.id}">حذف</button></td></tr>`).join('')
-    || `<tr><td colspan="6" class="empty">هزینه‌ای ثبت نشده است.</td></tr>`;
-}
-
-function renderInstallments(){
-  document.getElementById('installmentTable').innerHTML = db.installments.map(x => `
-    <tr><td>${studentName(x.studentId)}</td><td>${money(x.amount)}</td><td>${x.due||'-'}</td>
-    <td><span class="badge ${x.paid?'paid':(isPast(x.due)?'overdue':'debt')}">${x.paid?'پرداخت شده':(isPast(x.due)?'معوق':'پرداخت نشده')}</span></td>
-    <td class="actions">
-      ${!x.paid ? `<button class="btn green" data-action="pay-installment" data-id="${x.id}">تسویه</button>` : ''}
-      <button class="btn red" data-action="del-item" data-table="installments" data-id="${x.id}">حذف</button>
-    </td></tr>`).join('') || `<tr><td colspan="5" class="empty">قسطی تعریف نشده است.</td></tr>`;
-}
-
-function renderDiscounts(){
-  document.getElementById('discountTable').innerHTML = db.discounts.map(x => `
-    <tr><td>${studentName(x.studentId)}</td><td>${money(x.base)}</td>
-    <td>${x.type==='percent' ? x.value+'٪' : money(x.value)}</td>
-    <td>${money(x.final)}</td><td>${x.reason||'-'}</td><td>${x.date||'-'}</td>
-    <td><button class="btn red" data-action="del-item" data-table="discounts" data-id="${x.id}">حذف</button></td></tr>`).join('')
-    || `<tr><td colspan="7" class="empty">تخفیفی ثبت نشده است.</td></tr>`;
-}
-
-function renderLogs(){
-  document.getElementById('logsTable').innerHTML = db.logs.map(x => `
-    <tr><td>${x.action}</td><td>${x.date}</td><td>${x.time}</td></tr>`).join('')
-    || `<tr><td colspan="3" class="empty">هنوز فعالیتی ثبت نشده است.</td></tr>`;
-}
-
-function renderDashboardLists(){
-  document.getElementById('recentPayments').innerHTML = db.payments.slice(0, 5).map(p => `
-    <div style="padding:9px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between">
-      <span>${studentName(p.studentId)}</span><b>${money(p.amount)}</b>
-    </div>`).join('') || '<div class="empty">پرداختی ثبت نشده است.</div>';
-
-  document.getElementById('dueSoon').innerHTML = db.installments.filter(x => !x.paid && !isPast(x.due)).slice(0, 6)
-    .map(x => `<li><span>${studentName(x.studentId)}</span><b>${x.due}</b></li>`).join('')
-    || '<li>موردی وجود ندارد</li>';
-
-  document.getElementById('overdueList').innerHTML = db.installments.filter(x => !x.paid && isPast(x.due)).slice(0, 6)
-    .map(x => `<li><span>${studentName(x.studentId)}</span><b>${money(x.amount)}</b></li>`).join('')
-    || '<li>موردی وجود ندارد</li>';
+  }).join('') || `<tr><td colspan="9" class="empty">دانش‌آموزی یافت نشد.</td></tr>`;
 }
 
 /* ============================================================
-   نمودارها
-============================================================ */
-function drawCharts(){
-  if(typeof Chart === 'undefined') return;
-  charts.forEach(c => { try { c.destroy(); } catch(e){} });
-  charts = [];
-  const c1 = document.getElementById('incomeChart');
-  const c2 = document.getElementById('statusChart');
-  const c3 = document.getElementById('gradeChart');
-  if(!c1 || !c2 || !c3) return;
-
-  const months = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان'];
-  const vals = months.map((m, i) =>
-    db.payments.filter(p => String(p.date||'').includes('/' + String(i+1).padStart(2,'0') + '/'))
-      .reduce((a,p) => a + (+p.amount||0), 0)
-  );
-  charts.push(new Chart(c1, {
-    type: 'line',
-    data: { labels: months, datasets: [{ label: 'دریافت', data: vals, tension: .3, borderColor: '#7c3aed', backgroundColor: 'rgba(124,58,237,.15)', fill: true }] },
-    options: { responsive: true, maintainAspectRatio: false }
-  }));
-
-  const paidN = db.students.filter(s => balance(s) <= 0).length;
-  const debtN = db.students.filter(s => balance(s) > 0).length;
-  charts.push(new Chart(c2, {
-    type: 'doughnut',
-    data: { labels: ['تسویه‌شده','بدهکار'], datasets: [{ data: [paidN, debtN], backgroundColor: ['#16a34a','#f59e0b'] }] },
-    options: { responsive: true, maintainAspectRatio: false }
-  }));
-
-  const grades = [...new Set(db.students.map(s => s.grade).filter(Boolean))];
-  charts.push(new Chart(c3, {
-    type: 'bar',
-    data: { labels: grades, datasets: [{ label: 'دریافت', data: grades.map(g => db.students.filter(s => s.grade === g).reduce((a,s) => a + paid(s), 0)), backgroundColor: '#7c3aed' }] },
-    options: { responsive: true, maintainAspectRatio: false }
-  }));
-}
-
-/* ============================================================
-   مودال
-============================================================ */
-function openModal(title, body){
-  document.getElementById('modalTitle').textContent = title;
-  document.getElementById('modalBody').innerHTML = body;
-  document.getElementById('modal').classList.add('show');
-}
-function closeModal(){ document.getElementById('modal').classList.remove('show'); }
-
-/* ============================================================
-   دانش‌آموز
+   فرم دانش‌آموز (ساده شده)
 ============================================================ */
 function openStudent(id){
   const s = id ? studentById(id) : {
-    id:'', code:'', name:'', family:'', national:'', grade:'دهم', field:'',
-    class:'الف', year: db.settings.year, father:'', fatherPhone:'', motherPhone:'',
-    emergency:'', address:'', notes:'', tuition:60000000, discount:0
+    id:'', code:'', name:'', family:'', grade:'دهم', class:'الف',
+    year: db.settings.year, phone:'', tuition:60000000, discount:0
   };
   if(!s) return;
+
   openModal(id ? 'ویرایش دانش‌آموز' : 'ثبت دانش‌آموز جدید', `
   <div class="form"><div class="formgrid">
     <div><label>کد دانش‌آموزی *</label><input id="f_code" value="${s.code||''}" placeholder="مثال: 1001"></div>
     <div><label>نام *</label><input id="f_name" value="${s.name||''}"></div>
     <div><label>نام خانوادگی *</label><input id="f_family" value="${s.family||''}"></div>
-    <div><label>کد ملی</label><input id="f_national" value="${s.national||''}"></div>
-    <div><label>پایه</label><select id="f_grade">${['هفتم','هشتم','نهم','دهم','یازدهم','دوازدهم'].map(x => `<option ${x===s.grade?'selected':''}>${x}</option>`).join('')}</select></div>
-    <div><label>رشته</label><input id="f_field" value="${s.field||''}"></div>
-    <div><label>کلاس</label><select id="f_class">${['الف','ب','ج','د'].map(x => `<option ${x===s.class?'selected':''}>${x}</option>`).join('')}</select></div>
-    <div><label>سال تحصیلی</label><input id="f_year" value="${s.year||''}"></div>
-    <div><label>نام پدر</label><input id="f_father" value="${s.father||''}"></div>
-    <div><label>شماره پدر</label><input id="f_fatherPhone" value="${s.fatherPhone||''}"></div>
-    <div><label>شماره مادر</label><input id="f_motherPhone" value="${s.motherPhone||''}"></div>
-    <div><label>شماره ضروری</label><input id="f_emergency" value="${s.emergency||''}"></div>
-    <div class="full"><label>آدرس</label><input id="f_address" value="${s.address||''}"></div>
-    <div><label>شهریه (ریال)</label><input type="number" id="f_tuition" value="${s.tuition||0}"></div>
+    <div><label>پایه</label><select id="f_grade">${GRADES.map(x => `<option ${x===s.grade?'selected':''}>${x}</option>`).join('')}</select></div>
+    <div><label>کلاس</label><select id="f_class">${CLASSES.map(x => `<option ${x===s.class?'selected':''}>${x}</option>`).join('')}</select></div>
+    <div><label>شماره همراه</label><input id="f_phone" value="${s.phone||''}" placeholder="0912..."></div>
+    <div><label>سال تحصیلی</label><input id="f_year" value="${s.year||db.settings.year}"></div>
+    <div><label>شهریه (ریال) *</label><input type="number" id="f_tuition" value="${s.tuition||0}"></div>
     <div><label>تخفیف (ریال)</label><input type="number" id="f_discount" value="${s.discount||0}"></div>
-    <div class="full"><label>توضیحات</label><textarea id="f_notes">${s.notes||''}</textarea></div>
   </div>
   <div class="modalfoot"><button class="btn primary" id="btnSaveStudent" data-id="${id||0}">ذخیره</button></div></div>`);
 
@@ -748,19 +747,22 @@ async function saveStudent(id){
   if(isProcessing) return;
 
   const s = {
-    code: v('f_code'), name: v('f_name'), family: v('f_family'), national: v('f_national'),
-    grade: v('f_grade'), field: v('f_field'), class_name: v('f_class'), academic_year: v('f_year'),
-    father: v('f_father'), father_phone: v('f_fatherPhone'), mother_phone: v('f_motherPhone'),
-    emergency: v('f_emergency'), address: v('f_address'), notes: v('f_notes'),
-    tuition: num('f_tuition'), discount: num('f_discount')
+    code: v('f_code'),
+    name: v('f_name'),
+    family: v('f_family'),
+    grade: v('f_grade'),
+    class_name: v('f_class'),
+    phone: v('f_phone'),
+    father_phone: v('f_phone'),
+    academic_year: v('f_year'),
+    tuition: num('f_tuition'),
+    discount: num('f_discount')
   };
 
-  // اعتبارسنجی سمت کاربر
   if(!s.code) return toast('کد دانش‌آموزی الزامی است', 'error');
   if(!s.name) return toast('نام الزامی است', 'error');
   if(!s.family) return toast('نام خانوادگی الزامی است', 'error');
 
-  // چک تکراری بودن کد در حافظه (سریع‌تر)
   const duplicate = db.students.find(x => x.code === s.code && x.id != id);
   if(duplicate){
     return toast(`⚠️ کد "${s.code}" قبلاً برای "${duplicate.name} ${duplicate.family}" ثبت شده است.`, 'error');
@@ -792,20 +794,94 @@ async function saveStudent(id){
   }
 }
 
+/* ============================================================
+   صورتحساب کامل دانش‌آموز
+============================================================ */
 function studentDetails(id){
   const s = studentById(id);
   if(!s) return;
+
   const ps = db.payments.filter(p => p.studentId == id);
-  openModal('پرونده مالی', `
+  const insts = db.installments.filter(i => i.studentId == id);
+
+  let totalPaid = 0;
+  let rows = '';
+  const sortedPays = [...ps].sort((a,b) => (a.date || '').localeCompare(b.date || ''));
+
+  rows += `<tr style="background:#f0f9ff">
+    <td>-</td>
+    <td><b>شهریه پس از تخفیف</b></td>
+    <td><b>${money(finalTuition(s))}</b></td>
+    <td>-</td>
+    <td><b>${money(finalTuition(s))}</b></td>
+  </tr>`;
+
+  sortedPays.forEach(p => {
+    totalPaid += (+p.amount || 0);
+    const remaining = Math.max(0, finalTuition(s) - totalPaid);
+    rows += `<tr>
+      <td>${p.date||'-'}</td>
+      <td>پرداخت - ${p.method||'-'} ${p.tracking ? '('+p.tracking+')' : ''}</td>
+      <td>-</td>
+      <td>${money(p.amount)}</td>
+      <td>${money(remaining)}</td>
+    </tr>`;
+  });
+
+  openModal('📑 صورتحساب کامل دانش‌آموز', `
+  <div style="text-align:center;margin-bottom:15px">
+    <h2 style="margin:0;color:var(--primary)">${s.name} ${s.family}</h2>
+    <div style="color:var(--muted);font-size:13px;margin-top:5px">
+      کد: ${s.code||'-'} | پایه: ${s.grade||'-'} | کلاس: ${s.class||'-'} | همراه: ${s.phone||'-'}
+    </div>
+  </div>
+
   <div class="grid detail-grid">
     <div class="card mini"><span>شهریه کل</span><strong>${money(s.tuition)}</strong></div>
     <div class="card mini"><span>تخفیف</span><strong>${money(s.discount)}</strong></div>
-    <div class="card mini"><span>پرداخت‌شده</span><strong>${money(paid(s))}</strong></div>
-    <div class="card mini"><span>مانده</span><strong>${money(balance(s))}</strong></div>
+    <div class="card mini"><span>پرداخت‌شده</span><strong style="color:var(--green)">${money(paid(s))}</strong></div>
+    <div class="card mini"><span>مانده</span><strong style="color:${balance(s)>0?'var(--red)':'var(--green)'}">${money(balance(s))}</strong></div>
   </div>
-  <div class="section-head"><h3>${s.name} ${s.family} | ${s.grade||''} | ${s.class||''}</h3></div>
-  <div class="table-wrap"><table class="table"><thead><tr><th>تاریخ</th><th>مبلغ</th><th>روش</th><th>رسید</th></tr></thead>
-  <tbody>${ps.map(p => `<tr><td>${p.date}</td><td>${money(p.amount)}</td><td>${p.method}</td><td>${p.receipt}</td></tr>`).join('') || '<tr><td colspan="4" class="empty">پرداختی ثبت نشده</td></tr>'}</tbody></table></div>`);
+
+  <div class="section-head" style="margin-top:20px">
+    <h3 style="margin:0">📋 ریز تراکنش‌ها</h3>
+    <div class="actions">
+      <button class="btn primary" data-action="add-payment-for" data-id="${s.id}">ثبت پرداخت جدید</button>
+      <button class="btn blue" data-action="print-invoice" data-id="${s.id}">🖨 چاپ صورتحساب</button>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>تاریخ</th>
+          <th>شرح</th>
+          <th>بدهکار</th>
+          <th>بستانکار</th>
+          <th>مانده</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>
+
+  ${insts.length ? `
+    <div class="section-head" style="margin-top:20px"><h3>📅 اقساط</h3></div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>سررسید</th><th>مبلغ</th><th>وضعیت</th></tr></thead>
+        <tbody>${insts.map(i => `
+          <tr>
+            <td>${i.due}</td>
+            <td>${money(i.amount)}</td>
+            <td><span class="badge ${i.paid?'paid':(isPast(i.due)?'overdue':'debt')}">${i.paid?'پرداخت شده':(isPast(i.due)?'معوق':'در انتظار')}</span></td>
+          </tr>
+        `).join('')}</tbody>
+      </table>
+    </div>
+  ` : ''}
+  `);
 }
 
 /* ============================================================
@@ -830,6 +906,17 @@ function openPayment(){
   <div class="modalfoot"><button class="btn primary" id="btnSavePayment">ثبت پرداخت</button></div></div>`);
 
   document.getElementById('btnSavePayment').onclick = savePayment;
+}
+
+function openPaymentFor(studentId){
+  closeModal();
+  setTimeout(() => {
+    openPayment();
+    setTimeout(() => {
+      const el = document.getElementById('p_student');
+      if(el) el.value = studentId;
+    }, 50);
+  }, 100);
 }
 
 async function savePayment(){
@@ -867,6 +954,33 @@ async function savePayment(){
   }
 }
 
+function renderPayments(){
+  const q = v('paymentSearch'), m = v('paymentMethodFilter');
+  const arr = db.payments.filter(p =>
+    (!q || `${studentName(p.studentId)} ${p.receipt} ${p.tracking}`.includes(q)) &&
+    (!m || p.method === m)
+  );
+  document.getElementById('paymentsTable').innerHTML = arr.map(p => `
+    <tr><td>${p.receipt}</td>
+    <td><span class="clickable" data-action="details" data-id="${p.studentId}">${studentName(p.studentId)}</span></td>
+    <td>${money(p.amount)}</td>
+    <td>${p.date||'-'}</td><td>${p.method||'-'}</td><td>${p.tracking||'-'}</td>
+    <td class="actions">
+      <button class="btn blue" data-action="print-receipt" data-id="${p.id}">رسید</button>
+      <button class="btn red" data-action="del-payment" data-id="${p.id}">حذف</button>
+    </td></tr>`).join('') || `<tr><td colspan="7" class="empty">پرداختی ثبت نشده است.</td></tr>`;
+}
+
+function renderReceipts(){
+  document.getElementById('receiptsTable').innerHTML = db.payments.map(p => `
+    <tr><td>${p.receipt}</td>
+    <td><span class="clickable" data-action="details" data-id="${p.studentId}">${studentName(p.studentId)}</span></td>
+    <td>${money(p.amount)}</td>
+    <td>${p.date||'-'}</td><td>${p.method||'-'}</td>
+    <td><button class="btn blue" data-action="print-receipt" data-id="${p.id}">چاپ</button></td></tr>`).join('')
+    || `<tr><td colspan="6" class="empty">رسیدی ثبت نشده است.</td></tr>`;
+}
+
 function printReceipt(id){
   const p = db.payments.find(x => x.id == id);
   const s = p ? studentById(p.studentId) : null;
@@ -875,9 +989,13 @@ function printReceipt(id){
   if(!w) return toast('پنجره چاپ مسدود شد', 'error');
   w.document.write(`
   <html dir="rtl"><head><meta charset="UTF-8"><title>رسید ${p.receipt}</title>
-  <style>body{font-family:Tahoma;padding:40px;direction:rtl}h1{text-align:center}table{width:100%;border-collapse:collapse;margin-top:25px}td,th{border:1px solid #ddd;padding:12px;text-align:right}</style>
+  <style>body{font-family:Tahoma;padding:40px;direction:rtl}h1{text-align:center}table{width:100%;border-collapse:collapse;margin-top:25px}td,th{border:1px solid #ddd;padding:12px;text-align:right}.head{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #2563eb;padding-bottom:15px}.logo{width:80px;height:80px;object-fit:contain}</style>
   </head><body>
-  <h1>${db.settings.school}</h1><h3 style="text-align:center">رسید پرداخت</h3>
+  <div class="head">
+    <img src="logo.png" class="logo" onerror="this.style.display='none'">
+    <h1 style="flex:1">${db.settings.school}</h1>
+  </div>
+  <h3 style="text-align:center">رسید پرداخت</h3>
   <table>
     <tr><th>دانش‌آموز</th><td>${s.name} ${s.family}</td><th>کد</th><td>${s.code||'-'}</td></tr>
     <tr><th>پایه</th><td>${s.grade||'-'}</td><th>رسید</th><td>${p.receipt}</td></tr>
@@ -893,8 +1011,261 @@ function printReceipt(id){
 }
 
 /* ============================================================
-   درآمد و هزینه
+   کارکنان و دبیران
 ============================================================ */
+function renderStaff(){
+  const q = v('staffSearch'), role = v('staffRoleFilter');
+  const arr = db.staff.filter(s =>
+    (!q || `${s.name} ${s.family} ${s.code} ${s.phone} ${s.position}`.includes(q)) &&
+    (!role || s.position === role)
+  );
+  document.getElementById('staffTable').innerHTML = arr.map(s => {
+    const paidAmt = staffPaid(s.id);
+    const totalExpected = (+s.base_salary||0) + (+s.bonus||0);
+    const remaining = Math.max(0, totalExpected * 12 - paidAmt);
+    return `<tr>
+      <td>${s.code||'-'}</td>
+      <td><b>${s.name} ${s.family}</b></td>
+      <td>${s.position||'-'}</td>
+      <td>${s.phone||'-'}</td>
+      <td>${money(s.base_salary)}</td>
+      <td>${money(paidAmt)}</td>
+      <td>${money(remaining)}</td>
+      <td class="actions">
+        <button class="btn green" data-action="pay-salary-for" data-id="${s.id}">واریز حقوق</button>
+        <button class="btn" data-action="edit-staff" data-id="${s.id}">ویرایش</button>
+        <button class="btn red" data-action="del-staff" data-id="${s.id}">حذف</button>
+      </td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="8" class="empty">کارمندی ثبت نشده است.</td></tr>`;
+}
+
+function openStaff(id){
+  const s = id ? staffById(id) : {
+    id:'', code:'', name:'', family:'', position:'دبیر', phone:'',
+    base_salary:0, bonus:0, notes:''
+  };
+  if(!s) return;
+
+  openModal(id ? 'ویرایش کارمند' : 'ثبت کارمند جدید', `
+  <div class="form"><div class="formgrid">
+    <div><label>کد پرسنلی *</label><input id="st_code" value="${s.code||''}" placeholder="مثال: T001"></div>
+    <div><label>نام *</label><input id="st_name" value="${s.name||''}"></div>
+    <div><label>نام خانوادگی *</label><input id="st_family" value="${s.family||''}"></div>
+    <div><label>سمت</label><select id="st_position">${STAFF_ROLES.map(x => `<option ${x===s.position?'selected':''}>${x}</option>`).join('')}</select></div>
+    <div><label>شماره همراه</label><input id="st_phone" value="${s.phone||''}"></div>
+    <div><label>حقوق پایه ماهانه (ریال) *</label><input type="number" id="st_base" value="${s.base_salary||0}"></div>
+    <div><label>پاداش ماهانه (ریال)</label><input type="number" id="st_bonus" value="${s.bonus||0}"></div>
+    <div class="full"><label>توضیحات</label><textarea id="st_notes">${s.notes||''}</textarea></div>
+  </div>
+  <div class="modalfoot"><button class="btn primary" id="btnSaveStaff" data-id="${id||0}">ذخیره</button></div></div>`);
+
+  document.getElementById('btnSaveStaff').onclick = () => saveStaff(id || 0);
+}
+
+async function saveStaff(id){
+  if(isProcessing) return;
+
+  const s = {
+    staff_code: v('st_code'),
+    name: v('st_name'),
+    family: v('st_family'),
+    position: v('st_position'),
+    phone: v('st_phone'),
+    base_salary: num('st_base'),
+    bonus: num('st_bonus'),
+    notes: v('st_notes')
+  };
+
+  if(!s.staff_code) return toast('کد پرسنلی الزامی است', 'error');
+  if(!s.name) return toast('نام الزامی است', 'error');
+  if(!s.family) return toast('نام خانوادگی الزامی است', 'error');
+
+  const duplicate = db.staff.find(x => x.staff_code === s.staff_code && x.id != id);
+  if(duplicate){
+    return toast(`⚠️ کد پرسنلی "${s.staff_code}" قبلاً ثبت شده است.`, 'error');
+  }
+
+  isProcessing = true;
+  const btn = document.getElementById('btnSaveStaff');
+  if(btn){ btn.disabled = true; btn.textContent = 'در حال ذخیره...'; }
+
+  try {
+    let error;
+    if(id){
+      ({ error } = await sb.from('staff').update(s).eq('id', id));
+    } else {
+      ({ error } = await sb.from('staff').insert(s));
+    }
+
+    if(error) return toast(translateError(error), 'error');
+
+    await logAction(id ? 'ویرایش کارمند' : `ثبت کارمند ${s.name} ${s.family}`);
+    closeModal();
+    await refreshApp();
+    toast(id ? 'اطلاعات ویرایش شد ✅' : 'کارمند با موفقیت ثبت شد ✅', 'success');
+  } catch(e){
+    toast('خطا: ' + e.message, 'error');
+  } finally {
+    isProcessing = false;
+    if(btn){ btn.disabled = false; btn.textContent = 'ذخیره'; }
+  }
+}
+
+/* ============================================================
+   واریز حقوق
+============================================================ */
+function staffOptions(){
+  if(!db.staff.length) return '<option value="">— کارمندی ثبت نشده —</option>';
+  return db.staff.map(s => `<option value="${s.id}">${s.name} ${s.family} — ${s.position||''}</option>`).join('');
+}
+
+function renderSalaries(){
+  const q = v('salarySearch'), m = v('salaryMonthFilter');
+  const arr = db.salaries.filter(s =>
+    (!q || `${staffName(s.staffId)} ${s.month}`.includes(q)) &&
+    (!m || s.month === m)
+  );
+  document.getElementById('salaryTable').innerHTML = arr.map(s => `
+    <tr>
+      <td><b>${staffName(s.staffId)}</b></td>
+      <td>${s.month||'-'}</td>
+      <td>${money(s.base)}</td>
+      <td>${money(s.bonus)}</td>
+      <td>${money(s.deduction)}</td>
+      <td><b style="color:var(--green)">${money(s.net_amount)}</b></td>
+      <td>${s.date||'-'}</td>
+      <td>${s.method||'-'}</td>
+      <td class="actions">
+        <button class="btn blue" data-action="print-salary" data-id="${s.id}">رسید</button>
+        <button class="btn red" data-action="del-item" data-table="salaries" data-id="${s.id}">حذف</button>
+      </td>
+    </tr>`).join('') || `<tr><td colspan="9" class="empty">واریزی ثبت نشده است.</td></tr>`;
+}
+
+function openSalary(staffId){
+  const today_ = today();
+  openModal('ثبت واریز حقوق', `
+  <div class="form"><div class="formgrid">
+    <div class="full"><label>کارمند *</label><select id="s_staff"><option value="">انتخاب کنید</option>${staffOptions()}</select></div>
+    <div><label>ماه *</label><select id="s_month">${MONTHS.map(x => `<option>${x}</option>`).join('')}</select></div>
+    <div><label>حقوق پایه (ریال) *</label><input type="number" id="s_base"></div>
+    <div><label>پاداش (ریال)</label><input type="number" id="s_bonus" value="0"></div>
+    <div><label>کسورات (ریال)</label><input type="number" id="s_deduction" value="0"></div>
+    <div><label>تاریخ واریز</label><input id="s_date" value="${today_}"></div>
+    <div><label>روش پرداخت</label><select id="s_method"><option>کارت به کارت</option><option>واریز بانکی</option><option>نقدی</option><option>چک</option></select></div>
+    <div><label>شماره پیگیری</label><input id="s_tracking"></div>
+    <div class="full"><label>توضیحات</label><textarea id="s_desc"></textarea></div>
+  </div>
+  <div class="modalfoot"><button class="btn primary" id="btnSaveSalary">ثبت واریز</button></div></div>`);
+
+  document.getElementById('btnSaveSalary').onclick = saveSalary;
+
+  if(staffId){
+    setTimeout(() => {
+      const el = document.getElementById('s_staff');
+      if(el){
+        el.value = staffId;
+        const s = staffById(staffId);
+        if(s){
+          document.getElementById('s_base').value = s.base_salary || 0;
+          document.getElementById('s_bonus').value = s.bonus || 0;
+        }
+      }
+    }, 50);
+  }
+}
+
+async function saveSalary(){
+  if(isProcessing) return;
+  const sid = v('s_staff');
+  const base = num('s_base');
+  const bonus = num('s_bonus');
+  const deduction = num('s_deduction');
+  const net = base + bonus - deduction;
+
+  if(!sid) return toast('کارمند را انتخاب کنید', 'error');
+  if(base <= 0) return toast('حقوق پایه را وارد کنید', 'error');
+  if(net <= 0) return toast('مبلغ خالص باید بیشتر از صفر باشد', 'error');
+
+  isProcessing = true;
+  const btn = document.getElementById('btnSaveSalary');
+  if(btn){ btn.disabled = true; btn.textContent = 'در حال ثبت...'; }
+
+  try {
+    const s = {
+      staff_id: sid,
+      salary_month: v('s_month'),
+      base_amount: base,
+      bonus_amount: bonus,
+      deduction: deduction,
+      net_amount: net,
+      payment_date: v('s_date'),
+      payment_method: v('s_method'),
+      tracking: v('s_tracking'),
+      description: v('s_desc'),
+      created_by: currentUser.id
+    };
+    const { error } = await sb.from('salaries').insert(s);
+    if(error) return toast(translateError(error), 'error');
+
+    await logAction('واریز حقوق برای ' + staffName(sid));
+    closeModal();
+    await refreshApp();
+    toast('واریز حقوق ثبت شد ✅', 'success');
+  } catch(e){
+    toast('خطا: ' + e.message, 'error');
+  } finally {
+    isProcessing = false;
+    if(btn){ btn.disabled = false; btn.textContent = 'ثبت واریز'; }
+  }
+}
+
+function printSalary(id){
+  const s = db.salaries.find(x => x.id == id);
+  const st = s ? staffById(s.staffId) : null;
+  if(!s || !st) return;
+  const w = window.open('', '_blank');
+  if(!w) return toast('پنجره چاپ مسدود شد', 'error');
+  w.document.write(`
+  <html dir="rtl"><head><meta charset="UTF-8"><title>فیش حقوقی</title>
+  <style>body{font-family:Tahoma;padding:40px}h1{text-align:center;color:#2563eb}table{width:100%;border-collapse:collapse;margin-top:25px}td,th{border:1px solid #ddd;padding:12px;text-align:right}.total{background:#dbeafe;font-weight:bold;font-size:16px}</style>
+  </head><body>
+  <h1>${db.settings.school}</h1>
+  <h3 style="text-align:center">فیش حقوقی - ${s.month}</h3>
+  <table>
+    <tr><th>نام کارمند</th><td>${st.name} ${st.family}</td><th>کد پرسنلی</th><td>${st.code||'-'}</td></tr>
+    <tr><th>سمت</th><td>${st.position||'-'}</td><th>ماه</th><td>${s.month}</td></tr>
+    <tr><th>حقوق پایه</th><td>${money(s.base)}</td><th>پاداش</th><td>${money(s.bonus)}</td></tr>
+    <tr><th>کسورات</th><td>${money(s.deduction)}</td><th>روش پرداخت</th><td>${s.method}</td></tr>
+    <tr class="total"><th>مبلغ خالص پرداختی</th><td colspan="3">${money(s.net_amount)}</td></tr>
+    <tr><th>تاریخ واریز</th><td colspan="3">${s.date}</td></tr>
+  </table>
+  <p style="margin-top:35px">${db.settings.footer}</p>
+  </body></html>`);
+  w.document.close();
+  setTimeout(() => w.print(), 300);
+}
+
+/* ============================================================
+   درآمد / هزینه
+============================================================ */
+function renderIncomes(){
+  document.getElementById('incomeTable').innerHTML = db.incomes.map(x => `
+    <tr><td>${x.title}</td><td>${x.category||'-'}</td><td>${money(x.amount)}</td>
+    <td>${x.date||'-'}</td><td>${x.desc||'-'}</td>
+    <td><button class="btn red" data-action="del-item" data-table="incomes" data-id="${x.id}">حذف</button></td></tr>`).join('')
+    || `<tr><td colspan="6" class="empty">درآمدی ثبت نشده است.</td></tr>`;
+}
+
+function renderExpenses(){
+  document.getElementById('expenseTable').innerHTML = db.expenses.map(x => `
+    <tr><td>${x.title}</td><td>${x.category||'-'}</td><td>${money(x.amount)}</td>
+    <td>${x.date||'-'}</td><td>${x.method||'-'}</td>
+    <td><button class="btn red" data-action="del-item" data-table="expenses" data-id="${x.id}">حذف</button></td></tr>`).join('')
+    || `<tr><td colspan="6" class="empty">هزینه‌ای ثبت نشده است.</td></tr>`;
+}
+
 function openIncome(){
   openModal('ثبت درآمد', `
   <div class="form"><div class="formgrid">
@@ -972,8 +1343,21 @@ async function saveExpense(){
 }
 
 /* ============================================================
-   قسط
+   اقساط
 ============================================================ */
+function renderInstallments(){
+  document.getElementById('installmentTable').innerHTML = db.installments.map(x => `
+    <tr>
+      <td><span class="clickable" data-action="details" data-id="${x.studentId}">${studentName(x.studentId)}</span></td>
+      <td>${money(x.amount)}</td><td>${x.due||'-'}</td>
+      <td><span class="badge ${x.paid?'paid':(isPast(x.due)?'overdue':'debt')}">${x.paid?'پرداخت شده':(isPast(x.due)?'معوق':'پرداخت نشده')}</span></td>
+      <td class="actions">
+        ${!x.paid ? `<button class="btn green" data-action="pay-installment" data-id="${x.id}">تسویه</button>` : ''}
+        <button class="btn red" data-action="del-item" data-table="installments" data-id="${x.id}">حذف</button>
+      </td>
+    </tr>`).join('') || `<tr><td colspan="5" class="empty">قسطی تعریف نشده است.</td></tr>`;
+}
+
 function openInstallment(){
   openModal('تعریف قسط', `
   <div class="form"><div class="formgrid">
@@ -1041,6 +1425,17 @@ async function payInstallment(id){
 /* ============================================================
    تخفیف
 ============================================================ */
+function renderDiscounts(){
+  document.getElementById('discountTable').innerHTML = db.discounts.map(x => `
+    <tr>
+      <td><span class="clickable" data-action="details" data-id="${x.studentId}">${studentName(x.studentId)}</span></td>
+      <td>${money(x.base)}</td>
+      <td>${x.type==='percent' ? x.value+'٪' : money(x.value)}</td>
+      <td>${money(x.final)}</td><td>${x.reason||'-'}</td><td>${x.date||'-'}</td>
+      <td><button class="btn red" data-action="del-item" data-table="discounts" data-id="${x.id}">حذف</button></td>
+    </tr>`).join('') || `<tr><td colspan="7" class="empty">تخفیفی ثبت نشده است.</td></tr>`;
+}
+
 function openDiscount(){
   openModal('ثبت تخفیف', `
   <div class="form"><div class="formgrid">
@@ -1092,12 +1487,12 @@ async function saveDiscount(){
 }
 
 /* ============================================================
-   صورتحساب
+   صورتحساب (صفحه مستقل)
 ============================================================ */
 function invoiceRows(s){
   const rows = [];
   let bal = finalTuition(s);
-  rows.push(`<tr><td>-</td><td>شهریه پس از تخفیف</td><td>${money(bal)}</td><td>-</td><td>${money(bal)}</td></tr>`);
+  rows.push(`<tr style="background:#f0f9ff"><td>-</td><td><b>شهریه پس از تخفیف</b></td><td><b>${money(bal)}</b></td><td>-</td><td><b>${money(bal)}</b></td></tr>`);
   db.payments.filter(p => p.studentId == s.id).forEach(p => {
     bal -= p.amount;
     rows.push(`<tr><td>${p.date}</td><td>پرداخت - ${p.method}</td><td>-</td><td>${money(p.amount)}</td><td>${money(Math.max(0, bal))}</td></tr>`);
@@ -1107,11 +1502,16 @@ function invoiceRows(s){
 
 function renderInvoices(){
   const q = v('invoiceSearch');
-  const arr = db.students.filter(s => !q || `${s.name} ${s.family} ${s.code} ${s.national}`.includes(q));
+  const arr = db.students.filter(s => !q || `${s.name} ${s.family} ${s.code} ${s.national} ${s.phone}`.includes(q));
   document.getElementById('invoiceResult').innerHTML = arr.map(s => `
     <div class="card" style="margin-bottom:12px">
-      <div class="section-head"><h3>${s.name} ${s.family} — ${s.code||'-'}</h3>
-        <button class="btn" data-action="print-invoice" data-id="${s.id}">🖨 چاپ</button></div>
+      <div class="section-head">
+        <h3 style="margin:0">${s.name} ${s.family} — ${s.code||'-'}</h3>
+        <div class="actions">
+          <button class="btn blue" data-action="details" data-id="${s.id}">نمایش کامل</button>
+          <button class="btn" data-action="print-invoice" data-id="${s.id}">🖨 چاپ</button>
+        </div>
+      </div>
       <div class="table-wrap"><table class="table">
         <thead><tr><th>تاریخ</th><th>شرح</th><th>بدهکار</th><th>بستانکار</th><th>مانده</th></tr></thead>
         <tbody>${invoiceRows(s)}</tbody></table></div>
@@ -1124,14 +1524,20 @@ function printInvoice(id){
   const w = window.open('', '_blank');
   if(!w) return toast('پنجره چاپ مسدود شد', 'error');
   w.document.write(`
-  <html dir="rtl"><head><meta charset="UTF-8"><title>صورتحساب</title>
-  <style>body{font-family:Tahoma;padding:35px}table{width:100%;border-collapse:collapse}td,th{border:1px solid #ddd;padding:10px}</style>
+  <html dir="rtl"><head><meta charset="UTF-8"><title>صورتحساب ${s.name} ${s.family}</title>
+  <style>body{font-family:Tahoma;padding:35px}h1,h2{text-align:center}table{width:100%;border-collapse:collapse;margin-top:15px}td,th{border:1px solid #ddd;padding:10px}.head{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #2563eb;padding-bottom:15px;margin-bottom:20px}.logo{width:80px;height:80px;object-fit:contain}</style>
   </head><body>
-  <h2 style="text-align:center">${db.settings.school}</h2>
-  <h3>صورتحساب ${s.name} ${s.family}</h3>
+  <div class="head">
+    <img src="logo.png" class="logo" onerror="this.style.display='none'">
+    <h2 style="flex:1;margin:0">${db.settings.school}</h2>
+  </div>
+  <h3>صورتحساب دانش‌آموز: ${s.name} ${s.family}</h3>
+  <p>کد: ${s.code||'-'} | پایه: ${s.grade||'-'} | کلاس: ${s.class||'-'} | همراه: ${s.phone||'-'}</p>
   <table><thead><tr><th>تاریخ</th><th>شرح</th><th>بدهکار</th><th>بستانکار</th><th>مانده</th></tr></thead>
   <tbody>${invoiceRows(s)}</tbody></table>
+  <p style="margin-top:30px">جمع پرداختی: <b>${money(paid(s))}</b> | مانده: <b>${money(balance(s))}</b></p>
   <p>تاریخ تهیه: ${today()}</p>
+  <p>${db.settings.footer}</p>
   </body></html>`);
   w.document.close();
   setTimeout(() => w.print(), 300);
@@ -1158,6 +1564,11 @@ function renderReport(){
     el.innerHTML = `<div class="table-wrap"><table class="table"><thead><tr><th>تاریخ</th><th>دانش‌آموز</th><th>مبلغ</th><th>روش</th><th>رسید</th></tr></thead>
     <tbody>${db.payments.map(p => `<tr><td>${p.date}</td><td>${studentName(p.studentId)}</td><td>${money(p.amount)}</td><td>${p.method}</td><td>${p.receipt}</td></tr>`).join('')}</tbody></table></div>`;
   }
+  else if(type === 'salaries'){
+    const total = db.salaries.reduce((a,s) => a + (+s.net_amount||0), 0);
+    el.innerHTML = `<h3>جمع حقوق پرداختی: ${money(total)}</h3><div class="table-wrap"><table class="table"><thead><tr><th>کارمند</th><th>ماه</th><th>خالص</th><th>تاریخ</th></tr></thead>
+    <tbody>${db.salaries.map(s => `<tr><td>${staffName(s.staffId)}</td><td>${s.month}</td><td>${money(s.net_amount)}</td><td>${s.date}</td></tr>`).join('')}</tbody></table></div>`;
+  }
   else if(type === 'expenses'){
     const total = db.expenses.reduce((a,x) => a + (+x.amount||0), 0);
     el.innerHTML = `<h3>جمع هزینه‌ها: ${money(total)}</h3><div class="table-wrap"><table class="table"><thead><tr><th>عنوان</th><th>دسته</th><th>مبلغ</th><th>تاریخ</th></tr></thead>
@@ -1165,7 +1576,7 @@ function renderReport(){
   }
   else {
     const inc = db.incomes.reduce((a,x) => a + (+x.amount||0), 0) + db.payments.reduce((a,x) => a + (+x.amount||0), 0);
-    const exp = db.expenses.reduce((a,x) => a + (+x.amount||0), 0);
+    const exp = db.expenses.reduce((a,x) => a + (+x.amount||0), 0) + db.salaries.reduce((a,s) => a + (+s.net_amount||0), 0);
     el.innerHTML = `<div class="grid stats">
       <div class="card stat"><span class="label">کل درآمد</span><div class="num">${money(inc)}</div></div>
       <div class="card stat"><span class="label">کل هزینه</span><div class="num">${money(exp)}</div></div>
@@ -1176,8 +1587,8 @@ function renderReport(){
 
 function exportCSV(){
   const rows = [
-    ['نام','کد','پایه','شهریه','پرداخت','بدهی'],
-    ...db.students.map(s => [s.name + ' ' + s.family, s.code||'', s.grade||'', finalTuition(s), paid(s), balance(s)])
+    ['نام','کد','پایه','کلاس','شهریه','پرداخت','بدهی','همراه'],
+    ...db.students.map(s => [s.name + ' ' + s.family, s.code||'', s.grade||'', s.class||'', finalTuition(s), paid(s), balance(s), s.phone||''])
   ];
   const csv = '\uFEFF' + rows.map(r => r.join(',')).join('\n');
   const a = document.createElement('a');
@@ -1220,7 +1631,7 @@ async function saveSettings(){
 }
 
 /* ============================================================
-   حذف آیتم
+   حذف
 ============================================================ */
 async function deleteItem(table, id){
   if(!confirm('حذف این مورد؟')) return;
@@ -1241,6 +1652,79 @@ async function deleteItem(table, id){
 }
 
 /* ============================================================
+   لاگ‌ها
+============================================================ */
+function renderLogs(){
+  document.getElementById('logsTable').innerHTML = db.logs.map(x => `
+    <tr><td>${x.action}</td><td>${x.date}</td><td>${x.time}</td></tr>`).join('')
+    || `<tr><td colspan="3" class="empty">هنوز فعالیتی ثبت نشده است.</td></tr>`;
+}
+
+/* ============================================================
+   داشبورد
+============================================================ */
+function renderDashboardLists(){
+  document.getElementById('recentPayments').innerHTML = db.payments.slice(0, 5).map(p => `
+    <div style="padding:9px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between">
+      <span>${studentName(p.studentId)}</span><b>${money(p.amount)}</b>
+    </div>`).join('') || '<div class="empty">پرداختی ثبت نشده است.</div>';
+
+  document.getElementById('dueSoon').innerHTML = db.installments.filter(x => !x.paid && !isPast(x.due)).slice(0, 6)
+    .map(x => `<li><span>${studentName(x.studentId)}</span><b>${x.due}</b></li>`).join('')
+    || '<li>موردی وجود ندارد</li>';
+
+  document.getElementById('overdueList').innerHTML = db.installments.filter(x => !x.paid && isPast(x.due)).slice(0, 6)
+    .map(x => `<li><span>${studentName(x.studentId)}</span><b>${money(x.amount)}</b></li>`).join('')
+    || '<li>موردی وجود ندارد</li>';
+}
+
+function drawCharts(){
+  if(typeof Chart === 'undefined') return;
+  charts.forEach(c => { try { c.destroy(); } catch(e){} });
+  charts = [];
+  const c1 = document.getElementById('incomeChart');
+  const c2 = document.getElementById('statusChart');
+  const c3 = document.getElementById('gradeChart');
+  if(!c1 || !c2 || !c3) return;
+
+  const months = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان'];
+  const vals = months.map((m, i) =>
+    db.payments.filter(p => String(p.date||'').includes('/' + String(i+1).padStart(2,'0') + '/'))
+      .reduce((a,p) => a + (+p.amount||0), 0)
+  );
+  charts.push(new Chart(c1, {
+    type: 'line',
+    data: { labels: months, datasets: [{ label: 'دریافت', data: vals, tension: .3, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,.15)', fill: true }] },
+    options: { responsive: true, maintainAspectRatio: false }
+  }));
+
+  const paidN = db.students.filter(s => balance(s) <= 0).length;
+  const debtN = db.students.filter(s => balance(s) > 0).length;
+  charts.push(new Chart(c2, {
+    type: 'doughnut',
+    data: { labels: ['تسویه‌شده','بدهکار'], datasets: [{ data: [paidN, debtN], backgroundColor: ['#16a34a','#f59e0b'] }] },
+    options: { responsive: true, maintainAspectRatio: false }
+  }));
+
+  const grades = [...new Set(db.students.map(s => s.grade).filter(Boolean))];
+  charts.push(new Chart(c3, {
+    type: 'bar',
+    data: { labels: grades, datasets: [{ label: 'دریافت', data: grades.map(g => db.students.filter(s => s.grade === g).reduce((a,s) => a + paid(s), 0)), backgroundColor: '#2563eb' }] },
+    options: { responsive: true, maintainAspectRatio: false }
+  }));
+}
+
+/* ============================================================
+   مودال
+============================================================ */
+function openModal(title, body){
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').innerHTML = body;
+  document.getElementById('modal').classList.add('show');
+}
+function closeModal(){ document.getElementById('modal').classList.remove('show'); }
+
+/* ============================================================
    اتصال رویدادها
 ============================================================ */
 document.addEventListener('click', function(e){
@@ -1258,6 +1742,11 @@ document.addEventListener('click', function(e){
   else if(action === 'del-item') deleteItem(table, id);
   else if(action === 'pay-installment') payInstallment(id);
   else if(action === 'print-invoice') printInvoice(id);
+  else if(action === 'add-payment-for') openPaymentFor(id);
+  else if(action === 'edit-staff') openStaff(id);
+  else if(action === 'del-staff') deleteItem('staff', id);
+  else if(action === 'pay-salary-for') openSalary(id);
+  else if(action === 'print-salary') printSalary(id);
 });
 
 function bindStaticButtons(){
@@ -1267,6 +1756,8 @@ function bindStaticButtons(){
   document.getElementById('btnOpenPayment').onclick = openPayment;
   document.getElementById('btnNewPayment').onclick = openPayment;
   document.getElementById('btnNewStudent').onclick = () => openStudent();
+  document.getElementById('btnNewStaff').onclick = () => openStaff();
+  document.getElementById('btnNewSalary').onclick = () => openSalary();
   document.getElementById('btnNewIncome').onclick = openIncome;
   document.getElementById('btnNewExpense').onclick = openExpense;
   document.getElementById('btnNewInstallment').onclick = openInstallment;
@@ -1287,6 +1778,14 @@ function bindStaticButtons(){
     const el = document.getElementById(id);
     if(el) el.addEventListener('input', renderPayments);
   });
+  ['staffSearch','staffRoleFilter'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('input', renderStaff);
+  });
+  ['salarySearch','salaryMonthFilter'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('input', renderSalaries);
+  });
   const inv = document.getElementById('invoiceSearch');
   if(inv) inv.addEventListener('input', renderInvoices);
 
@@ -1294,7 +1793,7 @@ function bindStaticButtons(){
   if(gs) gs.addEventListener('input', e => {
     const q = e.target.value.trim();
     if(!q) return;
-    const s = db.students.find(x => `${x.name} ${x.family} ${x.code} ${x.national}`.includes(q));
+    const s = db.students.find(x => `${x.name} ${x.family} ${x.code} ${x.phone}`.includes(q));
     if(s){
       nav('invoices');
       document.getElementById('invoiceSearch').value = q;
