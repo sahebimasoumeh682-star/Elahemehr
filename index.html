@@ -7,8 +7,6 @@
 <link rel="icon" href="logo.png" type="image/png">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/jalali-date-picker@1.0.5/dist/jalali-date-picker.min.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jalali-date-picker@1.0.5/dist/jalali-date-picker.min.css">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap');
 :root{--primary:#2563eb;--primary2:#1e40af;--bg:#f6f7fb;--card:#fff;--text:#172033;--muted:#667085;--line:#e7e9f0;--green:#16a34a;--orange:#f59e0b;--red:#dc2626;--blue:#2563eb;--shadow:0 10px 30px rgba(30,20,60,.07)}
@@ -103,13 +101,11 @@ button{cursor:pointer;border:0}
 .clickable:hover{text-decoration:underline}
 .checkbox-cell{text-align:center}
 .checkbox-cell input{width:18px;height:18px;cursor:pointer}
-.date-input{cursor:pointer;background:#fff}
 @media(max-width:1050px){.stats{grid-template-columns:repeat(2,1fr)}.charts,.alerts{grid-template-columns:1fr}.sidebar{width:220px}.main{margin-right:220px;width:calc(100% - 220px)}}
 @media(max-width:760px){.sidebar{position:static;width:100%;height:auto}.app{display:block}.main{margin:0;width:100%;padding:14px}.nav{display:grid;grid-template-columns:repeat(2,1fr)}.topbar{align-items:flex-start;flex-direction:column}.search{min-width:100%;width:100%}.stats{grid-template-columns:1fr 1fr}.formgrid{grid-template-columns:1fr}.detail-grid{grid-template-columns:1fr 1fr}}
 </style>
-</head><body>
-
-<!-- صفحه ورود -->
+</head>
+<body><!-- صفحه ورود -->
 <div id="authScreen">
   <div class="auth-card">
     <img src="logo.png" alt="لوگو" class="auth-logo" onerror="this.style.display='none'">
@@ -276,9 +272,7 @@ button{cursor:pointer;border:0}
       </table>
     </div>
   </div>
-</section>
-
-<!-- کارکنان و دبیران -->
+</section><!-- کارکنان و دبیران -->
 <section class="page" id="staff">
   <div class="section-head">
     <h2>مدیریت کارکنان و دبیران</h2>
@@ -339,7 +333,9 @@ button{cursor:pointer;border:0}
       </table>
     </div>
   </div>
-</section><!-- درآمدها -->
+</section>
+
+<!-- درآمدها -->
 <section class="page" id="incomes">
   <div class="section-head">
     <h2>درآمدها</h2>
@@ -421,9 +417,7 @@ button{cursor:pointer;border:0}
       </table>
     </div>
   </div>
-</section>
-
-<!-- گزارش‌ها -->
+</section><!-- گزارش‌ها -->
 <section class="page" id="reports">
   <div class="section-head">
     <h2>گزارش‌های مالی</h2>
@@ -477,8 +471,6 @@ button{cursor:pointer;border:0}
         <option>کارتخوان</option><option>کارت به کارت</option><option>واریز بانکی</option>
         <option>نقدی</option><option>چک</option><option>سایر</option>
       </select>
-      <input id="bulkDateFrom" placeholder="از تاریخ..." class="date-input" readonly>
-      <input id="bulkDateTo" placeholder="تا تاریخ..." class="date-input" readonly>
     </div>
     <div class="actions" style="margin-bottom:12px">
       <button class="btn" id="btnBulkSelectAll">انتخاب همه</button>
@@ -584,17 +576,8 @@ button{cursor:pointer;border:0}
       <li>✅ <b>هر هفته</b> یک بار پشتیبان بگیر و در <b>Google Drive یا ایمیل</b> ذخیره کن</li>
       <li>✅ قبل از بازیابی، مطمئن شو فایل پشتیبان <b>معتبر</b> است</li>
       <li>✅ فایل‌های پشتیبان را با نام تاریخ ذخیره کن</li>
-      <li>✅ فایل پشتیبان شامل <b>تمام اطلاعات</b> است ولی <b>رمز عبور کاربران</b> را شامل نمی‌شود</li>
       <li>⚠️ فایل را در جای امن نگه‌دار (اطلاعات شخصی دانش‌آموزان در آن است)</li>
     </ul>
-  </div>
-
-  <div class="card" style="margin-top:15px">
-    <h3>🗑️ پاک کردن اطلاعات (با احتیاط!)</h3>
-    <p style="color:var(--red);font-size:13px">
-      ⚠️ این کار تمام اطلاعات را از دیتابیس حذف می‌کند و قابل بازگشت نیست!
-    </p>
-    <button class="btn red" id="btnDangerReset" style="margin-top:10px">🗑️ پاک کردن کل اطلاعات</button>
   </div>
 </section>
 
@@ -662,11 +645,11 @@ let currentUser = null;
 let db = {
   settings: { ...DEFAULT_SETTINGS },
   students: [], payments: [], incomes: [], expenses: [],
-  installments: [], discounts: [], staff: [], salaries: [], logs: []
+  installments: [], discounts: [], staff: [], salaries: [], logs: [], users: []
 };
 let charts = [];
 let isProcessing = false;
-let userRole = 'staff'; // admin | staff
+let userRole = 'staff';
 
 /* ============================================================
    توابع کمکی
@@ -762,7 +745,7 @@ function initSupabase(){
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: false,
-        storageKey: 'haleh-mehr-auth-v3'
+        storageKey: 'haleh-mehr-auth-v4'
       }
     });
     return true;
@@ -858,7 +841,6 @@ async function refreshApp(){
   document.getElementById('userAvatar').textContent = (name[0] || 'ک').toUpperCase();
   document.getElementById('userRole').textContent = userRole === 'admin' ? 'مدیر' : 'مسئول مالی';
 
-  // مخفی کردن بخش کاربران برای غیر مدیر
   const usersBtn = document.querySelector('.nav button[data-page="users"]');
   if(usersBtn) usersBtn.style.display = userRole === 'admin' ? 'flex' : 'none';
 
@@ -870,6 +852,7 @@ async function refreshApp(){
 
   renderAll();
   updateBackupStats();
+  await loadUsers();
 }
 
 /* ============================================================
@@ -1182,7 +1165,7 @@ function openPayment(){
   <div class="form"><div class="formgrid">
     <div class="full"><label>دانش‌آموز *</label><select id="p_student"><option value="">انتخاب کنید</option>${studentOptions()}</select></div>
     <div><label>مبلغ (ریال) *</label><input type="number" id="p_amount"></div>
-    <div><label>تاریخ</label><input id="p_date" value="${today()}" class="date-input" readonly></div>
+    <div><label>تاریخ</label><input id="p_date" value="${today()}"></div>
     <div><label>روش پرداخت</label><select id="p_method"><option>کارتخوان</option><option>کارت به کارت</option><option>واریز بانکی</option><option>نقدی</option><option>چک</option><option>سایر</option></select></div>
     <div><label>شماره پیگیری</label><input id="p_tracking"></div>
     <div><label>شماره رسید (خالی = خودکار)</label><input id="p_receipt"></div>
@@ -1191,7 +1174,6 @@ function openPayment(){
   <div class="modalfoot"><button class="btn primary" id="btnSavePayment">ثبت پرداخت</button></div></div>`);
 
   document.getElementById('btnSavePayment').onclick = savePayment;
-  setTimeout(() => attachDatePicker('p_date'), 100);
 }
 
 function openPaymentFor(studentId){
@@ -1292,8 +1274,10 @@ function printReceipt(id){
   </body></html>`);
   w.document.close();
   setTimeout(() => w.print(), 300);
-}/* ============================================================
-   کارکنان و دبیران
+}
+
+/* ============================================================
+   کارکنان
 ============================================================ */
 function renderStaff(){
   const q = v('staffSearch'), role = v('staffRoleFilter');
@@ -1427,7 +1411,7 @@ function openSalary(staffId){
     <div><label>حقوق پایه (ریال) *</label><input type="number" id="s_base"></div>
     <div><label>پاداش (ریال)</label><input type="number" id="s_bonus" value="0"></div>
     <div><label>کسورات (ریال)</label><input type="number" id="s_deduction" value="0"></div>
-    <div><label>تاریخ واریز</label><input id="s_date" value="${today()}" class="date-input" readonly></div>
+    <div><label>تاریخ واریز</label><input id="s_date" value="${today()}"></div>
     <div><label>روش پرداخت</label><select id="s_method"><option>کارت به کارت</option><option>واریز بانکی</option><option>نقدی</option><option>چک</option></select></div>
     <div><label>شماره پیگیری</label><input id="s_tracking"></div>
     <div class="full"><label>توضیحات</label><textarea id="s_desc"></textarea></div>
@@ -1435,7 +1419,6 @@ function openSalary(staffId){
   <div class="modalfoot"><button class="btn primary" id="btnSaveSalary">ثبت واریز</button></div></div>`);
 
   document.getElementById('btnSaveSalary').onclick = saveSalary;
-  setTimeout(() => attachDatePicker('s_date'), 100);
 
   if(staffId){
     setTimeout(() => {
@@ -1514,9 +1497,7 @@ function printSalary(id){
   </body></html>`);
   w.document.close();
   setTimeout(() => w.print(), 300);
-}
-
-/* ============================================================
+}/* ============================================================
    درآمدها
 ============================================================ */
 function renderIncomes(){
@@ -1533,12 +1514,11 @@ function openIncome(){
     <div><label>عنوان *</label><input id="i_title"></div>
     <div><label>دسته‌بندی</label><select id="i_cat"><option>شهریه</option><option>ثبت‌نام</option><option>کلاس فوق‌برنامه</option><option>اردو</option><option>سایر</option></select></div>
     <div><label>مبلغ *</label><input type="number" id="i_amount"></div>
-    <div><label>تاریخ</label><input id="i_date" value="${today()}" class="date-input" readonly></div>
+    <div><label>تاریخ</label><input id="i_date" value="${today()}"></div>
     <div class="full"><label>توضیحات</label><textarea id="i_desc"></textarea></div>
   </div>
   <div class="modalfoot"><button class="btn primary" id="btnSaveIncome">ذخیره</button></div></div>`);
   document.getElementById('btnSaveIncome').onclick = saveIncome;
-  setTimeout(() => attachDatePicker('i_date'), 100);
 }
 
 async function saveIncome(){
@@ -1582,14 +1562,13 @@ function openExpense(){
     <div><label>عنوان *</label><input id="e_title"></div>
     <div><label>دسته‌بندی</label><select id="e_cat"><option>حقوق</option><option>آب</option><option>برق</option><option>گاز</option><option>اینترنت</option><option>تجهیزات</option><option>لوازم آموزشی</option><option>تعمیرات</option><option>خدمات</option><option>اجاره</option><option>سایر</option></select></div>
     <div><label>مبلغ *</label><input type="number" id="e_amount"></div>
-    <div><label>تاریخ</label><input id="e_date" value="${today()}" class="date-input" readonly></div>
+    <div><label>تاریخ</label><input id="e_date" value="${today()}"></div>
     <div><label>روش پرداخت</label><select id="e_method"><option>کارتخوان</option><option>کارت به کارت</option><option>واریز بانکی</option><option>نقدی</option><option>چک</option></select></div>
     <div><label>شماره سند</label><input id="e_doc"></div>
     <div class="full"><label>توضیحات</label><textarea id="e_desc"></textarea></div>
   </div>
   <div class="modalfoot"><button class="btn primary" id="btnSaveExpense">ذخیره</button></div></div>`);
   document.getElementById('btnSaveExpense').onclick = saveExpense;
-  setTimeout(() => attachDatePicker('e_date'), 100);
 }
 
 async function saveExpense(){
@@ -1614,7 +1593,9 @@ async function saveExpense(){
     isProcessing = false;
     if(btn){ btn.disabled = false; btn.textContent = 'ذخیره'; }
   }
-}/* ============================================================
+}
+
+/* ============================================================
    اقساط
 ============================================================ */
 function renderInstallments(){
@@ -1635,11 +1616,10 @@ function openInstallment(){
   <div class="form"><div class="formgrid">
     <div class="full"><label>دانش‌آموز *</label><select id="n_student">${studentOptions()}</select></div>
     <div><label>مبلغ قسط *</label><input type="number" id="n_amount"></div>
-    <div><label>سررسید *</label><input id="n_due" class="date-input" placeholder="1405/07/15" readonly></div>
+    <div><label>سررسید (۱۴۰۵/۰۷/۱۵) *</label><input id="n_due" placeholder="1405/07/15"></div>
   </div>
   <div class="modalfoot"><button class="btn primary" id="btnSaveInstallment">ذخیره</button></div></div>`);
   document.getElementById('btnSaveInstallment').onclick = saveInstallment;
-  setTimeout(() => attachDatePicker('n_due'), 100);
 }
 
 async function saveInstallment(){
@@ -1716,11 +1696,10 @@ function openDiscount(){
     <div><label>نوع</label><select id="d_type"><option value="amount">مبلغ ثابت</option><option value="percent">درصدی</option></select></div>
     <div><label>میزان *</label><input type="number" id="d_value"></div>
     <div><label>علت</label><input id="d_reason"></div>
-    <div><label>تاریخ</label><input id="d_date" value="${today()}" class="date-input" readonly></div>
+    <div><label>تاریخ</label><input id="d_date" value="${today()}"></div>
   </div>
   <div class="modalfoot"><button class="btn primary" id="btnSaveDiscount">ذخیره</button></div></div>`);
   document.getElementById('btnSaveDiscount').onclick = saveDiscount;
-  setTimeout(() => attachDatePicker('d_date'), 100);
 }
 
 async function saveDiscount(){
@@ -1818,16 +1797,13 @@ function printInvoice(id){
 }
 
 /* ============================================================
-   چاپ دسته‌ای رسیدها
+   چاپ دسته‌ای
 ============================================================ */
 function renderBulk(){
   const q = v('bulkSearch'), m = v('bulkMethodFilter');
-  const df = v('bulkDateFrom'), dt = v('bulkDateTo');
   const arr = db.payments.filter(p => {
     if(q && !`${studentName(p.studentId)} ${p.receipt} ${p.tracking}`.includes(q)) return false;
     if(m && p.method !== m) return false;
-    if(df && p.date < df) return false;
-    if(dt && p.date > dt) return false;
     return true;
   });
   document.getElementById('bulkTable').innerHTML = arr.map(p => `
@@ -1901,7 +1877,7 @@ function bulkPrintSelected(){
 }
 
 /* ============================================================
-   مدیریت کاربران
+   کاربران
 ============================================================ */
 function renderUsers(){
   const arr = db.users || [];
@@ -1971,7 +1947,7 @@ async function saveUser(){
     await logAction(`افزودن کاربر ${name}`);
     closeModal();
     await loadUsers();
-    toast('کاربر ساخته شد. اگر تأیید ایمیل روشن باشد، کاربر باید ایمیلش را تأیید کند.', 'success');
+    toast('کاربر ساخته شد ✅', 'success');
   } catch(e){
     toast('خطا: ' + e.message, 'error');
   } finally {
@@ -2107,30 +2083,22 @@ async function downloadBackup(){
     await loadData();
 
     const backup = {
-      version: '3.0',
+      version: '4.0',
       created_at: new Date().toISOString(),
       created_at_fa: new Date().toLocaleString('fa-IR'),
       created_by: currentUser?.email || 'نامشخص',
       settings: db.settings,
       stats: {
-        students: db.students.length,
-        payments: db.payments.length,
-        staff: db.staff.length,
-        salaries: db.salaries.length,
-        incomes: db.incomes.length,
-        expenses: db.expenses.length,
-        installments: db.installments.length,
-        discounts: db.discounts.length
+        students: db.students.length, payments: db.payments.length,
+        staff: db.staff.length, salaries: db.salaries.length,
+        incomes: db.incomes.length, expenses: db.expenses.length,
+        installments: db.installments.length, discounts: db.discounts.length
       },
       data: {
-        students: db.students,
-        payments: db.payments,
-        staff: db.staff,
-        salaries: db.salaries,
-        incomes: db.incomes,
-        expenses: db.expenses,
-        installments: db.installments,
-        discounts: db.discounts
+        students: db.students, payments: db.payments,
+        staff: db.staff, salaries: db.salaries,
+        incomes: db.incomes, expenses: db.expenses,
+        installments: db.installments, discounts: db.discounts
       }
     };
 
@@ -2147,7 +2115,7 @@ async function downloadBackup(){
     URL.revokeObjectURL(a.href);
 
     await logAction('دانلود پشتیبان');
-    toast(`✅ فایل پشتیبان دانلود شد (${filename})`, 'success');
+    toast(`✅ فایل پشتیبان دانلود شد`, 'success');
   } catch(e){
     toast('خطا در پشتیبان‌گیری: ' + e.message, 'error');
   } finally {
@@ -2162,10 +2130,6 @@ function downloadExcelFull(){
     ['کد','نام','نام خانوادگی','پایه','کلاس','شماره همراه','شهریه','تخفیف','پرداخت‌شده','مانده'],
     ...db.students.map(s => [s.code||'', s.name, s.family, s.grade||'', s.class||'', s.phone||'', s.tuition||0, s.discount||0, paid(s), balance(s)]),
     [],
-    ['=== پرداخت‌ها ==='],
-    ['تاریخ','دانش‌آموز','مبلغ','روش','رسید','پیگیری'],
-    ...db.payments.map(p => [p.date||'', studentName(p.studentId), p.amount, p.method||'', p.receipt||'', p.tracking||'']),
-    [],
     ['=== کارکنان ==='],
     ['کد پرسنلی','نام','نام خانوادگی','سمت','شماره همراه','حقوق پایه','پاداش'],
     ...db.staff.map(s => [s.code||'', s.name, s.family, s.position||'', s.phone||'', s.base_salary||0, s.bonus||0]),
@@ -2173,6 +2137,10 @@ function downloadExcelFull(){
     ['=== واریز حقوق ==='],
     ['کارمند','ماه','حقوق پایه','پاداش','کسورات','خالص','تاریخ','روش'],
     ...db.salaries.map(s => [staffName(s.staffId), s.month||'', s.base||0, s.bonus||0, s.deduction||0, s.net_amount||0, s.date||'', s.method||'']),
+    [],
+    ['=== پرداخت‌ها ==='],
+    ['تاریخ','دانش‌آموز','مبلغ','روش','رسید','پیگیری'],
+    ...db.payments.map(p => [p.date||'', studentName(p.studentId), p.amount, p.method||'', p.receipt||'', p.tracking||'']),
     [],
     ['=== هزینه‌ها ==='],
     ['عنوان','دسته','مبلغ','تاریخ','روش'],
@@ -2193,6 +2161,9 @@ function downloadExcelFull(){
   toast('✅ فایل Excel دانلود شد', 'success');
 }
 
+/* ============================================================
+   بازیابی هوشمند (با مدیریت خطاهای Foreign Key)
+============================================================ */
 async function restoreFromFile(event){
   const file = event.target.files[0];
   if(!file) return;
@@ -2207,6 +2178,7 @@ async function restoreFromFile(event){
   const bar = document.getElementById('restoreBar');
   const msg = document.getElementById('restoreMsg');
   progress.style.display = 'block';
+  bar.style.width = '5%';
 
   reader.onload = async () => {
     try {
@@ -2214,45 +2186,230 @@ async function restoreFromFile(event){
       if(!backup.data || !backup.data.students) throw new Error('فایل معتبر نیست');
 
       const d = backup.data;
-      const steps = [
-        { name: 'دانش‌آموزان', fn: () => restoreTable('students', d.students, mapStudentToDb) },
-        { name: 'کارکنان', fn: () => restoreTable('staff', d.staff, mapStaffToDb) },
-        { name: 'پرداخت‌ها', fn: () => restoreTable('payments', d.payments, mapPaymentToDb) },
-        { name: 'واریز حقوق', fn: () => restoreTable('salaries', d.salaries, mapSalaryToDb) },
-        { name: 'درآمدها', fn: () => restoreTable('incomes', d.incomes, mapIncomeToDb) },
-        { name: 'هزینه‌ها', fn: () => restoreTable('expenses', d.expenses, mapExpenseToDb) },
-        { name: 'اقساط', fn: () => restoreTable('installments', d.installments, mapInstallmentToDb) },
-        { name: 'تخفیف‌ها', fn: () => restoreTable('discounts', d.discounts, mapDiscountToDb) }
-      ];
+      const stats = {
+        students: 0, payments: 0, paymentsSkipped: 0,
+        staff: 0, salaries: 0, salariesSkipped: 0,
+        incomes: 0, expenses: 0,
+        installments: 0, installmentsSkipped: 0,
+        discounts: 0, discountsSkipped: 0, errors: []
+      };
 
-      for(let i = 0; i < steps.length; i++){
-        msg.textContent = `در حال بازیابی: ${steps[i].name}...`;
-        bar.style.width = `${((i+1) / steps.length) * 100}%`;
-        await steps[i].fn();
+      // ============ گام ۱: پاک کردن همه چیز (به ترتیب وابستگی) ============
+      msg.textContent = '⏳ پاک کردن اطلاعات قبلی...';
+      bar.style.width = '10%';
+      await sb.from('payments').delete().neq('id', 0);
+      await sb.from('installments').delete().neq('id', 0);
+      await sb.from('discounts').delete().neq('id', 0);
+      await sb.from('salaries').delete().neq('id', 0);
+      await sb.from('students').delete().neq('id', 0);
+      await sb.from('staff').delete().neq('id', 0);
+      await sb.from('incomes').delete().neq('id', 0);
+      await sb.from('expenses').delete().neq('id', 0);
+
+      // ============ گام ۲: دانش‌آموزان ============
+      msg.textContent = `⏳ بازیابی ${d.students.length} دانش‌آموز...`;
+      bar.style.width = '25%';
+
+      const studentCodeToId = {};
+      if(d.students.length){
+        const mapped = d.students.map(s => ({
+          code: s.code, name: s.name, family: s.family,
+          grade: s.grade, class_name: s.class || s.class_name,
+          phone: s.phone, father_phone: s.phone || s.father_phone,
+          academic_year: s.year || s.academic_year,
+          tuition: s.tuition || 0, discount: s.discount || 0
+        }));
+        const { error, data } = await sb.from('students').insert(mapped).select('id, code');
+        if(error) throw new Error('دانش‌آموزان: ' + error.message);
+        stats.students = data?.length || 0;
+        data?.forEach(s => { studentCodeToId[s.code] = s.id; });
       }
 
+      // ============ گام ۳: کارکنان ============
+      msg.textContent = `⏳ بازیابی ${d.staff?.length || 0} کارمند...`;
+      bar.style.width = '40%';
+
+      const staffCodeToId = {};
+      if(d.staff && d.staff.length){
+        const mapped = d.staff.map(s => ({
+          staff_code: s.code || s.staff_code, name: s.name, family: s.family,
+          position: s.position, phone: s.phone,
+          base_salary: s.base_salary || 0, bonus: s.bonus || 0, notes: s.notes || ''
+        }));
+        const { error, data } = await sb.from('staff').insert(mapped).select('id, staff_code');
+        if(error) throw new Error('کارکنان: ' + error.message);
+        stats.staff = data?.length || 0;
+        data?.forEach(s => { staffCodeToId[s.staff_code] = s.id; });
+      }
+
+      // ============ گام ۴: پرداخت‌ها (فقط برای دانش‌آموزان موجود) ============
+      msg.textContent = `⏳ بازیابی پرداخت‌ها...`;
+      bar.style.width = '55%';
+
+      if(d.payments && d.payments.length){
+        const validPayments = [];
+        for(const p of d.payments){
+          const oldStudentId = p.studentId || p.student_id;
+          const oldStudent = d.students.find(s => s.id == oldStudentId);
+          if(!oldStudent){ stats.paymentsSkipped++; continue; }
+          const newId = studentCodeToId[oldStudent.code];
+          if(!newId){ stats.paymentsSkipped++; continue; }
+          validPayments.push({
+            student_id: newId, amount: p.amount,
+            payment_date: p.date || p.payment_date,
+            method: p.method, tracking: p.tracking || '',
+            receipt: p.receipt || ('R' + Date.now() + Math.random().toString(36).slice(2,6)),
+            description: p.desc || p.description || ''
+          });
+        }
+        if(validPayments.length){
+          const { error, data } = await sb.from('payments').insert(validPayments).select('id');
+          if(error){ stats.errors.push('پرداخت‌ها: ' + error.message); }
+          else { stats.payments = data?.length || 0; }
+        }
+      }
+
+      // ============ گام ۵: واریز حقوق ============
+      msg.textContent = `⏳ بازیابی واریز حقوق...`;
+      bar.style.width = '70%';
+
+      if(d.salaries && d.salaries.length){
+        const validSalaries = [];
+        for(const s of d.salaries){
+          const oldStaffId = s.staffId || s.staff_id;
+          const oldStaff = d.staff?.find(x => x.id == oldStaffId);
+          if(!oldStaff){ stats.salariesSkipped++; continue; }
+          const newId = staffCodeToId[oldStaff.code || oldStaff.staff_code];
+          if(!newId){ stats.salariesSkipped++; continue; }
+          validSalaries.push({
+            staff_id: newId, salary_month: s.month || s.salary_month,
+            base_amount: s.base || s.base_amount || 0,
+            bonus_amount: s.bonus || s.bonus_amount || 0,
+            deduction: s.deduction || 0, net_amount: s.net_amount || 0,
+            payment_date: s.date || s.payment_date,
+            payment_method: s.method || s.payment_method,
+            tracking: s.tracking || '', description: s.description || ''
+          });
+        }
+        if(validSalaries.length){
+          const { error, data } = await sb.from('salaries').insert(validSalaries).select('id');
+          if(error){ stats.errors.push('حقوق: ' + error.message); }
+          else { stats.salaries = data?.length || 0; }
+        }
+      }
+
+      // ============ گام ۶: اقساط ============
+      msg.textContent = '⏳ بازیابی اقساط...';
+      bar.style.width = '80%';
+
+      if(d.installments && d.installments.length){
+        const validInst = [];
+        for(const i of d.installments){
+          const oldId = i.studentId || i.student_id;
+          const oldStudent = d.students.find(s => s.id == oldId);
+          if(!oldStudent){ stats.installmentsSkipped++; continue; }
+          const newId = studentCodeToId[oldStudent.code];
+          if(!newId){ stats.installmentsSkipped++; continue; }
+          validInst.push({ student_id: newId, amount: i.amount, due_date: i.due || i.due_date, paid: i.paid || false });
+        }
+        if(validInst.length){
+          const { error, data } = await sb.from('installments').insert(validInst).select('id');
+          if(!error) stats.installments = data?.length || 0;
+        }
+      }
+
+      // ============ گام ۷: تخفیف‌ها ============
+      msg.textContent = '⏳ بازیابی تخفیف‌ها...';
+      bar.style.width = '90%';
+
+      if(d.discounts && d.discounts.length){
+        const validDisc = [];
+        for(const x of d.discounts){
+          const oldId = x.studentId || x.student_id;
+          const oldStudent = d.students.find(s => s.id == oldId);
+          if(!oldStudent){ stats.discountsSkipped++; continue; }
+          const newId = studentCodeToId[oldStudent.code];
+          if(!newId){ stats.discountsSkipped++; continue; }
+          validDisc.push({
+            student_id: newId, base_amount: x.base || x.base_amount || 0,
+            discount_type: x.type || x.discount_type, value: x.value || 0,
+            final_amount: x.final || x.final_amount || 0,
+            reason: x.reason || '', discount_date: x.date || x.discount_date
+          });
+        }
+        if(validDisc.length){
+          const { error, data } = await sb.from('discounts').insert(validDisc).select('id');
+          if(!error) stats.discounts = data?.length || 0;
+        }
+      }
+
+      // ============ گام ۸: درآمد و هزینه ============
+      msg.textContent = '⏳ بازیابی درآمدها و هزینه‌ها...';
+      bar.style.width = '95%';
+
+      if(d.incomes && d.incomes.length){
+        const mapped = d.incomes.map(x => ({
+          title: x.title, category: x.category, amount: x.amount,
+          income_date: x.date || x.income_date, description: x.desc || x.description || ''
+        }));
+        const { data } = await sb.from('incomes').insert(mapped).select('id');
+        if(data) stats.incomes = data.length;
+      }
+      if(d.expenses && d.expenses.length){
+        const mapped = d.expenses.map(x => ({
+          title: x.title, category: x.category, amount: x.amount,
+          expense_date: x.date || x.expense_date, method: x.method,
+          document: x.doc || x.document || '', description: x.desc || x.description || ''
+        }));
+        const { data } = await sb.from('expenses').insert(mapped).select('id');
+        if(data) stats.expenses = data.length;
+      }
+
+      // ============ گام ۹: تنظیمات ============
       if(backup.settings){
         await sb.from('settings').upsert({
           id: true,
           school_name: backup.settings.school,
           academic_year: backup.settings.year,
-          phone: backup.settings.phone,
-          address: backup.settings.address,
-          footer: backup.settings.footer
+          phone: backup.settings.phone || '',
+          address: backup.settings.address || '',
+          footer: backup.settings.footer || ''
         });
       }
 
+      bar.style.width = '100%';
       msg.textContent = '✅ بازیابی کامل شد!';
+
       await logAction('بازیابی پشتیبان');
       await refreshApp();
+
+      let report = `✅ بازیابی موفق!\n\n`;
+      report += `👩🏻‍🎓 دانش‌آموزان: ${stats.students}\n`;
+      report += `👨‍🏫 کارکنان: ${stats.staff}\n`;
+      report += `💳 پرداخت‌ها: ${stats.payments}`;
+      if(stats.paymentsSkipped > 0) report += ` (${stats.paymentsSkipped} رد شد)`;
+      report += `\n💰 واریز حقوق: ${stats.salaries}`;
+      if(stats.salariesSkipped > 0) report += ` (${stats.salariesSkipped} رد شد)`;
+      report += `\n📅 اقساط: ${stats.installments}`;
+      if(stats.installmentsSkipped > 0) report += ` (${stats.installmentsSkipped} رد شد)`;
+      report += `\n🎁 تخفیف‌ها: ${stats.discounts}`;
+      if(stats.discountsSkipped > 0) report += ` (${stats.discountsSkipped} رد شد)`;
+      report += `\n📈 درآمدها: ${stats.incomes}\n📉 هزینه‌ها: ${stats.expenses}`;
+
+      if(stats.errors.length) report += `\n\n⚠️ خطاها:\n${stats.errors.join('\n')}`;
+
+      alert(report);
+      toast('اطلاعات با موفقیت بازیابی شد ✅', 'success');
+
       setTimeout(() => {
         progress.style.display = 'none';
         bar.style.width = '0%';
       }, 2000);
-      toast('اطلاعات با موفقیت بازیابی شد ✅', 'success');
+
     } catch(e){
       msg.textContent = '❌ خطا: ' + e.message;
       toast('خطا در بازیابی: ' + e.message, 'error');
+      alert('❌ خطا در بازیابی:\n\n' + e.message);
       setTimeout(() => { progress.style.display = 'none'; bar.style.width = '0%'; }, 3000);
     } finally {
       event.target.value = '';
@@ -2261,81 +2418,19 @@ async function restoreFromFile(event){
   reader.readAsText(file);
 }
 
-async function restoreTable(table, data, mapper){
-  if(!data || !data.length) return;
-  // حذف اطلاعات قبلی
-  await sb.from(table).delete().neq('id', 0);
-  // درج اطلاعات جدید
-  const mapped = data.map(mapper);
-  const { error } = await sb.from(table).insert(mapped);
-  if(error) throw new Error(`خطا در بازیابی ${table}: ${error.message}`);
-}
-
-function mapStudentToDb(s){
-  return {
-    code: s.code, name: s.name, family: s.family,
-    grade: s.grade, class_name: s.class || s.class_name,
-    phone: s.phone, father_phone: s.phone || s.father_phone,
-    academic_year: s.year || s.academic_year,
-    tuition: s.tuition || 0, discount: s.discount || 0
-  };
-}
-function mapStaffToDb(s){
-  return {
-    staff_code: s.code || s.staff_code, name: s.name, family: s.family,
-    position: s.position, phone: s.phone,
-    base_salary: s.base_salary || 0, bonus: s.bonus || 0, notes: s.notes || ''
-  };
-}
-function mapPaymentToDb(p){
-  return {
-    student_id: p.studentId || p.student_id, amount: p.amount,
-    payment_date: p.date || p.payment_date, method: p.method,
-    tracking: p.tracking || '', receipt: p.receipt,
-    description: p.desc || p.description || ''
-  };
-}
-function mapSalaryToDb(s){
-  return {
-    staff_id: s.staffId || s.staff_id, salary_month: s.month || s.salary_month,
-    base_amount: s.base || s.base_amount || 0, bonus_amount: s.bonus || s.bonus_amount || 0,
-    deduction: s.deduction || 0, net_amount: s.net_amount || 0,
-    payment_date: s.date || s.payment_date, payment_method: s.method || s.payment_method,
-    tracking: s.tracking || '', description: s.description || ''
-  };
-}
-function mapIncomeToDb(x){
-  return { title: x.title, category: x.category, amount: x.amount, income_date: x.date || x.income_date, description: x.desc || x.description || '' };
-}
-function mapExpenseToDb(x){
-  return { title: x.title, category: x.category, amount: x.amount, expense_date: x.date || x.expense_date, method: x.method, document: x.doc || x.document || '', description: x.desc || x.description || '' };
-}
-function mapInstallmentToDb(i){
-  return { student_id: i.studentId || i.student_id, amount: i.amount, due_date: i.due || i.due_date, paid: i.paid || false };
-}
-function mapDiscountToDb(d){
-  return {
-    student_id: d.studentId || d.student_id,
-    base_amount: d.base || d.base_amount, discount_type: d.type || d.discount_type,
-    value: d.value, final_amount: d.final || d.final_amount,
-    reason: d.reason || '', discount_date: d.date || d.discount_date
-  };
-}
-
-async function dangerReset(){
-  if(!confirm('⚠️⚠️⚠️ تمام اطلاعات حذف خواهد شد! مطمئنی؟')) return;
-  if(!confirm('این آخرین هشدار است. آیا واقعاً می‌خواهی همه چیز پاک شود؟')) return;
-  if(!confirm('فقط برای اطمینان: تمام دانش‌آموزان، پرداخت‌ها، کارکنان، حقوق و... پاک می‌شوند!')) return;
-
+/* ============================================================
+   حذف عمومی
+============================================================ */
+async function deleteItem(table, id){
+  if(!confirm('حذف این مورد؟')) return;
+  if(isProcessing) return;
   isProcessing = true;
   try {
-    const tables = ['payments', 'installments', 'discounts', 'salaries', 'students', 'staff', 'incomes', 'expenses'];
-    for(const t of tables){
-      await sb.from(t).delete().neq('id', 0);
-    }
-    await logAction('پاک کردن کل اطلاعات');
+    const { error } = await sb.from(table).delete().eq('id', id);
+    if(error) return toast(translateError(error), 'error');
+    await logAction('حذف از ' + table);
     await refreshApp();
-    toast('تمام اطلاعات پاک شد', 'success');
+    toast('حذف شد ✅', 'success');
   } catch(e){
     toast('خطا: ' + e.message, 'error');
   } finally {
@@ -2344,22 +2439,27 @@ async function dangerReset(){
 }
 
 /* ============================================================
-   تقویم شمسی (Date Picker)
+   لاگ‌ها و داشبورد
 ============================================================ */
-function attachDatePicker(inputId){
-  const el = document.getElementById(inputId);
-  if(!el) return;
+function renderLogs(){
+  document.getElementById('logsTable').innerHTML = db.logs.map(x => `
+    <tr><td>${x.action}</td><td>${x.date}</td><td>${x.time}</td></tr>`).join('')
+    || `<tr><td colspan="3" class="empty">هنوز فعالیتی ثبت نشده است.</td></tr>`;
+}
 
-  // اگر کتابخانه jalali-date-picker لود شده
-  if(typeof window.jalaliDatePicker !== 'undefined'){
-    try {
-      window.jalaliDatePicker.startWatch({ selector: '#' + inputId, zIndex: 9999 });
-    } catch(e){}
-  } else {
-    // fallback: ورودی معمولی
-    el.removeAttribute('readonly');
-    el.setAttribute('placeholder', '۱۴۰۵/۰۷/۱۵');
-  }
+function renderDashboardLists(){
+  document.getElementById('recentPayments').innerHTML = db.payments.slice(0, 5).map(p => `
+    <div style="padding:9px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between">
+      <span>${studentName(p.studentId)}</span><b>${money(p.amount)}</b>
+    </div>`).join('') || '<div class="empty">پرداختی ثبت نشده است.</div>';
+
+  document.getElementById('dueSoon').innerHTML = db.installments.filter(x => !x.paid && !isPast(x.due)).slice(0, 6)
+    .map(x => `<li><span>${studentName(x.studentId)}</span><b>${x.due}</b></li>`).join('')
+    || '<li>موردی وجود ندارد</li>';
+
+  document.getElementById('overdueList').innerHTML = db.installments.filter(x => !x.paid && isPast(x.due)).slice(0, 6)
+    .map(x => `<li><span>${studentName(x.studentId)}</span><b>${money(x.amount)}</b></li>`).join('')
+    || '<li>موردی وجود ندارد</li>';
 }
 
 /* ============================================================
@@ -2412,50 +2512,6 @@ function openModal(title, body){
 function closeModal(){ document.getElementById('modal').classList.remove('show'); }
 
 /* ============================================================
-   حذف عمومی
-============================================================ */
-async function deleteItem(table, id){
-  if(!confirm('حذف این مورد؟')) return;
-  if(isProcessing) return;
-  isProcessing = true;
-  try {
-    const { error } = await sb.from(table).delete().eq('id', id);
-    if(error) return toast(translateError(error), 'error');
-    await logAction('حذف از ' + table);
-    await refreshApp();
-    toast('حذف شد ✅', 'success');
-  } catch(e){
-    toast('خطا: ' + e.message, 'error');
-  } finally {
-    isProcessing = false;
-  }
-}
-
-/* ============================================================
-   لاگ‌ها و داشبورد
-============================================================ */
-function renderLogs(){
-  document.getElementById('logsTable').innerHTML = db.logs.map(x => `
-    <tr><td>${x.action}</td><td>${x.date}</td><td>${x.time}</td></tr>`).join('')
-    || `<tr><td colspan="3" class="empty">هنوز فعالیتی ثبت نشده است.</td></tr>`;
-}
-
-function renderDashboardLists(){
-  document.getElementById('recentPayments').innerHTML = db.payments.slice(0, 5).map(p => `
-    <div style="padding:9px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between">
-      <span>${studentName(p.studentId)}</span><b>${money(p.amount)}</b>
-    </div>`).join('') || '<div class="empty">پرداختی ثبت نشده است.</div>';
-
-  document.getElementById('dueSoon').innerHTML = db.installments.filter(x => !x.paid && !isPast(x.due)).slice(0, 6)
-    .map(x => `<li><span>${studentName(x.studentId)}</span><b>${x.due}</b></li>`).join('')
-    || '<li>موردی وجود ندارد</li>';
-
-  document.getElementById('overdueList').innerHTML = db.installments.filter(x => !x.paid && isPast(x.due)).slice(0, 6)
-    .map(x => `<li><span>${studentName(x.studentId)}</span><b>${money(x.amount)}</b></li>`).join('')
-    || '<li>موردی وجود ندارد</li>';
-}
-
-/* ============================================================
    اتصال رویدادها
 ============================================================ */
 document.addEventListener('click', function(e){
@@ -2501,12 +2557,10 @@ function bindStaticButtons(){
   document.getElementById('btnCloseModal').onclick = closeModal;
   document.getElementById('btnDownloadBackup').onclick = downloadBackup;
   document.getElementById('btnDownloadExcelFull').onclick = downloadExcelFull;
-  document.getElementById('btnDangerReset').onclick = dangerReset;
 
   const rf = document.getElementById('restoreFile');
   if(rf) rf.addEventListener('change', restoreFromFile);
 
-  // چاپ دسته‌ای
   document.getElementById('btnBulkPrint').onclick = bulkPrintSelected;
   document.getElementById('btnBulkSelectAll').onclick = () => {
     document.querySelectorAll('.bulk-check').forEach(c => c.checked = true);
@@ -2516,7 +2570,8 @@ function bindStaticButtons(){
     document.querySelectorAll('.bulk-check').forEach(c => c.checked = false);
     updateBulkCounter();
   };
-  document.getElementById('bulkCheckAll').onchange = (e) => {
+  const bca = document.getElementById('bulkCheckAll');
+  if(bca) bca.onchange = (e) => {
     document.querySelectorAll('.bulk-check').forEach(c => c.checked = e.target.checked);
     updateBulkCounter();
   };
@@ -2543,7 +2598,7 @@ function bindStaticButtons(){
     const el = document.getElementById(id);
     if(el) el.addEventListener('input', renderSalaries);
   });
-  ['bulkSearch','bulkMethodFilter','bulkDateFrom','bulkDateTo'].forEach(id => {
+  ['bulkSearch','bulkMethodFilter'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.addEventListener('input', renderBulk);
   });
@@ -2581,25 +2636,11 @@ window.addEventListener('DOMContentLoaded', async () => {
     if(data && data.session){
       currentUser = data.session.user;
       await refreshApp();
-      await loadUsers();
     }
   } catch(e){
     console.error('init error', e);
   }
 });
-
-// جدا کردن date pickers بعد از باز شدن مودال‌ها
-const observer = new MutationObserver(() => {
-  ['p_date','s_date','i_date','e_date','n_due','d_date','bulkDateFrom','bulkDateTo'].forEach(id => {
-    const el = document.getElementById(id);
-    if(el && !el.dataset.dpAttached){
-      el.dataset.dpAttached = '1';
-      attachDatePicker(id);
-    }
-  });
-});
-observer.observe(document.body, { childList: true, subtree: true });
-
 </script>
 </body>
 </html>
