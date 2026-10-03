@@ -35,6 +35,7 @@ button{cursor:pointer;border:0}
 .btn.red{background:#fee2e2;color:#991b1b}
 .btn.blue{background:#dbeafe;color:#1d4ed8}
 .btn.gold{background:#f59e0b;color:#fff}
+.btn.purple{background:#7c3aed;color:#fff}
 .user-chip{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:11px;padding:8px 12px;font-size:13px}
 .user-chip .avatar{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#2563eb,#1e40af);display:grid;place-items:center;color:#fff;font-weight:700}
 .page{display:none}
@@ -58,6 +59,9 @@ button{cursor:pointer;border:0}
 .paid{background:#dcfce7;color:#166534}
 .debt{background:#ffedd5;color:#9a3412}
 .overdue{background:#fee2e2;color:#991b1b}
+.pending{background:#fef3c7;color:#92400e}
+.returned{background:#fee2e2;color:#991b1b}
+.collected{background:#dcfce7;color:#166534}
 .actions{display:flex;gap:6px;flex-wrap:wrap}
 .empty{text-align:center;color:var(--muted);padding:35px}
 .filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
@@ -133,6 +137,7 @@ button{cursor:pointer;border:0}
     <button data-page="students">👩🏻‍🎓 <span>دانش‌آموزان</span></button>
     <button data-page="payments">💳 <span>ثبت پرداخت</span></button>
     <button data-page="receipts">🧾 <span>رسیدها</span></button>
+    <button data-page="checks">📝 <span>چک‌های دریافتی</span></button>
 
     <div class="nav-section">کارکنان و دبیران</div>
     <button data-page="staff">👨‍🏫 <span>کارکنان و دبیران</span></button>
@@ -192,6 +197,8 @@ button{cursor:pointer;border:0}
     <div class="card"><h3>نزدیک به سررسید</h3><ul class="alert-list" id="dueSoon"></ul></div>
     <div class="card"><h3>معوق</h3><ul class="alert-list" id="overdueList"></ul></div>
   </div>
+  <div class="section-head"><h2>چک‌های نزدیک به سررسید</h2></div>
+  <div class="card"><ul class="alert-list" id="checksDueSoon"></ul></div>
 </section>
 
 <!-- دانش‌آموزان -->
@@ -269,6 +276,40 @@ button{cursor:pointer;border:0}
           </tr>
         </thead>
         <tbody id="receiptsTable"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- چک‌های دریافتی -->
+<section class="page" id="checks">
+  <div class="section-head">
+    <h2>📝 مدیریت چک‌های دریافتی</h2>
+    <button class="btn primary" id="btnNewCheck">ثبت چک جدید +</button>
+  </div>
+  <div class="card">
+    <div class="filters">
+      <input id="checkSearch" placeholder="جستجوی شماره چک، بانک، صاحب چک...">
+      <select id="checkStatusFilter">
+        <option value="">همه وضعیت‌ها</option>
+        <option value="pending">در جریان</option>
+        <option value="collected">وصول شده</option>
+        <option value="returned">برگشتی</option>
+      </select>
+      <select id="checkBankFilter">
+        <option value="">همه بانک‌ها</option>
+      </select>
+    </div>
+    <div class="grid" id="checkStats" style="grid-template-columns:repeat(4,1fr);margin-bottom:15px"></div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>شماره چک</th><th>بانک</th><th>صاحب چک</th><th>دانش‌آموز</th>
+            <th>مبلغ</th><th>تاریخ صدور</th><th>سررسید</th><th>وضعیت</th><th>عملیات</th>
+          </tr>
+        </thead>
+        <tbody id="checksTable"></tbody>
       </table>
     </div>
   </div>
@@ -432,6 +473,7 @@ button{cursor:pointer;border:0}
         <option value="debt">گزارش بدهکاران</option>
         <option value="paid">گزارش تسویه‌شده‌ها</option>
         <option value="payments">گزارش پرداخت‌ها</option>
+        <option value="checks">گزارش چک‌ها</option>
         <option value="salaries">گزارش حقوق</option>
         <option value="expenses">گزارش هزینه‌ها</option>
         <option value="profit">گزارش درآمد و هزینه</option>
@@ -539,7 +581,7 @@ button{cursor:pointer;border:0}
     <div class="card">
       <h3>📥 دانلود پشتیبان</h3>
       <p style="color:var(--muted);font-size:13px;line-height:1.8">
-        از تمام اطلاعات مدرسه یک فایل JSON دانلود می‌شود. این فایل را در جای امن نگه‌داری کن.
+        از تمام اطلاعات مدرسه یک فایل JSON دانلود می‌شود.
       </p>
       <div style="background:#f0f9ff;padding:12px;border-radius:10px;margin:15px 0;font-size:13px">
         <b>📊 آمار فعلی:</b><br>
@@ -552,7 +594,7 @@ button{cursor:pointer;border:0}
     <div class="card">
       <h3>📂 بازیابی از فایل</h3>
       <p style="color:var(--muted);font-size:13px;line-height:1.8">
-        اگر می‌خواهی اطلاعات قبلی را برگردانی، فایل JSON پشتیبان را بارگذاری کن.
+        فایل JSON پشتیبان را بارگذاری کن.
       </p>
       <div style="background:#fef3c7;padding:12px;border-radius:10px;margin:15px 0;font-size:13px">
         ⚠️ <b>هشدار:</b> این کار اطلاعات موجود را با فایل پشتیبان <b>جایگزین</b> می‌کند.
@@ -573,10 +615,9 @@ button{cursor:pointer;border:0}
   <div class="card" style="margin-top:15px">
     <h3>📋 راهنمای پشتیبان‌گیری</h3>
     <ul style="line-height:2;color:#555;font-size:13px;padding-right:20px">
-      <li>✅ <b>هر هفته</b> یک بار پشتیبان بگیر و در <b>Google Drive یا ایمیل</b> ذخیره کن</li>
+      <li>✅ <b>هر هفته</b> یک بار پشتیبان بگیر و در Google Drive یا ایمیل ذخیره کن</li>
       <li>✅ قبل از بازیابی، مطمئن شو فایل پشتیبان <b>معتبر</b> است</li>
-      <li>✅ فایل‌های پشتیبان را با نام تاریخ ذخیره کن</li>
-      <li>⚠️ فایل را در جای امن نگه‌دار (اطلاعات شخصی دانش‌آموزان در آن است)</li>
+      <li>⚠️ فایل را در جای امن نگه‌دار</li>
     </ul>
   </div>
 </section>
@@ -645,7 +686,8 @@ let currentUser = null;
 let db = {
   settings: { ...DEFAULT_SETTINGS },
   students: [], payments: [], incomes: [], expenses: [],
-  installments: [], discounts: [], staff: [], salaries: [], logs: [], users: []
+  installments: [], discounts: [], staff: [], salaries: [],
+  checks: [], logs: [], users: []
 };
 let charts = [];
 let isProcessing = false;
@@ -682,6 +724,18 @@ function isPast(dateStr){
   } catch { return false; }
 }
 
+function daysUntil(dateStr){
+  if(!dateStr) return Infinity;
+  try {
+    const parts = String(dateStr).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).split(/[\/\-]/).map(Number);
+    if(parts.length < 3) return Infinity;
+    const [y, m, d] = parts;
+    const target = new Date(y + 621, m - 1, d);
+    const diff = Math.floor((target - new Date()) / (1000 * 60 * 60 * 24));
+    return diff;
+  } catch { return Infinity; }
+}
+
 function status(s){
   const b = balance(s);
   if(b <= 0) return ['تسویه شده', 'paid'];
@@ -689,12 +743,18 @@ function status(s){
   return late ? ['بدهی معوق', 'overdue'] : ['دارای بدهی', 'debt'];
 }
 
+function checkStatusLabel(st){
+  if(st === 'collected') return ['وصول شده', 'collected'];
+  if(st === 'returned') return ['برگشتی', 'returned'];
+  return ['در جریان', 'pending'];
+}
+
 function toast(msg, type){
   const e = document.getElementById('toast');
   e.textContent = msg;
   e.className = 'toast show' + (type ? ' ' + type : '');
   clearTimeout(e._t);
-  e._t = setTimeout(() => e.className = 'toast', 4000);
+  e._t = setTimeout(() => e.className = 'toast', 4500);
 }
 
 function authMsg(msg, ok){
@@ -717,6 +777,7 @@ function translateError(error){
   if(code === '23505' || msg.includes('duplicate key')){
     if(msg.includes('students_code')) return '⚠️ این کد دانش‌آموزی قبلاً ثبت شده است.';
     if(msg.includes('staff_code')) return '⚠️ این کد پرسنلی قبلاً ثبت شده است.';
+    if(msg.includes('check_number')) return '⚠️ این شماره چک قبلاً ثبت شده است.';
     if(msg.includes('receipt')) return '⚠️ این شماره رسید قبلاً استفاده شده است.';
     return '⚠️ این اطلاعات تکراری است.';
   }
@@ -745,7 +806,7 @@ function initSupabase(){
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: false,
-        storageKey: 'haleh-mehr-auth-v4'
+        storageKey: 'haleh-mehr-auth-v5'
       }
     });
     return true;
@@ -768,6 +829,19 @@ function mapInstallment(r){ return { ...r, studentId: r.student_id, due: r.due_d
 function mapDiscount(r){ return { ...r, studentId: r.student_id, base: r.base_amount, type: r.discount_type, date: r.discount_date }; }
 function mapStaff(r){ return { ...r, code: r.staff_code, phone: r.phone, base_salary: r.base_salary, bonus: r.bonus, position: r.position }; }
 function mapSalary(r){ return { ...r, staffId: r.staff_id, month: r.salary_month, base: r.base_amount, bonus: r.bonus_amount, deduction: r.deduction, net_amount: r.net_amount, date: r.payment_date, method: r.payment_method }; }
+function mapCheck(r){
+  return {
+    ...r,
+    studentId: r.student_id,
+    checkNumber: r.check_number,
+    bankName: r.bank_name,
+    issueDate: r.issue_date,
+    dueDate: r.due_date,
+    holderName: r.holder_name,
+    paymentId: r.payment_id,
+    date: r.due_date
+  };
+}
 
 function normalizeSettings(s){
   if(!s) return { ...DEFAULT_SETTINGS };
@@ -796,7 +870,8 @@ async function loadData(){
     sb.from('discounts').select('*').order('created_at', { ascending: false }),
     sb.from('activity_logs').select('*').order('created_at', { ascending: false }).limit(200),
     sb.from('staff').select('*').order('created_at', { ascending: false }).then(r => r.error ? { data: [], error: null } : r),
-    sb.from('salaries').select('*').order('created_at', { ascending: false }).then(r => r.error ? { data: [], error: null } : r)
+    sb.from('salaries').select('*').order('created_at', { ascending: false }).then(r => r.error ? { data: [], error: null } : r),
+    sb.from('checks').select('*').order('created_at', { ascending: false }).then(r => r.error ? { data: [], error: null } : r)
   ]);
 
   const firstError = results.find(x => x.error)?.error;
@@ -816,6 +891,7 @@ async function loadData(){
   }));
   db.staff = (results[8].data || []).map(mapStaff);
   db.salaries = (results[9].data || []).map(mapSalary);
+  db.checks = (results[10].data || []).map(mapCheck);
 }
 
 async function logAction(action){
@@ -928,7 +1004,8 @@ function nav(page){
 
   const titles = {
     dashboard: 'داشبورد مالی', students: 'مدیریت دانش‌آموزان', payments: 'ثبت پرداخت',
-    receipts: 'رسیدها', staff: 'کارکنان و دبیران', salaries: 'واریز حقوق',
+    receipts: 'رسیدها', checks: 'چک‌های دریافتی',
+    staff: 'کارکنان و دبیران', salaries: 'واریز حقوق',
     incomes: 'درآمدها', expenses: 'هزینه‌ها', installments: 'اقساط', discounts: 'تخفیف‌ها',
     reports: 'گزارش‌های مالی', invoices: 'صورتحساب‌ها', bulk: 'چاپ دسته‌ای رسیدها',
     users: 'مدیریت کاربران', logs: 'فعالیت کاربران', settings: 'تنظیمات', backup: 'پشتیبان‌گیری'
@@ -945,6 +1022,7 @@ function renderAll(){
   renderStudents();
   renderPayments();
   renderReceipts();
+  renderChecks();
   renderStaff();
   renderSalaries();
   renderIncomes();
@@ -970,6 +1048,8 @@ function renderStats(){
   const received = db.payments.reduce((a,p) => a + (+p.amount||0), 0);
   const salariesPaid = db.salaries.reduce((a,s) => a + (+s.net_amount||0), 0);
   const staffCount = db.staff.length;
+  const checksPending = db.checks.filter(c => c.status === 'pending').length;
+  const checksTotal = db.checks.reduce((a,c) => a + (+c.amount||0), 0);
 
   document.getElementById('stats').innerHTML = [
     ['👩🏻‍🎓','دانش‌آموزان', total],
@@ -977,8 +1057,8 @@ function renderStats(){
     ['💰','مجموع شهریه', money(tuition)],
     ['💳','مجموع دریافت', money(received)],
     ['🟠','بدهکاران', debt],
-    ['💵','مجموع حقوق پرداختی', money(salariesPaid)],
-    ['🎁','مجموع تخفیف', money(db.students.reduce((a,s) => a + (+s.discount||0), 0))],
+    ['📝','چک‌های در جریان', checksPending],
+    ['🏦','مجموع چک‌ها', money(checksTotal)],
     ['📊','تعداد پرداخت‌ها', db.payments.length]
   ].map(x => `<div class="card stat"><div class="ico">${x[0]}</div><div class="label">${x[1]}</div><div class="num">${x[2]}</div></div>`).join('');
 }
@@ -1072,7 +1152,7 @@ async function saveStudent(id){
     await logAction(id ? 'ویرایش دانش‌آموز' : `ثبت دانش‌آموز ${s.name} ${s.family}`);
     closeModal();
     await refreshApp();
-    toast(id ? 'اطلاعات ویرایش شد ✅' : 'دانش‌آموز با موفقیت ثبت شد ✅', 'success');
+    toast(id ? 'اطلاعات ویرایش شد ✅' : 'دانش‌آموز ثبت شد ✅', 'success');
   } catch(e){
     toast('خطا: ' + e.message, 'error');
   } finally {
@@ -1090,6 +1170,7 @@ function studentDetails(id){
 
   const ps = db.payments.filter(p => p.studentId == id);
   const insts = db.installments.filter(i => i.studentId == id);
+  const chks = db.checks.filter(c => c.studentId == id);
 
   let totalPaid = 0;
   let rows = '';
@@ -1133,10 +1214,21 @@ function studentDetails(id){
   </div>
   <div class="table-wrap">
     <table class="table">
-      <thead><tr><th>تاریخ</th><th>شرح</th><th>بدهکار</th><th>بستانکار</th><th>مانده</th></tr></thead>
-      <tbody>${rows}</tbody>
+      <thead><tr><th>تاریخ</th><th>شرح</th><th>بدهکار</th><th>بستانکار</th><th>مانده</th><th>عملیات</th></tr></thead>
+      <tbody>${sortedPays.length ? rows.replace(/<\/tr>/g, '</tr>').replace(/(<tr><td>[^<]*<\/td><td>پرداخت[^<]*<\/td>.*?<\/tr>)/g, (m) => m.replace('</tr>', `<td class="actions" style="padding:5px"><button class="btn" data-action="edit-payment-by-info" data-sid="${s.id}" data-rid="">✏️</button></td></tr>`)) : rows}</tbody>
     </table>
   </div>
+  ${chks.length ? `
+    <div class="section-head" style="margin-top:20px"><h3>📝 چک‌های دریافتی</h3></div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>شماره</th><th>بانک</th><th>مبلغ</th><th>سررسید</th><th>وضعیت</th></tr></thead>
+        <tbody>${chks.map(c => { const st = checkStatusLabel(c.status); return `
+          <tr><td>${c.checkNumber}</td><td>${c.bankName||'-'}</td><td>${money(c.amount)}</td>
+          <td>${c.dueDate||'-'}</td>
+          <td><span class="badge ${st[1]}">${st[0]}</span></td></tr>`; }).join('')}</tbody>
+      </table>
+    </div>` : ''}
   ${insts.length ? `
     <div class="section-head" style="margin-top:20px"><h3>📅 اقساط</h3></div>
     <div class="table-wrap">
@@ -1153,7 +1245,7 @@ function studentDetails(id){
 }
 
 /* ============================================================
-   پرداخت
+   پرداخت‌ها (با ویرایش)
 ============================================================ */
 function studentOptions(){
   if(!db.students.length) return '<option value="">— دانش‌آموزی ثبت نشده —</option>';
@@ -1174,6 +1266,71 @@ function openPayment(){
   <div class="modalfoot"><button class="btn primary" id="btnSavePayment">ثبت پرداخت</button></div></div>`);
 
   document.getElementById('btnSavePayment').onclick = savePayment;
+}
+
+function openPaymentEdit(paymentId){
+  const p = db.payments.find(x => x.id == paymentId);
+  if(!p) return;
+  openModal('✏️ ویرایش پرداخت', `
+  <div class="form"><div class="formgrid">
+    <div class="full"><label>دانش‌آموز *</label><select id="ep_student">${db.students.map(s => `<option value="${s.id}" ${s.id == p.studentId ? 'selected' : ''}>${s.name} ${s.family} — ${s.code||''}</option>`).join('')}</select></div>
+    <div><label>مبلغ (ریال) *</label><input type="number" id="ep_amount" value="${p.amount}"></div>
+    <div><label>تاریخ</label><input id="ep_date" value="${p.date||''}"></div>
+    <div><label>روش پرداخت</label><select id="ep_method">
+      ${['کارتخوان','کارت به کارت','واریز بانکی','نقدی','چک','سایر'].map(m => `<option ${m===p.method?'selected':''}>${m}</option>`).join('')}
+    </select></div>
+    <div><label>شماره پیگیری</label><input id="ep_tracking" value="${p.tracking||''}"></div>
+    <div><label>شماره رسید</label><input id="ep_receipt" value="${p.receipt||''}"></div>
+    <div class="full"><label>توضیحات</label><textarea id="ep_desc">${p.desc||''}</textarea></div>
+  </div>
+  <div class="modalfoot">
+    <button class="btn primary" id="btnUpdatePayment" data-id="${p.id}">ذخیره تغییرات</button>
+    <button class="btn red" data-action="del-payment" data-id="${p.id}">حذف پرداخت</button>
+  </div></div>`);
+
+  document.getElementById('btnUpdatePayment').onclick = () => updatePayment(p.id);
+}
+
+async function updatePayment(id){
+  if(isProcessing) return;
+  const sid = v('ep_student'), amt = num('ep_amount');
+  if(!sid) return toast('دانش‌آموز را انتخاب کنید', 'error');
+  if(amt <= 0) return toast('مبلغ را وارد کنید', 'error');
+
+  const receipt = v('ep_receipt');
+  if(db.payments.some(p => p.receipt === receipt && p.id != id)){
+    return toast('⚠️ این شماره رسید قبلاً استفاده شده است', 'error');
+  }
+
+  if(!confirm('آیا از ذخیره تغییرات مطمئنی؟ این تغییرات بر روی محاسبات مالی اثر می‌گذارد.')) return;
+
+  isProcessing = true;
+  const btn = document.getElementById('btnUpdatePayment');
+  if(btn){ btn.disabled = true; btn.textContent = 'در حال ذخیره...'; }
+
+  try {
+    const updates = {
+      student_id: sid,
+      amount: amt,
+      payment_date: v('ep_date'),
+      method: v('ep_method'),
+      tracking: v('ep_tracking'),
+      receipt: receipt || 'R' + Date.now(),
+      description: v('ep_desc')
+    };
+    const { error } = await sb.from('payments').update(updates).eq('id', id);
+    if(error) return toast(translateError(error), 'error');
+
+    await logAction('✏️ ویرایش پرداخت شماره ' + updates.receipt);
+    closeModal();
+    await refreshApp();
+    toast('پرداخت با موفقیت ویرایش شد ✅', 'success');
+  } catch(e){
+    toast('خطا: ' + e.message, 'error');
+  } finally {
+    isProcessing = false;
+    if(btn){ btn.disabled = false; btn.textContent = 'ذخیره تغییرات'; }
+  }
 }
 
 function openPaymentFor(studentId){
@@ -1234,6 +1391,7 @@ function renderPayments(){
     <td>${money(p.amount)}</td><td>${p.date||'-'}</td><td>${p.method||'-'}</td><td>${p.tracking||'-'}</td>
     <td class="actions">
       <button class="btn blue" data-action="print-receipt" data-id="${p.id}">رسید</button>
+      <button class="btn" data-action="edit-payment" data-id="${p.id}">✏️ ویرایش</button>
       <button class="btn red" data-action="del-payment" data-id="${p.id}">حذف</button>
     </td></tr>`).join('') || `<tr><td colspan="7" class="empty">پرداختی ثبت نشده است.</td></tr>`;
 }
@@ -1243,7 +1401,10 @@ function renderReceipts(){
     <tr><td>${p.receipt}</td>
     <td><span class="clickable" data-action="details" data-id="${p.studentId}">${studentName(p.studentId)}</span></td>
     <td>${money(p.amount)}</td><td>${p.date||'-'}</td><td>${p.method||'-'}</td>
-    <td><button class="btn blue" data-action="print-receipt" data-id="${p.id}">چاپ</button></td></tr>`).join('')
+    <td class="actions">
+      <button class="btn blue" data-action="print-receipt" data-id="${p.id}">چاپ</button>
+      <button class="btn" data-action="edit-payment" data-id="${p.id}">✏️ ویرایش</button>
+    </td></tr>`).join('')
     || `<tr><td colspan="6" class="empty">رسیدی ثبت نشده است.</td></tr>`;
 }
 
@@ -1274,6 +1435,227 @@ function printReceipt(id){
   </body></html>`);
   w.document.close();
   setTimeout(() => w.print(), 300);
+}
+
+/* ============================================================
+   چک‌های دریافتی
+============================================================ */
+function checkStats(){
+  const total = db.checks.length;
+  const pending = db.checks.filter(c => c.status === 'pending');
+  const collected = db.checks.filter(c => c.status === 'collected');
+  const returned = db.checks.filter(c => c.status === 'returned');
+  const pendingAmount = pending.reduce((a,c) => a + (+c.amount||0), 0);
+  const collectedAmount = collected.reduce((a,c) => a + (+c.amount||0), 0);
+  const returnedAmount = returned.reduce((a,c) => a + (+c.amount||0), 0);
+  const totalAmount = db.checks.reduce((a,c) => a + (+c.amount||0), 0);
+  return { total, pending, collected, returned, pendingAmount, collectedAmount, returnedAmount, totalAmount };
+}
+
+function renderChecks(){
+  const q = v('checkSearch'), status = v('checkStatusFilter'), bank = v('checkBankFilter');
+  const arr = db.checks.filter(c =>
+    (!q || `${c.checkNumber} ${c.bankName} ${c.holderName} ${studentName(c.studentId)}`.includes(q)) &&
+    (!status || c.status === status) &&
+    (!bank || c.bankName === bank)
+  );
+
+  // پر کردن فیلتر بانک‌ها
+  const banks = [...new Set(db.checks.map(c => c.bankName).filter(Boolean))];
+  const bankFilter = document.getElementById('checkBankFilter');
+  if(bankFilter){
+    const currentVal = bankFilter.value;
+    bankFilter.innerHTML = '<option value="">همه بانک‌ها</option>' + banks.map(b => `<option ${b===currentVal?'selected':''}>${b}</option>`).join('');
+  }
+
+  // آمار
+  const st = checkStats();
+  const statsEl = document.getElementById('checkStats');
+  if(statsEl){
+    statsEl.innerHTML = `
+      <div class="card stat"><div class="ico">📝</div><div class="label">کل چک‌ها</div><div class="num">${st.total}</div></div>
+      <div class="card stat"><div class="ico">⏳</div><div class="label">در جریان</div><div class="num" style="font-size:16px">${st.pending.length} - ${money(st.pendingAmount)}</div></div>
+      <div class="card stat"><div class="ico">✅</div><div class="label">وصول شده</div><div class="num" style="font-size:16px">${st.collected.length} - ${money(st.collectedAmount)}</div></div>
+      <div class="card stat"><div class="ico">❌</div><div class="label">برگشتی</div><div class="num" style="font-size:16px">${st.returned.length} - ${money(st.returnedAmount)}</div></div>
+    `;
+  }
+
+  const tbody = document.getElementById('checksTable');
+  if(!tbody) return;
+  tbody.innerHTML = arr.map(c => {
+    const st = checkStatusLabel(c.status);
+    const days = daysUntil(c.dueDate);
+    let dueWarning = '';
+    if(c.status === 'pending' && days !== Infinity){
+      if(days < 0) dueWarning = ' <span class="badge overdue">گذشته</span>';
+      else if(days <= 7) dueWarning = ` <span class="badge debt">${days} روز</span>`;
+    }
+    return `<tr>
+      <td><b>${c.checkNumber}</b></td>
+      <td>${c.bankName||'-'}</td>
+      <td>${c.holderName||'-'}</td>
+      <td><span class="clickable" data-action="details" data-id="${c.studentId}">${studentName(c.studentId)}</span></td>
+      <td>${money(c.amount)}</td>
+      <td>${c.issueDate||'-'}</td>
+      <td>${c.dueDate||'-'}${dueWarning}</td>
+      <td><span class="badge ${st[1]}">${st[0]}</span></td>
+      <td class="actions">
+        ${c.status === 'pending' ? `
+          <button class="btn green" data-action="collect-check" data-id="${c.id}">✅ وصول</button>
+          <button class="btn red" data-action="return-check" data-id="${c.id}">❌ برگشتی</button>
+        ` : ''}
+        <button class="btn" data-action="edit-check" data-id="${c.id}">✏️ ویرایش</button>
+        <button class="btn red" data-action="del-check" data-id="${c.id}">حذف</button>
+      </td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="9" class="empty">چکی ثبت نشده است.</td></tr>`;
+}
+
+function openCheck(id){
+  const c = id ? db.checks.find(x => x.id == id) : {
+    id:'', studentId:'', checkNumber:'', bankName:'', amount:0,
+    issueDate: today(), dueDate: '', holderName:'', status:'pending', description:''
+  };
+  if(!c) return;
+
+  const banks = ['ملی','صادرات','تجارت','ملت','سپه','پاسارگاد','پارسیان','سامان','رفاه','مسکن','کشاورزی','مهر ایران','قوامین','اقتصاد نوین','شهر','سایر'];
+
+  openModal(id ? '✏️ ویرایش چک' : '📝 ثبت چک دریافتی جدید', `
+  <div class="form"><div class="formgrid">
+    <div class="full"><label>دانش‌آموز *</label><select id="c_student"><option value="">انتخاب کنید</option>${studentOptions()}</select></div>
+    <div><label>شماره چک *</label><input id="c_number" value="${c.checkNumber||''}" placeholder="مثال: 123456"></div>
+    <div><label>بانک</label><select id="c_bank">${banks.map(b => `<option ${b===c.bankName?'selected':''}>${b}</option>`).join('')}</select></div>
+    <div><label>مبلغ (ریال) *</label><input type="number" id="c_amount" value="${c.amount||0}"></div>
+    <div><label>صاحب چک</label><input id="c_holder" value="${c.holderName||''}" placeholder="نام صاحب حساب"></div>
+    <div><label>تاریخ صدور</label><input id="c_issue" value="${c.issueDate||today()}" placeholder="1405/07/15"></div>
+    <div><label>تاریخ سررسید *</label><input id="c_due" value="${c.dueDate||''}" placeholder="1405/08/15"></div>
+    <div><label>وضعیت</label><select id="c_status">
+      <option value="pending" ${c.status==='pending'?'selected':''}>در جریان</option>
+      <option value="collected" ${c.status==='collected'?'selected':''}>وصول شده</option>
+      <option value="returned" ${c.status==='returned'?'selected':''}>برگشتی</option>
+    </select></div>
+    <div class="full"><label>توضیحات</label><textarea id="c_desc">${c.description||''}</textarea></div>
+  </div>
+  <div class="modalfoot"><button class="btn primary" id="btnSaveCheck" data-id="${id||0}">ذخیره</button></div></div>`);
+
+  if(id && c.studentId){
+    setTimeout(() => {
+      const el = document.getElementById('c_student');
+      if(el) el.value = c.studentId;
+    }, 50);
+  }
+
+  document.getElementById('btnSaveCheck').onclick = () => saveCheck(id || 0);
+}
+
+async function saveCheck(id){
+  if(isProcessing) return;
+
+  const c = {
+    student_id: v('c_student') || null,
+    check_number: v('c_number'),
+    bank_name: v('c_bank'),
+    amount: num('c_amount'),
+    issue_date: v('c_issue'),
+    due_date: v('c_due'),
+    holder_name: v('c_holder'),
+    status: v('c_status'),
+    description: v('c_desc')
+  };
+
+  if(!c.check_number) return toast('شماره چک الزامی است', 'error');
+  if(c.amount <= 0) return toast('مبلغ چک را وارد کنید', 'error');
+  if(!c.due_date) return toast('تاریخ سررسید الزامی است', 'error');
+
+  const duplicate = db.checks.find(x => x.checkNumber === c.check_number && x.id != id);
+  if(duplicate){
+    return toast(`⚠️ شماره چک "${c.check_number}" قبلاً ثبت شده است.`, 'error');
+  }
+
+  isProcessing = true;
+  const btn = document.getElementById('btnSaveCheck');
+  if(btn){ btn.disabled = true; btn.textContent = 'در حال ذخیره...'; }
+
+  try {
+    let error;
+    if(id){
+      ({ error } = await sb.from('checks').update(c).eq('id', id));
+    } else {
+      c.created_by = currentUser.id;
+      ({ error } = await sb.from('checks').insert(c));
+    }
+    if(error) return toast(translateError(error), 'error');
+
+    await logAction(id ? '✏️ ویرایش چک ' + c.check_number : '📝 ثبت چک ' + c.check_number);
+    closeModal();
+    await refreshApp();
+    toast(id ? 'چک ویرایش شد ✅' : 'چک ثبت شد ✅', 'success');
+  } catch(e){
+    toast('خطا: ' + e.message, 'error');
+  } finally {
+    isProcessing = false;
+    if(btn){ btn.disabled = false; btn.textContent = 'ذخیره'; }
+  }
+}
+
+async function collectCheck(id){
+  const c = db.checks.find(x => x.id == id);
+  if(!c) return;
+  if(!confirm(`آیا چک شماره ${c.checkNumber} به مبلغ ${money(c.amount)} وصول شده است؟\n\nبا تأیید، این مبلغ به عنوان پرداخت ثبت می‌شود.`)) return;
+  if(isProcessing) return;
+  isProcessing = true;
+
+  try {
+    // ثبت پرداخت
+    const receipt = 'CHK-' + c.checkNumber;
+    const { data: payData, error: e1 } = await sb.from('payments').insert({
+      student_id: c.studentId,
+      amount: c.amount,
+      payment_date: today(),
+      method: 'چک',
+      tracking: c.checkNumber,
+      receipt: receipt,
+      description: `وصول چک ${c.bankName||''} - شماره ${c.checkNumber}`,
+      created_by: currentUser.id
+    }).select('id').single();
+    if(e1) return toast(translateError(e1), 'error');
+
+    // به‌روزرسانی چک
+    const { error: e2 } = await sb.from('checks').update({
+      status: 'collected',
+      payment_id: payData.id
+    }).eq('id', id);
+    if(e2) return toast(translateError(e2), 'error');
+
+    await logAction('✅ وصول چک ' + c.checkNumber + ' و ثبت پرداخت');
+    await refreshApp();
+    toast('چک وصول شد و پرداخت ثبت گردید ✅', 'success');
+  } catch(e){
+    toast('خطا: ' + e.message, 'error');
+  } finally {
+    isProcessing = false;
+  }
+}
+
+async function returnCheck(id){
+  const c = db.checks.find(x => x.id == id);
+  if(!c) return;
+  if(!confirm(`آیا چک شماره ${c.checkNumber} برگشت خورده است؟`)) return;
+  if(isProcessing) return;
+  isProcessing = true;
+
+  try {
+    const { error } = await sb.from('checks').update({ status: 'returned' }).eq('id', id);
+    if(error) return toast(translateError(error), 'error');
+
+    await logAction('❌ چک برگشتی ' + c.checkNumber);
+    await refreshApp();
+    toast('وضعیت چک به برگشتی تغییر کرد', 'warning');
+  } catch(e){
+    toast('خطا: ' + e.message, 'error');
+  } finally {
+    isProcessing = false;
+  }
 }
 
 /* ============================================================
@@ -1363,7 +1745,7 @@ async function saveStaff(id){
     await logAction(id ? 'ویرایش کارمند' : `ثبت کارمند ${s.name} ${s.family}`);
     closeModal();
     await refreshApp();
-    toast(id ? 'اطلاعات ویرایش شد ✅' : 'کارمند با موفقیت ثبت شد ✅', 'success');
+    toast(id ? 'اطلاعات ویرایش شد ✅' : 'کارمند ثبت شد ✅', 'success');
   } catch(e){
     toast('خطا: ' + e.message, 'error');
   } finally {
@@ -1740,7 +2122,7 @@ async function saveDiscount(){
 }
 
 /* ============================================================
-   صورتحساب (صفحه مستقل)
+   صورتحساب
 ============================================================ */
 function invoiceRows(s){
   const rows = [];
@@ -1900,8 +2282,7 @@ async function loadUsers(){
     const { data, error } = await sb.from('profiles').select('*').order('created_at', { ascending: false });
     if(error) return;
     db.users = (data || []).map(r => ({
-      id: r.id,
-      name: r.full_name || 'کاربر',
+      id: r.id, name: r.full_name || 'کاربر',
       username: r.email || '',
       role: r.role === 'admin' ? 'مدیر' : 'مسئول مالی',
       created_at: r.created_at
@@ -1989,6 +2370,11 @@ function renderReport(){
     el.innerHTML = `<div class="table-wrap"><table class="table"><thead><tr><th>تاریخ</th><th>دانش‌آموز</th><th>مبلغ</th><th>روش</th><th>رسید</th></tr></thead>
     <tbody>${db.payments.map(p => `<tr><td>${p.date}</td><td>${studentName(p.studentId)}</td><td>${money(p.amount)}</td><td>${p.method}</td><td>${p.receipt}</td></tr>`).join('')}</tbody></table></div>`;
   }
+  else if(type === 'checks'){
+    const total = db.checks.reduce((a,c) => a + (+c.amount||0), 0);
+    el.innerHTML = `<h3>جمع کل چک‌ها: ${money(total)}</h3><div class="table-wrap"><table class="table"><thead><tr><th>شماره</th><th>بانک</th><th>صاحب</th><th>دانش‌آموز</th><th>مبلغ</th><th>سررسید</th><th>وضعیت</th></tr></thead>
+    <tbody>${db.checks.map(c => { const st = checkStatusLabel(c.status); return `<tr><td>${c.checkNumber}</td><td>${c.bankName||'-'}</td><td>${c.holderName||'-'}</td><td>${studentName(c.studentId)}</td><td>${money(c.amount)}</td><td>${c.dueDate||'-'}</td><td>${st[0]}</td></tr>`; }).join('')}</tbody></table></div>`;
+  }
   else if(type === 'salaries'){
     const total = db.salaries.reduce((a,s) => a + (+s.net_amount||0), 0);
     el.innerHTML = `<h3>جمع حقوق پرداختی: ${money(total)}</h3><div class="table-wrap"><table class="table"><thead><tr><th>کارمند</th><th>ماه</th><th>خالص</th><th>تاریخ</th></tr></thead>
@@ -2035,12 +2421,9 @@ async function saveSettings(){
   try {
     const x = {
       id: true,
-      school_name: v('setSchool'),
-      academic_year: v('setYear'),
-      phone: v('setPhone'),
-      address: v('setAddress'),
-      footer: v('setFooter'),
-      updated_at: new Date().toISOString()
+      school_name: v('setSchool'), academic_year: v('setYear'),
+      phone: v('setPhone'), address: v('setAddress'),
+      footer: v('setFooter'), updated_at: new Date().toISOString()
     };
     const { error } = await sb.from('settings').upsert(x);
     if(error) return toast(translateError(error), 'error');
@@ -2065,6 +2448,7 @@ function updateBackupStats(){
     👩🏻‍🎓 دانش‌آموزان: <b>${db.students.length}</b> نفر<br>
     👨‍🏫 کارکنان: <b>${db.staff.length}</b> نفر<br>
     💳 پرداخت‌ها: <b>${db.payments.length}</b> تراکنش<br>
+    📝 چک‌ها: <b>${db.checks.length}</b> فقره<br>
     💰 واریز حقوق: <b>${db.salaries.length}</b> تراکنش<br>
     📈 درآمدها: <b>${db.incomes.length}</b> ردیف<br>
     📉 هزینه‌ها: <b>${db.expenses.length}</b> ردیف<br>
@@ -2083,7 +2467,7 @@ async function downloadBackup(){
     await loadData();
 
     const backup = {
-      version: '4.0',
+      version: '5.0',
       created_at: new Date().toISOString(),
       created_at_fa: new Date().toLocaleString('fa-IR'),
       created_by: currentUser?.email || 'نامشخص',
@@ -2091,12 +2475,14 @@ async function downloadBackup(){
       stats: {
         students: db.students.length, payments: db.payments.length,
         staff: db.staff.length, salaries: db.salaries.length,
+        checks: db.checks.length,
         incomes: db.incomes.length, expenses: db.expenses.length,
         installments: db.installments.length, discounts: db.discounts.length
       },
       data: {
         students: db.students, payments: db.payments,
         staff: db.staff, salaries: db.salaries,
+        checks: db.checks,
         incomes: db.incomes, expenses: db.expenses,
         installments: db.installments, discounts: db.discounts
       }
@@ -2134,6 +2520,10 @@ function downloadExcelFull(){
     ['کد پرسنلی','نام','نام خانوادگی','سمت','شماره همراه','حقوق پایه','پاداش'],
     ...db.staff.map(s => [s.code||'', s.name, s.family, s.position||'', s.phone||'', s.base_salary||0, s.bonus||0]),
     [],
+    ['=== چک‌های دریافتی ==='],
+    ['شماره چک','بانک','صاحب چک','دانش‌آموز','مبلغ','تاریخ صدور','سررسید','وضعیت'],
+    ...db.checks.map(c => [c.checkNumber, c.bankName||'', c.holderName||'', studentName(c.studentId), c.amount, c.issueDate||'', c.dueDate||'', checkStatusLabel(c.status)[0]]),
+    [],
     ['=== واریز حقوق ==='],
     ['کارمند','ماه','حقوق پایه','پاداش','کسورات','خالص','تاریخ','روش'],
     ...db.salaries.map(s => [staffName(s.staffId), s.month||'', s.base||0, s.bonus||0, s.deduction||0, s.net_amount||0, s.date||'', s.method||'']),
@@ -2162,7 +2552,7 @@ function downloadExcelFull(){
 }
 
 /* ============================================================
-   بازیابی هوشمند (با مدیریت خطاهای Foreign Key)
+   بازیابی هوشمند
 ============================================================ */
 async function restoreFromFile(event){
   const file = event.target.files[0];
@@ -2189,15 +2579,17 @@ async function restoreFromFile(event){
       const stats = {
         students: 0, payments: 0, paymentsSkipped: 0,
         staff: 0, salaries: 0, salariesSkipped: 0,
+        checks: 0, checksSkipped: 0,
         incomes: 0, expenses: 0,
         installments: 0, installmentsSkipped: 0,
         discounts: 0, discountsSkipped: 0, errors: []
       };
 
-      // ============ گام ۱: پاک کردن همه چیز (به ترتیب وابستگی) ============
+      // پاک کردن همه چیز
       msg.textContent = '⏳ پاک کردن اطلاعات قبلی...';
       bar.style.width = '10%';
       await sb.from('payments').delete().neq('id', 0);
+      await sb.from('checks').delete().neq('id', 0);
       await sb.from('installments').delete().neq('id', 0);
       await sb.from('discounts').delete().neq('id', 0);
       await sb.from('salaries').delete().neq('id', 0);
@@ -2206,10 +2598,9 @@ async function restoreFromFile(event){
       await sb.from('incomes').delete().neq('id', 0);
       await sb.from('expenses').delete().neq('id', 0);
 
-      // ============ گام ۲: دانش‌آموزان ============
+      // دانش‌آموزان
       msg.textContent = `⏳ بازیابی ${d.students.length} دانش‌آموز...`;
       bar.style.width = '25%';
-
       const studentCodeToId = {};
       if(d.students.length){
         const mapped = d.students.map(s => ({
@@ -2225,10 +2616,9 @@ async function restoreFromFile(event){
         data?.forEach(s => { studentCodeToId[s.code] = s.id; });
       }
 
-      // ============ گام ۳: کارکنان ============
-      msg.textContent = `⏳ بازیابی ${d.staff?.length || 0} کارمند...`;
+      // کارکنان
+      msg.textContent = `⏳ بازیابی کارکنان...`;
       bar.style.width = '40%';
-
       const staffCodeToId = {};
       if(d.staff && d.staff.length){
         const mapped = d.staff.map(s => ({
@@ -2242,10 +2632,9 @@ async function restoreFromFile(event){
         data?.forEach(s => { staffCodeToId[s.staff_code] = s.id; });
       }
 
-      // ============ گام ۴: پرداخت‌ها (فقط برای دانش‌آموزان موجود) ============
+      // پرداخت‌ها
       msg.textContent = `⏳ بازیابی پرداخت‌ها...`;
       bar.style.width = '55%';
-
       if(d.payments && d.payments.length){
         const validPayments = [];
         for(const p of d.payments){
@@ -2269,10 +2658,38 @@ async function restoreFromFile(event){
         }
       }
 
-      // ============ گام ۵: واریز حقوق ============
-      msg.textContent = `⏳ بازیابی واریز حقوق...`;
-      bar.style.width = '70%';
+      // چک‌ها
+      msg.textContent = `⏳ بازیابی چک‌ها...`;
+      bar.style.width = '65%';
+      if(d.checks && d.checks.length){
+        const validChecks = [];
+        for(const c of d.checks){
+          const oldStudentId = c.studentId || c.student_id;
+          const oldStudent = d.students.find(s => s.id == oldStudentId);
+          const newId = oldStudent ? studentCodeToId[oldStudent.code] : null;
+          if(!newId){ stats.checksSkipped++; continue; }
+          validChecks.push({
+            student_id: newId,
+            check_number: c.checkNumber || c.check_number,
+            bank_name: c.bankName || c.bank_name || '',
+            amount: c.amount,
+            issue_date: c.issueDate || c.issue_date || '',
+            due_date: c.dueDate || c.due_date || '',
+            holder_name: c.holderName || c.holder_name || '',
+            status: c.status || 'pending',
+            description: c.description || ''
+          });
+        }
+        if(validChecks.length){
+          const { error, data } = await sb.from('checks').insert(validChecks).select('id');
+          if(!error) stats.checks = data?.length || 0;
+          else stats.errors.push('چک‌ها: ' + error.message);
+        }
+      }
 
+      // حقوق
+      msg.textContent = `⏳ بازیابی واریز حقوق...`;
+      bar.style.width = '75%';
       if(d.salaries && d.salaries.length){
         const validSalaries = [];
         for(const s of d.salaries){
@@ -2293,15 +2710,13 @@ async function restoreFromFile(event){
         }
         if(validSalaries.length){
           const { error, data } = await sb.from('salaries').insert(validSalaries).select('id');
-          if(error){ stats.errors.push('حقوق: ' + error.message); }
-          else { stats.salaries = data?.length || 0; }
+          if(!error) stats.salaries = data?.length || 0;
         }
       }
 
-      // ============ گام ۶: اقساط ============
+      // اقساط
       msg.textContent = '⏳ بازیابی اقساط...';
-      bar.style.width = '80%';
-
+      bar.style.width = '82%';
       if(d.installments && d.installments.length){
         const validInst = [];
         for(const i of d.installments){
@@ -2318,10 +2733,9 @@ async function restoreFromFile(event){
         }
       }
 
-      // ============ گام ۷: تخفیف‌ها ============
+      // تخفیف‌ها
       msg.textContent = '⏳ بازیابی تخفیف‌ها...';
-      bar.style.width = '90%';
-
+      bar.style.width = '88%';
       if(d.discounts && d.discounts.length){
         const validDisc = [];
         for(const x of d.discounts){
@@ -2343,10 +2757,9 @@ async function restoreFromFile(event){
         }
       }
 
-      // ============ گام ۸: درآمد و هزینه ============
-      msg.textContent = '⏳ بازیابی درآمدها و هزینه‌ها...';
+      // درآمد و هزینه
+      msg.textContent = '⏳ بازیابی درآمد و هزینه...';
       bar.style.width = '95%';
-
       if(d.incomes && d.incomes.length){
         const mapped = d.incomes.map(x => ({
           title: x.title, category: x.category, amount: x.amount,
@@ -2365,7 +2778,7 @@ async function restoreFromFile(event){
         if(data) stats.expenses = data.length;
       }
 
-      // ============ گام ۹: تنظیمات ============
+      // تنظیمات
       if(backup.settings){
         await sb.from('settings').upsert({
           id: true,
@@ -2388,6 +2801,8 @@ async function restoreFromFile(event){
       report += `👨‍🏫 کارکنان: ${stats.staff}\n`;
       report += `💳 پرداخت‌ها: ${stats.payments}`;
       if(stats.paymentsSkipped > 0) report += ` (${stats.paymentsSkipped} رد شد)`;
+      report += `\n📝 چک‌ها: ${stats.checks}`;
+      if(stats.checksSkipped > 0) report += ` (${stats.checksSkipped} رد شد)`;
       report += `\n💰 واریز حقوق: ${stats.salaries}`;
       if(stats.salariesSkipped > 0) report += ` (${stats.salariesSkipped} رد شد)`;
       report += `\n📅 اقساط: ${stats.installments}`;
@@ -2460,6 +2875,12 @@ function renderDashboardLists(){
   document.getElementById('overdueList').innerHTML = db.installments.filter(x => !x.paid && isPast(x.due)).slice(0, 6)
     .map(x => `<li><span>${studentName(x.studentId)}</span><b>${money(x.amount)}</b></li>`).join('')
     || '<li>موردی وجود ندارد</li>';
+
+  const dueChecks = db.checks.filter(c => c.status === 'pending' && !isPast(c.dueDate)).sort((a,b) => (a.dueDate||'').localeCompare(b.dueDate||'')).slice(0, 6);
+  document.getElementById('checksDueSoon').innerHTML = dueChecks.map(c => {
+    const days = daysUntil(c.dueDate);
+    return `<li><span>${c.checkNumber} - ${c.bankName||''} (${studentName(c.studentId)})</span><b>${c.dueDate} ${days !== Infinity && days <= 7 ? '('+days+' روز)' : ''}</b></li>`;
+  }).join('') || '<li>چک نزدیک به سررسید وجود ندارد</li>';
 }
 
 /* ============================================================
@@ -2525,6 +2946,7 @@ document.addEventListener('click', function(e){
   else if(action === 'edit') openStudent(id);
   else if(action === 'del-student') deleteItem('students', id);
   else if(action === 'print-receipt') printReceipt(id);
+  else if(action === 'edit-payment') openPaymentEdit(id);
   else if(action === 'del-payment') deleteItem('payments', id);
   else if(action === 'del-item') deleteItem(table, id);
   else if(action === 'pay-installment') payInstallment(id);
@@ -2535,6 +2957,10 @@ document.addEventListener('click', function(e){
   else if(action === 'pay-salary-for') openSalary(id);
   else if(action === 'print-salary') printSalary(id);
   else if(action === 'del-user') deleteUser(id);
+  else if(action === 'edit-check') openCheck(id);
+  else if(action === 'del-check') deleteItem('checks', id);
+  else if(action === 'collect-check') collectCheck(id);
+  else if(action === 'return-check') returnCheck(id);
 });
 
 function bindStaticButtons(){
@@ -2551,6 +2977,7 @@ function bindStaticButtons(){
   document.getElementById('btnNewInstallment').onclick = openInstallment;
   document.getElementById('btnNewDiscount').onclick = openDiscount;
   document.getElementById('btnNewUser').onclick = openUser;
+  document.getElementById('btnNewCheck').onclick = () => openCheck();
   document.getElementById('btnSaveSettings').onclick = saveSettings;
   document.getElementById('btnExportCSV').onclick = exportCSV;
   document.getElementById('btnRenderReport').onclick = renderReport;
@@ -2590,6 +3017,10 @@ function bindStaticButtons(){
     const el = document.getElementById(id);
     if(el) el.addEventListener('input', renderPayments);
   });
+  ['checkSearch','checkStatusFilter','checkBankFilter'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('input', renderChecks);
+  });
   ['staffSearch','staffRoleFilter'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.addEventListener('input', renderStaff);
@@ -2624,13 +3055,11 @@ function bindStaticButtons(){
 }
 
 /* ============================================================
-   راه‌اندازی اولیه
+   راه‌اندازی
 ============================================================ */
 window.addEventListener('DOMContentLoaded', async () => {
   bindStaticButtons();
-
   if(!initSupabase()) return;
-
   try {
     const { data } = await sb.auth.getSession();
     if(data && data.session){
