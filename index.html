@@ -7,951 +7,263 @@
 <link rel="icon" href="logo.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Estedad:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
-/* ============================== */
-/*   فونت و متغیرهای اصلی         */
-/* ============================== */
-@import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap');
-
 :root {
-  --primary: #6366f1;
-  --primary-dark: #4f46e5;
-  --primary-light: #818cf8;
-  --primary-bg: #eef2ff;
-  
-  --success: #10b981;
-  --success-dark: #059669;
-  --success-bg: #d1fae5;
-  
-  --warning: #f59e0b;
-  --warning-dark: #d97706;
-  --warning-bg: #fef3c7;
-  
-  --danger: #ef4444;
-  --danger-dark: #dc2626;
-  --danger-bg: #fee2e2;
-  
-  --info: #3b82f6;
-  --info-bg: #dbeafe;
-  
-  --bg: #f8fafc;
-  --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
-  --card: #ffffff;
-  --card-hover: #fafbff;
-  
-  --text: #1e293b;
-  --text-soft: #475569;
-  --muted: #64748b;
-  --line: #e2e8f0;
-  
+  --primary: #6366f1; --primary-dark: #4f46e5; --primary-light: #818cf8; --primary-bg: #eef2ff;
+  --success: #10b981; --success-dark: #059669; --success-bg: #d1fae5;
+  --warning: #f59e0b; --warning-dark: #d97706; --warning-bg: #fef3c7;
+  --danger: #ef4444; --danger-dark: #dc2626; --danger-bg: #fee2e2;
+  --info: #3b82f6; --info-bg: #dbeafe;
+  --bg: #f8fafc; --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
+  --card: #ffffff; --text: #1e293b; --text-soft: #475569; --muted: #64748b; --line: #e2e8f0;
   --shadow-sm: 0 1px 2px rgba(0,0,0,.04);
   --shadow: 0 4px 6px -1px rgba(0,0,0,.05), 0 2px 4px -1px rgba(0,0,0,.03);
   --shadow-md: 0 10px 15px -3px rgba(99,102,241,.08), 0 4px 6px -2px rgba(0,0,0,.03);
   --shadow-lg: 0 20px 25px -5px rgba(99,102,241,.1), 0 10px 10px -5px rgba(0,0,0,.02);
   --shadow-xl: 0 25px 50px -12px rgba(99,102,241,.15);
-  
-  --radius-sm: 8px;
-  --radius: 14px;
-  --radius-lg: 20px;
-  --radius-xl: 24px;
-  
+  --radius-sm: 8px; --radius: 14px; --radius-lg: 20px; --radius-xl: 24px;
   --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
 * { box-sizing: border-box; }
-
-html {
-  scroll-behavior: smooth;
-}
-
+html { scroll-behavior: smooth; }
 body {
-  margin: 0;
-  font-family: 'Estedad', 'Vazirmatn', Tahoma, sans-serif;
-  background: var(--bg-gradient);
-  background-attachment: fixed;
-  color: var(--text);
-  font-weight: 400;
-  line-height: 1.6;
+  margin: 0; font-family: 'Estedad', Tahoma, sans-serif;
+  background: var(--bg-gradient); background-attachment: fixed;
+  color: var(--text); font-weight: 400; line-height: 1.6;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
 }
+button, input, select, textarea { font-family: inherit; font-size: inherit; }
+button { cursor: pointer; border: 0; transition: var(--transition); }
+.app { display: flex; min-height: 100vh; }
 
-button, input, select, textarea {
-  font-family: inherit;
-  font-size: inherit;
-}
-
-button {
-  cursor: pointer;
-  border: 0;
-  transition: var(--transition);
-}
-
-/* ============================== */
-/*   ساختار کلی                  */
-/* ============================== */
-.app {
-  display: flex;
-  min-height: 100vh;
-}
-
-/* ============================== */
-/*   سایدبار                      */
-/* ============================== */
 .sidebar {
-  width: 270px;
-  background: linear-gradient(180deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%);
-  color: #fff;
-  padding: 20px 14px;
-  position: fixed;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  z-index: 20;
-  overflow-y: auto;
-  overflow-x: hidden;
+  width: 270px; background: linear-gradient(180deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%);
+  color: #fff; padding: 20px 14px;
+  position: fixed; right: 0; top: 0; bottom: 0;
+  z-index: 20; overflow-y: auto;
   box-shadow: -4px 0 20px rgba(30, 27, 75, 0.15);
 }
-
 .sidebar::-webkit-scrollbar { width: 6px; }
-.sidebar::-webkit-scrollbar-track { background: transparent; }
 .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 3px; }
-
-.brand {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  padding: 8px 10px 22px;
-  border-bottom: 1px solid rgba(255,255,255,.1);
-  margin-bottom: 18px;
-}
-
-.brand img {
-  width: 58px;
-  height: 58px;
-  border-radius: 16px;
-  object-fit: contain;
-  background: #fff;
-  padding: 5px;
-  box-shadow: 0 4px 12px rgba(0,0,0,.2);
-}
-
-.brand h2 {
-  font-size: 17px;
-  margin: 0;
-  font-weight: 800;
-  letter-spacing: -.3px;
-}
-
-.brand small {
-  color: #a5b4fc;
-  font-size: 11px;
-  font-weight: 500;
-}
-
+.brand { display: flex; gap: 12px; align-items: center; padding: 8px 10px 22px; border-bottom: 1px solid rgba(255,255,255,.1); margin-bottom: 18px; }
+.brand img { width: 58px; height: 58px; border-radius: 16px; object-fit: contain; background: #fff; padding: 5px; box-shadow: 0 4px 12px rgba(0,0,0,.2); }
+.brand h2 { font-size: 17px; margin: 0; font-weight: 800; letter-spacing: -.3px; }
+.brand small { color: #a5b4fc; font-size: 11px; font-weight: 500; }
 .nav button {
-  width: 100%;
-  background: transparent;
-  color: #c7d2fe;
-  text-align: right;
-  padding: 12px 14px;
-  border-radius: 12px;
-  margin: 3px 0;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  font-size: 13.5px;
-  font-weight: 500;
-  transition: var(--transition);
-  position: relative;
+  width: 100%; background: transparent; color: #c7d2fe; text-align: right;
+  padding: 12px 14px; border-radius: 12px; margin: 3px 0;
+  display: flex; align-items: center; gap: 12px;
+  font-size: 13.5px; font-weight: 500;
+  transition: var(--transition); position: relative;
 }
-
-.nav button:hover {
-  background: rgba(255,255,255,.08);
-  color: #fff;
-  transform: translateX(-3px);
-}
-
+.nav button:hover { background: rgba(255,255,255,.08); color: #fff; transform: translateX(-3px); }
 .nav button.active {
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  color: #fff;
-  box-shadow: 0 4px 14px rgba(99,102,241,.4);
-  font-weight: 700;
+  color: #fff; box-shadow: 0 4px 14px rgba(99,102,241,.4); font-weight: 700;
 }
-
 .nav button.active::before {
-  content: '';
-  position: absolute;
-  right: -14px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 4px;
-  height: 24px;
-  background: #fff;
-  border-radius: 4px 0 0 4px;
+  content: ''; position: absolute; right: -14px; top: 50%;
+  transform: translateY(-50%); width: 4px; height: 24px;
+  background: #fff; border-radius: 4px 0 0 4px;
 }
+.nav-section { padding: 16px 14px 8px; font-size: 10px; color: #818cf8; font-weight: 800; letter-spacing: 1.5px; text-transform: uppercase; }
 
-.nav-section {
-  padding: 16px 14px 8px;
-  font-size: 10px;
-  color: #818cf8;
-  font-weight: 800;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-}
-
-/* ============================== */
-/*   محتوای اصلی                 */
-/* ============================== */
-.main {
-  margin-right: 270px;
-  width: calc(100% - 270px);
-  padding: 28px;
-  min-height: 100vh;
-}
-
+.main { margin-right: 270px; width: calc(100% - 270px); padding: 28px; min-height: 100vh; }
 .topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 15px;
-  margin-bottom: 26px;
-  flex-wrap: wrap;
-  background: rgba(255,255,255,.7);
-  backdrop-filter: blur(12px);
-  padding: 16px 20px;
-  border-radius: var(--radius-lg);
-  border: 1px solid rgba(255,255,255,.8);
-  box-shadow: var(--shadow-sm);
+  display: flex; justify-content: space-between; align-items: center;
+  gap: 15px; margin-bottom: 26px; flex-wrap: wrap;
+  background: rgba(255,255,255,.7); backdrop-filter: blur(12px);
+  padding: 16px 20px; border-radius: var(--radius-lg);
+  border: 1px solid rgba(255,255,255,.8); box-shadow: var(--shadow-sm);
 }
+.topbar h1 { font-size: 24px; margin: 0; font-weight: 800; letter-spacing: -.5px; color: var(--text); }
+.top-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.search { background: #fff; border: 2px solid var(--line); border-radius: 12px; padding: 11px 16px; min-width: 280px; font-size: 13.5px; outline: none; transition: var(--transition); }
+.search:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-bg); }
 
-.topbar h1 {
-  font-size: 24px;
-  margin: 0;
-  font-weight: 800;
-  letter-spacing: -.5px;
-  color: var(--text);
-}
-
-.top-actions {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.search {
-  background: #fff;
-  border: 2px solid var(--line);
-  border-radius: 12px;
-  padding: 11px 16px;
-  min-width: 280px;
-  font-size: 13.5px;
-  outline: none;
-  transition: var(--transition);
-}
-
-.search:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 4px var(--primary-bg);
-}
-
-/* ============================== */
-/*   دکمه‌ها                     */
-/* ============================== */
-.btn {
-  padding: 11px 18px;
-  border-radius: 12px;
-  background: #f1f5f9;
-  color: var(--text);
-  font-weight: 600;
-  font-size: 13.5px;
-  transition: var(--transition);
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  white-space: nowrap;
-  border: 2px solid transparent;
-}
-
-.btn:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
+.btn { padding: 11px 18px; border-radius: 12px; background: #f1f5f9; color: var(--text); font-weight: 600; font-size: 13.5px; transition: var(--transition); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; border: 2px solid transparent; }
+.btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
 .btn:active { transform: translateY(0); }
+.btn.primary { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: #fff; box-shadow: 0 4px 14px rgba(99,102,241,.35); }
+.btn.green { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff; box-shadow: 0 4px 14px rgba(16,185,129,.35); }
+.btn.red { background: var(--danger-bg); color: var(--danger-dark); border-color: #fecaca; }
+.btn.blue { background: var(--info-bg); color: #1e40af; border-color: #bfdbfe; }
+.btn.gold { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #fff; box-shadow: 0 4px 14px rgba(245,158,11,.35); }
+.btn.purple { background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); color: #fff; box-shadow: 0 4px 14px rgba(168,85,247,.35); }
 
-.btn.primary {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  color: #fff;
-  box-shadow: 0 4px 14px rgba(99,102,241,.35);
-}
+.user-chip { display: flex; align-items: center; gap: 10px; background: #fff; border: 2px solid var(--line); border-radius: 14px; padding: 8px 14px; font-size: 13px; transition: var(--transition); }
+.user-chip:hover { border-color: var(--primary-light); box-shadow: var(--shadow-md); }
+.user-chip .avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #8b5cf6); display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 14px; box-shadow: 0 2px 8px rgba(99,102,241,.4); }
 
-.btn.primary:hover {
-  box-shadow: 0 6px 20px rgba(99,102,241,.45);
-}
-
-.btn.green {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  color: #fff;
-  box-shadow: 0 4px 14px rgba(16,185,129,.35);
-}
-
-.btn.red {
-  background: var(--danger-bg);
-  color: var(--danger-dark);
-  border-color: #fecaca;
-}
-
-.btn.blue {
-  background: var(--info-bg);
-  color: #1e40af;
-  border-color: #bfdbfe;
-}
-
-.btn.gold {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  color: #fff;
-  box-shadow: 0 4px 14px rgba(245,158,11,.35);
-}
-
-.btn.purple {
-  background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
-  color: #fff;
-  box-shadow: 0 4px 14px rgba(168,85,247,.35);
-}
-
-/* ============================== */
-/*   کارت کاربر                  */
-/* ============================== */
-.user-chip {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: #fff;
-  border: 2px solid var(--line);
-  border-radius: 14px;
-  padding: 8px 14px;
-  font-size: 13px;
-  transition: var(--transition);
-}
-
-.user-chip:hover {
-  border-color: var(--primary-light);
-  box-shadow: var(--shadow-md);
-}
-
-.user-chip .avatar {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  display: grid;
-  place-items: center;
-  color: #fff;
-  font-weight: 800;
-  font-size: 14px;
-  box-shadow: 0 2px 8px rgba(99,102,241,.4);
-}
-
-/* ============================== */
-/*   صفحات                       */
-/* ============================== */
 .page { display: none; }
-.page.active {
-  display: block;
-  animation: fadeInUp 0.4s ease;
-}
-
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
+.page.active { display: block; animation: fadeInUp 0.4s ease; }
+@keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 .grid { display: grid; gap: 18px; }
 .stats { grid-template-columns: repeat(4, 1fr); }
 
-/* ============================== */
-/*   کارت‌ها                     */
-/* ============================== */
-.card {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  padding: 22px;
-  box-shadow: var(--shadow);
-  transition: var(--transition);
-}
+.card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 22px; box-shadow: var(--shadow); transition: var(--transition); }
+.card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
 
-.card:hover {
-  box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
-}
-
-/* ============================== */
-/*   کارت آمار                   */
-/* ============================== */
-.stat {
-  position: relative;
-  overflow: hidden;
-  background: linear-gradient(135deg, #fff 0%, #fafbff 100%);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  padding: 22px;
-  transition: var(--transition);
-}
-
-.stat::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 4px;
-  height: 100%;
-  background: linear-gradient(180deg, var(--primary) 0%, var(--primary-light) 100%);
-  opacity: 0;
-  transition: var(--transition);
-}
-
+.stat { position: relative; overflow: hidden; background: linear-gradient(135deg, #fff 0%, #fafbff 100%); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 22px; transition: var(--transition); }
+.stat::before { content: ''; position: absolute; top: 0; right: 0; width: 4px; height: 100%; background: linear-gradient(180deg, var(--primary) 0%, var(--primary-light) 100%); opacity: 0; transition: var(--transition); }
 .stat:hover::before { opacity: 1; }
+.stat:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--primary-light); }
+.stat .num { font-size: 26px; font-weight: 900; margin: 10px 0 4px; color: var(--text); letter-spacing: -.5px; }
+.stat .label { color: var(--muted); font-size: 12.5px; font-weight: 600; }
+.stat .ico { position: absolute; left: 20px; top: 20px; font-size: 32px; opacity: .9; filter: drop-shadow(0 2px 4px rgba(0,0,0,.1)); }
 
-.stat:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-  border-color: var(--primary-light);
-}
-
-.stat .num {
-  font-size: 26px;
-  font-weight: 900;
-  margin: 10px 0 4px;
-  color: var(--text);
-  letter-spacing: -.5px;
-}
-
-.stat .label {
-  color: var(--muted);
-  font-size: 12.5px;
-  font-weight: 600;
-}
-
-.stat .ico {
-  position: absolute;
-  left: 20px;
-  top: 20px;
-  font-size: 32px;
-  opacity: .9;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,.1));
-}
-
-/* ============================== */
-/*   سرصفحه بخش‌ها               */
-/* ============================== */
-.section-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 28px 0 16px;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.section-head h2 {
-  font-size: 20px;
-  margin: 0;
-  font-weight: 800;
-  letter-spacing: -.3px;
-  color: var(--text);
-}
-
-/* ============================== */
-/*   نمودارها                    */
-/* ============================== */
+.section-head { display: flex; justify-content: space-between; align-items: center; margin: 28px 0 16px; flex-wrap: wrap; gap: 12px; }
+.section-head h2 { font-size: 20px; margin: 0; font-weight: 800; letter-spacing: -.3px; color: var(--text); }
 .charts { grid-template-columns: 1fr 1fr; }
 .chartbox { height: 320px; }
 
-/* ============================== */
-/*   جدول                        */
-/* ============================== */
-.table-wrap {
-  overflow: auto;
-  border-radius: var(--radius);
-  border: 1px solid var(--line);
-}
-
-.table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 850px;
-  font-size: 13.5px;
-}
-
-.table th, .table td {
-  padding: 14px 12px;
-  border-bottom: 1px solid var(--line);
-  text-align: right;
-  white-space: nowrap;
-}
-
-.table th {
-  background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
-  color: var(--text-soft);
-  font-size: 12.5px;
-  font-weight: 800;
-  letter-spacing: -.2px;
-  position: sticky;
-  top: 0;
-  z-index: 1;
-}
-
+.table-wrap { overflow: auto; border-radius: var(--radius); border: 1px solid var(--line); }
+.table { width: 100%; border-collapse: collapse; min-width: 850px; font-size: 13.5px; }
+.table th, .table td { padding: 14px 12px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+.table th { background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%); color: var(--text-soft); font-size: 12.5px; font-weight: 800; letter-spacing: -.2px; position: sticky; top: 0; z-index: 1; }
 .table tr:last-child td { border-bottom: 0; }
+.table tr:hover td { background: var(--primary-bg); }
 
-.table tr:hover td {
-  background: var(--primary-bg);
-}
+.badge { display: inline-flex; padding: 6px 12px; border-radius: 999px; font-size: 11.5px; font-weight: 700; letter-spacing: -.1px; }
+.paid { background: var(--success-bg); color: var(--success-dark); }
+.debt { background: var(--warning-bg); color: var(--warning-dark); }
+.overdue { background: var(--danger-bg); color: var(--danger-dark); }
+.pending { background: #fef3c7; color: #92400e; }
+.returned { background: var(--danger-bg); color: var(--danger-dark); }
+.collected { background: var(--success-bg); color: var(--success-dark); }
+.active { background: var(--success-bg); color: var(--success-dark); }
+.repair { background: var(--warning-bg); color: var(--warning-dark); }
+.broken { background: var(--danger-bg); color: var(--danger-dark); }
 
-/* ============================== */
-/*   بج‌ها                       */
-/* ============================== */
-.badge {
-  display: inline-flex;
-  padding: 6px 12px;
-  border-radius: 999px;
-  font-size: 11.5px;
-  font-weight: 700;
-  letter-spacing: -.1px;
-}
+.actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.empty { text-align: center; color: var(--muted); padding: 40px 20px; font-size: 14px; }
 
-.paid {
-  background: var(--success-bg);
-  color: var(--success-dark);
-}
+.filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
+.filters input, .filters select, .form input, .form select, .form textarea { border: 2px solid var(--line); background: #fff; border-radius: 12px; padding: 11px 14px; outline: none; font-size: 13.5px; transition: var(--transition); min-width: 180px; }
+.filters input:focus, .form input:focus, .form select:focus, .form textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-bg); }
 
-.debt {
-  background: var(--warning-bg);
-  color: var(--warning-dark);
-}
-
-.overdue {
-  background: var(--danger-bg);
-  color: var(--danger-dark);
-}
-
-.pending {
-  background: #fef3c7;
-  color: #92400e;
-}
-
-.returned {
-  background: var(--danger-bg);
-  color: var(--danger-dark);
-}
-
-.collected {
-  background: var(--success-bg);
-  color: var(--success-dark);
-}
-
-/* ============================== */
-/*   عملیات                      */
-/* ============================== */
-.actions {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.empty {
-  text-align: center;
-  color: var(--muted);
-  padding: 40px 20px;
-  font-size: 14px;
-}
-
-/* ============================== */
-/*   فیلترها                     */
-/* ============================== */
-.filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 16px;
-}
-
-.filters input,
-.filters select,
-.form input,
-.form select,
-.form textarea {
-  border: 2px solid var(--line);
-  background: #fff;
-  border-radius: 12px;
-  padding: 11px 14px;
-  outline: none;
-  font-size: 13.5px;
-  transition: var(--transition);
-  min-width: 180px;
-}
-
-.filters input:focus,
-.form input:focus,
-.form select:focus,
-.form textarea:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 4px var(--primary-bg);
-}
-
-/* ============================== */
-/*   مودال                       */
-/* ============================== */
-.modal {
-  position: fixed;
-  inset: 0;
-  background: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(4px);
-  display: none;
-  align-items: center;
-  justify-content: center;
-  z-index: 50;
-  padding: 15px;
-  animation: fadeIn 0.25s ease;
-}
-
+.modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 50; padding: 15px; animation: fadeIn 0.25s ease; }
 .modal.show { display: flex; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.modalbox { background: #fff; width: min(920px, 100%); max-height: 92vh; overflow: auto; border-radius: var(--radius-xl); padding: 28px; box-shadow: var(--shadow-xl); animation: slideUp 0.3s ease; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.modalhead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid var(--line); }
+.modalhead h2 { margin: 0; font-size: 19px; font-weight: 800; letter-spacing: -.3px; }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.modalbox {
-  background: #fff;
-  width: min(920px, 100%);
-  max-height: 92vh;
-  overflow: auto;
-  border-radius: var(--radius-xl);
-  padding: 28px;
-  box-shadow: var(--shadow-xl);
-  animation: slideUp 0.3s ease;
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.modalhead {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 2px solid var(--line);
-}
-
-.modalhead h2 {
-  margin: 0;
-  font-size: 19px;
-  font-weight: 800;
-  letter-spacing: -.3px;
-}
-
-/* ============================== */
-/*   فرم‌ها                      */
-/* ============================== */
-.formgrid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-
-.form label {
-  display: block;
-  font-size: 12.5px;
-  color: var(--text-soft);
-  margin-bottom: 6px;
-  font-weight: 700;
-}
-
-.form textarea {
-  min-height: 85px;
-  width: 100%;
-  resize: vertical;
-  font-family: inherit;
-}
-
+.formgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.form label { display: block; font-size: 12.5px; color: var(--text-soft); margin-bottom: 6px; font-weight: 700; }
+.form textarea { min-height: 85px; width: 100%; resize: vertical; font-family: inherit; }
 .full { grid-column: 1 / -1; }
+.modalfoot { display: flex; justify-content: flex-start; gap: 10px; margin-top: 22px; padding-top: 18px; border-top: 2px solid var(--line); }
 
-.modalfoot {
-  display: flex;
-  justify-content: flex-start;
-  gap: 10px;
-  margin-top: 22px;
-  padding-top: 18px;
-  border-top: 2px solid var(--line);
-}
-
-/* ============================== */
-/*   جزئیات                     */
-/* ============================== */
 .detail-grid { grid-template-columns: repeat(4, 1fr); }
+.mini { background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%); border: 1px solid var(--line); padding: 16px; border-radius: var(--radius); }
+.mini strong { display: block; font-size: 20px; margin-top: 8px; font-weight: 800; color: var(--primary-dark); }
+.mini span { color: var(--muted); font-size: 12px; font-weight: 600; }
 
-.mini {
-  background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
-  border: 1px solid var(--line);
-  padding: 16px;
-  border-radius: var(--radius);
-}
-
-.mini strong {
-  display: block;
-  font-size: 20px;
-  margin-top: 8px;
-  font-weight: 800;
-  color: var(--primary-dark);
-}
-
-.mini span {
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 600;
-}
-
-/* ============================== */
-/*   هشدارها                     */
-/* ============================== */
-.alerts {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18px;
-}
-
-.alert-list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.alert-list li {
-  display: flex;
-  justify-content: space-between;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--line);
-  font-size: 13.5px;
-}
-
+.alerts { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.alert-list { margin: 0; padding: 0; list-style: none; }
+.alert-list li { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; }
 .alert-list li:last-child { border-bottom: 0; }
 
-/* ============================== */
-/*   Toast                       */
-/* ============================== */
-.toast {
-  position: fixed;
-  left: 24px;
-  bottom: 24px;
-  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-  color: #fff;
-  padding: 16px 22px;
+.birthday-card {
+  background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 50%, #fecaca 100%);
+  border: 2px solid #fbbf24;
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  margin-bottom: 20px;
+  animation: birthdayPulse 2s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+}
+@keyframes birthdayPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(251,191,36,.4); }
+  50% { box-shadow: 0 0 0 12px rgba(251,191,36,0); }
+}
+.birthday-card::before {
+  content: '🎉';
+  position: absolute;
+  top: -20px;
+  left: -20px;
+  font-size: 100px;
+  opacity: .15;
+  transform: rotate(-20deg);
+}
+.birthday-card h3 {
+  margin: 0 0 14px;
+  color: #92400e;
+  font-size: 19px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 800;
+  position: relative;
+  z-index: 1;
+}
+.birthday-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  position: relative;
+  z-index: 1;
+}
+.birthday-person {
+  background: #fff;
+  padding: 12px 18px;
   border-radius: 14px;
-  display: none;
-  z-index: 100;
-  max-width: 420px;
-  font-size: 13.5px;
-  line-height: 1.7;
-  box-shadow: 0 10px 30px rgba(0,0,0,.3);
-  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 4px 12px rgba(146,64,14,.15);
+  font-weight: 700;
+  color: #92400e;
+  font-size: 14px;
 }
+.birthday-person .cake { font-size: 22px; }
 
-.toast.show {
-  display: block;
-  animation: slideInLeft 0.3s ease;
-}
-
-@keyframes slideInLeft {
-  from { transform: translateX(-30px); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
-
+.toast { position: fixed; left: 24px; bottom: 24px; background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: #fff; padding: 16px 22px; border-radius: 14px; display: none; z-index: 100; max-width: 420px; font-size: 13.5px; line-height: 1.7; box-shadow: 0 10px 30px rgba(0,0,0,.3); font-weight: 500; }
+.toast.show { display: block; animation: slideInLeft 0.3s ease; }
+@keyframes slideInLeft { from { transform: translateX(-30px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 .toast.error { background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); }
 .toast.success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
 .toast.warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
 
-/* ============================== */
-/*   صفحه ورود                   */
-/* ============================== */
-#authScreen {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
-  display: grid;
-  place-items: center;
-  padding: 20px;
-}
-
-#authScreen::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(circle at 20% 20%, rgba(255,255,255,.15) 0%, transparent 50%),
-              radial-gradient(circle at 80% 80%, rgba(255,255,255,.1) 0%, transparent 50%);
-  pointer-events: none;
-}
-
-.auth-card {
-  width: min(440px, 100%);
-  background: #fff;
-  border-radius: 28px;
-  padding: 36px;
-  box-shadow: 0 30px 60px rgba(0,0,0,.3);
-  text-align: center;
-  position: relative;
-  z-index: 1;
-  animation: slideUp 0.5s ease;
-}
-
-.auth-card .auth-logo {
-  width: 110px;
-  height: 110px;
-  object-fit: contain;
-  margin: 0 auto 15px;
-  display: block;
-  filter: drop-shadow(0 8px 16px rgba(99,102,241,.3));
-}
-
-.auth-card h2 {
-  margin: 0 0 10px;
-  color: var(--text);
-  font-size: 22px;
-  font-weight: 800;
-  letter-spacing: -.5px;
-}
-
-.auth-card p {
-  color: var(--muted);
-  margin: 0 0 25px;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.auth-card label {
-  display: block;
-  font-size: 13px;
-  color: var(--text-soft);
-  margin-bottom: 8px;
-  text-align: right;
-  font-weight: 700;
-}
-
-.auth-card input {
-  width: 100%;
-  padding: 14px 16px;
-  border: 2px solid var(--line);
-  border-radius: 12px;
-  margin: 0 0 16px;
-  outline: none;
-  font-size: 14px;
-  transition: var(--transition);
-}
-
-.auth-card input:focus {
-  border-color: var(--primary);
-  box-shadow: 0 0 0 4px var(--primary-bg);
-}
-
-.auth-card button {
-  width: 100%;
-  padding: 14px;
-  border-radius: 12px;
-  margin-top: 10px;
-  font-weight: 700;
-  font-size: 14px;
-}
-
-.auth-msg {
-  min-height: 24px;
-  margin-top: 14px;
-  color: var(--danger);
-  font-size: 13px;
-  line-height: 1.6;
-  text-align: center;
-  font-weight: 600;
-}
-
+#authScreen { position: fixed; inset: 0; z-index: 9999; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%); display: grid; place-items: center; padding: 20px; }
+#authScreen::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 20% 20%, rgba(255,255,255,.15) 0%, transparent 50%), radial-gradient(circle at 80% 80%, rgba(255,255,255,.1) 0%, transparent 50%); pointer-events: none; }
+.auth-card { width: min(440px, 100%); background: #fff; border-radius: 28px; padding: 36px; box-shadow: 0 30px 60px rgba(0,0,0,.3); text-align: center; position: relative; z-index: 1; animation: slideUp 0.5s ease; }
+.auth-card .auth-logo { width: 110px; height: 110px; object-fit: contain; margin: 0 auto 15px; display: block; filter: drop-shadow(0 8px 16px rgba(99,102,241,.3)); }
+.auth-card h2 { margin: 0 0 10px; color: var(--text); font-size: 22px; font-weight: 800; letter-spacing: -.5px; }
+.auth-card p { color: var(--muted); margin: 0 0 25px; font-size: 14px; font-weight: 500; }
+.auth-card label { display: block; font-size: 13px; color: var(--text-soft); margin-bottom: 8px; text-align: right; font-weight: 700; }
+.auth-card input { width: 100%; padding: 14px 16px; border: 2px solid var(--line); border-radius: 12px; margin: 0 0 16px; outline: none; font-size: 14px; transition: var(--transition); }
+.auth-card input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-bg); }
+.auth-card button { width: 100%; padding: 14px; border-radius: 12px; margin-top: 10px; font-weight: 700; font-size: 14px; }
+.auth-msg { min-height: 24px; margin-top: 14px; color: var(--danger); font-size: 13px; line-height: 1.6; text-align: center; font-weight: 600; }
 .auth-msg.ok { color: var(--success-dark); }
 
-/* ============================== */
-/*   Loading                     */
-/* ============================== */
-.loading-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(255,255,255,.9);
-  backdrop-filter: blur(4px);
-  display: none;
-  place-items: center;
-  z-index: 200;
-  font-size: 17px;
-  color: var(--primary);
-  font-weight: 800;
-}
-
+.loading-overlay { position: fixed; inset: 0; background: rgba(255,255,255,.9); backdrop-filter: blur(4px); display: none; place-items: center; z-index: 200; font-size: 17px; color: var(--primary); font-weight: 800; }
 .loading-overlay.show { display: grid; }
 
-/* ============================== */
-/*   کمکی                        */
-/* ============================== */
-.clickable {
-  cursor: pointer;
-  color: var(--primary);
-  font-weight: 700;
-  transition: var(--transition);
-}
-
-.clickable:hover {
-  color: var(--primary-dark);
-  text-decoration: underline;
-}
-
+.clickable { cursor: pointer; color: var(--primary); font-weight: 700; transition: var(--transition); }
+.clickable:hover { color: var(--primary-dark); text-decoration: underline; }
 .checkbox-cell { text-align: center; }
+.checkbox-cell input { width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary); }
 
-.checkbox-cell input {
-  width: 18px;
-  height: 18px;
-  cursor: pointer;
-  accent-color: var(--primary);
-}
-
-/* ============================== */
-/*   ریسپانسیو                   */
-/* ============================== */
-@media (max-width: 1200px) {
-  .stats { grid-template-columns: repeat(3, 1fr); }
-}
-
+@media (max-width: 1200px) { .stats { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 1050px) {
   .stats { grid-template-columns: repeat(2, 1fr); }
   .charts, .alerts { grid-template-columns: 1fr; }
   .sidebar { width: 240px; }
   .main { margin-right: 240px; width: calc(100% - 240px); padding: 20px; }
 }
-
 @media (max-width: 760px) {
-  .sidebar {
-    position: static;
-    width: 100%;
-    height: auto;
-  }
+  .sidebar { position: static; width: 100%; height: auto; }
   .app { display: block; }
-  .main {
-    margin: 0;
-    width: 100%;
-    padding: 14px;
-  }
+  .main { margin: 0; width: 100%; padding: 14px; }
   .nav { display: grid; grid-template-columns: repeat(2, 1fr); }
   .topbar { flex-direction: column; align-items: stretch; padding: 14px; }
   .top-actions { flex-direction: column; width: 100%; }
@@ -1003,6 +315,7 @@ button {
     <button data-page="expenses">📉 <span>هزینه‌ها</span></button>
     <button data-page="installments">📅 <span>اقساط</span></button>
     <button data-page="discounts">🎁 <span>تخفیف‌ها</span></button>
+    <button data-page="assets">🏫 <span>اموال مدرسه</span></button>
 
     <div class="nav-section">گزارش‌ها</div>
     <button data-page="reports">📊 <span>گزارش‌ها</span></button>
@@ -1040,6 +353,8 @@ button {
 </header>
 <!-- داشبورد -->
 <section class="page active" id="dashboard">
+  <div id="birthdayContainer"></div>
+
   <div class="grid stats" id="stats"></div>
   
   <div class="section-head"><h2>📊 نمای کلی مالی</h2></div>
@@ -1064,7 +379,10 @@ button {
 <section class="page" id="students">
   <div class="section-head">
     <h2>👩🏻‍🎓 مدیریت دانش‌آموزان</h2>
-    <button class="btn primary" id="btnNewStudent">ثبت دانش‌آموز +</button>
+    <div class="actions">
+      <button class="btn green" id="btnImportExcel">📥 ورود از Excel</button>
+      <button class="btn primary" id="btnNewStudent">ثبت دانش‌آموز +</button>
+    </div>
   </div>
   <div class="card">
     <div class="filters">
@@ -1078,13 +396,18 @@ button {
         <option value="">همه کلاس‌ها</option>
         <option>الف</option><option>ب</option><option>ج</option><option>د</option>
       </select>
+      <select id="birthdayFilter">
+        <option value="">همه</option>
+        <option value="today">🎂 متولدین امروز</option>
+        <option value="thisMonth">📅 متولدین این ماه</option>
+      </select>
     </div>
     <div class="table-wrap">
       <table class="table">
         <thead>
           <tr>
             <th>کد</th><th>نام و نام خانوادگی</th><th>پایه</th><th>کلاس</th>
-            <th>شهریه</th><th>پرداخت</th><th>مانده</th><th>وضعیت</th><th>عملیات</th>
+            <th>تاریخ تولد</th><th>شهریه</th><th>پرداخت</th><th>مانده</th><th>وضعیت</th><th>عملیات</th>
           </tr>
         </thead>
         <tbody id="studentsTable"></tbody>
@@ -1319,6 +642,43 @@ button {
     </div>
   </div>
 </section>
+
+<!-- اموال مدرسه -->
+<section class="page" id="assets">
+  <div class="section-head">
+    <h2>🏫 اموال و تجهیزات مدرسه</h2>
+    <button class="btn primary" id="btnNewAsset">ثبت مال جدید +</button>
+  </div>
+  <div class="card">
+    <div class="filters">
+      <input id="assetSearch" placeholder="🔍 جستجوی نام، سریال، محل...">
+      <select id="assetCategoryFilter">
+        <option value="">همه دسته‌ها</option>
+        <option>رایانه</option><option>لوازم اداری</option><option>لوازم آموزشی</option>
+        <option>تجهیزات صوتی</option><option>مبلمان</option><option>لوازم ورزشی</option>
+        <option>لوازم آزمایشگاهی</option><option>سایر</option>
+      </select>
+      <select id="assetStatusFilter">
+        <option value="">همه وضعیت‌ها</option>
+        <option value="active">فعال</option>
+        <option value="repair">در تعمیر</option>
+        <option value="broken">خراب</option>
+      </select>
+    </div>
+    <div class="grid" id="assetStats" style="grid-template-columns:repeat(4,1fr);margin-bottom:18px"></div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>نام</th><th>دسته</th><th>تعداد</th><th>قیمت واحد</th>
+            <th>محل</th><th>شماره سریال</th><th>وضعیت</th><th>عملیات</th>
+          </tr>
+        </thead>
+        <tbody id="assetsTable"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
 <!-- گزارش‌ها -->
 <section class="page" id="reports">
   <div class="section-head">
@@ -1337,6 +697,8 @@ button {
         <option value="checks">گزارش چک‌ها</option>
         <option value="salaries">گزارش حقوق</option>
         <option value="expenses">گزارش هزینه‌ها</option>
+        <option value="assets">گزارش اموال</option>
+        <option value="birthdays">گزارش تولدها</option>
         <option value="profit">گزارش درآمد و هزینه</option>
       </select>
       <select id="reportGrade">
@@ -1361,14 +723,12 @@ button {
   </div>
 </section>
 
-<!-- چاپ دسته‌ای رسیدها -->
+<!-- چاپ دسته‌ای -->
 <section class="page" id="bulk">
-  <div class="section-head">
-    <h2>🖨 چاپ دسته‌ای رسیدها</h2>
-  </div>
+  <div class="section-head"><h2>🖨 چاپ دسته‌ای رسیدها</h2></div>
   <div class="card">
     <div class="filters">
-      <input id="bulkSearch" placeholder="🔍 جستجوی نام، کد یا شماره رسید...">
+      <input id="bulkSearch" placeholder="🔍 جستجو...">
       <select id="bulkMethodFilter">
         <option value="">همه روش‌ها</option>
         <option>کارتخوان</option><option>کارت به کارت</option><option>واریز بانکی</option>
@@ -1437,12 +797,11 @@ button {
 <!-- پشتیبان‌گیری -->
 <section class="page" id="backup">
   <div class="section-head"><h2>💾 پشتیبان‌گیری و بازیابی</h2></div>
-
   <div class="grid" style="grid-template-columns:1fr 1fr;gap:18px">
     <div class="card">
       <h3 style="margin-top:0">📥 دانلود پشتیبان</h3>
       <p style="color:var(--muted);font-size:13.5px;line-height:1.9">
-        از تمام اطلاعات مدرسه یک فایل JSON دانلود می‌شود. این فایل را در جای امن نگه‌داری کن.
+        از تمام اطلاعات مدرسه یک فایل JSON دانلود می‌شود.
       </p>
       <div style="background:var(--primary-bg);padding:16px;border-radius:12px;margin:18px 0;font-size:13.5px;line-height:2;border:1px solid #c7d2fe">
         <b style="color:var(--primary-dark)">📊 آمار فعلی:</b><br>
@@ -1451,11 +810,10 @@ button {
       <button class="btn primary" id="btnDownloadBackup" style="width:100%">📥 دانلود فایل پشتیبان (JSON)</button>
       <button class="btn green" id="btnDownloadExcelFull" style="width:100%;margin-top:10px">📊 دانلود Excel کامل (CSV)</button>
     </div>
-
     <div class="card">
       <h3 style="margin-top:0">📂 بازیابی از فایل</h3>
       <p style="color:var(--muted);font-size:13.5px;line-height:1.9">
-        اگر می‌خواهی اطلاعات قبلی را برگردانی، فایل JSON پشتیبان را بارگذاری کن.
+        فایل JSON پشتیبان را بارگذاری کن.
       </p>
       <div style="background:var(--warning-bg);padding:16px;border-radius:12px;margin:18px 0;font-size:13.5px;line-height:1.9;border:1px solid #fde68a">
         ⚠️ <b>هشدار:</b> این کار اطلاعات موجود را با فایل پشتیبان <b>جایگزین</b> می‌کند.
@@ -1472,14 +830,12 @@ button {
       </div>
     </div>
   </div>
-
   <div class="card" style="margin-top:18px">
     <h3 style="margin-top:0">📋 راهنمای پشتیبان‌گیری</h3>
     <ul style="line-height:2.2;color:var(--text-soft);font-size:13.5px;padding-right:24px">
       <li>✅ <b>هر هفته</b> یک بار پشتیبان بگیر و در <b>Google Drive یا ایمیل</b> ذخیره کن</li>
       <li>✅ قبل از بازیابی، مطمئن شو فایل پشتیبان <b>معتبر</b> است</li>
-      <li>✅ فایل‌های پشتیبان را با نام تاریخ ذخیره کن</li>
-      <li>⚠️ فایل را در جای امن نگه‌دار (اطلاعات شخصی دانش‌آموزان در آن است)</li>
+      <li>⚠️ فایل را در جای امن نگه‌دار</li>
     </ul>
   </div>
 </section>
@@ -1502,7 +858,6 @@ button {
 </main>
 </div>
 
-<!-- مودال عمومی -->
 <div class="modal" id="modal">
   <div class="modalbox">
     <div class="modalhead">
@@ -1513,21 +868,15 @@ button {
   </div>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
-
-<!-- Loading -->
 <div class="loading-overlay" id="loadingOverlay">⏳ در حال بارگذاری...</div>
 <script>
 /* ============================================================
-   تنظیمات Supabase
+   Supabase
 ============================================================ */
 const SUPABASE_URL = 'https://zfduxislgpnxpharyozv.supabase.co';
 const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_VJ1tVUpM8r-nMun8PkMT5Q__bYePVZW';
 
-/* ============================================================
-   مقادیر ثابت
-============================================================ */
 const DEFAULT_SETTINGS = {
   school: 'دبیرستان دخترانه الهه مهر',
   year: '۱۴۰۵-۱۴۰۶',
@@ -1540,21 +889,21 @@ const GRADES = ['هفتم','هشتم','نهم','دهم','یازدهم','دواز
 const CLASSES = ['الف','ب','ج','د'];
 const STAFF_ROLES = ['دبیر','مدیر','معاون','مشاور','حسابدار','منشی','خدمات','سایر'];
 const MONTHS = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+const ASSET_CATEGORIES = ['رایانه','لوازم اداری','لوازم آموزشی','تجهیزات صوتی','مبلمان','لوازم ورزشی','لوازم آزمایشگاهی','سایر'];
+const ASSET_STATUSES = { active: 'فعال', repair: 'در تعمیر', broken: 'خراب' };
 
-/* ============================================================
-   وضعیت برنامه
-============================================================ */
 let sb = null;
 let currentUser = null;
+let userRole = 'staff';
+let isProcessing = false;
+let charts = [];
+
 let db = {
   settings: { ...DEFAULT_SETTINGS },
   students: [], payments: [], incomes: [], expenses: [],
   installments: [], discounts: [], staff: [], salaries: [],
-  checks: [], logs: [], users: []
+  checks: [], assets: [], logs: [], users: []
 };
-let charts = [];
-let isProcessing = false;
-let userRole = 'staff';
 
 /* ============================================================
    توابع کمکی
@@ -1599,6 +948,45 @@ function daysUntil(dateStr){
   } catch { return Infinity; }
 }
 
+/* بررسی تاریخ تولد */
+function isBirthdayToday(birthDate){
+  if(!birthDate) return false;
+  try {
+    const parts = String(birthDate).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).split(/[\/\-]/).map(Number);
+    if(parts.length < 3) return false;
+    const [, bMonth, bDay] = parts;
+    const now = new Date();
+    const todayJ = now.toLocaleDateString('fa-IR', { numberingSystem: 'latn' }).split('/').map(Number);
+    return bMonth === todayJ[1] && bDay === todayJ[2];
+  } catch { return false; }
+}
+
+function isBirthdayThisMonth(birthDate){
+  if(!birthDate) return false;
+  try {
+    const parts = String(birthDate).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).split(/[\/\-]/).map(Number);
+    if(parts.length < 3) return false;
+    const [, bMonth] = parts;
+    const now = new Date();
+    const todayJ = now.toLocaleDateString('fa-IR', { numberingSystem: 'latn' }).split('/').map(Number);
+    return bMonth === todayJ[1];
+  } catch { return false; }
+}
+
+function calcAge(birthDate){
+  if(!birthDate) return '-';
+  try {
+    const parts = String(birthDate).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).split(/[\/\-]/).map(Number);
+    if(parts.length < 3) return '-';
+    const [by, bm, bd] = parts;
+    const now = new Date();
+    const todayJ = now.toLocaleDateString('fa-IR', { numberingSystem: 'latn' }).split('/').map(Number);
+    let age = todayJ[0] - by;
+    if(todayJ[1] < bm || (todayJ[1] === bm && todayJ[2] < bd)) age--;
+    return age;
+  } catch { return '-'; }
+}
+
 function status(s){
   const b = balance(s);
   if(b <= 0) return ['تسویه شده', 'paid'];
@@ -1610,6 +998,10 @@ function checkStatusLabel(st){
   if(st === 'collected') return ['وصول شده', 'collected'];
   if(st === 'returned') return ['برگشتی', 'returned'];
   return ['در جریان', 'pending'];
+}
+
+function assetStatusLabel(st){
+  return [ASSET_STATUSES[st] || 'فعال', st || 'active'];
 }
 
 function toast(msg, type){
@@ -1627,10 +1019,9 @@ function authMsg(msg, ok){
 }
 
 function isValidEmail(email){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
-function showLoading(show){ document.getElementById('loadingOverlay').classList.toggle('show', !!show); }
 
 /* ============================================================
-   ترجمه خطاها
+   ترجمه خطا
 ============================================================ */
 function translateError(error){
   if(!error) return 'خطای نامشخص';
@@ -1669,7 +1060,7 @@ function initSupabase(){
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: false,
-        storageKey: 'haleh-mehr-auth-v6'
+        storageKey: 'haleh-mehr-auth-v8'
       }
     });
     return true;
@@ -1683,7 +1074,15 @@ function initSupabase(){
    نگاشت داده‌ها
 ============================================================ */
 function mapStudent(r){
-  return { ...r, class: r.class_name, year: r.academic_year, phone: r.phone || r.father_phone, fatherPhone: r.father_phone, motherPhone: r.mother_phone };
+  return {
+    ...r,
+    class: r.class_name,
+    year: r.academic_year,
+    phone: r.phone || r.father_phone,
+    fatherPhone: r.father_phone,
+    motherPhone: r.mother_phone,
+    birthDate: r.birth_date || ''
+  };
 }
 function mapPayment(r){ return { ...r, studentId: r.student_id, date: r.payment_date, desc: r.description }; }
 function mapIncome(r){ return { ...r, date: r.income_date, desc: r.description }; }
@@ -1705,6 +1104,14 @@ function mapCheck(r){
     date: r.due_date
   };
 }
+function mapAsset(r){
+  return {
+    ...r,
+    unitPrice: r.unit_price,
+    purchaseDate: r.purchase_date,
+    serialNumber: r.serial_number
+  };
+}
 
 function normalizeSettings(s){
   if(!s) return { ...DEFAULT_SETTINGS };
@@ -1718,7 +1125,7 @@ function normalizeSettings(s){
 }
 
 /* ============================================================
-   بارگذاری داده‌ها
+   بارگذاری
 ============================================================ */
 async function loadData(){
   if(!sb || !currentUser) throw new Error('کاربر وارد نشده است');
@@ -1734,7 +1141,8 @@ async function loadData(){
     sb.from('activity_logs').select('*').order('created_at', { ascending: false }).limit(200),
     sb.from('staff').select('*').order('created_at', { ascending: false }).then(r => r.error ? { data: [], error: null } : r),
     sb.from('salaries').select('*').order('created_at', { ascending: false }).then(r => r.error ? { data: [], error: null } : r),
-    sb.from('checks').select('*').order('created_at', { ascending: false }).then(r => r.error ? { data: [], error: null } : r)
+    sb.from('checks').select('*').order('created_at', { ascending: false }).then(r => r.error ? { data: [], error: null } : r),
+    sb.from('assets').select('*').order('created_at', { ascending: false }).then(r => r.error ? { data: [], error: null } : r)
   ]);
 
   const firstError = results.find(x => x.error)?.error;
@@ -1755,6 +1163,7 @@ async function loadData(){
   db.staff = (results[8].data || []).map(mapStaff);
   db.salaries = (results[9].data || []).map(mapSalary);
   db.checks = (results[10].data || []).map(mapCheck);
+  db.assets = (results[11].data || []).map(mapAsset);
 }
 
 async function logAction(action){
@@ -1762,9 +1171,6 @@ async function logAction(action){
   try { await sb.from('activity_logs').insert({ user_id: currentUser.id, action }); } catch(e){}
 }
 
-/* ============================================================
-   رفرش کل برنامه
-============================================================ */
 async function refreshApp(){
   if(!currentUser) return;
   await loadData();
@@ -1795,7 +1201,7 @@ async function refreshApp(){
 }
 
 /* ============================================================
-   ورود / ثبت‌نام / خروج
+   احراز هویت
 ============================================================ */
 async function doSignIn(){
   if(isProcessing) return;
@@ -1870,6 +1276,7 @@ function nav(page){
     receipts: 'رسیدها', checks: 'چک‌های دریافتی',
     staff: 'کارکنان و دبیران', salaries: 'واریز حقوق',
     incomes: 'درآمدها', expenses: 'هزینه‌ها', installments: 'اقساط', discounts: 'تخفیف‌ها',
+    assets: 'اموال مدرسه',
     reports: 'گزارش‌های مالی', invoices: 'صورتحساب‌ها', bulk: 'چاپ دسته‌ای رسیدها',
     users: 'مدیریت کاربران', logs: 'فعالیت کاربران', settings: 'تنظیمات', backup: 'پشتیبان‌گیری'
   };
@@ -1882,6 +1289,7 @@ function nav(page){
 ============================================================ */
 function renderAll(){
   document.getElementById('yearLabel').textContent = db.settings.year || '—';
+  renderBirthdays();
   renderStats();
   renderStudents();
   renderPayments();
@@ -1893,6 +1301,7 @@ function renderAll(){
   renderExpenses();
   renderInstallments();
   renderDiscounts();
+  renderAssets();
   renderInvoices();
   renderBulk();
   renderUsers();
@@ -1903,6 +1312,39 @@ function renderAll(){
 }
 
 /* ============================================================
+   کارت تولد امروز
+============================================================ */
+function renderBirthdays(){
+  const container = document.getElementById('birthdayContainer');
+  if(!container) return;
+  
+  const birthdayPeople = db.students.filter(s => isBirthdayToday(s.birthDate));
+  
+  if(!birthdayPeople.length){
+    container.innerHTML = '';
+    return;
+  }
+  
+  container.innerHTML = `
+    <div class="birthday-card">
+      <h3>🎂 امروز تولد این عزیزان است!</h3>
+      <div class="birthday-list">
+        ${birthdayPeople.map(s => `
+          <div class="birthday-person">
+            <span class="cake">🎉</span>
+            <span>${s.name} ${s.family}</span>
+            <span style="font-size:12px;opacity:.7">(${s.grade||'-'} - ${s.class||'-'})</span>
+          </div>
+        `).join('')}
+      </div>
+      <p style="margin:14px 0 0;color:#92400e;font-size:13px;font-weight:600;position:relative;z-index:1">
+        💝 فراموش نکن بهشون تبریک بگی!
+      </p>
+    </div>
+  `;
+}
+
+/* ============================================================
    آمار داشبورد
 ============================================================ */
 function renderStats(){
@@ -1910,19 +1352,17 @@ function renderStats(){
   const debt = db.students.filter(s => balance(s) > 0).length;
   const tuition = db.students.reduce((a,s) => a + finalTuition(s), 0);
   const received = db.payments.reduce((a,p) => a + (+p.amount||0), 0);
-  const salariesPaid = db.salaries.reduce((a,s) => a + (+s.net_amount||0), 0);
-  const staffCount = db.staff.length;
   const checksPending = db.checks.filter(c => c.status === 'pending').length;
-  const checksTotal = db.checks.reduce((a,c) => a + (+c.amount||0), 0);
+  const assetsCount = db.assets.reduce((a,x) => a + (+x.quantity||1), 0);
 
   document.getElementById('stats').innerHTML = [
     ['👩🏻‍🎓','دانش‌آموزان', total],
-    ['👨‍🏫','کارکنان', staffCount],
+    ['🏫','اموال مدرسه', assetsCount],
     ['💰','مجموع شهریه', money(tuition)],
     ['💳','مجموع دریافت', money(received)],
     ['🟠','بدهکاران', debt],
     ['📝','چک‌های در جریان', checksPending],
-    ['🏦','مجموع چک‌ها', money(checksTotal)],
+    ['👨‍🏫','کارکنان', db.staff.length],
     ['📊','تعداد پرداخت‌ها', db.payments.length]
   ].map(x => `<div class="card stat"><div class="ico">${x[0]}</div><div class="label">${x[1]}</div><div class="num">${x[2]}</div></div>`).join('');
 }
@@ -1931,18 +1371,27 @@ function renderStats(){
    دانش‌آموزان
 ============================================================ */
 function renderStudents(){
-  const q = v('studentSearch'), g = v('gradeFilter'), c = v('classFilter');
-  const arr = db.students.filter(s =>
-    (!q || `${s.name} ${s.family} ${s.code} ${s.phone}`.includes(q)) &&
-    (!g || s.grade === g) && (!c || s.class === c)
-  );
+  const q = v('studentSearch'), g = v('gradeFilter'), c = v('classFilter'), b = v('birthdayFilter');
+  const arr = db.students.filter(s => {
+    if(q && !`${s.name} ${s.family} ${s.code} ${s.phone}`.includes(q)) return false;
+    if(g && s.grade !== g) return false;
+    if(c && s.class !== c) return false;
+    if(b === 'today' && !isBirthdayToday(s.birthDate)) return false;
+    if(b === 'thisMonth' && !isBirthdayThisMonth(s.birthDate)) return false;
+    return true;
+  });
+  
   document.getElementById('studentsTable').innerHTML = arr.map(s => {
     const st = status(s);
+    const bday = isBirthdayToday(s.birthDate);
     return `<tr>
       <td><b>${s.code||'-'}</b></td>
-      <td><span class="clickable" data-action="details" data-id="${s.id}">${s.name} ${s.family}</span></td>
+      <td><span class="clickable" data-action="details" data-id="${s.id}">${s.name} ${s.family}</span>${bday ? ' 🎂' : ''}</td>
       <td>${s.grade||'-'}</td><td>${s.class||'-'}</td>
-      <td>${money(finalTuition(s))}</td><td style="color:var(--success-dark);font-weight:700">${money(paid(s))}</td><td style="color:var(--danger);font-weight:700">${money(balance(s))}</td>
+      <td><b>${s.birthDate||'-'}</b></td>
+      <td>${money(finalTuition(s))}</td>
+      <td style="color:var(--success-dark);font-weight:700">${money(paid(s))}</td>
+      <td style="color:var(--danger);font-weight:700">${money(balance(s))}</td>
       <td><span class="badge ${st[1]}">${st[0]}</span></td>
       <td class="actions">
         <button class="btn blue" data-action="details" data-id="${s.id}">صورتحساب</button>
@@ -1950,7 +1399,7 @@ function renderStudents(){
         <button class="btn red" data-action="del-student" data-id="${s.id}">حذف</button>
       </td>
     </tr>`;
-  }).join('') || `<tr><td colspan="9" class="empty">دانش‌آموزی یافت نشد.</td></tr>`;
+  }).join('') || `<tr><td colspan="10" class="empty">دانش‌آموزی یافت نشد.</td></tr>`;
 }
 
 /* ============================================================
@@ -1959,18 +1408,19 @@ function renderStudents(){
 function openStudent(id){
   const s = id ? studentById(id) : {
     id:'', code:'', name:'', family:'', grade:'دهم', class:'الف',
-    year: db.settings.year, phone:'', tuition:60000000, discount:0
+    year: db.settings.year, phone:'', tuition:60000000, discount:0, birthDate:''
   };
   if(!s) return;
 
   openModal(id ? 'ویرایش دانش‌آموز' : 'ثبت دانش‌آموز جدید', `
   <div class="form"><div class="formgrid">
-    <div><label>کد دانش‌آموزی *</label><input id="f_code" value="${s.code||''}" placeholder="مثال: 1001"></div>
+    <div><label>کد دانش‌آموزی *</label><input id="f_code" value="${s.code||''}"></div>
     <div><label>نام *</label><input id="f_name" value="${s.name||''}"></div>
     <div><label>نام خانوادگی *</label><input id="f_family" value="${s.family||''}"></div>
     <div><label>پایه</label><select id="f_grade">${GRADES.map(x => `<option ${x===s.grade?'selected':''}>${x}</option>`).join('')}</select></div>
     <div><label>کلاس</label><select id="f_class">${CLASSES.map(x => `<option ${x===s.class?'selected':''}>${x}</option>`).join('')}</select></div>
     <div><label>شماره همراه</label><input id="f_phone" value="${s.phone||''}" placeholder="0912..."></div>
+    <div><label>تاریخ تولد</label><input id="f_birth" value="${s.birthDate||''}" placeholder="1391/05/12"></div>
     <div><label>سال تحصیلی</label><input id="f_year" value="${s.year||db.settings.year}"></div>
     <div><label>شهریه (ریال) *</label><input type="number" id="f_tuition" value="${s.tuition||0}"></div>
     <div><label>تخفیف (ریال)</label><input type="number" id="f_discount" value="${s.discount||0}"></div>
@@ -1987,6 +1437,7 @@ async function saveStudent(id){
     code: v('f_code'), name: v('f_name'), family: v('f_family'),
     grade: v('f_grade'), class_name: v('f_class'),
     phone: v('f_phone'), father_phone: v('f_phone'),
+    birth_date: v('f_birth'),
     academic_year: v('f_year'),
     tuition: num('f_tuition'), discount: num('f_discount')
   };
@@ -1997,7 +1448,7 @@ async function saveStudent(id){
 
   const duplicate = db.students.find(x => x.code === s.code && x.id != id);
   if(duplicate){
-    return toast(`⚠️ کد "${s.code}" قبلاً برای "${duplicate.name} ${duplicate.family}" ثبت شده است.`, 'error');
+    return toast(`⚠️ کد "${s.code}" قبلاً ثبت شده است.`, 'error');
   }
 
   isProcessing = true;
@@ -2026,7 +1477,7 @@ async function saveStudent(id){
 }
 
 /* ============================================================
-   صورتحساب کامل دانش‌آموز
+   جزئیات دانش‌آموز
 ============================================================ */
 function studentDetails(id){
   const s = studentById(id);
@@ -2054,16 +1505,17 @@ function studentDetails(id){
       <td>پرداخت - ${p.method||'-'} ${p.tracking ? '('+p.tracking+')' : ''}</td>
       <td>-</td><td>${money(p.amount)}</td><td>${money(remaining)}</td>
       <td class="actions" style="padding:6px">
-        <button class="btn" data-action="edit-payment" data-id="${p.id}" style="padding:6px 10px;font-size:12px">✏️ ویرایش</button>
+        <button class="btn" data-action="edit-payment" data-id="${p.id}" style="padding:6px 10px;font-size:12px">✏️</button>
       </td>
     </tr>`;
   });
 
-  openModal('📑 صورتحساب کامل دانش‌آموز', `
+  openModal('📑 صورتحساب کامل', `
   <div style="text-align:center;margin-bottom:18px">
     <h2 style="margin:0;color:var(--primary);font-size:24px">${s.name} ${s.family}</h2>
     <div style="color:var(--muted);font-size:13.5px;margin-top:8px;font-weight:500">
       کد: ${s.code||'-'} | پایه: ${s.grade||'-'} | کلاس: ${s.class||'-'} | همراه: ${s.phone||'-'}
+      ${s.birthDate ? ' | تولد: ' + s.birthDate + ' (' + calcAge(s.birthDate) + ' ساله)' : ''}
     </div>
   </div>
   <div class="grid detail-grid">
@@ -2075,8 +1527,8 @@ function studentDetails(id){
   <div class="section-head" style="margin-top:22px">
     <h3 style="margin:0">📋 ریز تراکنش‌ها</h3>
     <div class="actions">
-      <button class="btn primary" data-action="add-payment-for" data-id="${s.id}">ثبت پرداخت جدید</button>
-      <button class="btn blue" data-action="print-invoice" data-id="${s.id}">🖨 چاپ صورتحساب</button>
+      <button class="btn primary" data-action="add-payment-for" data-id="${s.id}">ثبت پرداخت</button>
+      <button class="btn blue" data-action="print-invoice" data-id="${s.id}">🖨 چاپ</button>
     </div>
   </div>
   <div class="table-wrap">
@@ -2086,14 +1538,14 @@ function studentDetails(id){
     </table>
   </div>
   ${chks.length ? `
-    <div class="section-head" style="margin-top:22px"><h3 style="margin:0">📝 چک‌های دریافتی</h3></div>
+    <div class="section-head" style="margin-top:22px"><h3 style="margin:0">📝 چک‌ها</h3></div>
     <div class="table-wrap">
       <table class="table">
         <thead><tr><th>شماره</th><th>بانک</th><th>مبلغ</th><th>سررسید</th><th>وضعیت</th></tr></thead>
-        <tbody>${chks.map(c => { const st = checkStatusLabel(c.status); return `
+        <tbody>${chks.map(c => { const stt = checkStatusLabel(c.status); return `
           <tr><td><b>${c.checkNumber}</b></td><td>${c.bankName||'-'}</td><td>${money(c.amount)}</td>
           <td>${c.dueDate||'-'}</td>
-          <td><span class="badge ${st[1]}">${st[0]}</span></td></tr>`; }).join('')}</tbody>
+          <td><span class="badge ${stt[1]}">${stt[0]}</span></td></tr>`; }).join('')}</tbody>
       </table>
     </div>` : ''}
   ${insts.length ? `
@@ -2102,148 +1554,280 @@ function studentDetails(id){
       <table class="table">
         <thead><tr><th>سررسید</th><th>مبلغ</th><th>وضعیت</th></tr></thead>
         <tbody>${insts.map(i => `
-          <tr>
-            <td>${i.due}</td><td>${money(i.amount)}</td>
-            <td><span class="badge ${i.paid?'paid':(isPast(i.due)?'overdue':'debt')}">${i.paid?'پرداخت شده':(isPast(i.due)?'معوق':'در انتظار')}</span></td>
-          </tr>`).join('')}</tbody>
+          <tr><td>${i.due}</td><td>${money(i.amount)}</td>
+          <td><span class="badge ${i.paid?'paid':(isPast(i.due)?'overdue':'debt')}">${i.paid?'پرداخت شده':(isPast(i.due)?'معوق':'در انتظار')}</span></td></tr>`).join('')}</tbody>
       </table>
     </div>` : ''}
   `);
 }
 
 /* ============================================================
-   پرداخت‌ها (با ویرایش)
+   آپلود Excel
+============================================================ */
+function openExcelImport(){
+  openModal('📥 ورود گروهی از Excel', `
+  <div style="background:#f0f9ff;padding:16px;border-radius:12px;margin-bottom:20px;font-size:13.5px;line-height:2;border:1px solid #bfdbfe">
+    <b style="color:var(--info)">📋 راهنما:</b><br>
+    ستون‌های موردنیاز:<br>
+    <code style="background:#fff;padding:4px 8px;border-radius:6px;display:inline-block;margin-top:6px;font-family:monospace">
+      کد | نام | نام خانوادگی | پایه | کلاس | همراه | تولد | شهریه | تخفیف
+    </code><br>
+    <br>
+    <b style="color:var(--success-dark)">✨ هوشمند:</b> اگر کد دانش‌آموز قبلاً وجود داشته باشد، اطلاعاتش <b>به‌روز</b> می‌شود (نه تکرار).
+  </div>
+  <div style="border:2px dashed var(--primary-light);padding:30px;border-radius:14px;text-align:center;background:#fafbff">
+    <input type="file" accept=".xlsx,.xls,.csv" id="excelFile" hidden>
+    <button class="btn primary" id="btnSelectExcel" style="font-size:15px;padding:14px 28px">📂 انتخاب فایل</button>
+    <div id="excelFileName" style="margin-top:14px;color:var(--muted);font-size:13px"></div>
+  </div>
+  <div id="excelPreview" style="margin-top:20px"></div>
+  `);
+
+  setTimeout(() => {
+    document.getElementById('btnSelectExcel').onclick = () => document.getElementById('excelFile').click();
+    document.getElementById('excelFile').onchange = handleExcelFile;
+  }, 100);
+}
+
+let excelImportData = [];
+
+async function handleExcelFile(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  document.getElementById('excelFileName').textContent = `📄 ${file.name}`;
+
+  try {
+    const data = await file.arrayBuffer();
+    const wb = XLSX.read(data, { type: 'array' });
+    const sheet = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
+
+    if(rows.length < 2) return toast('فایل خالی است', 'error');
+
+    const headers = rows[0].map(h => String(h).trim());
+    const dataRows = rows.slice(1);
+
+    const findCol = (names) => {
+      for(const name of names){
+        const idx = headers.findIndex(h => h.includes(name) || name.includes(h));
+        if(idx >= 0) return idx;
+      }
+      return -1;
+    };
+
+    const cols = {
+      code: findCol(['کد']),
+      name: findCol(['نام', 'name']),
+      family: findCol(['خانوادگی', 'family']),
+      grade: findCol(['پایه', 'grade']),
+      class: findCol(['کلاس', 'class']),
+      phone: findCol(['همراه', 'موبایل', 'phone']),
+      birth: findCol(['تولد', 'birth']),
+      tuition: findCol(['شهریه', 'tuition']),
+      discount: findCol(['تخفیف', 'discount'])
+    };
+
+    if(cols.code < 0 || cols.name < 0 || cols.family < 0){
+      return toast('ستون‌های «کد»، «نام»، «نام خانوادگی» الزامی است', 'error');
+    }
+
+    excelImportData = dataRows.map(row => ({
+      code: String(row[cols.code] || '').trim(),
+      name: String(row[cols.name] || '').trim(),
+      family: String(row[cols.family] || '').trim(),
+      grade: cols.grade >= 0 ? String(row[cols.grade] || 'دهم').trim() : 'دهم',
+      class_name: cols.class >= 0 ? String(row[cols.class] || 'الف').trim() : 'الف',
+      phone: cols.phone >= 0 ? String(row[cols.phone] || '').trim() : '',
+      birth_date: cols.birth >= 0 ? String(row[cols.birth] || '').trim() : '',
+      tuition: cols.tuition >= 0 ? (parseFloat(row[cols.tuition]) || 0) : 60000000,
+      discount: cols.discount >= 0 ? (parseFloat(row[cols.discount]) || 0) : 0,
+      academic_year: db.settings.year
+    })).filter(r => r.code && r.name && r.family);
+
+    renderExcelPreview();
+  } catch(err){
+    toast('خطا: ' + err.message, 'error');
+  }
+}
+
+function renderExcelPreview(){
+  const preview = document.getElementById('excelPreview');
+  if(!excelImportData.length){
+    preview.innerHTML = '<p class="empty">هیچ ردیف معتبری یافت نشد</p>';
+    return;
+  }
+
+  const existingCodes = new Set(db.students.map(s => s.code));
+  const newCount = excelImportData.filter(r => !existingCodes.has(r.code)).length;
+  const updateCount = excelImportData.filter(r => existingCodes.has(r.code)).length;
+
+  preview.innerHTML = `
+    <div style="background:#f0f9ff;padding:12px;border-radius:10px;margin-bottom:14px;font-size:13px;border:1px solid #bfdbfe">
+      <b>📊 خلاصه:</b> ${excelImportData.length} ردیف —
+      <span style="color:var(--success-dark);font-weight:700">${newCount} جدید</span> +
+      <span style="color:var(--warning-dark);font-weight:700">${updateCount} به‌روزرسانی</span>
+    </div>
+    <div class="section-head" style="margin-top:0">
+      <h3 style="margin:0">پیش‌نمایش</h3>
+      <button class="btn primary" id="btnConfirmImport">✅ تأیید و ذخیره</button>
+    </div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>#</th><th>کد</th><th>نام</th><th>خانوادگی</th><th>پایه</th><th>کلاس</th><th>همراه</th><th>تولد</th><th>شهریه</th><th>وضعیت</th></tr></thead>
+        <tbody>${excelImportData.slice(0, 100).map((r, i) => {
+          const isUpdate = existingCodes.has(r.code);
+          return `<tr style="${isUpdate ? 'background:#fef3c7' : ''}">
+            <td>${i+1}</td><td>${r.code}</td><td>${r.name}</td><td>${r.family}</td>
+            <td>${r.grade}</td><td>${r.class_name}</td><td>${r.phone}</td><td>${r.birth_date}</td>
+            <td>${money(r.tuition)}</td>
+            <td><span class="badge ${isUpdate ? 'debt' : 'paid'}">${isUpdate ? 'به‌روز' : 'جدید'}</span></td>
+          </tr>`;
+        }).join('')}
+        </tbody>
+      </table>
+      ${excelImportData.length > 100 ? '<p style="text-align:center;color:var(--muted);padding:10px">... و ' + (excelImportData.length - 100) + ' ردیف دیگر</p>' : ''}
+    </div>
+  `;
+
+  setTimeout(() => {
+    const btn = document.getElementById('btnConfirmImport');
+    if(btn) btn.onclick = confirmExcelImport;
+  }, 50);
+}
+
+async function confirmExcelImport(){
+  if(!excelImportData.length) return;
+  if(isProcessing) return;
+
+  isProcessing = true;
+  const btn = document.getElementById('btnConfirmImport');
+  if(btn){ btn.disabled = true; btn.textContent = 'در حال ذخیره...'; }
+
+  let inserted = 0, updated = 0, errors = 0;
+
+  try {
+    for(const r of excelImportData){
+      const existing = db.students.find(s => s.code === r.code);
+      if(existing){
+        // به‌روزرسانی
+        const { error } = await sb.from('students').update({
+          name: r.name, family: r.family, grade: r.grade, class_name: r.class_name,
+          phone: r.phone, birth_date: r.birth_date, tuition: r.tuition, discount: r.discount
+        }).eq('id', existing.id);
+        if(error) errors++;
+        else updated++;
+      } else {
+        // جدید
+        const { error } = await sb.from('students').insert(r);
+        if(error) errors++;
+        else inserted++;
+      }
+    }
+
+    await logAction(`ورود Excel: ${inserted} جدید، ${updated} به‌روز`);
+    closeModal();
+    await refreshApp();
+    toast(`✅ ${inserted} جدید + ${updated} به‌روز${errors ? ' (' + errors + ' خطا)' : ''}`, 'success');
+  } catch(e){
+    toast('خطا: ' + e.message, 'error');
+  } finally {
+    isProcessing = false;
+    excelImportData = [];
+  }
+}
+
+/* ============================================================
+   پرداخت
 ============================================================ */
 function studentOptions(){
-  if(!db.students.length) return '<option value="">— دانش‌آموزی ثبت نشده —</option>';
+  if(!db.students.length) return '<option value="">— دانش‌آموزی نیست —</option>';
   return db.students.map(s => `<option value="${s.id}">${s.name} ${s.family} — ${s.code||''}</option>`).join('');
 }
 
 function openPayment(){
-  openModal('ثبت پرداخت جدید', `
+  openModal('ثبت پرداخت', `
   <div class="form"><div class="formgrid">
-    <div class="full"><label>دانش‌آموز *</label><select id="p_student"><option value="">انتخاب کنید</option>${studentOptions()}</select></div>
+    <div class="full"><label>دانش‌آموز *</label><select id="p_student"><option value="">انتخاب</option>${studentOptions()}</select></div>
     <div><label>مبلغ (ریال) *</label><input type="number" id="p_amount"></div>
     <div><label>تاریخ</label><input id="p_date" value="${today()}"></div>
-    <div><label>روش پرداخت</label><select id="p_method"><option>کارتخوان</option><option>کارت به کارت</option><option>واریز بانکی</option><option>نقدی</option><option>چک</option><option>سایر</option></select></div>
-    <div><label>شماره پیگیری</label><input id="p_tracking"></div>
-    <div><label>شماره رسید (خالی = خودکار)</label><input id="p_receipt"></div>
+    <div><label>روش</label><select id="p_method"><option>کارتخوان</option><option>کارت به کارت</option><option>واریز بانکی</option><option>نقدی</option><option>چک</option><option>سایر</option></select></div>
+    <div><label>پیگیری</label><input id="p_tracking"></div>
+    <div><label>رسید (خالی=خودکار)</label><input id="p_receipt"></div>
     <div class="full"><label>توضیحات</label><textarea id="p_desc"></textarea></div>
   </div>
-  <div class="modalfoot"><button class="btn primary" id="btnSavePayment">ثبت پرداخت</button></div></div>`);
-
+  <div class="modalfoot"><button class="btn primary" id="btnSavePayment">ثبت</button></div></div>`);
   document.getElementById('btnSavePayment').onclick = savePayment;
 }
 
-function openPaymentEdit(paymentId){
-  const p = db.payments.find(x => x.id == paymentId);
+function openPaymentEdit(id){
+  const p = db.payments.find(x => x.id == id);
   if(!p) return;
   openModal('✏️ ویرایش پرداخت', `
   <div class="form"><div class="formgrid">
-    <div class="full"><label>دانش‌آموز *</label><select id="ep_student">${db.students.map(s => `<option value="${s.id}" ${s.id == p.studentId ? 'selected' : ''}>${s.name} ${s.family} — ${s.code||''}</option>`).join('')}</select></div>
-    <div><label>مبلغ (ریال) *</label><input type="number" id="ep_amount" value="${p.amount}"></div>
+    <div class="full"><label>دانش‌آموز *</label><select id="ep_student">${db.students.map(s => `<option value="${s.id}" ${s.id == p.studentId ? 'selected' : ''}>${s.name} ${s.family}</option>`).join('')}</select></div>
+    <div><label>مبلغ *</label><input type="number" id="ep_amount" value="${p.amount}"></div>
     <div><label>تاریخ</label><input id="ep_date" value="${p.date||''}"></div>
-    <div><label>روش پرداخت</label><select id="ep_method">
-      ${['کارتخوان','کارت به کارت','واریز بانکی','نقدی','چک','سایر'].map(m => `<option ${m===p.method?'selected':''}>${m}</option>`).join('')}
-    </select></div>
-    <div><label>شماره پیگیری</label><input id="ep_tracking" value="${p.tracking||''}"></div>
-    <div><label>شماره رسید</label><input id="ep_receipt" value="${p.receipt||''}"></div>
+    <div><label>روش</label><select id="ep_method">${['کارتخوان','کارت به کارت','واریز بانکی','نقدی','چک','سایر'].map(m => `<option ${m===p.method?'selected':''}>${m}</option>`).join('')}</select></div>
+    <div><label>پیگیری</label><input id="ep_tracking" value="${p.tracking||''}"></div>
+    <div><label>رسید</label><input id="ep_receipt" value="${p.receipt||''}"></div>
     <div class="full"><label>توضیحات</label><textarea id="ep_desc">${p.desc||''}</textarea></div>
   </div>
   <div class="modalfoot">
-    <button class="btn primary" id="btnUpdatePayment" data-id="${p.id}">💾 ذخیره تغییرات</button>
-    <button class="btn red" data-action="del-payment" data-id="${p.id}">🗑️ حذف پرداخت</button>
+    <button class="btn primary" id="btnUpdatePayment">💾 ذخیره</button>
+    <button class="btn red" data-action="del-payment" data-id="${p.id}">🗑️ حذف</button>
   </div></div>`);
-
   document.getElementById('btnUpdatePayment').onclick = () => updatePayment(p.id);
 }
 
 async function updatePayment(id){
   if(isProcessing) return;
-  const sid = v('ep_student'), amt = num('ep_amount');
-  if(!sid) return toast('دانش‌آموز را انتخاب کنید', 'error');
-  if(amt <= 0) return toast('مبلغ را وارد کنید', 'error');
-
-  const receipt = v('ep_receipt');
-  if(db.payments.some(p => p.receipt === receipt && p.id != id)){
-    return toast('⚠️ این شماره رسید قبلاً استفاده شده است', 'error');
-  }
-
-  if(!confirm('آیا از ذخیره تغییرات مطمئنی؟ این تغییرات بر روی محاسبات مالی اثر می‌گذارد.')) return;
+  const amt = num('ep_amount');
+  if(amt <= 0) return toast('مبلغ الزامی', 'error');
+  if(!confirm('ذخیره تغییرات؟')) return;
 
   isProcessing = true;
-  const btn = document.getElementById('btnUpdatePayment');
-  if(btn){ btn.disabled = true; btn.textContent = 'در حال ذخیره...'; }
-
   try {
-    const updates = {
-      student_id: sid,
-      amount: amt,
-      payment_date: v('ep_date'),
-      method: v('ep_method'),
-      tracking: v('ep_tracking'),
-      receipt: receipt || 'R' + Date.now(),
-      description: v('ep_desc')
-    };
-    const { error } = await sb.from('payments').update(updates).eq('id', id);
+    const { error } = await sb.from('payments').update({
+      student_id: v('ep_student'), amount: amt, payment_date: v('ep_date'),
+      method: v('ep_method'), tracking: v('ep_tracking'),
+      receipt: v('ep_receipt') || 'R'+Date.now(), description: v('ep_desc')
+    }).eq('id', id);
     if(error) return toast(translateError(error), 'error');
-
-    await logAction('✏️ ویرایش پرداخت شماره ' + updates.receipt);
+    await logAction('ویرایش پرداخت');
     closeModal();
     await refreshApp();
-    toast('پرداخت با موفقیت ویرایش شد ✅', 'success');
-  } catch(e){
-    toast('خطا: ' + e.message, 'error');
-  } finally {
-    isProcessing = false;
-    if(btn){ btn.disabled = false; btn.textContent = '💾 ذخیره تغییرات'; }
-  }
+    toast('ویرایش شد ✅', 'success');
+  } finally { isProcessing = false; }
 }
 
-function openPaymentFor(studentId){
+function openPaymentFor(sid){
   closeModal();
   setTimeout(() => {
     openPayment();
-    setTimeout(() => {
-      const el = document.getElementById('p_student');
-      if(el) el.value = studentId;
-    }, 50);
+    setTimeout(() => { const el = document.getElementById('p_student'); if(el) el.value = sid; }, 50);
   }, 100);
 }
 
 async function savePayment(){
   if(isProcessing) return;
   const sid = v('p_student'), amt = num('p_amount');
-  if(!sid) return toast('دانش‌آموز را انتخاب کنید', 'error');
-  if(amt <= 0) return toast('مبلغ را وارد کنید', 'error');
+  if(!sid || amt <= 0) return toast('دانش‌آموز و مبلغ الزامی', 'error');
 
   const receipt = v('p_receipt') || 'R' + Date.now();
-  if(db.payments.some(p => p.receipt === receipt)){
-    return toast('⚠️ این شماره رسید قبلاً استفاده شده است', 'error');
-  }
+  if(db.payments.some(p => p.receipt === receipt)) return toast('رسید تکراری', 'error');
 
   isProcessing = true;
-  const btn = document.getElementById('btnSavePayment');
-  if(btn){ btn.disabled = true; btn.textContent = 'در حال ثبت...'; }
-
   try {
-    const p = {
+    const { error } = await sb.from('payments').insert({
       student_id: sid, amount: amt, payment_date: v('p_date'), method: v('p_method'),
       tracking: v('p_tracking'), receipt, description: v('p_desc'), created_by: currentUser.id
-    };
-    const { error } = await sb.from('payments').insert(p);
+    });
     if(error) return toast(translateError(error), 'error');
-
-    await logAction('ثبت پرداخت برای ' + studentName(sid));
+    await logAction('ثبت پرداخت');
     closeModal();
     await refreshApp();
-    toast('پرداخت با موفقیت ثبت شد ✅', 'success');
-  } catch(e){
-    toast('خطا: ' + e.message, 'error');
-  } finally {
-    isProcessing = false;
-    if(btn){ btn.disabled = false; btn.textContent = 'ثبت پرداخت'; }
-  }
+    toast('پرداخت ثبت شد ✅', 'success');
+  } finally { isProcessing = false; }
 }
 
 function renderPayments(){
@@ -2255,24 +1839,25 @@ function renderPayments(){
   document.getElementById('paymentsTable').innerHTML = arr.map(p => `
     <tr><td><b>${p.receipt}</b></td>
     <td><span class="clickable" data-action="details" data-id="${p.studentId}">${studentName(p.studentId)}</span></td>
-    <td style="color:var(--success-dark);font-weight:700">${money(p.amount)}</td><td>${p.date||'-'}</td><td>${p.method||'-'}</td><td>${p.tracking||'-'}</td>
+    <td style="color:var(--success-dark);font-weight:700">${money(p.amount)}</td>
+    <td>${p.date||'-'}</td><td>${p.method||'-'}</td><td>${p.tracking||'-'}</td>
     <td class="actions">
       <button class="btn blue" data-action="print-receipt" data-id="${p.id}">رسید</button>
-      <button class="btn" data-action="edit-payment" data-id="${p.id}">✏️ ویرایش</button>
+      <button class="btn" data-action="edit-payment" data-id="${p.id}">✏️</button>
       <button class="btn red" data-action="del-payment" data-id="${p.id}">حذف</button>
-    </td></tr>`).join('') || `<tr><td colspan="7" class="empty">پرداختی ثبت نشده است.</td></tr>`;
+    </td></tr>`).join('') || `<tr><td colspan="7" class="empty">پرداختی نیست</td></tr>`;
 }
 
 function renderReceipts(){
   document.getElementById('receiptsTable').innerHTML = db.payments.map(p => `
     <tr><td><b>${p.receipt}</b></td>
     <td><span class="clickable" data-action="details" data-id="${p.studentId}">${studentName(p.studentId)}</span></td>
-    <td style="color:var(--success-dark);font-weight:700">${money(p.amount)}</td><td>${p.date||'-'}</td><td>${p.method||'-'}</td>
+    <td style="color:var(--success-dark);font-weight:700">${money(p.amount)}</td>
+    <td>${p.date||'-'}</td><td>${p.method||'-'}</td>
     <td class="actions">
       <button class="btn blue" data-action="print-receipt" data-id="${p.id}">چاپ</button>
-      <button class="btn" data-action="edit-payment" data-id="${p.id}">✏️ ویرایش</button>
-    </td></tr>`).join('')
-    || `<tr><td colspan="6" class="empty">رسیدی ثبت نشده است.</td></tr>`;
+      <button class="btn" data-action="edit-payment" data-id="${p.id}">✏️</button>
+    </td></tr>`).join('') || `<tr><td colspan="6" class="empty">رسیدی نیست</td></tr>`;
 }
 
 function printReceipt(id){
@@ -2280,7 +1865,7 @@ function printReceipt(id){
   const s = p ? studentById(p.studentId) : null;
   if(!p || !s) return;
   const w = window.open('', '_blank');
-  if(!w) return toast('پنجره چاپ مسدود شد', 'error');
+  if(!w) return toast('پنجره چاپ مسدود', 'error');
   w.document.write(`
   <html dir="rtl"><head><meta charset="UTF-8"><title>رسید ${p.receipt}</title>
   <style>body{font-family:Tahoma;padding:40px;direction:rtl}h1{text-align:center}table{width:100%;border-collapse:collapse;margin-top:25px}td,th{border:1px solid #ddd;padding:12px;text-align:right}.head{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #6366f1;padding-bottom:15px}.logo{width:80px;height:80px;object-fit:contain}</style>
@@ -2305,7 +1890,7 @@ function printReceipt(id){
 }
 
 /* ============================================================
-   چک‌های دریافتی
+   چک‌ها
 ============================================================ */
 function checkStats(){
   const pending = db.checks.filter(c => c.status === 'pending');
@@ -2316,8 +1901,7 @@ function checkStats(){
     pending, collected, returned,
     pendingAmount: pending.reduce((a,c) => a + (+c.amount||0), 0),
     collectedAmount: collected.reduce((a,c) => a + (+c.amount||0), 0),
-    returnedAmount: returned.reduce((a,c) => a + (+c.amount||0), 0),
-    totalAmount: db.checks.reduce((a,c) => a + (+c.amount||0), 0)
+    returnedAmount: returned.reduce((a,c) => a + (+c.amount||0), 0)
   };
 }
 
@@ -2332,8 +1916,8 @@ function renderChecks(){
   const banks = [...new Set(db.checks.map(c => c.bankName).filter(Boolean))];
   const bankFilter = document.getElementById('checkBankFilter');
   if(bankFilter){
-    const currentVal = bankFilter.value;
-    bankFilter.innerHTML = '<option value="">همه بانک‌ها</option>' + banks.map(b => `<option ${b===currentVal?'selected':''}>${b}</option>`).join('');
+    const cur = bankFilter.value;
+    bankFilter.innerHTML = '<option value="">همه بانک‌ها</option>' + banks.map(b => `<option ${b===cur?'selected':''}>${b}</option>`).join('');
   }
 
   const st = checkStats();
@@ -2352,10 +1936,10 @@ function renderChecks(){
   tbody.innerHTML = arr.map(c => {
     const stt = checkStatusLabel(c.status);
     const days = daysUntil(c.dueDate);
-    let dueWarning = '';
+    let warn = '';
     if(c.status === 'pending' && days !== Infinity){
-      if(days < 0) dueWarning = ' <span class="badge overdue">گذشته</span>';
-      else if(days <= 7) dueWarning = ` <span class="badge debt">${days} روز</span>`;
+      if(days < 0) warn = ' <span class="badge overdue">گذشته</span>';
+      else if(days <= 7) warn = ` <span class="badge debt">${days} روز</span>`;
     }
     return `<tr>
       <td><b>${c.checkNumber}</b></td>
@@ -2364,7 +1948,7 @@ function renderChecks(){
       <td><span class="clickable" data-action="details" data-id="${c.studentId}">${studentName(c.studentId)}</span></td>
       <td style="font-weight:700">${money(c.amount)}</td>
       <td>${c.issueDate||'-'}</td>
-      <td>${c.dueDate||'-'}${dueWarning}</td>
+      <td>${c.dueDate||'-'}${warn}</td>
       <td><span class="badge ${stt[1]}">${stt[0]}</span></td>
       <td class="actions">
         ${c.status === 'pending' ? `
@@ -2375,7 +1959,7 @@ function renderChecks(){
         <button class="btn red" data-action="del-check" data-id="${c.id}">حذف</button>
       </td>
     </tr>`;
-  }).join('') || `<tr><td colspan="9" class="empty">چکی ثبت نشده است.</td></tr>`;
+  }).join('') || `<tr><td colspan="9" class="empty">چکی نیست</td></tr>`;
 }
 
 function openCheck(id){
@@ -2384,18 +1968,17 @@ function openCheck(id){
     issueDate: today(), dueDate: '', holderName:'', status:'pending', description:''
   };
   if(!c) return;
-
   const banks = ['ملی','صادرات','تجارت','ملت','سپه','پاسارگاد','پارسیان','سامان','رفاه','مسکن','کشاورزی','مهر ایران','قوامین','اقتصاد نوین','شهر','سایر'];
 
-  openModal(id ? '✏️ ویرایش چک' : '📝 ثبت چک دریافتی جدید', `
+  openModal(id ? '✏️ ویرایش چک' : '📝 ثبت چک', `
   <div class="form"><div class="formgrid">
-    <div class="full"><label>دانش‌آموز *</label><select id="c_student"><option value="">انتخاب کنید</option>${studentOptions()}</select></div>
-    <div><label>شماره چک *</label><input id="c_number" value="${c.checkNumber||''}" placeholder="مثال: 123456"></div>
+    <div class="full"><label>دانش‌آموز *</label><select id="c_student"><option value="">انتخاب</option>${studentOptions()}</select></div>
+    <div><label>شماره چک *</label><input id="c_number" value="${c.checkNumber||''}"></div>
     <div><label>بانک</label><select id="c_bank">${banks.map(b => `<option ${b===c.bankName?'selected':''}>${b}</option>`).join('')}</select></div>
-    <div><label>مبلغ (ریال) *</label><input type="number" id="c_amount" value="${c.amount||0}"></div>
-    <div><label>صاحب چک</label><input id="c_holder" value="${c.holderName||''}" placeholder="نام صاحب حساب"></div>
-    <div><label>تاریخ صدور</label><input id="c_issue" value="${c.issueDate||today()}" placeholder="1405/07/15"></div>
-    <div><label>تاریخ سررسید *</label><input id="c_due" value="${c.dueDate||''}" placeholder="1405/08/15"></div>
+    <div><label>مبلغ *</label><input type="number" id="c_amount" value="${c.amount||0}"></div>
+    <div><label>صاحب چک</label><input id="c_holder" value="${c.holderName||''}"></div>
+    <div><label>تاریخ صدور</label><input id="c_issue" value="${c.issueDate||today()}"></div>
+    <div><label>سررسید *</label><input id="c_due" value="${c.dueDate||''}"></div>
     <div><label>وضعیت</label><select id="c_status">
       <option value="pending" ${c.status==='pending'?'selected':''}>در جریان</option>
       <option value="collected" ${c.status==='collected'?'selected':''}>وصول شده</option>
@@ -2406,18 +1989,13 @@ function openCheck(id){
   <div class="modalfoot"><button class="btn primary" id="btnSaveCheck" data-id="${id||0}">ذخیره</button></div></div>`);
 
   if(id && c.studentId){
-    setTimeout(() => {
-      const el = document.getElementById('c_student');
-      if(el) el.value = c.studentId;
-    }, 50);
+    setTimeout(() => { const el = document.getElementById('c_student'); if(el) el.value = c.studentId; }, 50);
   }
-
   document.getElementById('btnSaveCheck').onclick = () => saveCheck(id || 0);
 }
 
 async function saveCheck(id){
   if(isProcessing) return;
-
   const c = {
     student_id: v('c_student') || null,
     check_number: v('c_number'),
@@ -2429,101 +2007,146 @@ async function saveCheck(id){
     status: v('c_status'),
     description: v('c_desc')
   };
-
-  if(!c.check_number) return toast('شماره چک الزامی است', 'error');
-  if(c.amount <= 0) return toast('مبلغ چک را وارد کنید', 'error');
-  if(!c.due_date) return toast('تاریخ سررسید الزامی است', 'error');
-
-  const duplicate = db.checks.find(x => x.checkNumber === c.check_number && x.id != id);
-  if(duplicate){
-    return toast(`⚠️ شماره چک "${c.check_number}" قبلاً ثبت شده است.`, 'error');
-  }
+  if(!c.check_number || c.amount <= 0 || !c.due_date) return toast('اطلاعات ناقص', 'error');
+  if(db.checks.some(x => x.checkNumber === c.check_number && x.id != id)) return toast('شماره چک تکراری', 'error');
 
   isProcessing = true;
-  const btn = document.getElementById('btnSaveCheck');
-  if(btn){ btn.disabled = true; btn.textContent = 'در حال ذخیره...'; }
-
   try {
     let error;
-    if(id){
-      ({ error } = await sb.from('checks').update(c).eq('id', id));
-    } else {
-      c.created_by = currentUser.id;
-      ({ error } = await sb.from('checks').insert(c));
-    }
+    if(id) ({ error } = await sb.from('checks').update(c).eq('id', id));
+    else { c.created_by = currentUser.id; ({ error } = await sb.from('checks').insert(c)); }
     if(error) return toast(translateError(error), 'error');
-
-    await logAction(id ? '✏️ ویرایش چک ' + c.check_number : '📝 ثبت چک ' + c.check_number);
+    await logAction(id ? 'ویرایش چک' : 'ثبت چک');
     closeModal();
     await refreshApp();
-    toast(id ? 'چک ویرایش شد ✅' : 'چک ثبت شد ✅', 'success');
-  } catch(e){
-    toast('خطا: ' + e.message, 'error');
-  } finally {
-    isProcessing = false;
-    if(btn){ btn.disabled = false; btn.textContent = 'ذخیره'; }
-  }
+    toast('ذخیره شد ✅', 'success');
+  } finally { isProcessing = false; }
 }
 
 async function collectCheck(id){
   const c = db.checks.find(x => x.id == id);
   if(!c) return;
-  if(!confirm(`آیا چک شماره ${c.checkNumber} به مبلغ ${money(c.amount)} وصول شده است؟\n\nبا تأیید، این مبلغ به عنوان پرداخت ثبت می‌شود.`)) return;
+  if(!confirm(`وصول چک ${c.checkNumber} (${money(c.amount)})؟`)) return;
   if(isProcessing) return;
   isProcessing = true;
-
   try {
-    const receipt = 'CHK-' + c.checkNumber;
     const { data: payData, error: e1 } = await sb.from('payments').insert({
-      student_id: c.studentId,
-      amount: c.amount,
-      payment_date: today(),
-      method: 'چک',
-      tracking: c.checkNumber,
-      receipt: receipt,
-      description: `وصول چک ${c.bankName||''} - شماره ${c.checkNumber}`,
-      created_by: currentUser.id
+      student_id: c.studentId, amount: c.amount, payment_date: today(),
+      method: 'چک', tracking: c.checkNumber, receipt: 'CHK-'+c.checkNumber,
+      description: `وصول چک ${c.bankName||''}`, created_by: currentUser.id
     }).select('id').single();
     if(e1) return toast(translateError(e1), 'error');
-
-    const { error: e2 } = await sb.from('checks').update({
-      status: 'collected',
-      payment_id: payData.id
-    }).eq('id', id);
-    if(e2) return toast(translateError(e2), 'error');
-
-    await logAction('✅ وصول چک ' + c.checkNumber + ' و ثبت پرداخت');
+    await sb.from('checks').update({ status: 'collected', payment_id: payData.id }).eq('id', id);
+    await logAction('وصول چک');
     await refreshApp();
-    toast('چک وصول شد و پرداخت ثبت گردید ✅', 'success');
-  } catch(e){
-    toast('خطا: ' + e.message, 'error');
-  } finally {
-    isProcessing = false;
-  }
+    toast('وصول شد ✅', 'success');
+  } finally { isProcessing = false; }
 }
 
 async function returnCheck(id){
-  const c = db.checks.find(x => x.id == id);
-  if(!c) return;
-  if(!confirm(`آیا چک شماره ${c.checkNumber} برگشت خورده است؟`)) return;
+  if(!confirm('چک برگشت خورد؟')) return;
   if(isProcessing) return;
   isProcessing = true;
-
   try {
-    const { error } = await sb.from('checks').update({ status: 'returned' }).eq('id', id);
-    if(error) return toast(translateError(error), 'error');
-
-    await logAction('❌ چک برگشتی ' + c.checkNumber);
+    await sb.from('checks').update({ status: 'returned' }).eq('id', id);
+    await logAction('چک برگشتی');
     await refreshApp();
-    toast('وضعیت چک به برگشتی تغییر کرد', 'warning');
-  } catch(e){
-    toast('خطا: ' + e.message, 'error');
-  } finally {
-    isProcessing = false;
-  }
+    toast('ثبت شد', 'warning');
+  } finally { isProcessing = false; }
 }
 
 /* ============================================================
+   اموال مدرسه
+============================================================ */
+function renderAssets(){
+  const q = v('assetSearch'), cat = v('assetCategoryFilter'), st = v('assetStatusFilter');
+  const arr = db.assets.filter(a =>
+    (!q || `${a.name} ${a.serialNumber} ${a.location}`.includes(q)) &&
+    (!cat || a.category === cat) &&
+    (!st || a.status === st)
+  );
+
+  const totalItems = db.assets.reduce((s,x) => s + (+x.quantity||1), 0);
+  const totalValue = db.assets.reduce((s,x) => s + (+x.unit_price||0) * (+x.quantity||1), 0);
+  const activeCount = db.assets.filter(x => x.status === 'active').length;
+  const repairCount = db.assets.filter(x => x.status === 'repair').length;
+
+  const statsEl = document.getElementById('assetStats');
+  if(statsEl){
+    statsEl.innerHTML = `
+      <div class="card stat"><div class="ico">🏫</div><div class="label">تعداد اقلام</div><div class="num">${totalItems}</div></div>
+      <div class="card stat"><div class="ico">💰</div><div class="label">ارزش کل</div><div class="num" style="font-size:15px">${money(totalValue)}</div></div>
+      <div class="card stat"><div class="ico">✅</div><div class="label">فعال</div><div class="num">${activeCount}</div></div>
+      <div class="card stat"><div class="ico">🔧</div><div class="label">در تعمیر</div><div class="num">${repairCount}</div></div>
+    `;
+  }
+
+  document.getElementById('assetsTable').innerHTML = arr.map(a => {
+    const stl = assetStatusLabel(a.status);
+    return `<tr>
+      <td><b>${a.name}</b></td>
+      <td>${a.category||'-'}</td>
+      <td>${a.quantity||1}</td>
+      <td>${money(a.unit_price)}</td>
+      <td>${a.location||'-'}</td>
+      <td>${a.serial_number||'-'}</td>
+      <td><span class="badge ${stl[1]}">${stl[0]}</span></td>
+      <td class="actions">
+        <button class="btn" data-action="edit-asset" data-id="${a.id}">ویرایش</button>
+        <button class="btn red" data-action="del-asset" data-id="${a.id}">حذف</button>
+      </td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="8" class="empty">مالی ثبت نشده</td></tr>`;
+}
+
+function openAsset(id){
+  const a = id ? db.assets.find(x => x.id == id) : {
+    id:'', name:'', category:'رایانه', quantity:1, unit_price:0,
+    purchase_date:'', location:'', serial_number:'', status:'active', description:''
+  };
+  if(!a) return;
+
+  openModal(id ? 'ویرایش مال' : 'ثبت مال جدید', `
+  <div class="form"><div class="formgrid">
+    <div class="full"><label>نام *</label><input id="a_name" value="${a.name||''}"></div>
+    <div><label>دسته</label><select id="a_cat">${ASSET_CATEGORIES.map(c => `<option ${c===a.category?'selected':''}>${c}</option>`).join('')}</select></div>
+    <div><label>تعداد</label><input type="number" id="a_qty" value="${a.quantity||1}"></div>
+    <div><label>قیمت واحد (ریال)</label><input type="number" id="a_price" value="${a.unit_price||0}"></div>
+    <div><label>تاریخ خرید</label><input id="a_pdate" value="${a.purchase_date||''}"></div>
+    <div><label>محل</label><input id="a_loc" value="${a.location||''}" placeholder="کلاس، دفتر، ..."></div>
+    <div><label>شماره سریال</label><input id="a_serial" value="${a.serial_number||''}"></div>
+    <div><label>وضعیت</label><select id="a_status">${Object.entries(ASSET_STATUSES).map(([k,v]) => `<option value="${k}" ${k===a.status?'selected':''}>${v}</option>`).join('')}</select></div>
+    <div class="full"><label>توضیحات</label><textarea id="a_desc">${a.description||''}</textarea></div>
+  </div>
+  <div class="modalfoot"><button class="btn primary" id="btnSaveAsset" data-id="${id||0}">ذخیره</button></div></div>`);
+
+  document.getElementById('btnSaveAsset').onclick = () => saveAsset(id || 0);
+}
+
+async function saveAsset(id){
+  if(isProcessing) return;
+  const a = {
+    name: v('a_name'), category: v('a_cat'),
+    quantity: num('a_qty') || 1, unit_price: num('a_price'),
+    purchase_date: v('a_pdate'), location: v('a_loc'),
+    serial_number: v('a_serial'), status: v('a_status'),
+    description: v('a_desc')
+  };
+  if(!a.name) return toast('نام الزامی', 'error');
+
+  isProcessing = true;
+  try {
+    let error;
+    if(id) ({ error } = await sb.from('assets').update(a).eq('id', id));
+    else { a.created_by = currentUser.id; ({ error } = await sb.from('assets').insert(a)); }
+    if(error) return toast(translateError(error), 'error');
+    await logAction(id ? 'ویرایش مال' : 'ثبت مال');
+    closeModal();
+    await refreshApp();
+    toast('ذخیره شد ✅', 'success');
+  } finally { isProcessing = false; }
+}
+  /* ============================================================
    کارکنان
 ============================================================ */
 function renderStaff(){
@@ -2550,7 +2173,7 @@ function renderStaff(){
         <button class="btn red" data-action="del-staff" data-id="${s.id}">حذف</button>
       </td>
     </tr>`;
-  }).join('') || `<tr><td colspan="8" class="empty">کارمندی ثبت نشده است.</td></tr>`;
+  }).join('') || `<tr><td colspan="8" class="empty">کارمندی نیست</td></tr>`;
 }
 
 function openStaff(id){
@@ -2559,71 +2182,49 @@ function openStaff(id){
     base_salary:0, bonus:0, notes:''
   };
   if(!s) return;
-
-  openModal(id ? 'ویرایش کارمند' : 'ثبت کارمند جدید', `
+  openModal(id ? 'ویرایش کارمند' : 'ثبت کارمند', `
   <div class="form"><div class="formgrid">
-    <div><label>کد پرسنلی *</label><input id="st_code" value="${s.code||''}" placeholder="مثال: T001"></div>
+    <div><label>کد پرسنلی *</label><input id="st_code" value="${s.code||''}"></div>
     <div><label>نام *</label><input id="st_name" value="${s.name||''}"></div>
     <div><label>نام خانوادگی *</label><input id="st_family" value="${s.family||''}"></div>
     <div><label>سمت</label><select id="st_position">${STAFF_ROLES.map(x => `<option ${x===s.position?'selected':''}>${x}</option>`).join('')}</select></div>
     <div><label>شماره همراه</label><input id="st_phone" value="${s.phone||''}"></div>
-    <div><label>حقوق پایه ماهانه (ریال) *</label><input type="number" id="st_base" value="${s.base_salary||0}"></div>
-    <div><label>پاداش ماهانه (ریال)</label><input type="number" id="st_bonus" value="${s.bonus||0}"></div>
+    <div><label>حقوق پایه (ریال) *</label><input type="number" id="st_base" value="${s.base_salary||0}"></div>
+    <div><label>پاداش (ریال)</label><input type="number" id="st_bonus" value="${s.bonus||0}"></div>
     <div class="full"><label>توضیحات</label><textarea id="st_notes">${s.notes||''}</textarea></div>
   </div>
-  <div class="modalfoot"><button class="btn primary" id="btnSaveStaff" data-id="${id||0}">ذخیره</button></div></div>`);
-
+  <div class="modalfoot"><button class="btn primary" id="btnSaveStaff">ذخیره</button></div></div>`);
   document.getElementById('btnSaveStaff').onclick = () => saveStaff(id || 0);
 }
 
 async function saveStaff(id){
   if(isProcessing) return;
-
   const s = {
     staff_code: v('st_code'), name: v('st_name'), family: v('st_family'),
     position: v('st_position'), phone: v('st_phone'),
     base_salary: num('st_base'), bonus: num('st_bonus'), notes: v('st_notes')
   };
-
-  if(!s.staff_code) return toast('کد پرسنلی الزامی است', 'error');
-  if(!s.name) return toast('نام الزامی است', 'error');
-  if(!s.family) return toast('نام خانوادگی الزامی است', 'error');
-
-  const duplicate = db.staff.find(x => x.staff_code === s.staff_code && x.id != id);
-  if(duplicate){
-    return toast(`⚠️ کد پرسنلی "${s.staff_code}" قبلاً ثبت شده است.`, 'error');
-  }
+  if(!s.staff_code || !s.name || !s.family) return toast('اطلاعات ناقص', 'error');
+  if(db.staff.some(x => x.staff_code === s.staff_code && x.id != id)) return toast('کد تکراری', 'error');
 
   isProcessing = true;
-  const btn = document.getElementById('btnSaveStaff');
-  if(btn){ btn.disabled = true; btn.textContent = 'در حال ذخیره...'; }
-
   try {
     let error;
-    if(id){
-      ({ error } = await sb.from('staff').update(s).eq('id', id));
-    } else {
-      ({ error } = await sb.from('staff').insert(s));
-    }
+    if(id) ({ error } = await sb.from('staff').update(s).eq('id', id));
+    else ({ error } = await sb.from('staff').insert(s));
     if(error) return toast(translateError(error), 'error');
-
-    await logAction(id ? 'ویرایش کارمند' : `ثبت کارمند ${s.name} ${s.family}`);
+    await logAction(id ? 'ویرایش کارمند' : 'ثبت کارمند');
     closeModal();
     await refreshApp();
-    toast(id ? 'اطلاعات ویرایش شد ✅' : 'کارمند ثبت شد ✅', 'success');
-  } catch(e){
-    toast('خطا: ' + e.message, 'error');
-  } finally {
-    isProcessing = false;
-    if(btn){ btn.disabled = false; btn.textContent = 'ذخیره'; }
-  }
+    toast('ذخیره شد ✅', 'success');
+  } finally { isProcessing = false; }
 }
 
 /* ============================================================
-   واریز حقوق
+   حقوق
 ============================================================ */
 function staffOptions(){
-  if(!db.staff.length) return '<option value="">— کارمندی ثبت نشده —</option>';
+  if(!db.staff.length) return '<option value="">— کارمندی نیست —</option>';
   return db.staff.map(s => `<option value="${s.id}">${s.name} ${s.family} — ${s.position||''}</option>`).join('');
 }
 
@@ -2647,24 +2248,23 @@ function renderSalaries(){
         <button class="btn blue" data-action="print-salary" data-id="${s.id}">رسید</button>
         <button class="btn red" data-action="del-item" data-table="salaries" data-id="${s.id}">حذف</button>
       </td>
-    </tr>`).join('') || `<tr><td colspan="9" class="empty">واریزی ثبت نشده است.</td></tr>`;
+    </tr>`).join('') || `<tr><td colspan="9" class="empty">واریزی نیست</td></tr>`;
 }
 
 function openSalary(staffId){
   openModal('ثبت واریز حقوق', `
   <div class="form"><div class="formgrid">
-    <div class="full"><label>کارمند *</label><select id="s_staff"><option value="">انتخاب کنید</option>${staffOptions()}</select></div>
+    <div class="full"><label>کارمند *</label><select id="s_staff"><option value="">انتخاب</option>${staffOptions()}</select></div>
     <div><label>ماه *</label><select id="s_month">${MONTHS.map(x => `<option>${x}</option>`).join('')}</select></div>
-    <div><label>حقوق پایه (ریال) *</label><input type="number" id="s_base"></div>
-    <div><label>پاداش (ریال)</label><input type="number" id="s_bonus" value="0"></div>
-    <div><label>کسورات (ریال)</label><input type="number" id="s_deduction" value="0"></div>
-    <div><label>تاریخ واریز</label><input id="s_date" value="${today()}"></div>
-    <div><label>روش پرداخت</label><select id="s_method"><option>کارت به کارت</option><option>واریز بانکی</option><option>نقدی</option><option>چک</option></select></div>
-    <div><label>شماره پیگیری</label><input id="s_tracking"></div>
+    <div><label>حقوق پایه *</label><input type="number" id="s_base"></div>
+    <div><label>پاداش</label><input type="number" id="s_bonus" value="0"></div>
+    <div><label>کسورات</label><input type="number" id="s_deduction" value="0"></div>
+    <div><label>تاریخ</label><input id="s_date" value="${today()}"></div>
+    <div><label>روش</label><select id="s_method"><option>کارت به کارت</option><option>واریز بانکی</option><option>نقدی</option><option>چک</option></select></div>
+    <div><label>پیگیری</label><input id="s_tracking"></div>
     <div class="full"><label>توضیحات</label><textarea id="s_desc"></textarea></div>
   </div>
-  <div class="modalfoot"><button class="btn primary" id="btnSaveSalary">ثبت واریز</button></div></div>`);
-
+  <div class="modalfoot"><button class="btn primary" id="btnSaveSalary">ثبت</button></div></div>`);
   document.getElementById('btnSaveSalary').onclick = saveSalary;
 
   if(staffId){
@@ -2685,39 +2285,24 @@ function openSalary(staffId){
 async function saveSalary(){
   if(isProcessing) return;
   const sid = v('s_staff');
-  const base = num('s_base');
-  const bonus = num('s_bonus');
-  const deduction = num('s_deduction');
-  const net = base + bonus - deduction;
-
-  if(!sid) return toast('کارمند را انتخاب کنید', 'error');
-  if(base <= 0) return toast('حقوق پایه را وارد کنید', 'error');
-  if(net <= 0) return toast('مبلغ خالص باید بیشتر از صفر باشد', 'error');
+  const base = num('s_base'), bonus = num('s_bonus'), ded = num('s_deduction');
+  const net = base + bonus - ded;
+  if(!sid || base <= 0) return toast('اطلاعات ناقص', 'error');
 
   isProcessing = true;
-  const btn = document.getElementById('btnSaveSalary');
-  if(btn){ btn.disabled = true; btn.textContent = 'در حال ثبت...'; }
-
   try {
-    const s = {
+    const { error } = await sb.from('salaries').insert({
       staff_id: sid, salary_month: v('s_month'),
-      base_amount: base, bonus_amount: bonus, deduction: deduction, net_amount: net,
+      base_amount: base, bonus_amount: bonus, deduction: ded, net_amount: net,
       payment_date: v('s_date'), payment_method: v('s_method'),
       tracking: v('s_tracking'), description: v('s_desc'), created_by: currentUser.id
-    };
-    const { error } = await sb.from('salaries').insert(s);
+    });
     if(error) return toast(translateError(error), 'error');
-
-    await logAction('واریز حقوق برای ' + staffName(sid));
+    await logAction('واریز حقوق');
     closeModal();
     await refreshApp();
-    toast('واریز حقوق ثبت شد ✅', 'success');
-  } catch(e){
-    toast('خطا: ' + e.message, 'error');
-  } finally {
-    isProcessing = false;
-    if(btn){ btn.disabled = false; btn.textContent = 'ثبت واریز'; }
-  }
+    toast('ثبت شد ✅', 'success');
+  } finally { isProcessing = false; }
 }
 
 function printSalary(id){
@@ -2725,7 +2310,7 @@ function printSalary(id){
   const st = s ? staffById(s.staffId) : null;
   if(!s || !st) return;
   const w = window.open('', '_blank');
-  if(!w) return toast('پنجره چاپ مسدود شد', 'error');
+  if(!w) return toast('مسدود شد', 'error');
   w.document.write(`
   <html dir="rtl"><head><meta charset="UTF-8"><title>فیش حقوقی</title>
   <style>body{font-family:Tahoma;padding:40px}h1{text-align:center;color:#6366f1}table{width:100%;border-collapse:collapse;margin-top:25px}td,th{border:1px solid #ddd;padding:12px;text-align:right}.total{background:#eef2ff;font-weight:bold;font-size:16px}</style>
@@ -2733,34 +2318,35 @@ function printSalary(id){
   <h1>${db.settings.school}</h1>
   <h3 style="text-align:center">فیش حقوقی - ${s.month}</h3>
   <table>
-    <tr><th>نام کارمند</th><td>${st.name} ${st.family}</td><th>کد پرسنلی</th><td>${st.code||'-'}</td></tr>
+    <tr><th>نام کارمند</th><td>${st.name} ${st.family}</td><th>کد</th><td>${st.code||'-'}</td></tr>
     <tr><th>سمت</th><td>${st.position||'-'}</td><th>ماه</th><td>${s.month}</td></tr>
     <tr><th>حقوق پایه</th><td>${money(s.base)}</td><th>پاداش</th><td>${money(s.bonus)}</td></tr>
-    <tr><th>کسورات</th><td>${money(s.deduction)}</td><th>روش پرداخت</th><td>${s.method}</td></tr>
-    <tr class="total"><th>مبلغ خالص پرداختی</th><td colspan="3">${money(s.net_amount)}</td></tr>
-    <tr><th>تاریخ واریز</th><td colspan="3">${s.date}</td></tr>
+    <tr><th>کسورات</th><td>${money(s.deduction)}</td><th>روش</th><td>${s.method}</td></tr>
+    <tr class="total"><th>خالص پرداختی</th><td colspan="3">${money(s.net_amount)}</td></tr>
+    <tr><th>تاریخ</th><td colspan="3">${s.date}</td></tr>
   </table>
   <p style="margin-top:35px">${db.settings.footer}</p>
   </body></html>`);
   w.document.close();
   setTimeout(() => w.print(), 300);
 }
-  /* ============================================================
-   درآمدها
+
+/* ============================================================
+   درآمد / هزینه
 ============================================================ */
 function renderIncomes(){
   document.getElementById('incomeTable').innerHTML = db.incomes.map(x => `
     <tr><td><b>${x.title}</b></td><td>${x.category||'-'}</td><td style="color:var(--success-dark);font-weight:700">${money(x.amount)}</td>
     <td>${x.date||'-'}</td><td>${x.desc||'-'}</td>
     <td><button class="btn red" data-action="del-item" data-table="incomes" data-id="${x.id}">حذف</button></td></tr>`).join('')
-    || `<tr><td colspan="6" class="empty">درآمدی ثبت نشده است.</td></tr>`;
+    || `<tr><td colspan="6" class="empty">درآمدی نیست</td></tr>`;
 }
 
 function openIncome(){
   openModal('ثبت درآمد', `
   <div class="form"><div class="formgrid">
     <div><label>عنوان *</label><input id="i_title"></div>
-    <div><label>دسته‌بندی</label><select id="i_cat"><option>شهریه</option><option>ثبت‌نام</option><option>کلاس فوق‌برنامه</option><option>اردو</option><option>سایر</option></select></div>
+    <div><label>دسته</label><select id="i_cat"><option>شهریه</option><option>ثبت‌نام</option><option>کلاس فوق‌برنامه</option><option>اردو</option><option>سایر</option></select></div>
     <div><label>مبلغ *</label><input type="number" id="i_amount"></div>
     <div><label>تاریخ</label><input id="i_date" value="${today()}"></div>
     <div class="full"><label>توضیحات</label><textarea id="i_desc"></textarea></div>
@@ -2772,46 +2358,34 @@ function openIncome(){
 async function saveIncome(){
   if(isProcessing) return;
   const x = { title: v('i_title'), category: v('i_cat'), amount: num('i_amount'), income_date: v('i_date'), description: v('i_desc'), created_by: currentUser.id };
-  if(!x.title) return toast('عنوان الزامی است', 'error');
-  if(x.amount <= 0) return toast('مبلغ را وارد کنید', 'error');
-
+  if(!x.title || x.amount <= 0) return toast('اطلاعات ناقص', 'error');
   isProcessing = true;
-  const btn = document.getElementById('btnSaveIncome');
-  if(btn){ btn.disabled = true; btn.textContent = 'در حال ذخیره...'; }
   try {
     const { error } = await sb.from('incomes').insert(x);
     if(error) return toast(translateError(error), 'error');
     await logAction('ثبت درآمد');
     closeModal();
     await refreshApp();
-    toast('درآمد ثبت شد ✅', 'success');
-  } catch(e){
-    toast('خطا: ' + e.message, 'error');
-  } finally {
-    isProcessing = false;
-    if(btn){ btn.disabled = false; btn.textContent = 'ذخیره'; }
-  }
+    toast('ثبت شد ✅', 'success');
+  } finally { isProcessing = false; }
 }
 
-/* ============================================================
-   هزینه‌ها
-============================================================ */
 function renderExpenses(){
   document.getElementById('expenseTable').innerHTML = db.expenses.map(x => `
     <tr><td><b>${x.title}</b></td><td>${x.category||'-'}</td><td style="color:var(--danger);font-weight:700">${money(x.amount)}</td>
     <td>${x.date||'-'}</td><td>${x.method||'-'}</td>
     <td><button class="btn red" data-action="del-item" data-table="expenses" data-id="${x.id}">حذف</button></td></tr>`).join('')
-    || `<tr><td colspan="6" class="empty">هزینه‌ای ثبت نشده است.</td></tr>`;
+    || `<tr><td colspan="6" class="empty">هزینه‌ای نیست</td></tr>`;
 }
 
 function openExpense(){
   openModal('ثبت هزینه', `
   <div class="form"><div class="formgrid">
     <div><label>عنوان *</label><input id="e_title"></div>
-    <div><label>دسته‌بندی</label><select id="e_cat"><option>حقوق</option><option>آب</option><option>برق</option><option>گاز</option><option>اینترنت</option><option>تجهیزات</option><option>لوازم آموزشی</option><option>تعمیرات</option><option>خدمات</option><option>اجاره</option><option>سایر</option></select></div>
+    <div><label>دسته</label><select id="e_cat"><option>حقوق</option><option>آب</option><option>برق</option><option>گاز</option><option>اینترنت</option><option>تجهیزات</option><option>لوازم آموزشی</option><option>تعمیرات</option><option>خدمات</option><option>اجاره</option><option>سایر</option></select></div>
     <div><label>مبلغ *</label><input type="number" id="e_amount"></div>
     <div><label>تاریخ</label><input id="e_date" value="${today()}"></div>
-    <div><label>روش پرداخت</label><select id="e_method"><option>کارتخوان</option><option>کارت به کارت</option><option>واریز بانکی</option><option>نقدی</option><option>چک</option></select></div>
+    <div><label>روش</label><select id="e_method"><option>کارتخوان</option><option>کارت به کارت</option><option>واریز بانکی</option><option>نقدی</option><option>چک</option></select></div>
     <div><label>شماره سند</label><input id="e_doc"></div>
     <div class="full"><label>توضیحات</label><textarea id="e_desc"></textarea></div>
   </div>
@@ -2822,29 +2396,20 @@ function openExpense(){
 async function saveExpense(){
   if(isProcessing) return;
   const x = { title: v('e_title'), category: v('e_cat'), amount: num('e_amount'), expense_date: v('e_date'), method: v('e_method'), document: v('e_doc'), description: v('e_desc'), created_by: currentUser.id };
-  if(!x.title) return toast('عنوان الزامی است', 'error');
-  if(x.amount <= 0) return toast('مبلغ را وارد کنید', 'error');
-
+  if(!x.title || x.amount <= 0) return toast('اطلاعات ناقص', 'error');
   isProcessing = true;
-  const btn = document.getElementById('btnSaveExpense');
-  if(btn){ btn.disabled = true; btn.textContent = 'در حال ذخیره...'; }
   try {
     const { error } = await sb.from('expenses').insert(x);
     if(error) return toast(translateError(error), 'error');
     await logAction('ثبت هزینه');
     closeModal();
     await refreshApp();
-    toast('هزینه ثبت شد ✅', 'success');
-  } catch(e){
-    toast('خطا: ' + e.message, 'error');
-  } finally {
-    isProcessing = false;
-    if(btn){ btn.disabled = false; btn.textContent = 'ذخیره'; }
-  }
+    toast('ثبت شد ✅', 'success');
+  } finally { isProcessing = false; }
 }
 
 /* ============================================================
-   اقساط
+   اقساط و تخفیف
 ============================================================ */
 function renderInstallments(){
   document.getElementById('installmentTable').innerHTML = db.installments.map(x => `
@@ -2856,15 +2421,15 @@ function renderInstallments(){
         ${!x.paid ? `<button class="btn green" data-action="pay-installment" data-id="${x.id}">تسویه</button>` : ''}
         <button class="btn red" data-action="del-item" data-table="installments" data-id="${x.id}">حذف</button>
       </td>
-    </tr>`).join('') || `<tr><td colspan="5" class="empty">قسطی تعریف نشده است.</td></tr>`;
+    </tr>`).join('') || `<tr><td colspan="5" class="empty">قسطی نیست</td></tr>`;
 }
 
 function openInstallment(){
   openModal('تعریف قسط', `
   <div class="form"><div class="formgrid">
     <div class="full"><label>دانش‌آموز *</label><select id="n_student">${studentOptions()}</select></div>
-    <div><label>مبلغ قسط *</label><input type="number" id="n_amount"></div>
-    <div><label>سررسید (۱۴۰۵/۰۷/۱۵) *</label><input id="n_due" placeholder="1405/07/15"></div>
+    <div><label>مبلغ *</label><input type="number" id="n_amount"></div>
+    <div><label>سررسید *</label><input id="n_due" placeholder="1405/07/15"></div>
   </div>
   <div class="modalfoot"><button class="btn primary" id="btnSaveInstallment">ذخیره</button></div></div>`);
   document.getElementById('btnSaveInstallment').onclick = saveInstallment;
@@ -2873,68 +2438,47 @@ function openInstallment(){
 async function saveInstallment(){
   if(isProcessing) return;
   const sid = v('n_student'), amt = num('n_amount'), due = v('n_due');
-  if(!sid) return toast('دانش‌آموز را انتخاب کنید', 'error');
-  if(amt <= 0) return toast('مبلغ قسط را وارد کنید', 'error');
-  if(!due) return toast('تاریخ سررسید را وارد کنید', 'error');
-
+  if(!sid || amt <= 0 || !due) return toast('اطلاعات ناقص', 'error');
   isProcessing = true;
-  const btn = document.getElementById('btnSaveInstallment');
-  if(btn){ btn.disabled = true; btn.textContent = 'در حال ذخیره...'; }
   try {
     const { error } = await sb.from('installments').insert({ student_id: sid, amount: amt, due_date: due, paid: false });
     if(error) return toast(translateError(error), 'error');
     await logAction('تعریف قسط');
     closeModal();
     await refreshApp();
-    toast('قسط ثبت شد ✅', 'success');
-  } catch(e){
-    toast('خطا: ' + e.message, 'error');
-  } finally {
-    isProcessing = false;
-    if(btn){ btn.disabled = false; btn.textContent = 'ذخیره'; }
-  }
+    toast('ثبت شد ✅', 'success');
+  } finally { isProcessing = false; }
 }
 
 async function payInstallment(id){
   const inst = db.installments.find(i => i.id == id);
   if(!inst) return;
-  if(!confirm(`قسط ${studentName(inst.studentId)} به مبلغ ${money(inst.amount)} تسویه شود؟`)) return;
+  if(!confirm(`تسویه قسط ${studentName(inst.studentId)}؟`)) return;
   if(isProcessing) return;
   isProcessing = true;
-
   try {
-    const receipt = 'R' + Date.now();
     const { error: e1 } = await sb.from('payments').insert({
       student_id: inst.studentId, amount: inst.amount, payment_date: today(),
-      method: 'نقدی', receipt, description: `تسویه قسط سررسید ${inst.due}`, created_by: currentUser.id
+      method: 'نقدی', receipt: 'R'+Date.now(), description: 'تسویه قسط', created_by: currentUser.id
     });
     if(e1) return toast(translateError(e1), 'error');
-
-    const { error: e2 } = await sb.from('installments').update({ paid: true }).eq('id', id);
-    if(e2) return toast(translateError(e2), 'error');
-
-    await logAction('تسویه قسط ' + studentName(inst.studentId));
+    await sb.from('installments').update({ paid: true }).eq('id', id);
+    await logAction('تسویه قسط');
     await refreshApp();
-    toast('قسط تسویه شد ✅', 'success');
-  } catch(e){
-    toast('خطا: ' + e.message, 'error');
-  } finally {
-    isProcessing = false;
-  }
+    toast('تسویه شد ✅', 'success');
+  } finally { isProcessing = false; }
 }
 
-/* ============================================================
-   تخفیف‌ها
-============================================================ */
 function renderDiscounts(){
   document.getElementById('discountTable').innerHTML = db.discounts.map(x => `
     <tr>
       <td><span class="clickable" data-action="details" data-id="${x.studentId}">${studentName(x.studentId)}</span></td>
       <td>${money(x.base)}</td>
       <td style="color:var(--warning-dark);font-weight:700">${x.type==='percent' ? x.value+'٪' : money(x.value)}</td>
-      <td style="color:var(--success-dark);font-weight:700">${money(x.final)}</td><td>${x.reason||'-'}</td><td>${x.date||'-'}</td>
+      <td style="color:var(--success-dark);font-weight:700">${money(x.final)}</td>
+      <td>${x.reason||'-'}</td><td>${x.date||'-'}</td>
       <td><button class="btn red" data-action="del-item" data-table="discounts" data-id="${x.id}">حذف</button></td>
-    </tr>`).join('') || `<tr><td colspan="7" class="empty">تخفیفی ثبت نشده است.</td></tr>`;
+    </tr>`).join('') || `<tr><td colspan="7" class="empty">تخفیفی نیست</td></tr>`;
 }
 
 function openDiscount(){
@@ -2956,39 +2500,26 @@ async function saveDiscount(){
   const s = studentById(sid);
   if(!s) return toast('دانش‌آموز را انتخاب کنید', 'error');
   const type = v('d_type'), val = num('d_value');
-  if(val <= 0) return toast('میزان تخفیف را وارد کنید', 'error');
+  if(val <= 0) return toast('میزان را وارد کنید', 'error');
   const disc = type === 'percent' ? Math.round(s.tuition * val / 100) : val;
 
   isProcessing = true;
-  const btn = document.getElementById('btnSaveDiscount');
-  if(btn){ btn.disabled = true; btn.textContent = 'در حال ذخیره...'; }
-
   try {
-    const { error: e1 } = await sb.from('students').update({ discount: disc }).eq('id', s.id);
-    if(e1) return toast(translateError(e1), 'error');
-
-    const x = {
+    await sb.from('students').update({ discount: disc }).eq('id', s.id);
+    await sb.from('discounts').insert({
       student_id: s.id, base_amount: s.tuition, discount_type: type, value: val,
       final_amount: Math.max(0, s.tuition - disc), reason: v('d_reason'),
       discount_date: v('d_date'), created_by: currentUser.id
-    };
-    const { error: e2 } = await sb.from('discounts').insert(x);
-    if(e2) return toast(translateError(e2), 'error');
-
-    await logAction('ثبت تخفیف برای ' + studentName(s.id));
+    });
+    await logAction('ثبت تخفیف');
     closeModal();
     await refreshApp();
-    toast('تخفیف ثبت شد ✅', 'success');
-  } catch(e){
-    toast('خطا: ' + e.message, 'error');
-  } finally {
-    isProcessing = false;
-    if(btn){ btn.disabled = false; btn.textContent = 'ذخیره'; }
-  }
+    toast('ثبت شد ✅', 'success');
+  } finally { isProcessing = false; }
 }
 
 /* ============================================================
-   صورتحساب (صفحه مستقل)
+   صورتحساب
 ============================================================ */
 function invoiceRows(s){
   const rows = [];
@@ -3016,28 +2547,25 @@ function renderInvoices(){
       <div class="table-wrap"><table class="table">
         <thead><tr><th>تاریخ</th><th>شرح</th><th>بدهکار</th><th>بستانکار</th><th>مانده</th></tr></thead>
         <tbody>${invoiceRows(s)}</tbody></table></div>
-    </div>`).join('') || '<div class="empty">دانش‌آموزی یافت نشد.</div>';
+    </div>`).join('') || '<div class="empty">دانش‌آموزی نیست</div>';
 }
 
 function printInvoice(id){
   const s = studentById(id);
   if(!s) return;
   const w = window.open('', '_blank');
-  if(!w) return toast('پنجره چاپ مسدود شد', 'error');
+  if(!w) return toast('مسدود شد', 'error');
   w.document.write(`
-  <html dir="rtl"><head><meta charset="UTF-8"><title>صورتحساب ${s.name} ${s.family}</title>
+  <html dir="rtl"><head><meta charset="UTF-8"><title>صورتحساب</title>
   <style>body{font-family:Tahoma;padding:35px}h1,h2{text-align:center}table{width:100%;border-collapse:collapse;margin-top:15px}td,th{border:1px solid #ddd;padding:10px}.head{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #6366f1;padding-bottom:15px;margin-bottom:20px}.logo{width:80px;height:80px;object-fit:contain}</style>
   </head><body>
-  <div class="head">
-    <img src="logo.png" class="logo" onerror="this.style.display='none'">
-    <h2 style="flex:1;margin:0">${db.settings.school}</h2>
-  </div>
-  <h3>صورتحساب دانش‌آموز: ${s.name} ${s.family}</h3>
-  <p>کد: ${s.code||'-'} | پایه: ${s.grade||'-'} | کلاس: ${s.class||'-'} | همراه: ${s.phone||'-'}</p>
+  <div class="head"><img src="logo.png" class="logo" onerror="this.style.display='none'"><h2 style="flex:1;margin:0">${db.settings.school}</h2></div>
+  <h3>صورتحساب: ${s.name} ${s.family}</h3>
+  <p>کد: ${s.code||'-'} | پایه: ${s.grade||'-'} | کلاس: ${s.class||'-'}</p>
   <table><thead><tr><th>تاریخ</th><th>شرح</th><th>بدهکار</th><th>بستانکار</th><th>مانده</th></tr></thead>
   <tbody>${invoiceRows(s)}</tbody></table>
-  <p style="margin-top:30px">جمع پرداختی: <b>${money(paid(s))}</b> | مانده: <b>${money(balance(s))}</b></p>
-  <p>تاریخ تهیه: ${today()}</p>
+  <p style="margin-top:30px">پرداختی: <b>${money(paid(s))}</b> | مانده: <b>${money(balance(s))}</b></p>
+  <p>تاریخ: ${today()}</p>
   <p>${db.settings.footer}</p>
   </body></html>`);
   w.document.close();
@@ -3060,10 +2588,8 @@ function renderBulk(){
       <td><b>${p.receipt}</b></td>
       <td>${studentName(p.studentId)}</td>
       <td style="font-weight:700">${money(p.amount)}</td>
-      <td>${p.date||'-'}</td>
-      <td>${p.method||'-'}</td>
-      <td>${p.tracking||'-'}</td>
-    </tr>`).join('') || `<tr><td colspan="7" class="empty">پرداختی یافت نشد.</td></tr>`;
+      <td>${p.date||'-'}</td><td>${p.method||'-'}</td><td>${p.tracking||'-'}</td>
+    </tr>`).join('') || `<tr><td colspan="7" class="empty">پرداختی نیست</td></tr>`;
   updateBulkCounter();
 }
 
@@ -3075,53 +2601,37 @@ function updateBulkCounter(){
 
 function bulkPrintSelected(){
   const ids = [...document.querySelectorAll('.bulk-check:checked')].map(x => +x.value);
-  if(!ids.length) return toast('ابتدا موارد را انتخاب کنید', 'error');
-
+  if(!ids.length) return toast('انتخاب کنید', 'error');
   const pays = ids.map(id => db.payments.find(p => p.id == id)).filter(Boolean);
   if(!pays.length) return;
 
   const w = window.open('', '_blank');
-  if(!w) return toast('پنجره چاپ مسدود شد', 'error');
+  if(!w) return toast('مسدود', 'error');
 
   const pages = pays.map(p => {
     const s = studentById(p.studentId);
     if(!s) return '';
-    return `
-    <div class="receipt-page">
-      <div class="head">
-        <img src="logo.png" class="logo" onerror="this.style.display='none'">
-        <h1 style="flex:1">${db.settings.school}</h1>
-      </div>
+    return `<div class="receipt-page">
+      <div class="head"><img src="logo.png" class="logo" onerror="this.style.display='none'"><h1 style="flex:1">${db.settings.school}</h1></div>
       <h3 style="text-align:center">رسید پرداخت</h3>
       <table>
         <tr><th>دانش‌آموز</th><td>${s.name} ${s.family}</td><th>کد</th><td>${s.code||'-'}</td></tr>
         <tr><th>پایه</th><td>${s.grade||'-'}</td><th>رسید</th><td>${p.receipt}</td></tr>
         <tr><th>مبلغ</th><td>${money(p.amount)}</td><th>تاریخ</th><td>${p.date}</td></tr>
         <tr><th>روش</th><td>${p.method}</td><th>پیگیری</th><td>${p.tracking||'-'}</td></tr>
-        <tr><th>شهریه نهایی</th><td>${money(finalTuition(s))}</td><th>پرداخت‌شده</th><td>${money(paid(s))}</td></tr>
+        <tr><th>شهریه</th><td>${money(finalTuition(s))}</td><th>پرداختی</th><td>${money(paid(s))}</td></tr>
         <tr><th>مانده</th><td colspan="3">${money(balance(s))}</td></tr>
       </table>
       <p style="margin-top:35px">${db.settings.footer}</p>
     </div>`;
   }).join('');
 
-  w.document.write(`
-  <html dir="rtl"><head><meta charset="UTF-8"><title>چاپ دسته‌ای رسیدها</title>
-  <style>
-    body{font-family:Tahoma;padding:30px;direction:rtl}
-    h1{text-align:center}
-    table{width:100%;border-collapse:collapse;margin-top:25px}
-    td,th{border:1px solid #ddd;padding:12px;text-align:right}
-    .head{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #6366f1;padding-bottom:15px}
-    .logo{width:80px;height:80px;object-fit:contain}
-    .receipt-page{page-break-after:always;padding-bottom:30px;border-bottom:1px dashed #ccc}
-    .receipt-page:last-child{page-break-after:auto;border-bottom:0}
-    @media print{.receipt-page{page-break-after:always}.receipt-page:last-child{page-break-after:auto}}
-  </style>
+  w.document.write(`<html dir="rtl"><head><meta charset="UTF-8"><title>چاپ دسته‌ای</title>
+  <style>body{font-family:Tahoma;padding:30px;direction:rtl}h1{text-align:center}table{width:100%;border-collapse:collapse;margin-top:25px}td,th{border:1px solid #ddd;padding:12px;text-align:right}.head{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #6366f1;padding-bottom:15px}.logo{width:80px;height:80px;object-fit:contain}.receipt-page{page-break-after:always;padding-bottom:30px;border-bottom:1px dashed #ccc}.receipt-page:last-child{page-break-after:auto;border-bottom:0}@media print{.receipt-page{page-break-after:always}.receipt-page:last-child{page-break-after:auto}}</style>
   </head><body>${pages}</body></html>`);
   w.document.close();
   setTimeout(() => w.print(), 500);
-  logAction(`چاپ دسته‌ای ${pays.length} رسید`);
+  logAction(`چاپ ${pays.length} رسید`);
 }
 
 /* ============================================================
@@ -3139,14 +2649,13 @@ function renderUsers(){
       <td class="actions">
         ${u.id !== currentUser?.id ? `<button class="btn red" data-action="del-user" data-id="${u.id}">حذف</button>` : 'شما'}
       </td>
-    </tr>`).join('') || `<tr><td colspan="6" class="empty">کاربری یافت نشد.</td></tr>`;
+    </tr>`).join('') || `<tr><td colspan="6" class="empty">کاربری نیست</td></tr>`;
 }
 
 async function loadUsers(){
   if(userRole !== 'admin') return;
   try {
-    const { data, error } = await sb.from('profiles').select('*').order('created_at', { ascending: false });
-    if(error) return;
+    const { data } = await sb.from('profiles').select('*').order('created_at', { ascending: false });
     db.users = (data || []).map(r => ({
       id: r.id, name: r.full_name || 'کاربر',
       username: r.email || '',
@@ -3158,13 +2667,13 @@ async function loadUsers(){
 }
 
 function openUser(){
-  if(userRole !== 'admin') return toast('فقط مدیر می‌تواند کاربر اضافه کند', 'error');
-  openModal('افزودن کاربر جدید', `
+  if(userRole !== 'admin') return toast('فقط مدیر', 'error');
+  openModal('افزودن کاربر', `
   <div class="form"><div class="formgrid">
-    <div class="full"><label>نام و نام خانوادگی *</label><input id="u_name"></div>
+    <div class="full"><label>نام *</label><input id="u_name"></div>
     <div><label>ایمیل *</label><input type="email" id="u_email"></div>
-    <div><label>رمز عبور *</label><input type="password" id="u_pass"></div>
-    <div><label>سطح دسترسی</label><select id="u_role"><option value="staff">مسئول مالی</option><option value="admin">مدیر</option></select></div>
+    <div><label>رمز *</label><input type="password" id="u_pass"></div>
+    <div><label>دسترسی</label><select id="u_role"><option value="staff">مسئول مالی</option><option value="admin">مدیر</option></select></div>
   </div>
   <div class="modalfoot"><button class="btn primary" id="btnSaveUser">ذخیره</button></div></div>`);
   document.getElementById('btnSaveUser').onclick = saveUser;
@@ -3172,46 +2681,30 @@ function openUser(){
 
 async function saveUser(){
   const name = v('u_name'), email = v('u_email'), password = v('u_pass'), role = v('u_role');
-  if(!name) return toast('نام الزامی است', 'error');
-  if(!isValidEmail(email)) return toast('ایمیل معتبر وارد کنید', 'error');
-  if(password.length < 6) return toast('رمز حداقل ۶ کاراکتر', 'error');
+  if(!name || !isValidEmail(email) || password.length < 6) return toast('اطلاعات نامعتبر', 'error');
 
   isProcessing = true;
-  const btn = document.getElementById('btnSaveUser');
-  if(btn){ btn.disabled = true; btn.textContent = 'در حال ساخت...'; }
-
   try {
     const { data, error } = await sb.auth.signUp({
-      email, password,
-      options: { data: { full_name: name, role } }
+      email, password, options: { data: { full_name: name, role } }
     });
     if(error) return toast(translateError(error), 'error');
-
-    if(data.user){
-      await sb.from('profiles').upsert({ id: data.user.id, full_name: name, role });
-    }
-
+    if(data.user) await sb.from('profiles').upsert({ id: data.user.id, full_name: name, role });
     await logAction(`افزودن کاربر ${name}`);
     closeModal();
     await loadUsers();
     toast('کاربر ساخته شد ✅', 'success');
-  } catch(e){
-    toast('خطا: ' + e.message, 'error');
-  } finally {
-    isProcessing = false;
-    if(btn){ btn.disabled = false; btn.textContent = 'ذخیره'; }
-  }
+  } finally { isProcessing = false; }
 }
 
 async function deleteUser(id){
-  if(userRole !== 'admin') return toast('فقط مدیر می‌تواند کاربر حذف کند', 'error');
-  if(!confirm('حذف این کاربر؟')) return;
+  if(userRole !== 'admin') return toast('فقط مدیر', 'error');
+  if(!confirm('حذف کاربر؟')) return;
   try {
-    const { error } = await sb.from('profiles').delete().eq('id', id);
-    if(error) return toast(translateError(error), 'error');
+    await sb.from('profiles').delete().eq('id', id);
     await logAction('حذف کاربر');
     await loadUsers();
-    toast('کاربر حذف شد', 'success');
+    toast('حذف شد', 'success');
   } catch(e){ toast(e.message, 'error'); }
 }
 
@@ -3229,7 +2722,7 @@ function renderReport(){
     const a = type === 'debt' ? arr.filter(s => balance(s) > 0)
             : type === 'paid' ? arr.filter(s => balance(s) <= 0)
             : arr;
-    el.innerHTML = `<div class="table-wrap"><table class="table"><thead><tr><th>نام</th><th>پایه</th><th>شهریه</th><th>پرداخت‌شده</th><th>بدهی</th><th>وضعیت</th></tr></thead>
+    el.innerHTML = `<div class="table-wrap"><table class="table"><thead><tr><th>نام</th><th>پایه</th><th>شهریه</th><th>پرداختی</th><th>بدهی</th><th>وضعیت</th></tr></thead>
     <tbody>${a.map(s => { const st = status(s); return `<tr><td>${s.name} ${s.family}</td><td>${s.grade||'-'}</td><td>${money(finalTuition(s))}</td><td>${money(paid(s))}</td><td>${money(balance(s))}</td><td>${st[0]}</td></tr>`; }).join('')}</tbody></table></div>`;
   }
   else if(type === 'payments'){
@@ -3238,12 +2731,12 @@ function renderReport(){
   }
   else if(type === 'checks'){
     const total = db.checks.reduce((a,c) => a + (+c.amount||0), 0);
-    el.innerHTML = `<h3>جمع کل چک‌ها: ${money(total)}</h3><div class="table-wrap"><table class="table"><thead><tr><th>شماره</th><th>بانک</th><th>صاحب</th><th>دانش‌آموز</th><th>مبلغ</th><th>سررسید</th><th>وضعیت</th></tr></thead>
-    <tbody>${db.checks.map(c => { const st = checkStatusLabel(c.status); return `<tr><td>${c.checkNumber}</td><td>${c.bankName||'-'}</td><td>${c.holderName||'-'}</td><td>${studentName(c.studentId)}</td><td>${money(c.amount)}</td><td>${c.dueDate||'-'}</td><td>${st[0]}</td></tr>`; }).join('')}</tbody></table></div>`;
+    el.innerHTML = `<h3>جمع چک‌ها: ${money(total)}</h3><div class="table-wrap"><table class="table"><thead><tr><th>شماره</th><th>بانک</th><th>دانش‌آموز</th><th>مبلغ</th><th>سررسید</th><th>وضعیت</th></tr></thead>
+    <tbody>${db.checks.map(c => { const stt = checkStatusLabel(c.status); return `<tr><td>${c.checkNumber}</td><td>${c.bankName||'-'}</td><td>${studentName(c.studentId)}</td><td>${money(c.amount)}</td><td>${c.dueDate||'-'}</td><td>${stt[0]}</td></tr>`; }).join('')}</tbody></table></div>`;
   }
   else if(type === 'salaries'){
     const total = db.salaries.reduce((a,s) => a + (+s.net_amount||0), 0);
-    el.innerHTML = `<h3>جمع حقوق پرداختی: ${money(total)}</h3><div class="table-wrap"><table class="table"><thead><tr><th>کارمند</th><th>ماه</th><th>خالص</th><th>تاریخ</th></tr></thead>
+    el.innerHTML = `<h3>جمع حقوق: ${money(total)}</h3><div class="table-wrap"><table class="table"><thead><tr><th>کارمند</th><th>ماه</th><th>خالص</th><th>تاریخ</th></tr></thead>
     <tbody>${db.salaries.map(s => `<tr><td>${staffName(s.staffId)}</td><td>${s.month}</td><td>${money(s.net_amount)}</td><td>${s.date}</td></tr>`).join('')}</tbody></table></div>`;
   }
   else if(type === 'expenses'){
@@ -3251,28 +2744,41 @@ function renderReport(){
     el.innerHTML = `<h3>جمع هزینه‌ها: ${money(total)}</h3><div class="table-wrap"><table class="table"><thead><tr><th>عنوان</th><th>دسته</th><th>مبلغ</th><th>تاریخ</th></tr></thead>
     <tbody>${db.expenses.map(x => `<tr><td>${x.title}</td><td>${x.category||'-'}</td><td>${money(x.amount)}</td><td>${x.date}</td></tr>`).join('')}</tbody></table></div>`;
   }
+  else if(type === 'assets'){
+    const totalVal = db.assets.reduce((s,x) => s + (+x.unit_price||0)*(+x.quantity||1), 0);
+    el.innerHTML = `<h3>ارزش کل اموال: ${money(totalVal)}</h3><div class="table-wrap"><table class="table"><thead><tr><th>نام</th><th>دسته</th><th>تعداد</th><th>قیمت واحد</th><th>محل</th><th>وضعیت</th></tr></thead>
+    <tbody>${db.assets.map(a => { const stl = assetStatusLabel(a.status); return `<tr><td>${a.name}</td><td>${a.category||'-'}</td><td>${a.quantity||1}</td><td>${money(a.unit_price)}</td><td>${a.location||'-'}</td><td>${stl[0]}</td></tr>`; }).join('')}</tbody></table></div>`;
+  }
+  else if(type === 'birthdays'){
+    const withB = arr.filter(s => s.birthDate).sort((a,b) => (a.birthDate||'').localeCompare(b.birthDate||''));
+    el.innerHTML = `<h3>${withB.length} دانش‌آموز با تاریخ تولد</h3><div class="table-wrap"><table class="table"><thead><tr><th>نام</th><th>پایه</th><th>تاریخ تولد</th><th>سن</th><th>امروز؟</th></tr></thead>
+    <tbody>${withB.map(s => {
+      const isB = isBirthdayToday(s.birthDate);
+      return `<tr style="${isB ? 'background:#fef3c7' : ''}"><td>${s.name} ${s.family}</td><td>${s.grade||'-'}</td><td>${s.birthDate}</td><td>${calcAge(s.birthDate)}</td><td>${isB ? '🎂 بله' : '-'}</td></tr>`;
+    }).join('')}</tbody></table></div>`;
+  }
   else {
     const inc = db.incomes.reduce((a,x) => a + (+x.amount||0), 0) + db.payments.reduce((a,x) => a + (+x.amount||0), 0);
     const exp = db.expenses.reduce((a,x) => a + (+x.amount||0), 0) + db.salaries.reduce((a,s) => a + (+s.net_amount||0), 0);
     el.innerHTML = `<div class="grid stats">
       <div class="card stat"><div class="ico">📈</div><div class="label">کل درآمد</div><div class="num" style="color:var(--success-dark)">${money(inc)}</div></div>
       <div class="card stat"><div class="ico">📉</div><div class="label">کل هزینه</div><div class="num" style="color:var(--danger)">${money(exp)}</div></div>
-      <div class="card stat"><div class="ico">💰</div><div class="label">مانده مالی</div><div class="num" style="color:var(--primary)">${money(inc - exp)}</div></div>
+      <div class="card stat"><div class="ico">💰</div><div class="label">مانده</div><div class="num" style="color:var(--primary)">${money(inc - exp)}</div></div>
     </div>`;
   }
 }
 
 function exportCSV(){
   const rows = [
-    ['نام','کد','پایه','کلاس','شهریه','پرداخت','بدهی','همراه'],
-    ...db.students.map(s => [s.name + ' ' + s.family, s.code||'', s.grade||'', s.class||'', finalTuition(s), paid(s), balance(s), s.phone||''])
+    ['نام','کد','پایه','کلاس','تاریخ تولد','شهریه','پرداخت','بدهی','همراه'],
+    ...db.students.map(s => [s.name + ' ' + s.family, s.code||'', s.grade||'', s.class||'', s.birthDate||'', finalTuition(s), paid(s), balance(s), s.phone||''])
   ];
   const csv = '\uFEFF' + rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
-  a.download = 'گزارش-مالی.csv';
+  a.download = 'گزارش.csv';
   a.click();
-  toast('فایل CSV دانلود شد ✅', 'success');
+  toast('دانلود شد ✅', 'success');
 }
 
 /* ============================================================
@@ -3281,153 +2787,97 @@ function exportCSV(){
 async function saveSettings(){
   if(isProcessing) return;
   isProcessing = true;
-  const btn = document.getElementById('btnSaveSettings');
-  if(btn){ btn.disabled = true; btn.textContent = 'در حال ذخیره...'; }
-
   try {
-    const x = {
-      id: true,
-      school_name: v('setSchool'), academic_year: v('setYear'),
-      phone: v('setPhone'), address: v('setAddress'),
-      footer: v('setFooter'), updated_at: new Date().toISOString()
-    };
-    const { error } = await sb.from('settings').upsert(x);
-    if(error) return toast(translateError(error), 'error');
-    await logAction('تغییر تنظیمات');
+    await sb.from('settings').upsert({
+      id: true, school_name: v('setSchool'), academic_year: v('setYear'),
+      phone: v('setPhone'), address: v('setAddress'), footer: v('setFooter'),
+      updated_at: new Date().toISOString()
+    });
+    await logAction('تنظیمات');
     await refreshApp();
-    toast('تنظیمات ذخیره شد ✅', 'success');
-  } catch(e){
-    toast('خطا: ' + e.message, 'error');
-  } finally {
-    isProcessing = false;
-    if(btn){ btn.disabled = false; btn.textContent = '💾 ذخیره تنظیمات'; }
-  }
+    toast('ذخیره شد ✅', 'success');
+  } finally { isProcessing = false; }
 }
 
 /* ============================================================
-   پشتیبان‌گیری
+   پشتیبان
 ============================================================ */
 function updateBackupStats(){
   const el = document.getElementById('backupStats');
   if(!el) return;
   el.innerHTML = `
-    👩🏻‍🎓 دانش‌آموزان: <b>${db.students.length}</b> نفر<br>
-    👨‍🏫 کارکنان: <b>${db.staff.length}</b> نفر<br>
-    💳 پرداخت‌ها: <b>${db.payments.length}</b> تراکنش<br>
-    📝 چک‌ها: <b>${db.checks.length}</b> فقره<br>
-    💰 واریز حقوق: <b>${db.salaries.length}</b> تراکنش<br>
-    📈 درآمدها: <b>${db.incomes.length}</b> ردیف<br>
-    📉 هزینه‌ها: <b>${db.expenses.length}</b> ردیف<br>
-    📅 اقساط: <b>${db.installments.length}</b> قسط<br>
-    🎁 تخفیف‌ها: <b>${db.discounts.length}</b> ردیف
+    👩🏻‍🎓 دانش‌آموزان: <b>${db.students.length}</b><br>
+    👨‍🏫 کارکنان: <b>${db.staff.length}</b><br>
+    💳 پرداخت‌ها: <b>${db.payments.length}</b><br>
+    📝 چک‌ها: <b>${db.checks.length}</b><br>
+    🏫 اموال: <b>${db.assets.length}</b><br>
+    💰 حقوق: <b>${db.salaries.length}</b><br>
+    📈 درآمد: <b>${db.incomes.length}</b><br>
+    📉 هزینه: <b>${db.expenses.length}</b><br>
+    📅 اقساط: <b>${db.installments.length}</b><br>
+    🎁 تخفیف: <b>${db.discounts.length}</b>
   `;
 }
 
 async function downloadBackup(){
   if(isProcessing) return;
   isProcessing = true;
-  const btn = document.getElementById('btnDownloadBackup');
-  if(btn){ btn.disabled = true; btn.textContent = '⏳ در حال آماده‌سازی...'; }
-
   try {
     await loadData();
-
     const backup = {
-      version: '6.0',
+      version: '8.0',
       created_at: new Date().toISOString(),
       created_at_fa: new Date().toLocaleString('fa-IR'),
-      created_by: currentUser?.email || 'نامشخص',
+      created_by: currentUser?.email,
       settings: db.settings,
-      stats: {
-        students: db.students.length, payments: db.payments.length,
-        staff: db.staff.length, salaries: db.salaries.length,
-        checks: db.checks.length,
-        incomes: db.incomes.length, expenses: db.expenses.length,
-        installments: db.installments.length, discounts: db.discounts.length
-      },
       data: {
-        students: db.students, payments: db.payments,
-        staff: db.staff, salaries: db.salaries,
-        checks: db.checks,
+        students: db.students, payments: db.payments, staff: db.staff,
+        salaries: db.salaries, checks: db.checks, assets: db.assets,
         incomes: db.incomes, expenses: db.expenses,
         installments: db.installments, discounts: db.discounts
       }
     };
-
-    const json = JSON.stringify(backup, null, 2);
-    const blob = new Blob([json], { type: 'application/json;charset=utf-8' });
+    const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json;charset=utf-8' });
     const date = new Date().toLocaleDateString('fa-IR').replace(/\//g, '-');
     const time = new Date().toLocaleTimeString('fa-IR', { hour12: false }).replace(/:/g, '-');
-    const filename = `پشتیبان-الهه-مهر-${date}-${time}.json`;
-
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = filename;
+    a.download = `پشتیبان-الهه-مهر-${date}-${time}.json`;
     a.click();
     URL.revokeObjectURL(a.href);
-
     await logAction('دانلود پشتیبان');
-    toast(`✅ فایل پشتیبان دانلود شد`, 'success');
-  } catch(e){
-    toast('خطا در پشتیبان‌گیری: ' + e.message, 'error');
-  } finally {
-    isProcessing = false;
-    if(btn){ btn.disabled = false; btn.textContent = '📥 دانلود فایل پشتیبان (JSON)'; }
-  }
+    toast('دانلود شد ✅', 'success');
+  } finally { isProcessing = false; }
 }
 
 function downloadExcelFull(){
   const rows = [
     ['=== دانش‌آموزان ==='],
-    ['کد','نام','نام خانوادگی','پایه','کلاس','شماره همراه','شهریه','تخفیف','پرداخت‌شده','مانده'],
-    ...db.students.map(s => [s.code||'', s.name, s.family, s.grade||'', s.class||'', s.phone||'', s.tuition||0, s.discount||0, paid(s), balance(s)]),
+    ['کد','نام','خانوادگی','پایه','کلاس','تاریخ تولد','همراه','شهریه','تخفیف','پرداختی','مانده'],
+    ...db.students.map(s => [s.code||'', s.name, s.family, s.grade||'', s.class||'', s.birthDate||'', s.phone||'', s.tuition||0, s.discount||0, paid(s), balance(s)]),
     [],
-    ['=== کارکنان ==='],
-    ['کد پرسنلی','نام','نام خانوادگی','سمت','شماره همراه','حقوق پایه','پاداش'],
-    ...db.staff.map(s => [s.code||'', s.name, s.family, s.position||'', s.phone||'', s.base_salary||0, s.bonus||0]),
-    [],
-    ['=== چک‌های دریافتی ==='],
-    ['شماره چک','بانک','صاحب چک','دانش‌آموز','مبلغ','تاریخ صدور','سررسید','وضعیت'],
-    ...db.checks.map(c => [c.checkNumber, c.bankName||'', c.holderName||'', studentName(c.studentId), c.amount, c.issueDate||'', c.dueDate||'', checkStatusLabel(c.status)[0]]),
-    [],
-    ['=== واریز حقوق ==='],
-    ['کارمند','ماه','حقوق پایه','پاداش','کسورات','خالص','تاریخ','روش'],
-    ...db.salaries.map(s => [staffName(s.staffId), s.month||'', s.base||0, s.bonus||0, s.deduction||0, s.net_amount||0, s.date||'', s.method||'']),
+    ['=== اموال ==='],
+    ['نام','دسته','تعداد','قیمت واحد','محل','سریال','وضعیت'],
+    ...db.assets.map(a => [a.name, a.category||'', a.quantity||1, a.unit_price||0, a.location||'', a.serial_number||'', assetStatusLabel(a.status)[0]]),
     [],
     ['=== پرداخت‌ها ==='],
-    ['تاریخ','دانش‌آموز','مبلغ','روش','رسید','پیگیری'],
-    ...db.payments.map(p => [p.date||'', studentName(p.studentId), p.amount, p.method||'', p.receipt||'', p.tracking||'']),
-    [],
-    ['=== هزینه‌ها ==='],
-    ['عنوان','دسته','مبلغ','تاریخ','روش'],
-    ...db.expenses.map(x => [x.title, x.category||'', x.amount, x.date||'', x.method||'']),
-    [],
-    ['=== درآمدها ==='],
-    ['عنوان','دسته','مبلغ','تاریخ'],
-    ...db.incomes.map(x => [x.title, x.category||'', x.amount, x.date||''])
+    ['تاریخ','دانش‌آموز','مبلغ','روش','رسید'],
+    ...db.payments.map(p => [p.date||'', studentName(p.studentId), p.amount, p.method||'', p.receipt||''])
   ];
-
   const csv = '\uFEFF' + rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
   const date = new Date().toLocaleDateString('fa-IR').replace(/\//g, '-');
-  a.download = `گزارش-کامل-الهه-مهر-${date}.csv`;
+  a.download = `گزارش-کامل-${date}.csv`;
   a.click();
   URL.revokeObjectURL(a.href);
-  toast('✅ فایل Excel دانلود شد', 'success');
+  toast('دانلود شد ✅', 'success');
 }
 
-/* ============================================================
-   بازیابی هوشمند
-============================================================ */
 async function restoreFromFile(event){
   const file = event.target.files[0];
   if(!file) return;
-
-  if(!confirm('⚠️ تمام اطلاعات فعلی با فایل پشتیبان جایگزین می‌شود. مطمئنی؟')) {
-    event.target.value = '';
-    return;
-  }
+  if(!confirm('⚠️ همه اطلاعات جایگزین می‌شود. مطمئنی؟')) { event.target.value = ''; return; }
 
   const reader = new FileReader();
   const progress = document.getElementById('restoreProgress');
@@ -3439,258 +2889,192 @@ async function restoreFromFile(event){
   reader.onload = async () => {
     try {
       const backup = JSON.parse(reader.result);
-      if(!backup.data || !backup.data.students) throw new Error('فایل معتبر نیست');
-
+      if(!backup.data || !backup.data.students) throw new Error('فایل نامعتبر');
       const d = backup.data;
-      const stats = {
-        students: 0, payments: 0, paymentsSkipped: 0,
-        staff: 0, salaries: 0, salariesSkipped: 0,
-        checks: 0, checksSkipped: 0,
-        incomes: 0, expenses: 0,
-        installments: 0, installmentsSkipped: 0,
-        discounts: 0, discountsSkipped: 0, errors: []
-      };
 
-      // پاک کردن همه چیز
-      msg.textContent = '⏳ پاک کردن اطلاعات قبلی...';
-      bar.style.width = '10%';
-      await sb.from('payments').delete().neq('id', 0);
-      await sb.from('checks').delete().neq('id', 0);
-      await sb.from('installments').delete().neq('id', 0);
-      await sb.from('discounts').delete().neq('id', 0);
-      await sb.from('salaries').delete().neq('id', 0);
-      await sb.from('students').delete().neq('id', 0);
-      await sb.from('staff').delete().neq('id', 0);
-      await sb.from('incomes').delete().neq('id', 0);
-      await sb.from('expenses').delete().neq('id', 0);
+      const clearTables = ['payments','checks','installments','discounts','salaries','assets','students','staff','incomes','expenses'];
+      for(const t of clearTables){
+        msg.textContent = `⏳ پاک کردن ${t}...`;
+        await sb.from(t).delete().neq('id', 0);
+      }
+      bar.style.width = '20%';
+
+      const studentCodeToId = {};
+      const staffCodeToId = {};
 
       // دانش‌آموزان
-      msg.textContent = `⏳ بازیابی ${d.students.length} دانش‌آموز...`;
-      bar.style.width = '25%';
-      const studentCodeToId = {};
-      if(d.students.length){
+      if(d.students?.length){
+        msg.textContent = `⏳ دانش‌آموزان...`;
         const mapped = d.students.map(s => ({
-          code: s.code, name: s.name, family: s.family,
-          grade: s.grade, class_name: s.class || s.class_name,
+          code: s.code, name: s.name, family: s.family, grade: s.grade,
+          class_name: s.class || s.class_name,
           phone: s.phone, father_phone: s.phone || s.father_phone,
+          birth_date: s.birthDate || s.birth_date || '',
           academic_year: s.year || s.academic_year,
-          tuition: s.tuition || 0, discount: s.discount || 0
+          tuition: s.tuition||0, discount: s.discount||0
         }));
         const { error, data } = await sb.from('students').insert(mapped).select('id, code');
-        if(error) throw new Error('دانش‌آموزان: ' + error.message);
-        stats.students = data?.length || 0;
-        data?.forEach(s => { studentCodeToId[s.code] = s.id; });
+        if(error) throw error;
+        data?.forEach(s => studentCodeToId[s.code] = s.id);
       }
+      bar.style.width = '40%';
 
       // کارکنان
-      msg.textContent = `⏳ بازیابی کارکنان...`;
-      bar.style.width = '40%';
-      const staffCodeToId = {};
-      if(d.staff && d.staff.length){
+      if(d.staff?.length){
+        msg.textContent = `⏳ کارکنان...`;
         const mapped = d.staff.map(s => ({
           staff_code: s.code || s.staff_code, name: s.name, family: s.family,
           position: s.position, phone: s.phone,
-          base_salary: s.base_salary || 0, bonus: s.bonus || 0, notes: s.notes || ''
+          base_salary: s.base_salary||0, bonus: s.bonus||0, notes: s.notes||''
         }));
         const { error, data } = await sb.from('staff').insert(mapped).select('id, staff_code');
-        if(error) throw new Error('کارکنان: ' + error.message);
-        stats.staff = data?.length || 0;
-        data?.forEach(s => { staffCodeToId[s.staff_code] = s.id; });
+        if(error) throw error;
+        data?.forEach(s => staffCodeToId[s.staff_code] = s.id);
       }
+      bar.style.width = '55%';
 
       // پرداخت‌ها
-      msg.textContent = `⏳ بازیابی پرداخت‌ها...`;
-      bar.style.width = '55%';
-      if(d.payments && d.payments.length){
-        const validPayments = [];
-        for(const p of d.payments){
-          const oldStudentId = p.studentId || p.student_id;
-          const oldStudent = d.students.find(s => s.id == oldStudentId);
-          if(!oldStudent){ stats.paymentsSkipped++; continue; }
+      if(d.payments?.length){
+        msg.textContent = `⏳ پرداخت‌ها...`;
+        const valid = d.payments.map(p => {
+          const oldId = p.studentId || p.student_id;
+          const oldStudent = d.students.find(s => s.id == oldId);
+          if(!oldStudent) return null;
           const newId = studentCodeToId[oldStudent.code];
-          if(!newId){ stats.paymentsSkipped++; continue; }
-          validPayments.push({
+          if(!newId) return null;
+          return {
             student_id: newId, amount: p.amount,
-            payment_date: p.date || p.payment_date,
-            method: p.method, tracking: p.tracking || '',
-            receipt: p.receipt || ('R' + Date.now() + Math.random().toString(36).slice(2,6)),
+            payment_date: p.date || p.payment_date, method: p.method,
+            tracking: p.tracking||'', receipt: p.receipt || ('R'+Date.now()+Math.random().toString(36).slice(2,6)),
             description: p.desc || p.description || ''
-          });
-        }
-        if(validPayments.length){
-          const { error, data } = await sb.from('payments').insert(validPayments).select('id');
-          if(error){ stats.errors.push('پرداخت‌ها: ' + error.message); }
-          else { stats.payments = data?.length || 0; }
-        }
+          };
+        }).filter(Boolean);
+        if(valid.length) await sb.from('payments').insert(valid);
       }
+      bar.style.width = '70%';
+
+      // اموال
+      if(d.assets?.length){
+        msg.textContent = `⏳ اموال...`;
+        const mapped = d.assets.map(a => ({
+          name: a.name, category: a.category, quantity: a.quantity||1,
+          unit_price: a.unitPrice || a.unit_price || 0,
+          purchase_date: a.purchaseDate || a.purchase_date || '',
+          location: a.location||'', serial_number: a.serialNumber || a.serial_number || '',
+          status: a.status||'active', description: a.description||''
+        }));
+        await sb.from('assets').insert(mapped);
+      }
+      bar.style.width = '80%';
 
       // چک‌ها
-      msg.textContent = `⏳ بازیابی چک‌ها...`;
-      bar.style.width = '65%';
-      if(d.checks && d.checks.length){
-        const validChecks = [];
+      if(d.checks?.length){
+        msg.textContent = `⏳ چک‌ها...`;
+        const valid = [];
         for(const c of d.checks){
-          const oldStudentId = c.studentId || c.student_id;
-          const oldStudent = d.students.find(s => s.id == oldStudentId);
+          const oldId = c.studentId || c.student_id;
+          const oldStudent = d.students.find(s => s.id == oldId);
           const newId = oldStudent ? studentCodeToId[oldStudent.code] : null;
-          if(!newId){ stats.checksSkipped++; continue; }
-          validChecks.push({
-            student_id: newId,
-            check_number: c.checkNumber || c.check_number,
-            bank_name: c.bankName || c.bank_name || '',
-            amount: c.amount,
+          if(!newId) continue;
+          valid.push({
+            student_id: newId, check_number: c.checkNumber || c.check_number,
+            bank_name: c.bankName || c.bank_name || '', amount: c.amount,
             issue_date: c.issueDate || c.issue_date || '',
             due_date: c.dueDate || c.due_date || '',
             holder_name: c.holderName || c.holder_name || '',
-            status: c.status || 'pending',
-            description: c.description || ''
+            status: c.status||'pending', description: c.description||''
           });
         }
-        if(validChecks.length){
-          const { error, data } = await sb.from('checks').insert(validChecks).select('id');
-          if(!error) stats.checks = data?.length || 0;
-          else stats.errors.push('چک‌ها: ' + error.message);
-        }
+        if(valid.length) await sb.from('checks').insert(valid);
       }
+      bar.style.width = '88%';
 
       // حقوق
-      msg.textContent = `⏳ بازیابی واریز حقوق...`;
-      bar.style.width = '75%';
-      if(d.salaries && d.salaries.length){
-        const validSalaries = [];
+      if(d.salaries?.length){
+        msg.textContent = `⏳ حقوق...`;
+        const valid = [];
         for(const s of d.salaries){
-          const oldStaffId = s.staffId || s.staff_id;
-          const oldStaff = d.staff?.find(x => x.id == oldStaffId);
-          if(!oldStaff){ stats.salariesSkipped++; continue; }
-          const newId = staffCodeToId[oldStaff.code || oldStaff.staff_code];
-          if(!newId){ stats.salariesSkipped++; continue; }
-          validSalaries.push({
+          const oldId = s.staffId || s.staff_id;
+          const old = d.staff?.find(x => x.id == oldId);
+          if(!old) continue;
+          const newId = staffCodeToId[old.code || old.staff_code];
+          if(!newId) continue;
+          valid.push({
             staff_id: newId, salary_month: s.month || s.salary_month,
-            base_amount: s.base || s.base_amount || 0,
-            bonus_amount: s.bonus || s.bonus_amount || 0,
-            deduction: s.deduction || 0, net_amount: s.net_amount || 0,
+            base_amount: s.base || s.base_amount||0,
+            bonus_amount: s.bonus || s.bonus_amount||0,
+            deduction: s.deduction||0, net_amount: s.net_amount||0,
             payment_date: s.date || s.payment_date,
             payment_method: s.method || s.payment_method,
-            tracking: s.tracking || '', description: s.description || ''
+            tracking: s.tracking||'', description: s.description||''
           });
         }
-        if(validSalaries.length){
-          const { error, data } = await sb.from('salaries').insert(validSalaries).select('id');
-          if(!error) stats.salaries = data?.length || 0;
-        }
+        if(valid.length) await sb.from('salaries').insert(valid);
       }
+      bar.style.width = '94%';
 
-      // اقساط
-      msg.textContent = '⏳ بازیابی اقساط...';
-      bar.style.width = '82%';
-      if(d.installments && d.installments.length){
-        const validInst = [];
-        for(const i of d.installments){
+      // اقساط/تخفیف
+      if(d.installments?.length){
+        const valid = d.installments.map(i => {
           const oldId = i.studentId || i.student_id;
-          const oldStudent = d.students.find(s => s.id == oldId);
-          if(!oldStudent){ stats.installmentsSkipped++; continue; }
-          const newId = studentCodeToId[oldStudent.code];
-          if(!newId){ stats.installmentsSkipped++; continue; }
-          validInst.push({ student_id: newId, amount: i.amount, due_date: i.due || i.due_date, paid: i.paid || false });
-        }
-        if(validInst.length){
-          const { error, data } = await sb.from('installments').insert(validInst).select('id');
-          if(!error) stats.installments = data?.length || 0;
-        }
+          const old = d.students.find(s => s.id == oldId);
+          if(!old) return null;
+          const newId = studentCodeToId[old.code];
+          if(!newId) return null;
+          return { student_id: newId, amount: i.amount, due_date: i.due || i.due_date, paid: i.paid||false };
+        }).filter(Boolean);
+        if(valid.length) await sb.from('installments').insert(valid);
       }
-
-      // تخفیف‌ها
-      msg.textContent = '⏳ بازیابی تخفیف‌ها...';
-      bar.style.width = '88%';
-      if(d.discounts && d.discounts.length){
-        const validDisc = [];
-        for(const x of d.discounts){
+      if(d.discounts?.length){
+        const valid = d.discounts.map(x => {
           const oldId = x.studentId || x.student_id;
-          const oldStudent = d.students.find(s => s.id == oldId);
-          if(!oldStudent){ stats.discountsSkipped++; continue; }
-          const newId = studentCodeToId[oldStudent.code];
-          if(!newId){ stats.discountsSkipped++; continue; }
-          validDisc.push({
-            student_id: newId, base_amount: x.base || x.base_amount || 0,
-            discount_type: x.type || x.discount_type, value: x.value || 0,
-            final_amount: x.final || x.final_amount || 0,
-            reason: x.reason || '', discount_date: x.date || x.discount_date
-          });
-        }
-        if(validDisc.length){
-          const { error, data } = await sb.from('discounts').insert(validDisc).select('id');
-          if(!error) stats.discounts = data?.length || 0;
-        }
+          const old = d.students.find(s => s.id == oldId);
+          if(!old) return null;
+          const newId = studentCodeToId[old.code];
+          if(!newId) return null;
+          return {
+            student_id: newId, base_amount: x.base || x.base_amount||0,
+            discount_type: x.type || x.discount_type, value: x.value||0,
+            final_amount: x.final || x.final_amount||0,
+            reason: x.reason||'', discount_date: x.date || x.discount_date
+          };
+        }).filter(Boolean);
+        if(valid.length) await sb.from('discounts').insert(valid);
       }
 
-      // درآمد و هزینه
-      msg.textContent = '⏳ بازیابی درآمد و هزینه...';
-      bar.style.width = '95%';
-      if(d.incomes && d.incomes.length){
-        const mapped = d.incomes.map(x => ({
+      // درآمد/هزینه
+      if(d.incomes?.length){
+        await sb.from('incomes').insert(d.incomes.map(x => ({
           title: x.title, category: x.category, amount: x.amount,
-          income_date: x.date || x.income_date, description: x.desc || x.description || ''
-        }));
-        const { data } = await sb.from('incomes').insert(mapped).select('id');
-        if(data) stats.incomes = data.length;
+          income_date: x.date || x.income_date, description: x.desc || x.description||''
+        })));
       }
-      if(d.expenses && d.expenses.length){
-        const mapped = d.expenses.map(x => ({
+      if(d.expenses?.length){
+        await sb.from('expenses').insert(d.expenses.map(x => ({
           title: x.title, category: x.category, amount: x.amount,
           expense_date: x.date || x.expense_date, method: x.method,
-          document: x.doc || x.document || '', description: x.desc || x.description || ''
-        }));
-        const { data } = await sb.from('expenses').insert(mapped).select('id');
-        if(data) stats.expenses = data.length;
+          document: x.doc || x.document||'', description: x.desc || x.description||''
+        })));
       }
 
-      // تنظیمات
       if(backup.settings){
         await sb.from('settings').upsert({
-          id: true,
-          school_name: backup.settings.school,
+          id: true, school_name: backup.settings.school,
           academic_year: backup.settings.year,
-          phone: backup.settings.phone || '',
-          address: backup.settings.address || '',
-          footer: backup.settings.footer || ''
+          phone: backup.settings.phone||'', address: backup.settings.address||'',
+          footer: backup.settings.footer||''
         });
       }
 
       bar.style.width = '100%';
       msg.textContent = '✅ بازیابی کامل شد!';
-
       await logAction('بازیابی پشتیبان');
       await refreshApp();
-
-      let report = `✅ بازیابی موفق!\n\n`;
-      report += `👩🏻‍🎓 دانش‌آموزان: ${stats.students}\n`;
-      report += `👨‍🏫 کارکنان: ${stats.staff}\n`;
-      report += `💳 پرداخت‌ها: ${stats.payments}`;
-      if(stats.paymentsSkipped > 0) report += ` (${stats.paymentsSkipped} رد شد)`;
-      report += `\n📝 چک‌ها: ${stats.checks}`;
-      if(stats.checksSkipped > 0) report += ` (${stats.checksSkipped} رد شد)`;
-      report += `\n💰 واریز حقوق: ${stats.salaries}`;
-      if(stats.salariesSkipped > 0) report += ` (${stats.salariesSkipped} رد شد)`;
-      report += `\n📅 اقساط: ${stats.installments}`;
-      if(stats.installmentsSkipped > 0) report += ` (${stats.installmentsSkipped} رد شد)`;
-      report += `\n🎁 تخفیف‌ها: ${stats.discounts}`;
-      if(stats.discountsSkipped > 0) report += ` (${stats.discountsSkipped} رد شد)`;
-      report += `\n📈 درآمدها: ${stats.incomes}\n📉 هزینه‌ها: ${stats.expenses}`;
-
-      if(stats.errors.length) report += `\n\n⚠️ خطاها:\n${stats.errors.join('\n')}`;
-
-      alert(report);
-      toast('اطلاعات با موفقیت بازیابی شد ✅', 'success');
-
-      setTimeout(() => {
-        progress.style.display = 'none';
-        bar.style.width = '0%';
-      }, 2000);
-
+      toast('بازیابی شد ✅', 'success');
+      setTimeout(() => { progress.style.display = 'none'; bar.style.width = '0%'; }, 2000);
     } catch(e){
       msg.textContent = '❌ خطا: ' + e.message;
-      toast('خطا در بازیابی: ' + e.message, 'error');
-      alert('❌ خطا در بازیابی:\n\n' + e.message);
+      toast('خطا: ' + e.message, 'error');
       setTimeout(() => { progress.style.display = 'none'; bar.style.width = '0%'; }, 3000);
     } finally {
       event.target.value = '';
@@ -3703,7 +3087,7 @@ async function restoreFromFile(event){
    حذف عمومی
 ============================================================ */
 async function deleteItem(table, id){
-  if(!confirm('حذف این مورد؟')) return;
+  if(!confirm('حذف؟')) return;
   if(isProcessing) return;
   isProcessing = true;
   try {
@@ -3712,41 +3096,37 @@ async function deleteItem(table, id){
     await logAction('حذف از ' + table);
     await refreshApp();
     toast('حذف شد ✅', 'success');
-  } catch(e){
-    toast('خطا: ' + e.message, 'error');
-  } finally {
-    isProcessing = false;
-  }
+  } finally { isProcessing = false; }
 }
 
 /* ============================================================
-   لاگ‌ها و داشبورد
+   لاگ و داشبورد
 ============================================================ */
 function renderLogs(){
   document.getElementById('logsTable').innerHTML = db.logs.map(x => `
     <tr><td>${x.action}</td><td>${x.date}</td><td>${x.time}</td></tr>`).join('')
-    || `<tr><td colspan="3" class="empty">هنوز فعالیتی ثبت نشده است.</td></tr>`;
+    || `<tr><td colspan="3" class="empty">فعالیتی نیست</td></tr>`;
 }
 
 function renderDashboardLists(){
   document.getElementById('recentPayments').innerHTML = db.payments.slice(0, 5).map(p => `
     <div style="padding:11px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;font-size:13.5px">
       <span>${studentName(p.studentId)}</span><b style="color:var(--success-dark)">${money(p.amount)}</b>
-    </div>`).join('') || '<div class="empty">پرداختی ثبت نشده است.</div>';
+    </div>`).join('') || '<div class="empty">پرداختی نیست</div>';
 
   document.getElementById('dueSoon').innerHTML = db.installments.filter(x => !x.paid && !isPast(x.due)).slice(0, 6)
     .map(x => `<li><span>${studentName(x.studentId)}</span><b>${x.due}</b></li>`).join('')
-    || '<li>موردی وجود ندارد</li>';
+    || '<li>موردی نیست</li>';
 
   document.getElementById('overdueList').innerHTML = db.installments.filter(x => !x.paid && isPast(x.due)).slice(0, 6)
     .map(x => `<li><span>${studentName(x.studentId)}</span><b style="color:var(--danger)">${money(x.amount)}</b></li>`).join('')
-    || '<li>موردی وجود ندارد</li>';
+    || '<li>موردی نیست</li>';
 
   const dueChecks = db.checks.filter(c => c.status === 'pending' && !isPast(c.dueDate)).sort((a,b) => (a.dueDate||'').localeCompare(b.dueDate||'')).slice(0, 6);
   document.getElementById('checksDueSoon').innerHTML = dueChecks.map(c => {
     const days = daysUntil(c.dueDate);
     return `<li><span>${c.checkNumber} - ${c.bankName||''} (${studentName(c.studentId)})</span><b>${c.dueDate} ${days !== Infinity && days <= 7 ? '('+days+' روز)' : ''}</b></li>`;
-  }).join('') || '<li>چک نزدیک به سررسید وجود ندارد</li>';
+  }).join('') || '<li>چکی نیست</li>';
 }
 
 /* ============================================================
@@ -3776,7 +3156,7 @@ function drawCharts(){
   const debtN = db.students.filter(s => balance(s) > 0).length;
   charts.push(new Chart(c2, {
     type: 'doughnut',
-    data: { labels: ['تسویه‌شده','بدهکار'], datasets: [{ data: [paidN, debtN], backgroundColor: ['#10b981','#f59e0b'], borderWidth: 0 }] },
+    data: { labels: ['تسویه','بدهکار'], datasets: [{ data: [paidN, debtN], backgroundColor: ['#10b981','#f59e0b'], borderWidth: 0 }] },
     options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
   }));
 
@@ -3799,7 +3179,7 @@ function openModal(title, body){
 function closeModal(){ document.getElementById('modal').classList.remove('show'); }
 
 /* ============================================================
-   اتصال رویدادها
+   رویدادها
 ============================================================ */
 document.addEventListener('click', function(e){
   const btn = e.target.closest('[data-action]');
@@ -3827,6 +3207,8 @@ document.addEventListener('click', function(e){
   else if(action === 'del-check') deleteItem('checks', id);
   else if(action === 'collect-check') collectCheck(id);
   else if(action === 'return-check') returnCheck(id);
+  else if(action === 'edit-asset') openAsset(id);
+  else if(action === 'del-asset') deleteItem('assets', id);
 });
 
 function bindStaticButtons(){
@@ -3836,12 +3218,14 @@ function bindStaticButtons(){
   document.getElementById('btnOpenPayment').onclick = openPayment;
   document.getElementById('btnNewPayment').onclick = openPayment;
   document.getElementById('btnNewStudent').onclick = () => openStudent();
+  document.getElementById('btnImportExcel').onclick = openExcelImport;
   document.getElementById('btnNewStaff').onclick = () => openStaff();
   document.getElementById('btnNewSalary').onclick = () => openSalary();
   document.getElementById('btnNewIncome').onclick = openIncome;
   document.getElementById('btnNewExpense').onclick = openExpense;
   document.getElementById('btnNewInstallment').onclick = openInstallment;
   document.getElementById('btnNewDiscount').onclick = openDiscount;
+  document.getElementById('btnNewAsset').onclick = () => openAsset();
   document.getElementById('btnNewUser').onclick = openUser;
   document.getElementById('btnNewCheck').onclick = () => openCheck();
   document.getElementById('btnSaveSettings').onclick = saveSettings;
@@ -3875,7 +3259,7 @@ function bindStaticButtons(){
   document.getElementById('modal').onclick = (e) => { if(e.target.id === 'modal') closeModal(); };
   document.querySelectorAll('.nav button').forEach(b => b.onclick = () => nav(b.dataset.page));
 
-  ['studentSearch','gradeFilter','classFilter'].forEach(id => {
+  ['studentSearch','gradeFilter','classFilter','birthdayFilter'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.addEventListener('input', renderStudents);
   });
@@ -3894,6 +3278,10 @@ function bindStaticButtons(){
   ['salarySearch','salaryMonthFilter'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.addEventListener('input', renderSalaries);
+  });
+  ['assetSearch','assetCategoryFilter','assetStatusFilter'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('input', renderAssets);
   });
   ['bulkSearch','bulkMethodFilter'].forEach(id => {
     const el = document.getElementById(id);
@@ -3932,9 +3320,7 @@ window.addEventListener('DOMContentLoaded', async () => {
       currentUser = data.session.user;
       await refreshApp();
     }
-  } catch(e){
-    console.error('init error', e);
-  }
+  } catch(e){ console.error('init:', e); }
 });
 </script>
 </body>
