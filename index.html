@@ -28,6 +28,38 @@
   --radius-sm: 8px; --radius: 14px; --radius-lg: 20px; --radius-xl: 24px;
   --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* Dark Mode */
+body.dark-mode {
+  --bg: #0f172a; --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+  --card: #1e293b; --text: #f1f5f9; --text-soft: #cbd5e1; --muted: #94a3b8; --line: #334155;
+  --primary-bg: #312e81;
+  --success-bg: #064e3b; --success-dark: #6ee7b7;
+  --warning-bg: #78350f; --warning-dark: #fcd34d;
+  --danger-bg: #7f1d1d; --danger-dark: #fca5a5;
+  --info-bg: #1e3a8a; --info: #93c5fd;
+  --shadow: 0 4px 6px -1px rgba(0,0,0,.3);
+  --shadow-md: 0 10px 15px -3px rgba(0,0,0,.4);
+  --shadow-lg: 0 20px 25px -5px rgba(0,0,0,.5);
+}
+body.dark-mode .topbar { background: rgba(30, 41, 59, 0.7); border-color: rgba(255,255,255,.1); }
+body.dark-mode .table th { background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%); }
+body.dark-mode .search { background: #1e293b; color: #f1f5f9; }
+body.dark-mode .user-chip { background: #1e293b; }
+body.dark-mode .modalbox { background: #1e293b; color: #f1f5f9; }
+body.dark-mode .form input,
+body.dark-mode .form select,
+body.dark-mode .form textarea,
+body.dark-mode .filters input,
+body.dark-mode .filters select { background: #0f172a; color: #f1f5f9; border-color: #334155; }
+body.dark-mode .btn { background: #334155; color: #f1f5f9; }
+body.dark-mode .stat { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
+body.dark-mode .mini { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
+body.dark-mode .salary-calc-box { background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); }
+body.dark-mode .birthday-card { background: linear-gradient(135deg, #78350f 0%, #991b1b 100%); }
+body.dark-mode .birthday-card h3 { color: #fef3c7; }
+body.dark-mode .birthday-person { background: #1e293b; color: #fef3c7; }
+
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
@@ -35,6 +67,7 @@ body {
   background: var(--bg-gradient); background-attachment: fixed;
   color: var(--text); font-weight: 400; line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  transition: background 0.3s, color 0.3s;
 }
 button, input, select, textarea { font-family: inherit; font-size: inherit; }
 button { cursor: pointer; border: 0; transition: var(--transition); }
@@ -82,7 +115,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 }
 .topbar h1 { font-size: 24px; margin: 0; font-weight: 800; letter-spacing: -.5px; color: var(--text); }
 .top-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-.search { background: #fff; border: 2px solid var(--line); border-radius: 12px; padding: 11px 16px; min-width: 280px; font-size: 13.5px; outline: none; transition: var(--transition); }
+.search { background: #fff; border: 2px solid var(--line); border-radius: 12px; padding: 11px 16px; min-width: 280px; font-size: 13.5px; outline: none; transition: var(--transition); color: var(--text); }
 .search:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-bg); }
 
 .btn { padding: 11px 18px; border-radius: 12px; background: #f1f5f9; color: var(--text); font-weight: 600; font-size: 13.5px; transition: var(--transition); display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; border: 2px solid transparent; }
@@ -94,6 +127,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .btn.blue { background: var(--info-bg); color: #1e40af; border-color: #bfdbfe; }
 .btn.gold { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #fff; box-shadow: 0 4px 14px rgba(245,158,11,.35); }
 .btn.purple { background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); color: #fff; box-shadow: 0 4px 14px rgba(168,85,247,.35); }
+.btn.icon-only { padding: 11px; width: 44px; height: 44px; justify-content: center; }
 
 .user-chip { display: flex; align-items: center; gap: 10px; background: #fff; border: 2px solid var(--line); border-radius: 14px; padding: 8px 14px; font-size: 13px; transition: var(--transition); }
 .user-chip:hover { border-color: var(--primary-light); box-shadow: var(--shadow-md); }
@@ -143,13 +177,13 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .empty { text-align: center; color: var(--muted); padding: 40px 20px; font-size: 14px; }
 
 .filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
-.filters input, .filters select, .form input, .form select, .form textarea { border: 2px solid var(--line); background: #fff; border-radius: 12px; padding: 11px 14px; outline: none; font-size: 13.5px; transition: var(--transition); min-width: 180px; }
+.filters input, .filters select, .form input, .form select, .form textarea { border: 2px solid var(--line); background: #fff; color: var(--text); border-radius: 12px; padding: 11px 14px; outline: none; font-size: 13.5px; transition: var(--transition); min-width: 180px; }
 .filters input:focus, .form input:focus, .form select:focus, .form textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-bg); }
 
 .modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 50; padding: 15px; animation: fadeIn 0.25s ease; }
 .modal.show { display: flex; }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-.modalbox { background: #fff; width: min(920px, 100%); max-height: 92vh; overflow: auto; border-radius: var(--radius-xl); padding: 28px; box-shadow: var(--shadow-xl); animation: slideUp 0.3s ease; }
+.modalbox { background: #fff; color: var(--text); width: min(920px, 100%); max-height: 92vh; overflow: auto; border-radius: var(--radius-xl); padding: 28px; box-shadow: var(--shadow-xl); animation: slideUp 0.3s ease; }
 @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 .modalhead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid var(--line); }
 .modalhead h2 { margin: 0; font-size: 19px; font-weight: 800; letter-spacing: -.3px; }
@@ -158,7 +192,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .form label { display: block; font-size: 12.5px; color: var(--text-soft); margin-bottom: 6px; font-weight: 700; }
 .form textarea { min-height: 85px; width: 100%; resize: vertical; font-family: inherit; }
 .full { grid-column: 1 / -1; }
-.modalfoot { display: flex; justify-content: flex-start; gap: 10px; margin-top: 22px; padding-top: 18px; border-top: 2px solid var(--line); }
+.modalfoot { display: flex; justify-content: flex-start; gap: 10px; margin-top: 22px; padding-top: 18px; border-top: 2px solid var(--line); flex-wrap: wrap; }
 
 .detail-grid { grid-template-columns: repeat(4, 1fr); }
 .mini { background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%); border: 1px solid var(--line); padding: 16px; border-radius: var(--radius); }
@@ -230,6 +264,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .checkbox-cell { text-align: center; }
 .checkbox-cell input { width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary); }
 
+/* محاسبه حقوق */
 .salary-calc-box {
   background: linear-gradient(135deg, #eef2ff 0%, #f0f9ff 100%);
   border: 2px solid var(--primary-light);
@@ -246,12 +281,51 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   display: grid; grid-template-columns: 1fr 1fr;
   gap: 12px; margin-bottom: 12px;
 }
+.salary-calc-row.three { grid-template-columns: 1fr 1fr 1fr; }
 .salary-calc-total {
   background: #fff; border: 2px solid var(--primary);
   border-radius: 12px; padding: 14px;
   text-align: center; font-size: 18px;
   font-weight: 800; color: var(--primary-dark);
+  margin-top: 12px;
 }
+.salary-calc-total.big { font-size: 20px; }
+.salary-deductions-box {
+  background: #fef3c7; border: 2px solid #fbbf24;
+  border-radius: var(--radius); padding: 14px; margin-bottom: 12px;
+}
+.salary-deductions-box h5 {
+  margin: 0 0 10px; color: #92400e;
+  font-size: 13px; font-weight: 800;
+}
+
+/* گزارش پیشرفته */
+.advanced-report-card {
+  background: linear-gradient(135deg, var(--primary-bg) 0%, #f0f9ff 100%);
+  border: 2px solid var(--primary-light);
+  border-radius: var(--radius-lg);
+  padding: 20px; margin-bottom: 16px;
+}
+.advanced-report-card h3 {
+  margin: 0 0 12px; color: var(--primary-dark);
+  font-size: 16px; font-weight: 800;
+}
+
+/* پیامک */
+.sms-box {
+  background: linear-gradient(135deg, #eef2ff 0%, #f0f9ff 100%);
+  border: 2px solid var(--primary-light);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+.sms-box h3 { margin: 0 0 14px; color: var(--primary-dark); font-size: 16px; font-weight: 800; }
+.sms-templates { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.sms-template-btn {
+  padding: 8px 14px; background: #fff; border: 2px solid var(--line);
+  border-radius: 10px; font-size: 12.5px; font-weight: 600;
+  color: var(--text); cursor: pointer; transition: var(--transition);
+}
+.sms-template-btn:hover { border-color: var(--primary); background: var(--primary-bg); }
 
 @media (max-width: 1200px) { .stats { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 1050px) {
@@ -272,7 +346,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   .formgrid { grid-template-columns: 1fr; }
   .detail-grid { grid-template-columns: 1fr 1fr; }
   .section-head { flex-direction: column; align-items: stretch; }
-  .salary-calc-row { grid-template-columns: 1fr; }
+  .salary-calc-row, .salary-calc-row.three { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -324,6 +398,9 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
     <button data-page="bulk">🖨 <span>چاپ دسته‌ای</span></button>
     <button data-page="logs">🕘 <span>فعالیت‌ها</span></button>
 
+    <div class="nav-section">ارتباطات</div>
+    <button data-page="sms">📱 <span>ارسال پیامک</span></button>
+
     <div class="nav-section">سیستم</div>
     <button data-page="users">👥 <span>کاربران</span></button>
     <button data-page="settings">⚙️ <span>تنظیمات</span></button>
@@ -341,6 +418,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   </div>
   <div class="top-actions">
     <input class="search" id="globalSearch" placeholder="🔍 جستجوی سریع...">
+    <button class="btn icon-only" id="btnThemeToggle" title="تغییر تم">🌙</button>
     <button class="btn primary" id="btnOpenPayment">💳 ثبت پرداخت +</button>
     <div class="user-chip" id="userChip">
       <div class="avatar" id="userAvatar">م</div>
@@ -548,8 +626,9 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
       <table class="table">
         <thead>
           <tr>
-            <th>کارمند</th><th>ماه</th><th>ساعت تدریس</th><th>حقوق ساعتی</th>
-            <th>مبلغ خالص</th><th>تاریخ واریز</th><th>روش</th><th>عملیات</th>
+            <th>کارمند</th><th>ماه</th><th>ساعت</th><th>حقوق ساعتی</th>
+            <th>حقوق پایه</th><th>کسورات</th><th>مبلغ خالص</th>
+            <th>تاریخ</th><th>عملیات</th>
           </tr>
         </thead>
         <tbody id="salaryTable"></tbody>
@@ -562,7 +641,10 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 <section class="page" id="incomes">
   <div class="section-head">
     <h2>📈 درآمدها</h2>
-    <button class="btn primary" id="btnNewIncome">ثبت درآمد +</button>
+    <div class="actions">
+      <button class="btn green" id="btnImportIncomesExcel">📥 ورود از Excel</button>
+      <button class="btn primary" id="btnNewIncome">ثبت درآمد +</button>
+    </div>
   </div>
   <div class="card">
     <div class="table-wrap">
@@ -583,7 +665,10 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 <section class="page" id="expenses">
   <div class="section-head">
     <h2>📉 هزینه‌های مدرسه</h2>
-    <button class="btn primary" id="btnNewExpense">ثبت هزینه +</button>
+    <div class="actions">
+      <button class="btn green" id="btnImportExpensesExcel">📥 ورود از Excel</button>
+      <button class="btn primary" id="btnNewExpense">ثبت هزینه +</button>
+    </div>
   </div>
   <div class="card">
     <div class="table-wrap">
@@ -684,6 +769,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
     <h2>📊 گزارش‌های مالی</h2>
     <div class="actions">
       <button class="btn blue" id="btnExportCSV">📥 خروجی Excel/CSV</button>
+      <button class="btn purple" id="btnPrintMonthly">🖨 گزارش ماهانه</button>
     </div>
   </div>
   <div class="card">
@@ -755,6 +841,60 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   </div>
 </section>
 
+<!-- پیامک -->
+<section class="page" id="sms">
+  <div class="section-head"><h2>📱 ارسال پیامک به والدین</h2></div>
+  
+  <div class="sms-box">
+    <h3>📤 ارسال پیامک جدید</h3>
+    
+    <div class="sms-templates">
+      <span style="font-weight:700;font-size:13px;margin-left:8px;align-self:center">📋 قالب‌های آماده:</span>
+      <button class="sms-template-btn" onclick="setSmsTemplate('debt')">💰 یادآوری بدهی</button>
+      <button class="sms-template-btn" onclick="setSmsTemplate('installment')">📅 یادآوری قسط</button>
+      <button class="sms-template-btn" onclick="setSmsTemplate('thanks')">🙏 تشکر از پرداخت</button>
+      <button class="sms-template-btn" onclick="setSmsTemplate('birthday')">🎂 تبریک تولد</button>
+      <button class="sms-template-btn" onclick="setSmsTemplate('custom')">✏️ پیامک دستی</button>
+    </div>
+    
+    <div class="formgrid">
+      <div class="full">
+        <label>گیرنده‌ها</label>
+        <select id="smsRecipients" multiple style="min-height:120px;width:100%">
+        </select>
+        <small style="color:var(--muted);font-size:12px;display:block;margin-top:6px">برای انتخاب چندگانه Ctrl را نگه دار</small>
+      </div>
+      <div class="full">
+        <label>متن پیامک</label>
+        <textarea id="smsMessage" placeholder="متن پیامک..." style="min-height:100px;width:100%"></textarea>
+        <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:var(--muted)">
+          <span id="smsCharCount">0 / 160</span>
+          <span id="smsRecipientCount">0 گیرنده</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="modalfoot">
+      <button class="btn primary" id="btnSendSms">📱 ارسال</button>
+      <button class="btn" id="btnClearSms">🗑️ پاک کردن</button>
+    </div>
+  </div>
+  
+  <div class="card" style="margin-top:20px">
+    <h3 style="margin-top:0">📋 تاریخچه پیامک‌ها</h3>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>تاریخ</th><th>گیرنده</th><th>متن</th><th>وضعیت</th>
+          </tr>
+        </thead>
+        <tbody id="smsLogTable"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
 <!-- کاربران -->
 <section class="page" id="users">
   <div class="section-head">
@@ -779,7 +919,9 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 <!-- تنظیمات -->
 <section class="page" id="settings">
   <div class="section-head"><h2>⚙️ تنظیمات</h2></div>
+  
   <div class="card form">
+    <h3 style="margin-top:0">🏫 اطلاعات مدرسه</h3>
     <div class="formgrid">
       <div><label>نام مدرسه</label><input id="setSchool"></div>
       <div><label>سال تحصیلی</label><input id="setYear"></div>
@@ -787,9 +929,34 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
       <div class="full"><label>آدرس</label><input id="setAddress"></div>
       <div class="full"><label>متن پایین رسید</label><textarea id="setFooter"></textarea></div>
     </div>
-    <div class="modalfoot">
-      <button class="btn primary" id="btnSaveSettings">💾 ذخیره تنظیمات</button>
+  </div>
+  
+  <div class="card form" style="margin-top:18px">
+    <h3 style="margin-top:0">📱 تنظیمات پیامک</h3>
+    <div style="background:var(--warning-bg);padding:12px;border-radius:10px;margin-bottom:14px;font-size:13px;border:1px solid #fde68a">
+      ⚠️ برای ارسال پیامک، باید در سرویس کاوه‌نگار (kavenegar.com) ثبت‌نام کنی و API Key بگیری. این کلید را در فیلد زیر وارد کن.
     </div>
+    <div class="formgrid">
+      <div><label>سرویس‌دهنده</label>
+        <select id="setSmsProvider">
+          <option value="kavenegar">کاوه‌نگار</option>
+          <option value="mellipayamak">ملی پیامک</option>
+          <option value="disabled">غیرفعال</option>
+        </select>
+      </div>
+      <div><label>API Key</label><input id="setSmsApiKey" placeholder="کلید API"></div>
+      <div><label>شماره فرستنده</label><input id="setSmsSender" placeholder="مثلاً 10008445"></div>
+      <div class="full">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+          <input type="checkbox" id="setSmsEnabled" style="width:auto;min-width:auto">
+          <span>فعال‌سازی ارسال پیامک</span>
+        </label>
+      </div>
+    </div>
+  </div>
+  
+  <div class="modalfoot">
+    <button class="btn primary" id="btnSaveSettings">💾 ذخیره تنظیمات</button>
   </div>
 </section>
 
@@ -828,14 +995,6 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
         <div id="restoreMsg" style="text-align:center;margin-top:10px;font-size:13px;color:var(--muted);font-weight:600">در حال بازیابی...</div>
       </div>
     </div>
-  </div>
-  <div class="card" style="margin-top:18px">
-    <h3 style="margin-top:0">📋 راهنمای پشتیبان‌گیری</h3>
-    <ul style="line-height:2.2;color:var(--text-soft);font-size:13.5px;padding-right:24px">
-      <li>✅ <b>هر هفته</b> یک بار پشتیبان بگیر و در <b>Google Drive یا ایمیل</b> ذخیره کن</li>
-      <li>✅ قبل از بازیابی، مطمئن شو فایل پشتیبان <b>معتبر</b> است</li>
-      <li>⚠️ فایل را در جای امن نگه‌دار</li>
-    </ul>
   </div>
 </section>
 
@@ -901,7 +1060,7 @@ let db = {
   settings: { ...DEFAULT_SETTINGS },
   students: [], payments: [], incomes: [], expenses: [],
   installments: [], discounts: [], staff: [], salaries: [],
-  checks: [], assets: [], logs: [], users: []
+  checks: [], assets: [], logs: [], users: [], smsLog: [], smsSettings: {}
 };
 
 /* ============================================================
@@ -942,7 +1101,6 @@ function daysUntil(dateStr){
   } catch { return Infinity; }
 }
 
-/* تاریخ تولد */
 function isBirthdayToday(birthDate){
   if(!birthDate) return false;
   try {
@@ -998,11 +1156,6 @@ function assetStatusLabel(st){
   return [ASSET_STATUSES[st] || 'فعال', st || 'active'];
 }
 
-/* محاسبه حقوق ساعتی */
-function calcHourlySalary(hoursWorked, hourlyRate){
-  return Math.round((hoursWorked || 0) * (hourlyRate || 0));
-}
-
 function toast(msg, type){
   const e = document.getElementById('toast');
   e.textContent = msg;
@@ -1019,9 +1172,6 @@ function authMsg(msg, ok){
 
 function isValidEmail(email){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
 
-/* ============================================================
-   ترجمه خطا
-============================================================ */
 function translateError(error){
   if(!error) return 'خطای نامشخص';
   const code = error.code;
@@ -1044,9 +1194,6 @@ function translateError(error){
   return 'خطا: ' + (error.message || 'نامشخص');
 }
 
-/* ============================================================
-   Supabase init
-============================================================ */
 function initSupabase(){
   if(sb) return true;
   if(typeof window.supabase === 'undefined' || !window.supabase.createClient){
@@ -1059,7 +1206,7 @@ function initSupabase(){
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: false,
-        storageKey: 'haleh-mehr-auth-v9'
+        storageKey: 'haleh-mehr-auth-v10'
       }
     });
     return true;
@@ -1106,6 +1253,11 @@ function mapSalary(r){
     base: r.base_amount,
     bonus: r.bonus_amount,
     deduction: r.deduction,
+    insurance: r.insurance || 0,
+    tax: r.tax || 0,
+    absence: r.absence || 0,
+    advance: r.advance || 0,
+    other_deductions: r.other_deductions || 0,
     net_amount: r.net_amount,
     date: r.payment_date,
     method: r.payment_method,
@@ -1126,6 +1278,24 @@ function mapAsset(r){
     unitPrice: r.unit_price,
     purchaseDate: r.purchase_date,
     serialNumber: r.serial_number
+  };
+}
+function mapSmsLog(r){
+  return {
+    ...r,
+    recipientName: r.recipient_name,
+    studentId: r.student_id,
+    sentAt: r.sent_at ? new Date(r.sent_at).toLocaleString('fa-IR') : '-',
+    status: r.status || 'sent'
+  };
+}
+function mapSmsSettings(r){
+  if(!r) return { api_key: '', sender_number: '', provider: 'kavenegar', is_enabled: false };
+  return {
+    api_key: r.api_key || '',
+    sender_number: r.sender_number || '',
+    provider: r.provider || 'kavenegar',
+    is_enabled: r.is_enabled || false
   };
 }
 
@@ -1158,7 +1328,9 @@ async function loadData(){
     sb.from('staff').select('*').order('created_at', { ascending: false }).then(r => r.error ? { data: [], error: null } : r),
     sb.from('salaries').select('*').order('created_at', { ascending: false }).then(r => r.error ? { data: [], error: null } : r),
     sb.from('checks').select('*').order('created_at', { ascending: false }).then(r => r.error ? { data: [], error: null } : r),
-    sb.from('assets').select('*').order('created_at', { ascending: false }).then(r => r.error ? { data: [], error: null } : r)
+    sb.from('assets').select('*').order('created_at', { ascending: false }).then(r => r.error ? { data: [], error: null } : r),
+    sb.from('sms_log').select('*').order('sent_at', { ascending: false }).limit(100).then(r => r.error ? { data: [], error: null } : r),
+    sb.from('sms_settings').select('*').eq('id', true).maybeSingle().then(r => r.error ? { data: null, error: null } : r)
   ]);
 
   const firstError = results.find(x => x.error)?.error;
@@ -1180,6 +1352,8 @@ async function loadData(){
   db.salaries = (results[9].data || []).map(mapSalary);
   db.checks = (results[10].data || []).map(mapCheck);
   db.assets = (results[11].data || []).map(mapAsset);
+  db.smsLog = (results[12].data || []).map(mapSmsLog);
+  db.smsSettings = mapSmsSettings(results[13].data);
 }
 
 async function logAction(action){
@@ -1210,6 +1384,10 @@ async function refreshApp(){
   document.getElementById('setPhone').value = db.settings.phone;
   document.getElementById('setAddress').value = db.settings.address;
   document.getElementById('setFooter').value = db.settings.footer;
+  document.getElementById('setSmsProvider').value = db.smsSettings.provider || 'kavenegar';
+  document.getElementById('setSmsApiKey').value = db.smsSettings.api_key || '';
+  document.getElementById('setSmsSender').value = db.smsSettings.sender_number || '';
+  document.getElementById('setSmsEnabled').checked = db.smsSettings.is_enabled || false;
 
   renderAll();
   updateBackupStats();
@@ -1294,11 +1472,31 @@ function nav(page){
     incomes: 'درآمدها', expenses: 'هزینه‌ها', installments: 'اقساط', discounts: 'تخفیف‌ها',
     assets: 'اموال مدرسه',
     reports: 'گزارش‌های مالی', invoices: 'صورتحساب‌ها', bulk: 'چاپ دسته‌ای رسیدها',
-    users: 'مدیریت کاربران', logs: 'فعالیت کاربران', settings: 'تنظیمات', backup: 'پشتیبان‌گیری'
+    sms: 'ارسال پیامک', users: 'مدیریت کاربران', logs: 'فعالیت کاربران',
+    settings: 'تنظیمات', backup: 'پشتیبان‌گیری'
   };
   document.getElementById('pageTitle').textContent = titles[page] || '';
   renderAll();
   if(page === 'backup') updateBackupStats();
+  if(page === 'sms') renderSmsPage();
+}
+
+/* ============================================================
+   Dark Mode
+============================================================ */
+function initTheme(){
+  const saved = localStorage.getItem('haleh-mehr-theme');
+  if(saved === 'dark') {
+    document.body.classList.add('dark-mode');
+    document.getElementById('btnThemeToggle').textContent = '☀️';
+  }
+}
+
+function toggleTheme(){
+  document.body.classList.toggle('dark-mode');
+  const isDark = document.body.classList.contains('dark-mode');
+  document.getElementById('btnThemeToggle').textContent = isDark ? '☀️' : '🌙';
+  localStorage.setItem('haleh-mehr-theme', isDark ? 'dark' : 'light');
 }
   /* ============================================================
    رندر کل
@@ -1324,6 +1522,7 @@ function renderAll(){
   renderLogs();
   renderDashboardLists();
   renderReport();
+  renderSmsLog();
   drawCharts();
 }
 
@@ -1419,7 +1618,7 @@ function renderStudents(){
 }
 
 /* ============================================================
-   فرم دانش‌آموز (با فیلد تاریخ تولد)
+   فرم دانش‌آموز
 ============================================================ */
 function openStudent(id){
   const s = id ? studentById(id) : {
@@ -1578,17 +1777,14 @@ function studentDetails(id){
 }
 
 /* ============================================================
-   آپلود Excel (هوشمند - فقط به‌روزرسانی)
+   آپلود Excel دانش‌آموزان
 ============================================================ */
 function openExcelImport(){
   openModal('📥 ورود گروهی از Excel', `
   <div style="background:#f0f9ff;padding:16px;border-radius:12px;margin-bottom:20px;font-size:13.5px;line-height:2;border:1px solid #bfdbfe">
     <b style="color:var(--info)">📋 راهنما:</b><br>
-    ستون‌ها:<br>
-    <code style="background:#fff;padding:4px 8px;border-radius:6px;display:inline-block;margin-top:6px;font-family:monospace">
-      کد | نام | نام خانوادگی | پایه | کلاس | همراه | تولد | شهریه | تخفیف
-    </code><br><br>
-    <b style="color:var(--success-dark)">✨ هوشمند:</b> اگر کد دانش‌آموز وجود داشته باشد، اطلاعاتش <b>به‌روز</b> می‌شود (نه تکرار).
+    ستون‌ها: کد | نام | نام خانوادگی | پایه | کلاس | همراه | تولد | شهریه | تخفیف<br>
+    <b style="color:var(--success-dark)">✨ هوشمند:</b> اگر کد وجود داشته باشد، به‌روزرسانی می‌شود.
   </div>
   <div style="border:2px dashed var(--primary-light);padding:30px;border-radius:14px;text-align:center;background:#fafbff">
     <input type="file" accept=".xlsx,.xls,.csv" id="excelFile" hidden>
@@ -1616,7 +1812,6 @@ async function handleExcelFile(e){
     const wb = XLSX.read(data, { type: 'array' });
     const sheet = wb.Sheets[wb.SheetNames[0]];
     const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
-
     if(rows.length < 2) return toast('فایل خالی است', 'error');
 
     const headers = rows[0].map(h => String(h).trim());
@@ -1632,19 +1827,17 @@ async function handleExcelFile(e){
 
     const cols = {
       code: findCol(['کد']),
-      name: findCol(['نام', 'name']),
-      family: findCol(['خانوادگی', 'family']),
-      grade: findCol(['پایه', 'grade']),
-      class: findCol(['کلاس', 'class']),
-      phone: findCol(['همراه', 'موبایل', 'phone']),
-      birth: findCol(['تولد', 'birth']),
-      tuition: findCol(['شهریه', 'tuition']),
-      discount: findCol(['تخفیف', 'discount'])
+      name: findCol(['نام']),
+      family: findCol(['خانوادگی']),
+      grade: findCol(['پایه']),
+      class: findCol(['کلاس']),
+      phone: findCol(['همراه', 'موبایل']),
+      birth: findCol(['تولد']),
+      tuition: findCol(['شهریه']),
+      discount: findCol(['تخفیف'])
     };
 
-    if(cols.name < 0 || cols.family < 0){
-      return toast('ستون‌های «نام» و «نام خانوادگی» الزامی است', 'error');
-    }
+    if(cols.name < 0 || cols.family < 0) return toast('ستون‌های نام و خانوادگی الزامی', 'error');
 
     excelImportData = dataRows.map(row => ({
       code: cols.code >= 0 ? String(row[cols.code] || '').trim() : '',
@@ -1668,11 +1861,10 @@ async function handleExcelFile(e){
 function renderExcelPreview(){
   const preview = document.getElementById('excelPreview');
   if(!excelImportData.length){
-    preview.innerHTML = '<p class="empty">هیچ ردیف معتبری یافت نشد</p>';
+    preview.innerHTML = '<p class="empty">ردیف معتبری نیست</p>';
     return;
   }
 
-  // پیدا کردن بر اساس نام یا کد
   let newCount = 0, updateCount = 0;
   const matches = excelImportData.map(r => {
     const existing = (r.code && db.students.find(s => s.code === r.code)) ||
@@ -1737,13 +1929,11 @@ async function confirmExcelImport(){
 
       if(r.existingId){
         const { error } = await sb.from('students').update(data).eq('id', r.existingId);
-        if(error) errors++;
-        else updated++;
+        if(error) errors++; else updated++;
       } else {
         if(!r.code) { errors++; continue; }
         const { error } = await sb.from('students').insert({ ...data, code: r.code, academic_year: r.academic_year });
-        if(error) errors++;
-        else inserted++;
+        if(error) errors++; else inserted++;
       }
     }
 
@@ -1761,6 +1951,158 @@ async function confirmExcelImport(){
 }
 
 /* ============================================================
+   آپلود Excel درآمدها
+============================================================ */
+function openIncomesExcelImport(){
+  openModal('📥 ورود درآمدها از Excel', `
+  <div style="background:#f0f9ff;padding:16px;border-radius:12px;margin-bottom:20px;font-size:13.5px;line-height:2;border:1px solid #bfdbfe">
+    <b style="color:var(--info)">📋 ستون‌ها:</b><br>
+    عنوان | دسته | مبلغ | تاریخ | توضیحات
+  </div>
+  <div style="border:2px dashed var(--primary-light);padding:30px;border-radius:14px;text-align:center;background:#fafbff">
+    <input type="file" accept=".xlsx,.xls,.csv" id="incomesExcelFile" hidden>
+    <button class="btn primary" id="btnSelectIncomesExcel" style="font-size:15px;padding:14px 28px">📂 انتخاب فایل</button>
+    <div id="incomesExcelFileName" style="margin-top:14px;color:var(--muted);font-size:13px"></div>
+  </div>
+  <div id="incomesExcelPreview" style="margin-top:20px"></div>
+  `);
+
+  setTimeout(() => {
+    document.getElementById('btnSelectIncomesExcel').onclick = () => document.getElementById('incomesExcelFile').click();
+    document.getElementById('incomesExcelFile').onchange = async (e) => {
+      const file = e.target.files[0];
+      if(!file) return;
+      document.getElementById('incomesExcelFileName').textContent = `📄 ${file.name}`;
+      try {
+        const data = await file.arrayBuffer();
+        const wb = XLSX.read(data, { type: 'array' });
+        const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, defval: '' });
+        if(rows.length < 2) return toast('فایل خالی', 'error');
+        const headers = rows[0].map(h => String(h).trim());
+        const findCol = (names) => headers.findIndex(h => names.some(n => h.includes(n)));
+        const cT = findCol(['عنوان']), cC = findCol(['دسته']), cA = findCol(['مبلغ']), cD = findCol(['تاریخ']), cDesc = findCol(['توضیح']);
+        
+        const items = rows.slice(1).map(r => ({
+          title: String(r[cT] || '').trim(),
+          category: String(r[cC] || 'سایر').trim(),
+          amount: parseFloat(r[cA]) || 0,
+          income_date: String(r[cD] || today()).trim(),
+          description: String(r[cDesc] || '').trim()
+        })).filter(x => x.title && x.amount > 0);
+
+        document.getElementById('incomesExcelPreview').innerHTML = `
+          <div style="background:#f0f9ff;padding:12px;border-radius:10px;margin-bottom:14px;font-size:13px">
+            <b>📊 ${items.length} درآمد آماده ذخیره</b>
+          </div>
+          <div class="section-head" style="margin-top:0">
+            <h3 style="margin:0">پیش‌نمایش</h3>
+            <button class="btn primary" id="btnConfirmIncomes">✅ تأیید و ذخیره</button>
+          </div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr><th>عنوان</th><th>دسته</th><th>مبلغ</th><th>تاریخ</th></tr></thead>
+              <tbody>${items.slice(0, 50).map(x => `<tr><td>${x.title}</td><td>${x.category}</td><td>${money(x.amount)}</td><td>${x.income_date}</td></tr>`).join('')}</tbody>
+            </table>
+          </div>
+        `;
+        
+        setTimeout(() => {
+          document.getElementById('btnConfirmIncomes').onclick = async () => {
+            isProcessing = true;
+            let ok = 0;
+            for(const it of items){
+              const { error } = await sb.from('incomes').insert({ ...it, created_by: currentUser.id });
+              if(!error) ok++;
+            }
+            await logAction(`ورود ${ok} درآمد از Excel`);
+            closeModal();
+            await refreshApp();
+            toast(`✅ ${ok} درآمد اضافه شد`, 'success');
+            isProcessing = false;
+          };
+        }, 50);
+      } catch(err){ toast('خطا: ' + err.message, 'error'); }
+    };
+  }, 100);
+}
+
+/* ============================================================
+   آپلود Excel هزینه‌ها
+============================================================ */
+function openExpensesExcelImport(){
+  openModal('📥 ورود هزینه‌ها از Excel', `
+  <div style="background:#f0f9ff;padding:16px;border-radius:12px;margin-bottom:20px;font-size:13.5px;line-height:2;border:1px solid #bfdbfe">
+    <b style="color:var(--info)">📋 ستون‌ها:</b><br>
+    عنوان | دسته | مبلغ | تاریخ | روش پرداخت | توضیحات
+  </div>
+  <div style="border:2px dashed var(--primary-light);padding:30px;border-radius:14px;text-align:center;background:#fafbff">
+    <input type="file" accept=".xlsx,.xls,.csv" id="expensesExcelFile" hidden>
+    <button class="btn primary" id="btnSelectExpensesExcel" style="font-size:15px;padding:14px 28px">📂 انتخاب فایل</button>
+    <div id="expensesExcelFileName" style="margin-top:14px;color:var(--muted);font-size:13px"></div>
+  </div>
+  <div id="expensesExcelPreview" style="margin-top:20px"></div>
+  `);
+
+  setTimeout(() => {
+    document.getElementById('btnSelectExpensesExcel').onclick = () => document.getElementById('expensesExcelFile').click();
+    document.getElementById('expensesExcelFile').onchange = async (e) => {
+      const file = e.target.files[0];
+      if(!file) return;
+      document.getElementById('expensesExcelFileName').textContent = `📄 ${file.name}`;
+      try {
+        const data = await file.arrayBuffer();
+        const wb = XLSX.read(data, { type: 'array' });
+        const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, defval: '' });
+        if(rows.length < 2) return toast('فایل خالی', 'error');
+        const headers = rows[0].map(h => String(h).trim());
+        const findCol = (names) => headers.findIndex(h => names.some(n => h.includes(n)));
+        const cT = findCol(['عنوان']), cC = findCol(['دسته']), cA = findCol(['مبلغ']), cD = findCol(['تاریخ']), cM = findCol(['روش']), cDesc = findCol(['توضیح']);
+        
+        const items = rows.slice(1).map(r => ({
+          title: String(r[cT] || '').trim(),
+          category: String(r[cC] || 'سایر').trim(),
+          amount: parseFloat(r[cA]) || 0,
+          expense_date: String(r[cD] || today()).trim(),
+          method: String(r[cM] || 'نقدی').trim(),
+          description: String(r[cDesc] || '').trim()
+        })).filter(x => x.title && x.amount > 0);
+
+        document.getElementById('expensesExcelPreview').innerHTML = `
+          <div style="background:#f0f9ff;padding:12px;border-radius:10px;margin-bottom:14px;font-size:13px">
+            <b>📊 ${items.length} هزینه آماده ذخیره</b>
+          </div>
+          <div class="section-head" style="margin-top:0">
+            <h3 style="margin:0">پیش‌نمایش</h3>
+            <button class="btn primary" id="btnConfirmExpenses">✅ تأیید و ذخیره</button>
+          </div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr><th>عنوان</th><th>دسته</th><th>مبلغ</th><th>تاریخ</th><th>روش</th></tr></thead>
+              <tbody>${items.slice(0, 50).map(x => `<tr><td>${x.title}</td><td>${x.category}</td><td>${money(x.amount)}</td><td>${x.expense_date}</td><td>${x.method}</td></tr>`).join('')}</tbody>
+            </table>
+          </div>
+        `;
+        
+        setTimeout(() => {
+          document.getElementById('btnConfirmExpenses').onclick = async () => {
+            isProcessing = true;
+            let ok = 0;
+            for(const it of items){
+              const { error } = await sb.from('expenses').insert({ ...it, created_by: currentUser.id });
+              if(!error) ok++;
+            }
+            await logAction(`ورود ${ok} هزینه از Excel`);
+            closeModal();
+            await refreshApp();
+            toast(`✅ ${ok} هزینه اضافه شد`, 'success');
+            isProcessing = false;
+          };
+        }, 50);
+      } catch(err){ toast('خطا: ' + err.message, 'error'); }
+    };
+  }, 100);
+}
+  /* ============================================================
    پرداخت‌ها
 ============================================================ */
 function studentOptions(){
@@ -2137,7 +2479,7 @@ function openAsset(id){
     <div><label>تعداد</label><input type="number" id="a_qty" value="${a.quantity||1}"></div>
     <div><label>قیمت واحد (ریال)</label><input type="number" id="a_price" value="${a.unit_price||0}"></div>
     <div><label>تاریخ خرید</label><input id="a_pdate" value="${a.purchase_date||''}"></div>
-    <div><label>محل</label><input id="a_loc" value="${a.location||''}" placeholder="کلاس، دفتر، ..."></div>
+    <div><label>محل</label><input id="a_loc" value="${a.location||''}"></div>
     <div><label>شماره سریال</label><input id="a_serial" value="${a.serial_number||''}"></div>
     <div><label>وضعیت</label><select id="a_status">${Object.entries(ASSET_STATUSES).map(([k,v]) => `<option value="${k}" ${k===a.status?'selected':''}>${v}</option>`).join('')}</select></div>
     <div class="full"><label>توضیحات</label><textarea id="a_desc">${a.description||''}</textarea></div>
@@ -2170,7 +2512,8 @@ async function saveAsset(id){
     toast('ذخیره شد ✅', 'success');
   } finally { isProcessing = false; }
 }
-  /* ============================================================
+
+/* ============================================================
    کارکنان (با حقوق ساعتی)
 ============================================================ */
 function renderStaff(){
@@ -2193,7 +2536,7 @@ function renderStaff(){
       <td style="color:var(--primary);font-weight:700">${money(hourlyRate)}</td>
       <td>${sessionMin} دقیقه (${money(perSession)}/جلسه)</td>
       <td style="color:var(--success-dark);font-weight:700">${money(paidAmt)}</td>
-      <td style="color:var(--danger);font-weight:700">${money(0)}</td>
+      <td style="color:var(--muted);font-weight:700">-</td>
       <td class="actions">
         <button class="btn green" data-action="pay-salary-for" data-id="${s.id}">واریز حقوق</button>
         <button class="btn" data-action="edit-staff" data-id="${s.id}">ویرایش</button>
@@ -2212,14 +2555,14 @@ function openStaff(id){
 
   openModal(id ? 'ویرایش کارمند' : 'ثبت کارمند جدید', `
   <div class="form"><div class="formgrid">
-    <div><label>کد پرسنلی *</label><input id="st_code" value="${s.code||''}" placeholder="T001"></div>
+    <div><label>کد پرسنلی *</label><input id="st_code" value="${s.code||''}"></div>
     <div><label>نام *</label><input id="st_name" value="${s.name||''}"></div>
     <div><label>نام خانوادگی *</label><input id="st_family" value="${s.family||''}"></div>
     <div><label>سمت</label><select id="st_position">${STAFF_ROLES.map(x => `<option ${x===s.position?'selected':''}>${x}</option>`).join('')}</select></div>
     <div><label>شماره همراه</label><input id="st_phone" value="${s.phone||''}"></div>
     <div><label>حقوق ساعتی (ریال) *</label><input type="number" id="st_hourly" value="${s.hourly_rate||0}"></div>
     <div><label>مدت هر جلسه (دقیقه)</label><input type="number" id="st_session" value="${s.session_duration_minutes||90}"></div>
-    <div><label>توضیحات</label><textarea id="st_notes">${s.notes||''}</textarea></div>
+    <div class="full"><label>توضیحات</label><textarea id="st_notes">${s.notes||''}</textarea></div>
   </div>
   <div class="modalfoot"><button class="btn primary" id="btnSaveStaff">ذخیره</button></div></div>`);
 
@@ -2252,11 +2595,11 @@ async function saveStaff(id){
 }
 
 /* ============================================================
-   حقوق (با محاسبه ساعتی)
+   حقوق با کسورات کامل
 ============================================================ */
 function staffOptions(){
   if(!db.staff.length) return '<option value="">— کارمندی نیست —</option>';
-  return db.staff.map(s => `<option value="${s.id}" data-hourly="${s.hourly_rate||0}" data-session="${s.session_duration_minutes||90}">${s.name} ${s.family} — ${s.position||''}</option>`).join('');
+  return db.staff.map(s => `<option value="${s.id}">${s.name} ${s.family} — ${s.position||''}</option>`).join('');
 }
 
 function renderSalaries(){
@@ -2265,73 +2608,85 @@ function renderSalaries(){
     (!q || `${staffName(s.staffId)} ${s.month}`.includes(q)) &&
     (!m || s.month === m)
   );
-  document.getElementById('salaryTable').innerHTML = arr.map(s => `
-    <tr>
+  document.getElementById('salaryTable').innerHTML = arr.map(s => {
+    const totalDeduction = (+s.insurance||0) + (+s.tax||0) + (+s.absence||0) + (+s.advance||0) + (+s.other_deductions||0) + (+s.deduction||0);
+    return `<tr>
       <td><b>${staffName(s.staffId)}</b></td>
       <td>${s.month||'-'}</td>
       <td>${s.hours_worked || '-'} ساعت</td>
       <td>${money(s.hourly_rate)}</td>
+      <td>${money((+s.hours_worked||0) * (+s.hourly_rate||0))}</td>
+      <td style="color:var(--danger);font-weight:700">${money(totalDeduction)}</td>
       <td style="color:var(--success-dark);font-weight:700">${money(s.net_amount)}</td>
       <td>${s.date||'-'}</td>
-      <td>${s.method||'-'}</td>
       <td class="actions">
         <button class="btn blue" data-action="print-salary" data-id="${s.id}">رسید</button>
         <button class="btn red" data-action="del-item" data-table="salaries" data-id="${s.id}">حذف</button>
       </td>
-    </tr>`).join('') || `<tr><td colspan="8" class="empty">واریزی نیست</td></tr>`;
+    </tr>`;
+  }).join('') || `<tr><td colspan="9" class="empty">واریزی نیست</td></tr>`;
 }
 
 function openSalary(staffId){
   openModal('💰 محاسبه و ثبت حقوق', `
   <div class="form"><div class="formgrid">
-    <div class="full"><label>کارمند *</label><select id="s_staff" onchange="calcSalaryLive()"><option value="">انتخاب</option>${staffOptions()}</select></div>
+    <div class="full"><label>کارمند *</label><select id="s_staff"><option value="">انتخاب</option>${staffOptions()}</select></div>
     <div><label>ماه *</label><select id="s_month">${MONTHS.map(x => `<option>${x}</option>`).join('')}</select></div>
     <div><label>تاریخ پرداخت</label><input id="s_date" value="${today()}"></div>
     <div><label>روش پرداخت</label><select id="s_method"><option>کارت به کارت</option><option>واریز بانکی</option><option>نقدی</option><option>چک</option></select></div>
-    <div><label>پیگیری</label><input id="s_tracking"></div>
   </div>
   
   <div class="salary-calc-box">
     <h4>🧮 محاسبه حقوق</h4>
-    <div class="salary-calc-row">
-      <div>
-        <label>حقوق ساعتی (ریال)</label>
-        <input type="number" id="s_hourly" oninput="calcSalaryLive()" value="0">
-      </div>
-      <div>
-        <label>تعداد جلسه (کلاس)</label>
-        <input type="number" id="s_sessions" oninput="calcSalaryLive()" value="0">
-      </div>
+    <div class="salary-calc-row three">
+      <div><label>حقوق ساعتی (ریال)</label><input type="number" id="s_hourly" value="0"></div>
+      <div><label>تعداد جلسه</label><input type="number" id="s_sessions" value="0"></div>
+      <div><label>مدت هر جلسه (دقیقه)</label><input type="number" id="s_session_min" value="90"></div>
     </div>
     <div class="salary-calc-row">
-      <div>
-        <label>مدت هر جلسه (دقیقه)</label>
-        <input type="number" id="s_session_min" oninput="calcSalaryLive()" value="90">
-      </div>
-      <div>
-        <label>مجموع ساعت</label>
-        <input type="text" id="s_hours_display" readonly value="0" style="background:#eef2ff;font-weight:700">
-      </div>
+      <div><label>مجموع ساعت</label><input type="text" id="s_hours_display" readonly value="0" style="background:#eef2ff;font-weight:700"></div>
+      <div><label>حقوق پایه محاسبه‌شده</label><input type="text" id="s_base_display" readonly value="0" style="background:#eef2ff;font-weight:700"></div>
     </div>
     <div class="salary-calc-row">
-      <div>
-        <label>پاداش (ریال)</label>
-        <input type="number" id="s_bonus" oninput="calcSalaryLive()" value="0">
-      </div>
-      <div>
-        <label>کسورات (ریال)</label>
-        <input type="number" id="s_deduction" oninput="calcSalaryLive()" value="0">
-      </div>
+      <div><label>پاداش (ریال)</label><input type="number" id="s_bonus" value="0"></div>
+      <div><label>حقوق پایه (اضافه دستی)</label><input type="number" id="s_base_extra" value="0"></div>
     </div>
-    <div class="salary-calc-total" id="s_total">مبلغ خالص: 0 ریال</div>
   </div>
   
-  <div class="form">
+  <div class="salary-deductions-box">
+    <h5>💸 کسورات</h5>
+    <div class="salary-calc-row three">
+      <div><label>بیمه تأمین اجتماعی (ریال)</label><input type="number" id="s_insurance" value="0"></div>
+      <div><label>مالیات (ریال)</label><input type="number" id="s_tax" value="0"></div>
+      <div><label>غیبت (ریال)</label><input type="number" id="s_absence" value="0"></div>
+    </div>
+    <div class="salary-calc-row three">
+      <div><label>مساعده (ریال)</label><input type="number" id="s_advance" value="0"></div>
+      <div><label>سایر کسورات</label><input type="number" id="s_other_deductions" value="0"></div>
+      <div><label>کسورات دستی</label><input type="number" id="s_deduction" value="0"></div>
+    </div>
+    <div class="salary-calc-row">
+      <div><label>مجموع کسورات</label><input type="text" id="s_total_deductions_display" readonly value="0" style="background:#fef3c7;font-weight:700"></div>
+      <div><label>تاریخ پرداخت</label><input id="s_date_display" readonly value="${today()}" style="background:#fef3c7"></div>
+    </div>
+  </div>
+  
+  <div class="salary-calc-total big" id="s_total">مبلغ خالص: 0 ریال</div>
+  
+  <div class="form" style="margin-top:14px">
     <label>توضیحات</label>
     <textarea id="s_desc"></textarea>
   </div>
   
   <div class="modalfoot"><button class="btn primary" id="btnSaveSalary">💾 ثبت حقوق</button></div></div>`);
+
+  // Bind live calculations
+  ['s_hourly','s_sessions','s_session_min','s_bonus','s_base_extra',
+   's_insurance','s_tax','s_absence','s_advance','s_other_deductions','s_deduction']
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.addEventListener('input', calcSalaryLive);
+    });
 
   document.getElementById('btnSaveSalary').onclick = saveSalary;
 
@@ -2340,27 +2695,20 @@ function openSalary(staffId){
       const el = document.getElementById('s_staff');
       if(el){
         el.value = staffId;
-        const s = staffById(staffId);
-        if(s){
-          document.getElementById('s_hourly').value = s.hourly_rate || 0;
-          document.getElementById('s_session_min').value = s.session_duration_minutes || 90;
-        }
-        calcSalaryLive();
+        loadStaffRates(staffId);
       }
     }, 100);
   }
 
-  // بارگذاری خودکار حقوق ساعتی هنگام انتخاب کارمند
-  setTimeout(() => {
-    document.getElementById('s_staff').addEventListener('change', () => {
-      const s = staffById(v('s_staff'));
-      if(s){
-        document.getElementById('s_hourly').value = s.hourly_rate || 0;
-        document.getElementById('s_session_min').value = s.session_duration_minutes || 90;
-      }
-      calcSalaryLive();
-    });
-  }, 100);
+  document.getElementById('s_staff').addEventListener('change', (e) => loadStaffRates(e.target.value));
+}
+
+function loadStaffRates(staffId){
+  const s = staffById(staffId);
+  if(!s) return;
+  document.getElementById('s_hourly').value = s.hourly_rate || 0;
+  document.getElementById('s_session_min').value = s.session_duration_minutes || 90;
+  calcSalaryLive();
 }
 
 function calcSalaryLive(){
@@ -2368,16 +2716,23 @@ function calcSalaryLive(){
   const sessions = parseFloat(v('s_sessions')) || 0;
   const sessionMin = parseFloat(v('s_session_min')) || 90;
   const bonus = parseFloat(v('s_bonus')) || 0;
-  const deduction = parseFloat(v('s_deduction')) || 0;
+  const baseExtra = parseFloat(v('s_base_extra')) || 0;
+  const insurance = parseFloat(v('s_insurance')) || 0;
+  const tax = parseFloat(v('s_tax')) || 0;
+  const absence = parseFloat(v('s_absence')) || 0;
+  const advance = parseFloat(v('s_advance')) || 0;
+  const otherDed = parseFloat(v('s_other_deductions')) || 0;
+  const manualDed = parseFloat(v('s_deduction')) || 0;
 
   const hours = (sessions * sessionMin) / 60;
-  const net = Math.round(hours * hourly + bonus - deduction);
+  const baseCalc = hours * hourly + baseExtra;
+  const totalDeductions = insurance + tax + absence + advance + otherDed + manualDed;
+  const net = Math.round(baseCalc + bonus - totalDeductions);
 
-  const hoursDisplay = document.getElementById('s_hours_display');
-  if(hoursDisplay) hoursDisplay.value = hours.toFixed(2) + ' ساعت';
-
-  const totalEl = document.getElementById('s_total');
-  if(totalEl) totalEl.textContent = `مبلغ خالص: ${money(net)}`;
+  document.getElementById('s_hours_display').value = hours.toFixed(2) + ' ساعت';
+  document.getElementById('s_base_display').value = money(baseCalc);
+  document.getElementById('s_total_deductions_display').value = money(totalDeductions);
+  document.getElementById('s_total').textContent = `مبلغ خالص: ${money(net)}`;
 }
 
 async function saveSalary(){
@@ -2389,27 +2744,39 @@ async function saveSalary(){
   const sessions = num('s_sessions');
   const sessionMin = num('s_session_min') || 90;
   const bonus = num('s_bonus');
-  const deduction = num('s_deduction');
+  const baseExtra = num('s_base_extra');
+  const insurance = num('s_insurance');
+  const tax = num('s_tax');
+  const absence = num('s_absence');
+  const advance = num('s_advance');
+  const otherDed = num('s_other_deductions');
+  const manualDed = num('s_deduction');
 
   const hours = (sessions * sessionMin) / 60;
-  const net = Math.round(hours * hourly + bonus - deduction);
+  const baseCalc = Math.round(hours * hourly + baseExtra);
+  const totalDeductions = insurance + tax + absence + advance + otherDed + manualDed;
+  const net = Math.round(baseCalc + bonus - totalDeductions);
 
-  if(net <= 0 && sessions === 0) return toast('تعداد جلسه یا مبلغ را وارد کنید', 'error');
+  if(baseCalc <= 0 && bonus <= 0) return toast('تعداد جلسه یا مبلغ را وارد کنید', 'error');
 
   isProcessing = true;
   try {
     const { error } = await sb.from('salaries').insert({
       staff_id: sid,
       salary_month: v('s_month'),
-      base_amount: Math.round(hours * hourly),
+      base_amount: baseCalc,
       bonus_amount: bonus,
-      deduction: deduction,
+      deduction: manualDed,
+      insurance: insurance,
+      tax: tax,
+      absence: absence,
+      advance: advance,
+      other_deductions: otherDed,
       net_amount: net,
       hours_worked: hours,
       hourly_rate: hourly,
       payment_date: v('s_date'),
       payment_method: v('s_method'),
-      tracking: v('s_tracking'),
       description: v('s_desc'),
       created_by: currentUser.id
     });
@@ -2427,6 +2794,9 @@ function printSalary(id){
   if(!s || !st) return;
   const w = window.open('', '_blank');
   if(!w) return toast('مسدود شد', 'error');
+  
+  const totalDeductions = (+s.insurance||0) + (+s.tax||0) + (+s.absence||0) + (+s.advance||0) + (+s.other_deductions||0) + (+s.deduction||0);
+  
   w.document.write(`
   <html dir="rtl"><head><meta charset="UTF-8"><title>فیش حقوقی</title>
   <style>body{font-family:Tahoma;padding:40px}h1{text-align:center;color:#6366f1}table{width:100%;border-collapse:collapse;margin-top:25px}td,th{border:1px solid #ddd;padding:12px;text-align:right}.total{background:#eef2ff;font-weight:bold;font-size:16px}</style>
@@ -2438,7 +2808,10 @@ function printSalary(id){
     <tr><th>سمت</th><td>${st.position||'-'}</td><th>ماه</th><td>${s.month}</td></tr>
     <tr><th>حقوق ساعتی</th><td>${money(s.hourly_rate)}</td><th>ساعت تدریس</th><td>${s.hours_worked || '-'}</td></tr>
     <tr><th>حقوق پایه</th><td>${money(s.base)}</td><th>پاداش</th><td>${money(s.bonus)}</td></tr>
-    <tr><th>کسورات</th><td>${money(s.deduction)}</td><th>روش</th><td>${s.method}</td></tr>
+    <tr><th>بیمه</th><td>${money(s.insurance)}</td><th>مالیات</th><td>${money(s.tax)}</td></tr>
+    <tr><th>غیبت</th><td>${money(s.absence)}</td><th>مساعده</th><td>${money(s.advance)}</td></tr>
+    <tr><th>سایر کسورات</th><td>${money(s.other_deductions)}</td><th>کسورات دستی</th><td>${money(s.deduction)}</td></tr>
+    <tr><th>مجموع کسورات</th><td colspan="3" style="color:#dc2626;font-weight:bold">${money(totalDeductions)}</td></tr>
     <tr class="total"><th>خالص پرداختی</th><td colspan="3">${money(s.net_amount)}</td></tr>
     <tr><th>تاریخ</th><td colspan="3">${s.date}</td></tr>
   </table>
@@ -2447,8 +2820,7 @@ function printSalary(id){
   w.document.close();
   setTimeout(() => w.print(), 300);
 }
-
-/* ============================================================
+  /* ============================================================
    درآمد / هزینه
 ============================================================ */
 function renderIncomes(){
@@ -2636,7 +3008,7 @@ async function saveDiscount(){
 }
 
 /* ============================================================
-   صورتحساب / چاپ دسته‌ای
+   صورتحساب
 ============================================================ */
 function invoiceRows(s){
   const rows = [];
@@ -2689,6 +3061,9 @@ function printInvoice(id){
   setTimeout(() => w.print(), 300);
 }
 
+/* ============================================================
+   چاپ دسته‌ای
+============================================================ */
 function renderBulk(){
   const q = v('bulkSearch'), m = v('bulkMethodFilter');
   const arr = db.payments.filter(p => {
@@ -2746,6 +3121,132 @@ function bulkPrintSelected(){
   w.document.close();
   setTimeout(() => w.print(), 500);
   logAction(`چاپ ${pays.length} رسید`);
+}
+
+/* ============================================================
+   پیامک
+============================================================ */
+function renderSmsPage(){
+  const sel = document.getElementById('smsRecipients');
+  if(!sel) return;
+  
+  sel.innerHTML = db.students.filter(s => s.phone).map(s => 
+    `<option value="${s.phone}">${s.name} ${s.family} — ${s.phone}</option>`
+  ).join('');
+  
+  updateSmsCounter();
+  renderSmsLog();
+}
+
+function renderSmsLog(){
+  const el = document.getElementById('smsLogTable');
+  if(!el) return;
+  el.innerHTML = db.smsLog.map(x => `
+    <tr>
+      <td>${x.sentAt}</td>
+      <td>${x.phone}${x.recipientName ? ' (' + x.recipientName + ')' : ''}</td>
+      <td style="max-width:400px;white-space:normal">${x.message}</td>
+      <td><span class="badge ${x.status === 'sent' ? 'paid' : 'overdue'}">${x.status === 'sent' ? 'ارسال شد' : 'خطا'}</span></td>
+    </tr>`).join('') || '<tr><td colspan="4" class="empty">پیامکی نیست</td></tr>';
+}
+
+function updateSmsCounter(){
+  const msg = v('smsMessage');
+  const sel = document.getElementById('smsRecipients');
+  const count = sel ? sel.selectedOptions.length : 0;
+  
+  const charEl = document.getElementById('smsCharCount');
+  if(charEl) charEl.textContent = `${msg.length} / 160`;
+  
+  const recipientEl = document.getElementById('smsRecipientCount');
+  if(recipientEl) recipientEl.textContent = `${count} گیرنده`;
+}
+
+function setSmsTemplate(type){
+  const today_ = today();
+  const templates = {
+    debt: 'اولیای محترم،\nبا سلام و احترام،\nبه اطلاع می‌رساند مبلغی از شهریه فرزند شما باقی مانده است. لطفاً نسبت به تسویه اقدام فرمایید.\nبا تشکر',
+    installment: `اولیای محترم،\nبا سلام،\nسررسید اقساط فرزند شما نزدیک است. خواهشمند است در اسرع وقت نسبت به پرداخت اقدام فرمایید.\nبا تشکر`,
+    thanks: 'اولیای محترم،\nبا سلام و احترام،\nپرداخت شما با موفقیت ثبت شد. از اعتماد و همکاری شما سپاسگزاریم.\nدبیرستان الهه مهر',
+    birthday: '🎂 تبریک!\nبا سلام و احترام،\nفرا رسیدن سالروز تولد فرزند عزیزتان را تبریک عرض می‌نماییم.\nآرزوی سلامتی و موفقیت برای ایشان داریم.\nدبیرستان الهه مهر',
+    custom: ''
+  };
+  document.getElementById('smsMessage').value = templates[type] || '';
+  updateSmsCounter();
+}
+
+async function sendSms(){
+  if(isProcessing) return;
+  
+  const sel = document.getElementById('smsRecipients');
+  const recipients = [...sel.selectedOptions].map(o => ({
+    phone: o.value,
+    name: o.textContent.split(' — ')[0]
+  }));
+  const message = v('smsMessage');
+  
+  if(!recipients.length) return toast('حداقل یک گیرنده انتخاب کنید', 'error');
+  if(!message) return toast('متن پیامک را وارد کنید', 'error');
+  if(!db.smsSettings.is_enabled || !db.smsSettings.api_key){
+    return toast('⚠️ ابتدا در تنظیمات، پیامک را فعال و API Key را وارد کنید', 'error');
+  }
+  
+  if(!confirm(`ارسال پیامک به ${recipients.length} گیرنده؟`)) return;
+  
+  isProcessing = true;
+  let success = 0, failed = 0;
+  
+  for(const r of recipients){
+    try {
+      // فراخوانی API کاوه‌نگار از سمت کاربر (CORS ممکن است مشکل داشته باشد)
+      // برای حل قطعی، باید از Supabase Edge Function استفاده شود
+      const url = `https://api.kavenegar.com/v1/${db.smsSettings.api_key}/sms/send.json?receptor=${r.phone}&sender=${db.smsSettings.sender_number}&message=${encodeURIComponent(message)}`;
+      
+      let response;
+      try {
+        response = await fetch(url);
+      } catch(e){
+        // اگر CORS مسدود کرد، پیامک را در دیتابیس ثبت کن ولی ارسال نمی‌شود
+        console.warn('CORS block:', e.message);
+      }
+      
+      const ok = response && response.ok;
+      
+      await sb.from('sms_log').insert({
+        phone: r.phone,
+        message: message,
+        recipient_name: r.name,
+        status: ok ? 'sent' : 'pending',
+        provider_response: ok ? 'کاوه‌نگار' : 'CORS - نیاز به Edge Function',
+        sent_by: currentUser.id
+      });
+      
+      if(ok) success++;
+      else failed++;
+    } catch(e){
+      failed++;
+      console.error(e);
+    }
+  }
+  
+  await logAction(`ارسال پیامک به ${success} نفر`);
+  await loadData();
+  renderSmsLog();
+  updateSmsCounter();
+  
+  isProcessing = false;
+  
+  if(success > 0){
+    toast(`✅ ${success} پیامک ارسال شد${failed ? ' (' + failed + ' ناموفق)' : ''}`, 'success');
+  } else {
+    toast(`⚠️ ارسال پیامک نیاز به Edge Function دارد. پیامک‌ها در تاریخچه ثبت شدند.`, 'warning');
+  }
+}
+
+function clearSms(){
+  document.getElementById('smsMessage').value = '';
+  [...document.getElementById('smsRecipients').options].forEach(o => o.selected = false);
+  updateSmsCounter();
 }
 
 /* ============================================================
@@ -2895,6 +3396,60 @@ function exportCSV(){
   toast('دانلود شد ✅', 'success');
 }
 
+function printMonthlyReport(){
+  const inc = db.payments.reduce((a,x) => a + (+x.amount||0), 0) + db.incomes.reduce((a,x) => a + (+x.amount||0), 0);
+  const exp = db.expenses.reduce((a,x) => a + (+x.amount||0), 0) + db.salaries.reduce((a,s) => a + (+s.net_amount||0), 0);
+  const profit = inc - exp;
+  
+  const w = window.open('', '_blank');
+  if(!w) return toast('مسدود', 'error');
+  w.document.write(`
+  <html dir="rtl"><head><meta charset="UTF-8"><title>گزارش مالی ماهانه</title>
+  <style>body{font-family:Tahoma;padding:40px;direction:rtl}h1,h2{text-align:center}h3{color:#6366f1;margin-top:30px}table{width:100%;border-collapse:collapse;margin-top:15px}td,th{border:1px solid #ddd;padding:12px;text-align:right}.total{background:#eef2ff;font-weight:bold;font-size:16px}.head{display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #6366f1;padding-bottom:20px;margin-bottom:30px}.logo{width:100px;height:100px;object-fit:contain}</style>
+  </head><body>
+  <div class="head">
+    <img src="logo.png" class="logo" onerror="this.style.display='none'">
+    <div style="flex:1;text-align:center">
+      <h1 style="margin:0">${db.settings.school}</h1>
+      <p style="margin:8px 0 0;color:#666">گزارش مالی — ${today()}</p>
+    </div>
+  </div>
+  
+  <h2>خلاصه مالی</h2>
+  <table>
+    <tr><th>کل درآمد</th><td style="color:#10b981;font-weight:bold">${money(inc)}</td></tr>
+    <tr><th>کل هزینه</th><td style="color:#ef4444;font-weight:bold">${money(exp)}</td></tr>
+    <tr class="total"><th>مانده (سود/زیان)</th><td style="color:${profit >= 0 ? '#10b981' : '#ef4444'}">${money(profit)}</td></tr>
+  </table>
+  
+  <h3>📊 آمار دانش‌آموزان</h3>
+  <table>
+    <tr><th>کل دانش‌آموزان</th><td>${db.students.length} نفر</td></tr>
+    <tr><th>مجموع شهریه</th><td>${money(db.students.reduce((a,s) => a + finalTuition(s), 0))}</td></tr>
+    <tr><th>مجموع دریافتی</th><td>${money(db.payments.reduce((a,p) => a + (+p.amount||0), 0))}</td></tr>
+    <tr><th>بدهکاران</th><td>${db.students.filter(s => balance(s) > 0).length} نفر</td></tr>
+    <tr><th>مجموع بدهی</th><td>${money(db.students.reduce((a,s) => a + balance(s), 0))}</td></tr>
+  </table>
+  
+  <h3>👨‍🏫 آمار کارکنان</h3>
+  <table>
+    <tr><th>کل کارکنان</th><td>${db.staff.length} نفر</td></tr>
+    <tr><th>مجموع حقوق پرداختی</th><td>${money(db.salaries.reduce((a,s) => a + (+s.net_amount||0), 0))}</td></tr>
+  </table>
+  
+  <h3>📝 چک‌ها</h3>
+  <table>
+    <tr><th>کل چک‌ها</th><td>${db.checks.length} فقره</td></tr>
+    <tr><th>در جریان</th><td>${db.checks.filter(c => c.status === 'pending').length} فقره</td></tr>
+    <tr><th>وصول شده</th><td>${db.checks.filter(c => c.status === 'collected').length} فقره</td></tr>
+  </table>
+  
+  <p style="margin-top:50px;text-align:center;color:#666">${db.settings.footer}</p>
+  </body></html>`);
+  w.document.close();
+  setTimeout(() => w.print(), 500);
+}
+
 /* ============================================================
    تنظیمات
 ============================================================ */
@@ -2907,9 +3462,22 @@ async function saveSettings(){
       phone: v('setPhone'), address: v('setAddress'), footer: v('setFooter'),
       updated_at: new Date().toISOString()
     });
-    await logAction('تنظیمات');
+    
+    // تنظیمات پیامک
+    await sb.from('sms_settings').upsert({
+      id: true,
+      provider: v('setSmsProvider'),
+      api_key: v('setSmsApiKey'),
+      sender_number: v('setSmsSender'),
+      is_enabled: document.getElementById('setSmsEnabled').checked,
+      updated_at: new Date().toISOString()
+    });
+    
+    await logAction('تغییر تنظیمات');
     await refreshApp();
     toast('ذخیره شد ✅', 'success');
+  } catch(e){
+    toast('خطا: ' + e.message, 'error');
   } finally { isProcessing = false; }
 }
 
@@ -2939,11 +3507,12 @@ async function downloadBackup(){
   try {
     await loadData();
     const backup = {
-      version: '9.0',
+      version: '10.0',
       created_at: new Date().toISOString(),
       created_at_fa: new Date().toLocaleString('fa-IR'),
       created_by: currentUser?.email,
       settings: db.settings,
+      smsSettings: db.smsSettings,
       data: {
         students: db.students, payments: db.payments, staff: db.staff,
         salaries: db.salaries, checks: db.checks, assets: db.assets,
@@ -2976,7 +3545,15 @@ function downloadExcelFull(){
     [],
     ['=== پرداخت‌ها ==='],
     ['تاریخ','دانش‌آموز','مبلغ','روش','رسید'],
-    ...db.payments.map(p => [p.date||'', studentName(p.studentId), p.amount, p.method||'', p.receipt||''])
+    ...db.payments.map(p => [p.date||'', studentName(p.studentId), p.amount, p.method||'', p.receipt||'']),
+    [],
+    ['=== کارکنان ==='],
+    ['کد','نام','خانوادگی','سمت','حقوق ساعتی'],
+    ...db.staff.map(s => [s.code||'', s.name, s.family, s.position||'', s.hourly_rate||0]),
+    [],
+    ['=== حقوق ==='],
+    ['کارمند','ماه','ساعت','حقوق ساعتی','خالص','تاریخ'],
+    ...db.salaries.map(s => [staffName(s.staffId), s.month||'', s.hours_worked||0, s.hourly_rate||0, s.net_amount||0, s.date||''])
   ];
   const csv = '\uFEFF' + rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
   const a = document.createElement('a');
@@ -3048,7 +3625,6 @@ async function restoreFromFile(event){
       bar.style.width = '55%';
 
       if(d.payments?.length){
-        msg.textContent = `⏳ پرداخت‌ها...`;
         const valid = d.payments.map(p => {
           const oldId = p.studentId || p.student_id;
           const oldStudent = d.students.find(s => s.id == oldId);
@@ -3064,10 +3640,9 @@ async function restoreFromFile(event){
         }).filter(Boolean);
         if(valid.length) await sb.from('payments').insert(valid);
       }
-      bar.style.width = '70%';
+      bar.style.width = '65%';
 
       if(d.assets?.length){
-        msg.textContent = `⏳ اموال...`;
         const mapped = d.assets.map(a => ({
           name: a.name, category: a.category, quantity: a.quantity||1,
           unit_price: a.unitPrice || a.unit_price || 0,
@@ -3077,10 +3652,8 @@ async function restoreFromFile(event){
         }));
         await sb.from('assets').insert(mapped);
       }
-      bar.style.width = '80%';
 
       if(d.checks?.length){
-        msg.textContent = `⏳ چک‌ها...`;
         const valid = [];
         for(const c of d.checks){
           const oldId = c.studentId || c.student_id;
@@ -3098,10 +3671,9 @@ async function restoreFromFile(event){
         }
         if(valid.length) await sb.from('checks').insert(valid);
       }
-      bar.style.width = '88%';
+      bar.style.width = '75%';
 
       if(d.salaries?.length){
-        msg.textContent = `⏳ حقوق...`;
         const valid = [];
         for(const s of d.salaries){
           const oldId = s.staffId || s.staff_id;
@@ -3113,9 +3685,11 @@ async function restoreFromFile(event){
             staff_id: newId, salary_month: s.month || s.salary_month,
             base_amount: s.base || s.base_amount||0,
             bonus_amount: s.bonus || s.bonus_amount||0,
-            deduction: s.deduction||0, net_amount: s.net_amount||0,
-            hours_worked: s.hours_worked||0,
-            hourly_rate: s.hourly_rate||0,
+            deduction: s.deduction||0,
+            insurance: s.insurance||0, tax: s.tax||0, absence: s.absence||0,
+            advance: s.advance||0, other_deductions: s.other_deductions||0,
+            net_amount: s.net_amount||0,
+            hours_worked: s.hours_worked||0, hourly_rate: s.hourly_rate||0,
             payment_date: s.date || s.payment_date,
             payment_method: s.method || s.payment_method,
             tracking: s.tracking||'', description: s.description||''
@@ -3123,7 +3697,7 @@ async function restoreFromFile(event){
         }
         if(valid.length) await sb.from('salaries').insert(valid);
       }
-      bar.style.width = '94%';
+      bar.style.width = '85%';
 
       if(d.installments?.length){
         const valid = d.installments.map(i => {
@@ -3173,6 +3747,14 @@ async function restoreFromFile(event){
           academic_year: backup.settings.year,
           phone: backup.settings.phone||'', address: backup.settings.address||'',
           footer: backup.settings.footer||''
+        });
+      }
+      if(backup.smsSettings){
+        await sb.from('sms_settings').upsert({
+          id: true, provider: backup.smsSettings.provider || 'kavenegar',
+          api_key: backup.smsSettings.api_key || '',
+          sender_number: backup.smsSettings.sender_number || '',
+          is_enabled: backup.smsSettings.is_enabled || false
         });
       }
 
@@ -3319,10 +3901,13 @@ function bindStaticButtons(){
   document.getElementById('btnSignIn').onclick = doSignIn;
   document.getElementById('btnSignUp').onclick = doSignUp;
   document.getElementById('btnSignOut').onclick = doSignOut;
+  document.getElementById('btnThemeToggle').onclick = toggleTheme;
   document.getElementById('btnOpenPayment').onclick = openPayment;
   document.getElementById('btnNewPayment').onclick = openPayment;
   document.getElementById('btnNewStudent').onclick = () => openStudent();
   document.getElementById('btnImportExcel').onclick = openExcelImport;
+  document.getElementById('btnImportIncomesExcel').onclick = openIncomesExcelImport;
+  document.getElementById('btnImportExpensesExcel').onclick = openExpensesExcelImport;
   document.getElementById('btnNewStaff').onclick = () => openStaff();
   document.getElementById('btnNewSalary').onclick = () => openSalary();
   document.getElementById('btnNewIncome').onclick = openIncome;
@@ -3335,9 +3920,19 @@ function bindStaticButtons(){
   document.getElementById('btnSaveSettings').onclick = saveSettings;
   document.getElementById('btnExportCSV').onclick = exportCSV;
   document.getElementById('btnRenderReport').onclick = renderReport;
+  document.getElementById('btnPrintMonthly').onclick = printMonthlyReport;
   document.getElementById('btnCloseModal').onclick = closeModal;
   document.getElementById('btnDownloadBackup').onclick = downloadBackup;
   document.getElementById('btnDownloadExcelFull').onclick = downloadExcelFull;
+
+  // SMS
+  const smsMsgEl = document.getElementById('smsMessage');
+  if(smsMsgEl){
+    smsMsgEl.addEventListener('input', updateSmsCounter);
+    document.getElementById('smsRecipients').addEventListener('change', updateSmsCounter);
+    document.getElementById('btnSendSms').onclick = sendSms;
+    document.getElementById('btnClearSms').onclick = clearSms;
+  }
 
   const rf = document.getElementById('restoreFile');
   if(rf) rf.addEventListener('change', restoreFromFile);
@@ -3416,6 +4011,7 @@ function bindStaticButtons(){
    راه‌اندازی
 ============================================================ */
 window.addEventListener('DOMContentLoaded', async () => {
+  initTheme();
   bindStaticButtons();
   if(!initSupabase()) return;
   try {
