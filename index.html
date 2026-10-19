@@ -135,7 +135,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .pending { background: #fef3c7; color: #92400e; }
 .returned { background: var(--danger-bg); color: var(--danger-dark); }
 .collected { background: var(--success-bg); color: var(--success-dark); }
-.active { background: var(--success-bg); color: var(--success-dark); }
+.active-badge { background: var(--success-bg); color: var(--success-dark); }
 .repair { background: var(--warning-bg); color: var(--warning-dark); }
 .broken { background: var(--danger-bg); color: var(--danger-dark); }
 
@@ -185,43 +185,20 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   50% { box-shadow: 0 0 0 12px rgba(251,191,36,0); }
 }
 .birthday-card::before {
-  content: '🎉';
-  position: absolute;
-  top: -20px;
-  left: -20px;
-  font-size: 100px;
-  opacity: .15;
-  transform: rotate(-20deg);
+  content: '🎉'; position: absolute; top: -20px; left: -20px;
+  font-size: 100px; opacity: .15; transform: rotate(-20deg);
 }
 .birthday-card h3 {
-  margin: 0 0 14px;
-  color: #92400e;
-  font-size: 19px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-weight: 800;
-  position: relative;
-  z-index: 1;
+  margin: 0 0 14px; color: #92400e; font-size: 19px;
+  display: flex; align-items: center; gap: 10px;
+  font-weight: 800; position: relative; z-index: 1;
 }
-.birthday-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  position: relative;
-  z-index: 1;
-}
+.birthday-list { display: flex; flex-wrap: wrap; gap: 12px; position: relative; z-index: 1; }
 .birthday-person {
-  background: #fff;
-  padding: 12px 18px;
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  background: #fff; padding: 12px 18px; border-radius: 14px;
+  display: flex; align-items: center; gap: 10px;
   box-shadow: 0 4px 12px rgba(146,64,14,.15);
-  font-weight: 700;
-  color: #92400e;
-  font-size: 14px;
+  font-weight: 700; color: #92400e; font-size: 14px;
 }
 .birthday-person .cake { font-size: 22px; }
 
@@ -253,6 +230,29 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .checkbox-cell { text-align: center; }
 .checkbox-cell input { width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary); }
 
+.salary-calc-box {
+  background: linear-gradient(135deg, #eef2ff 0%, #f0f9ff 100%);
+  border: 2px solid var(--primary-light);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 16px;
+}
+.salary-calc-box h4 {
+  margin: 0 0 12px; color: var(--primary-dark);
+  font-size: 15px; font-weight: 800;
+  display: flex; align-items: center; gap: 8px;
+}
+.salary-calc-row {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 12px; margin-bottom: 12px;
+}
+.salary-calc-total {
+  background: #fff; border: 2px solid var(--primary);
+  border-radius: 12px; padding: 14px;
+  text-align: center; font-size: 18px;
+  font-weight: 800; color: var(--primary-dark);
+}
+
 @media (max-width: 1200px) { .stats { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 1050px) {
   .stats { grid-template-columns: repeat(2, 1fr); }
@@ -272,6 +272,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   .formgrid { grid-template-columns: 1fr; }
   .detail-grid { grid-template-columns: 1fr 1fr; }
   .section-head { flex-direction: column; align-items: stretch; }
+  .salary-calc-row { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -354,7 +355,6 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 <!-- داشبورد -->
 <section class="page active" id="dashboard">
   <div id="birthdayContainer"></div>
-
   <div class="grid stats" id="stats"></div>
   
   <div class="section-head"><h2>📊 نمای کلی مالی</h2></div>
@@ -463,7 +463,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   </div>
 </section>
 
-<!-- چک‌های دریافتی -->
+<!-- چک‌ها -->
 <section class="page" id="checks">
   <div class="section-head">
     <h2>📝 مدیریت چک‌های دریافتی</h2>
@@ -471,7 +471,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   </div>
   <div class="card">
     <div class="filters">
-      <input id="checkSearch" placeholder="🔍 جستجوی شماره چک، بانک، صاحب چک...">
+      <input id="checkSearch" placeholder="🔍 جستجوی چک...">
       <select id="checkStatusFilter">
         <option value="">همه وضعیت‌ها</option>
         <option value="pending">در جریان</option>
@@ -504,7 +504,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   </div>
   <div class="card">
     <div class="filters">
-      <input id="staffSearch" placeholder="🔍 جستجوی نام، کد ملی یا سمت...">
+      <input id="staffSearch" placeholder="🔍 جستجو...">
       <select id="staffRoleFilter">
         <option value="">همه سمت‌ها</option>
         <option>دبیر</option><option>مدیر</option><option>معاون</option>
@@ -516,9 +516,9 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
       <table class="table">
         <thead>
           <tr>
-            <th>کد پرسنلی</th><th>نام و نام خانوادگی</th><th>سمت</th>
-            <th>شماره همراه</th><th>حقوق پایه</th><th>واریز شده</th>
-            <th>مانده</th><th>عملیات</th>
+            <th>کد</th><th>نام و نام خانوادگی</th><th>سمت</th>
+            <th>شماره همراه</th><th>حقوق ساعتی</th><th>مدت هر جلسه</th>
+            <th>واریز شده</th><th>مانده</th><th>عملیات</th>
           </tr>
         </thead>
         <tbody id="staffTable"></tbody>
@@ -548,9 +548,8 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
       <table class="table">
         <thead>
           <tr>
-            <th>کارمند</th><th>ماه</th><th>حقوق پایه</th><th>پاداش</th>
-            <th>کسورات</th><th>مبلغ خالص</th><th>تاریخ واریز</th>
-            <th>روش</th><th>عملیات</th>
+            <th>کارمند</th><th>ماه</th><th>ساعت تدریس</th><th>حقوق ساعتی</th>
+            <th>مبلغ خالص</th><th>تاریخ واریز</th><th>روش</th><th>عملیات</th>
           </tr>
         </thead>
         <tbody id="salaryTable"></tbody>
@@ -651,7 +650,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   </div>
   <div class="card">
     <div class="filters">
-      <input id="assetSearch" placeholder="🔍 جستجوی نام، سریال، محل...">
+      <input id="assetSearch" placeholder="🔍 جستجو...">
       <select id="assetCategoryFilter">
         <option value="">همه دسته‌ها</option>
         <option>رایانه</option><option>لوازم اداری</option><option>لوازم آموزشی</option>
@@ -908,7 +907,7 @@ let db = {
 /* ============================================================
    توابع کمکی
 ============================================================ */
-function money(n){ return new Intl.NumberFormat('fa-IR').format(n||0) + ' ریال'; }
+function money(n){ return new Intl.NumberFormat('fa-IR').format(Math.round(n||0)) + ' ریال'; }
 function v(id){ const el = document.getElementById(id); return el ? String(el.value || '').trim() : ''; }
 function num(id){ const n = parseFloat(v(id)); return isNaN(n) ? 0 : n; }
 function today(){ return new Date().toLocaleDateString('fa-IR'); }
@@ -920,10 +919,6 @@ function staffName(id){ const s = staffById(id); return s ? `${s.name} ${s.famil
 function finalTuition(s){ return Math.max(0, (+s.tuition||0) - (+s.discount||0)); }
 function paid(s){ return db.payments.filter(p => p.studentId == s.id).reduce((a,b) => a + (+b.amount||0), 0); }
 function balance(s){ return Math.max(0, finalTuition(s) - paid(s)); }
-
-function staffTotalSalary(staff){ return (+staff.base_salary||0) + (+staff.bonus||0); }
-function staffPaid(id){ return db.salaries.filter(s => s.staffId == id).reduce((a,b) => a + (+b.net_amount||0), 0); }
-function staffBalance(staff){ return Math.max(0, staffTotalSalary(staff) * 12 - staffPaid(staff.id)); }
 
 function isPast(dateStr){
   if(!dateStr) return false;
@@ -943,12 +938,11 @@ function daysUntil(dateStr){
     if(parts.length < 3) return Infinity;
     const [y, m, d] = parts;
     const target = new Date(y + 621, m - 1, d);
-    const diff = Math.floor((target - new Date()) / (1000 * 60 * 60 * 24));
-    return diff;
+    return Math.floor((target - new Date()) / (1000 * 60 * 60 * 24));
   } catch { return Infinity; }
 }
 
-/* بررسی تاریخ تولد */
+/* تاریخ تولد */
 function isBirthdayToday(birthDate){
   if(!birthDate) return false;
   try {
@@ -1002,6 +996,11 @@ function checkStatusLabel(st){
 
 function assetStatusLabel(st){
   return [ASSET_STATUSES[st] || 'فعال', st || 'active'];
+}
+
+/* محاسبه حقوق ساعتی */
+function calcHourlySalary(hoursWorked, hourlyRate){
+  return Math.round((hoursWorked || 0) * (hourlyRate || 0));
 }
 
 function toast(msg, type){
@@ -1060,7 +1059,7 @@ function initSupabase(){
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: false,
-        storageKey: 'haleh-mehr-auth-v8'
+        storageKey: 'haleh-mehr-auth-v9'
       }
     });
     return true;
@@ -1089,19 +1088,36 @@ function mapIncome(r){ return { ...r, date: r.income_date, desc: r.description }
 function mapExpense(r){ return { ...r, date: r.expense_date, doc: r.document, desc: r.description }; }
 function mapInstallment(r){ return { ...r, studentId: r.student_id, due: r.due_date }; }
 function mapDiscount(r){ return { ...r, studentId: r.student_id, base: r.base_amount, type: r.discount_type, date: r.discount_date }; }
-function mapStaff(r){ return { ...r, code: r.staff_code, phone: r.phone, base_salary: r.base_salary, bonus: r.bonus, position: r.position }; }
-function mapSalary(r){ return { ...r, staffId: r.staff_id, month: r.salary_month, base: r.base_amount, bonus: r.bonus_amount, deduction: r.deduction, net_amount: r.net_amount, date: r.payment_date, method: r.payment_method }; }
-function mapCheck(r){
+function mapStaff(r){
   return {
     ...r,
-    studentId: r.student_id,
-    checkNumber: r.check_number,
-    bankName: r.bank_name,
-    issueDate: r.issue_date,
-    dueDate: r.due_date,
-    holderName: r.holder_name,
-    paymentId: r.payment_id,
-    date: r.due_date
+    code: r.staff_code,
+    phone: r.phone,
+    position: r.position,
+    hourly_rate: r.hourly_rate || 0,
+    session_duration_minutes: r.session_duration_minutes || 90
+  };
+}
+function mapSalary(r){
+  return {
+    ...r,
+    staffId: r.staff_id,
+    month: r.salary_month,
+    base: r.base_amount,
+    bonus: r.bonus_amount,
+    deduction: r.deduction,
+    net_amount: r.net_amount,
+    date: r.payment_date,
+    method: r.payment_method,
+    hours_worked: r.hours_worked || 0,
+    hourly_rate: r.hourly_rate || 0
+  };
+}
+function mapCheck(r){
+  return {
+    ...r, studentId: r.student_id, checkNumber: r.check_number,
+    bankName: r.bank_name, issueDate: r.issue_date, dueDate: r.due_date,
+    holderName: r.holder_name, paymentId: r.payment_id, date: r.due_date
   };
 }
 function mapAsset(r){
@@ -1345,7 +1361,7 @@ function renderBirthdays(){
 }
 
 /* ============================================================
-   آمار داشبورد
+   آمار
 ============================================================ */
 function renderStats(){
   const total = db.students.length;
@@ -1388,7 +1404,7 @@ function renderStudents(){
       <td><b>${s.code||'-'}</b></td>
       <td><span class="clickable" data-action="details" data-id="${s.id}">${s.name} ${s.family}</span>${bday ? ' 🎂' : ''}</td>
       <td>${s.grade||'-'}</td><td>${s.class||'-'}</td>
-      <td><b>${s.birthDate||'-'}</b></td>
+      <td><b style="color:var(--primary)">${s.birthDate||'-'}</b></td>
       <td>${money(finalTuition(s))}</td>
       <td style="color:var(--success-dark);font-weight:700">${money(paid(s))}</td>
       <td style="color:var(--danger);font-weight:700">${money(balance(s))}</td>
@@ -1403,7 +1419,7 @@ function renderStudents(){
 }
 
 /* ============================================================
-   فرم دانش‌آموز
+   فرم دانش‌آموز (با فیلد تاریخ تولد)
 ============================================================ */
 function openStudent(id){
   const s = id ? studentById(id) : {
@@ -1420,7 +1436,7 @@ function openStudent(id){
     <div><label>پایه</label><select id="f_grade">${GRADES.map(x => `<option ${x===s.grade?'selected':''}>${x}</option>`).join('')}</select></div>
     <div><label>کلاس</label><select id="f_class">${CLASSES.map(x => `<option ${x===s.class?'selected':''}>${x}</option>`).join('')}</select></div>
     <div><label>شماره همراه</label><input id="f_phone" value="${s.phone||''}" placeholder="0912..."></div>
-    <div><label>تاریخ تولد</label><input id="f_birth" value="${s.birthDate||''}" placeholder="1391/05/12"></div>
+    <div><label>🎂 تاریخ تولد</label><input id="f_birth" value="${s.birthDate||''}" placeholder="1392/05/12"></div>
     <div><label>سال تحصیلی</label><input id="f_year" value="${s.year||db.settings.year}"></div>
     <div><label>شهریه (ریال) *</label><input type="number" id="f_tuition" value="${s.tuition||0}"></div>
     <div><label>تخفیف (ریال)</label><input type="number" id="f_discount" value="${s.discount||0}"></div>
@@ -1515,7 +1531,7 @@ function studentDetails(id){
     <h2 style="margin:0;color:var(--primary);font-size:24px">${s.name} ${s.family}</h2>
     <div style="color:var(--muted);font-size:13.5px;margin-top:8px;font-weight:500">
       کد: ${s.code||'-'} | پایه: ${s.grade||'-'} | کلاس: ${s.class||'-'} | همراه: ${s.phone||'-'}
-      ${s.birthDate ? ' | تولد: ' + s.birthDate + ' (' + calcAge(s.birthDate) + ' ساله)' : ''}
+      ${s.birthDate ? ' | 🎂 تولد: ' + s.birthDate + ' (' + calcAge(s.birthDate) + ' ساله)' : ''}
     </div>
   </div>
   <div class="grid detail-grid">
@@ -1562,18 +1578,17 @@ function studentDetails(id){
 }
 
 /* ============================================================
-   آپلود Excel
+   آپلود Excel (هوشمند - فقط به‌روزرسانی)
 ============================================================ */
 function openExcelImport(){
   openModal('📥 ورود گروهی از Excel', `
   <div style="background:#f0f9ff;padding:16px;border-radius:12px;margin-bottom:20px;font-size:13.5px;line-height:2;border:1px solid #bfdbfe">
     <b style="color:var(--info)">📋 راهنما:</b><br>
-    ستون‌های موردنیاز:<br>
+    ستون‌ها:<br>
     <code style="background:#fff;padding:4px 8px;border-radius:6px;display:inline-block;margin-top:6px;font-family:monospace">
       کد | نام | نام خانوادگی | پایه | کلاس | همراه | تولد | شهریه | تخفیف
-    </code><br>
-    <br>
-    <b style="color:var(--success-dark)">✨ هوشمند:</b> اگر کد دانش‌آموز قبلاً وجود داشته باشد، اطلاعاتش <b>به‌روز</b> می‌شود (نه تکرار).
+    </code><br><br>
+    <b style="color:var(--success-dark)">✨ هوشمند:</b> اگر کد دانش‌آموز وجود داشته باشد، اطلاعاتش <b>به‌روز</b> می‌شود (نه تکرار).
   </div>
   <div style="border:2px dashed var(--primary-light);padding:30px;border-radius:14px;text-align:center;background:#fafbff">
     <input type="file" accept=".xlsx,.xls,.csv" id="excelFile" hidden>
@@ -1627,12 +1642,12 @@ async function handleExcelFile(e){
       discount: findCol(['تخفیف', 'discount'])
     };
 
-    if(cols.code < 0 || cols.name < 0 || cols.family < 0){
-      return toast('ستون‌های «کد»، «نام»، «نام خانوادگی» الزامی است', 'error');
+    if(cols.name < 0 || cols.family < 0){
+      return toast('ستون‌های «نام» و «نام خانوادگی» الزامی است', 'error');
     }
 
     excelImportData = dataRows.map(row => ({
-      code: String(row[cols.code] || '').trim(),
+      code: cols.code >= 0 ? String(row[cols.code] || '').trim() : '',
       name: String(row[cols.name] || '').trim(),
       family: String(row[cols.family] || '').trim(),
       grade: cols.grade >= 0 ? String(row[cols.grade] || 'دهم').trim() : 'دهم',
@@ -1642,7 +1657,7 @@ async function handleExcelFile(e){
       tuition: cols.tuition >= 0 ? (parseFloat(row[cols.tuition]) || 0) : 60000000,
       discount: cols.discount >= 0 ? (parseFloat(row[cols.discount]) || 0) : 0,
       academic_year: db.settings.year
-    })).filter(r => r.code && r.name && r.family);
+    })).filter(r => r.name && r.family);
 
     renderExcelPreview();
   } catch(err){
@@ -1657,9 +1672,17 @@ function renderExcelPreview(){
     return;
   }
 
-  const existingCodes = new Set(db.students.map(s => s.code));
-  const newCount = excelImportData.filter(r => !existingCodes.has(r.code)).length;
-  const updateCount = excelImportData.filter(r => existingCodes.has(r.code)).length;
+  // پیدا کردن بر اساس نام یا کد
+  let newCount = 0, updateCount = 0;
+  const matches = excelImportData.map(r => {
+    const existing = (r.code && db.students.find(s => s.code === r.code)) ||
+                     db.students.find(s => s.name === r.name && s.family === r.family);
+    if(existing) { updateCount++; return { ...r, existingId: existing.id }; }
+    newCount++;
+    return { ...r, existingId: null };
+  });
+
+  window.__excelMatches = matches;
 
   preview.innerHTML = `
     <div style="background:#f0f9ff;padding:12px;border-radius:10px;margin-bottom:14px;font-size:13px;border:1px solid #bfdbfe">
@@ -1673,19 +1696,19 @@ function renderExcelPreview(){
     </div>
     <div class="table-wrap">
       <table class="table">
-        <thead><tr><th>#</th><th>کد</th><th>نام</th><th>خانوادگی</th><th>پایه</th><th>کلاس</th><th>همراه</th><th>تولد</th><th>شهریه</th><th>وضعیت</th></tr></thead>
-        <tbody>${excelImportData.slice(0, 100).map((r, i) => {
-          const isUpdate = existingCodes.has(r.code);
+        <thead><tr><th>#</th><th>کد</th><th>نام</th><th>خانوادگی</th><th>پایه</th><th>کلاس</th><th>تولد</th><th>شهریه</th><th>وضعیت</th></tr></thead>
+        <tbody>${matches.slice(0, 100).map((r, i) => {
+          const isUpdate = !!r.existingId;
           return `<tr style="${isUpdate ? 'background:#fef3c7' : ''}">
-            <td>${i+1}</td><td>${r.code}</td><td>${r.name}</td><td>${r.family}</td>
-            <td>${r.grade}</td><td>${r.class_name}</td><td>${r.phone}</td><td>${r.birth_date}</td>
+            <td>${i+1}</td><td>${r.code||'-'}</td><td>${r.name}</td><td>${r.family}</td>
+            <td>${r.grade}</td><td>${r.class_name}</td><td>${r.birth_date}</td>
             <td>${money(r.tuition)}</td>
             <td><span class="badge ${isUpdate ? 'debt' : 'paid'}">${isUpdate ? 'به‌روز' : 'جدید'}</span></td>
           </tr>`;
         }).join('')}
         </tbody>
       </table>
-      ${excelImportData.length > 100 ? '<p style="text-align:center;color:var(--muted);padding:10px">... و ' + (excelImportData.length - 100) + ' ردیف دیگر</p>' : ''}
+      ${matches.length > 100 ? '<p style="text-align:center;color:var(--muted);padding:10px">... و ' + (matches.length - 100) + ' ردیف دیگر</p>' : ''}
     </div>
   `;
 
@@ -1696,7 +1719,7 @@ function renderExcelPreview(){
 }
 
 async function confirmExcelImport(){
-  if(!excelImportData.length) return;
+  if(!window.__excelMatches || !window.__excelMatches.length) return;
   if(isProcessing) return;
 
   isProcessing = true;
@@ -1706,19 +1729,19 @@ async function confirmExcelImport(){
   let inserted = 0, updated = 0, errors = 0;
 
   try {
-    for(const r of excelImportData){
-      const existing = db.students.find(s => s.code === r.code);
-      if(existing){
-        // به‌روزرسانی
-        const { error } = await sb.from('students').update({
-          name: r.name, family: r.family, grade: r.grade, class_name: r.class_name,
-          phone: r.phone, birth_date: r.birth_date, tuition: r.tuition, discount: r.discount
-        }).eq('id', existing.id);
+    for(const r of window.__excelMatches){
+      const data = {
+        name: r.name, family: r.family, grade: r.grade, class_name: r.class_name,
+        phone: r.phone, birth_date: r.birth_date, tuition: r.tuition, discount: r.discount
+      };
+
+      if(r.existingId){
+        const { error } = await sb.from('students').update(data).eq('id', r.existingId);
         if(error) errors++;
         else updated++;
       } else {
-        // جدید
-        const { error } = await sb.from('students').insert(r);
+        if(!r.code) { errors++; continue; }
+        const { error } = await sb.from('students').insert({ ...data, code: r.code, academic_year: r.academic_year });
         if(error) errors++;
         else inserted++;
       }
@@ -1728,16 +1751,17 @@ async function confirmExcelImport(){
     closeModal();
     await refreshApp();
     toast(`✅ ${inserted} جدید + ${updated} به‌روز${errors ? ' (' + errors + ' خطا)' : ''}`, 'success');
+    window.__excelMatches = null;
+    excelImportData = [];
   } catch(e){
     toast('خطا: ' + e.message, 'error');
   } finally {
     isProcessing = false;
-    excelImportData = [];
   }
 }
 
 /* ============================================================
-   پرداخت
+   پرداخت‌ها
 ============================================================ */
 function studentOptions(){
   if(!db.students.length) return '<option value="">— دانش‌آموزی نیست —</option>';
@@ -2056,7 +2080,7 @@ async function returnCheck(id){
 }
 
 /* ============================================================
-   اموال مدرسه
+   اموال
 ============================================================ */
 function renderAssets(){
   const q = v('assetSearch'), cat = v('assetCategoryFilter'), st = v('assetStatusFilter');
@@ -2147,7 +2171,7 @@ async function saveAsset(id){
   } finally { isProcessing = false; }
 }
   /* ============================================================
-   کارکنان
+   کارکنان (با حقوق ساعتی)
 ============================================================ */
 function renderStaff(){
   const q = v('staffSearch'), role = v('staffRoleFilter');
@@ -2156,44 +2180,49 @@ function renderStaff(){
     (!role || s.position === role)
   );
   document.getElementById('staffTable').innerHTML = arr.map(s => {
-    const paidAmt = staffPaid(s.id);
-    const totalExpected = (+s.base_salary||0) + (+s.bonus||0);
-    const remaining = Math.max(0, totalExpected * 12 - paidAmt);
+    const paidAmt = db.salaries.filter(x => x.staffId == s.id).reduce((a,b) => a + (+b.net_amount||0), 0);
+    const sessionMin = s.session_duration_minutes || 90;
+    const hourlyRate = s.hourly_rate || 0;
+    const perSession = Math.round((sessionMin / 60) * hourlyRate);
+
     return `<tr>
       <td><b>${s.code||'-'}</b></td>
       <td><b>${s.name} ${s.family}</b></td>
       <td>${s.position||'-'}</td>
       <td>${s.phone||'-'}</td>
-      <td>${money(s.base_salary)}</td>
+      <td style="color:var(--primary);font-weight:700">${money(hourlyRate)}</td>
+      <td>${sessionMin} دقیقه (${money(perSession)}/جلسه)</td>
       <td style="color:var(--success-dark);font-weight:700">${money(paidAmt)}</td>
-      <td style="color:var(--danger);font-weight:700">${money(remaining)}</td>
+      <td style="color:var(--danger);font-weight:700">${money(0)}</td>
       <td class="actions">
         <button class="btn green" data-action="pay-salary-for" data-id="${s.id}">واریز حقوق</button>
         <button class="btn" data-action="edit-staff" data-id="${s.id}">ویرایش</button>
         <button class="btn red" data-action="del-staff" data-id="${s.id}">حذف</button>
       </td>
     </tr>`;
-  }).join('') || `<tr><td colspan="8" class="empty">کارمندی نیست</td></tr>`;
+  }).join('') || `<tr><td colspan="9" class="empty">کارمندی نیست</td></tr>`;
 }
 
 function openStaff(id){
   const s = id ? staffById(id) : {
     id:'', code:'', name:'', family:'', position:'دبیر', phone:'',
-    base_salary:0, bonus:0, notes:''
+    hourly_rate: 0, session_duration_minutes: 90, notes:''
   };
   if(!s) return;
-  openModal(id ? 'ویرایش کارمند' : 'ثبت کارمند', `
+
+  openModal(id ? 'ویرایش کارمند' : 'ثبت کارمند جدید', `
   <div class="form"><div class="formgrid">
-    <div><label>کد پرسنلی *</label><input id="st_code" value="${s.code||''}"></div>
+    <div><label>کد پرسنلی *</label><input id="st_code" value="${s.code||''}" placeholder="T001"></div>
     <div><label>نام *</label><input id="st_name" value="${s.name||''}"></div>
     <div><label>نام خانوادگی *</label><input id="st_family" value="${s.family||''}"></div>
     <div><label>سمت</label><select id="st_position">${STAFF_ROLES.map(x => `<option ${x===s.position?'selected':''}>${x}</option>`).join('')}</select></div>
     <div><label>شماره همراه</label><input id="st_phone" value="${s.phone||''}"></div>
-    <div><label>حقوق پایه (ریال) *</label><input type="number" id="st_base" value="${s.base_salary||0}"></div>
-    <div><label>پاداش (ریال)</label><input type="number" id="st_bonus" value="${s.bonus||0}"></div>
-    <div class="full"><label>توضیحات</label><textarea id="st_notes">${s.notes||''}</textarea></div>
+    <div><label>حقوق ساعتی (ریال) *</label><input type="number" id="st_hourly" value="${s.hourly_rate||0}"></div>
+    <div><label>مدت هر جلسه (دقیقه)</label><input type="number" id="st_session" value="${s.session_duration_minutes||90}"></div>
+    <div><label>توضیحات</label><textarea id="st_notes">${s.notes||''}</textarea></div>
   </div>
   <div class="modalfoot"><button class="btn primary" id="btnSaveStaff">ذخیره</button></div></div>`);
+
   document.getElementById('btnSaveStaff').onclick = () => saveStaff(id || 0);
 }
 
@@ -2202,7 +2231,9 @@ async function saveStaff(id){
   const s = {
     staff_code: v('st_code'), name: v('st_name'), family: v('st_family'),
     position: v('st_position'), phone: v('st_phone'),
-    base_salary: num('st_base'), bonus: num('st_bonus'), notes: v('st_notes')
+    hourly_rate: num('st_hourly'),
+    session_duration_minutes: num('st_session') || 90,
+    notes: v('st_notes')
   };
   if(!s.staff_code || !s.name || !s.family) return toast('اطلاعات ناقص', 'error');
   if(db.staff.some(x => x.staff_code === s.staff_code && x.id != id)) return toast('کد تکراری', 'error');
@@ -2221,11 +2252,11 @@ async function saveStaff(id){
 }
 
 /* ============================================================
-   حقوق
+   حقوق (با محاسبه ساعتی)
 ============================================================ */
 function staffOptions(){
   if(!db.staff.length) return '<option value="">— کارمندی نیست —</option>';
-  return db.staff.map(s => `<option value="${s.id}">${s.name} ${s.family} — ${s.position||''}</option>`).join('');
+  return db.staff.map(s => `<option value="${s.id}" data-hourly="${s.hourly_rate||0}" data-session="${s.session_duration_minutes||90}">${s.name} ${s.family} — ${s.position||''}</option>`).join('');
 }
 
 function renderSalaries(){
@@ -2238,9 +2269,8 @@ function renderSalaries(){
     <tr>
       <td><b>${staffName(s.staffId)}</b></td>
       <td>${s.month||'-'}</td>
-      <td>${money(s.base)}</td>
-      <td>${money(s.bonus)}</td>
-      <td>${money(s.deduction)}</td>
+      <td>${s.hours_worked || '-'} ساعت</td>
+      <td>${money(s.hourly_rate)}</td>
       <td style="color:var(--success-dark);font-weight:700">${money(s.net_amount)}</td>
       <td>${s.date||'-'}</td>
       <td>${s.method||'-'}</td>
@@ -2248,23 +2278,61 @@ function renderSalaries(){
         <button class="btn blue" data-action="print-salary" data-id="${s.id}">رسید</button>
         <button class="btn red" data-action="del-item" data-table="salaries" data-id="${s.id}">حذف</button>
       </td>
-    </tr>`).join('') || `<tr><td colspan="9" class="empty">واریزی نیست</td></tr>`;
+    </tr>`).join('') || `<tr><td colspan="8" class="empty">واریزی نیست</td></tr>`;
 }
 
 function openSalary(staffId){
-  openModal('ثبت واریز حقوق', `
+  openModal('💰 محاسبه و ثبت حقوق', `
   <div class="form"><div class="formgrid">
-    <div class="full"><label>کارمند *</label><select id="s_staff"><option value="">انتخاب</option>${staffOptions()}</select></div>
+    <div class="full"><label>کارمند *</label><select id="s_staff" onchange="calcSalaryLive()"><option value="">انتخاب</option>${staffOptions()}</select></div>
     <div><label>ماه *</label><select id="s_month">${MONTHS.map(x => `<option>${x}</option>`).join('')}</select></div>
-    <div><label>حقوق پایه *</label><input type="number" id="s_base"></div>
-    <div><label>پاداش</label><input type="number" id="s_bonus" value="0"></div>
-    <div><label>کسورات</label><input type="number" id="s_deduction" value="0"></div>
-    <div><label>تاریخ</label><input id="s_date" value="${today()}"></div>
-    <div><label>روش</label><select id="s_method"><option>کارت به کارت</option><option>واریز بانکی</option><option>نقدی</option><option>چک</option></select></div>
+    <div><label>تاریخ پرداخت</label><input id="s_date" value="${today()}"></div>
+    <div><label>روش پرداخت</label><select id="s_method"><option>کارت به کارت</option><option>واریز بانکی</option><option>نقدی</option><option>چک</option></select></div>
     <div><label>پیگیری</label><input id="s_tracking"></div>
-    <div class="full"><label>توضیحات</label><textarea id="s_desc"></textarea></div>
   </div>
-  <div class="modalfoot"><button class="btn primary" id="btnSaveSalary">ثبت</button></div></div>`);
+  
+  <div class="salary-calc-box">
+    <h4>🧮 محاسبه حقوق</h4>
+    <div class="salary-calc-row">
+      <div>
+        <label>حقوق ساعتی (ریال)</label>
+        <input type="number" id="s_hourly" oninput="calcSalaryLive()" value="0">
+      </div>
+      <div>
+        <label>تعداد جلسه (کلاس)</label>
+        <input type="number" id="s_sessions" oninput="calcSalaryLive()" value="0">
+      </div>
+    </div>
+    <div class="salary-calc-row">
+      <div>
+        <label>مدت هر جلسه (دقیقه)</label>
+        <input type="number" id="s_session_min" oninput="calcSalaryLive()" value="90">
+      </div>
+      <div>
+        <label>مجموع ساعت</label>
+        <input type="text" id="s_hours_display" readonly value="0" style="background:#eef2ff;font-weight:700">
+      </div>
+    </div>
+    <div class="salary-calc-row">
+      <div>
+        <label>پاداش (ریال)</label>
+        <input type="number" id="s_bonus" oninput="calcSalaryLive()" value="0">
+      </div>
+      <div>
+        <label>کسورات (ریال)</label>
+        <input type="number" id="s_deduction" oninput="calcSalaryLive()" value="0">
+      </div>
+    </div>
+    <div class="salary-calc-total" id="s_total">مبلغ خالص: 0 ریال</div>
+  </div>
+  
+  <div class="form">
+    <label>توضیحات</label>
+    <textarea id="s_desc"></textarea>
+  </div>
+  
+  <div class="modalfoot"><button class="btn primary" id="btnSaveSalary">💾 ثبت حقوق</button></div></div>`);
+
   document.getElementById('btnSaveSalary').onclick = saveSalary;
 
   if(staffId){
@@ -2274,34 +2342,82 @@ function openSalary(staffId){
         el.value = staffId;
         const s = staffById(staffId);
         if(s){
-          document.getElementById('s_base').value = s.base_salary || 0;
-          document.getElementById('s_bonus').value = s.bonus || 0;
+          document.getElementById('s_hourly').value = s.hourly_rate || 0;
+          document.getElementById('s_session_min').value = s.session_duration_minutes || 90;
         }
+        calcSalaryLive();
       }
-    }, 50);
+    }, 100);
   }
+
+  // بارگذاری خودکار حقوق ساعتی هنگام انتخاب کارمند
+  setTimeout(() => {
+    document.getElementById('s_staff').addEventListener('change', () => {
+      const s = staffById(v('s_staff'));
+      if(s){
+        document.getElementById('s_hourly').value = s.hourly_rate || 0;
+        document.getElementById('s_session_min').value = s.session_duration_minutes || 90;
+      }
+      calcSalaryLive();
+    });
+  }, 100);
+}
+
+function calcSalaryLive(){
+  const hourly = parseFloat(v('s_hourly')) || 0;
+  const sessions = parseFloat(v('s_sessions')) || 0;
+  const sessionMin = parseFloat(v('s_session_min')) || 90;
+  const bonus = parseFloat(v('s_bonus')) || 0;
+  const deduction = parseFloat(v('s_deduction')) || 0;
+
+  const hours = (sessions * sessionMin) / 60;
+  const net = Math.round(hours * hourly + bonus - deduction);
+
+  const hoursDisplay = document.getElementById('s_hours_display');
+  if(hoursDisplay) hoursDisplay.value = hours.toFixed(2) + ' ساعت';
+
+  const totalEl = document.getElementById('s_total');
+  if(totalEl) totalEl.textContent = `مبلغ خالص: ${money(net)}`;
 }
 
 async function saveSalary(){
   if(isProcessing) return;
   const sid = v('s_staff');
-  const base = num('s_base'), bonus = num('s_bonus'), ded = num('s_deduction');
-  const net = base + bonus - ded;
-  if(!sid || base <= 0) return toast('اطلاعات ناقص', 'error');
+  if(!sid) return toast('کارمند را انتخاب کنید', 'error');
+
+  const hourly = num('s_hourly');
+  const sessions = num('s_sessions');
+  const sessionMin = num('s_session_min') || 90;
+  const bonus = num('s_bonus');
+  const deduction = num('s_deduction');
+
+  const hours = (sessions * sessionMin) / 60;
+  const net = Math.round(hours * hourly + bonus - deduction);
+
+  if(net <= 0 && sessions === 0) return toast('تعداد جلسه یا مبلغ را وارد کنید', 'error');
 
   isProcessing = true;
   try {
     const { error } = await sb.from('salaries').insert({
-      staff_id: sid, salary_month: v('s_month'),
-      base_amount: base, bonus_amount: bonus, deduction: ded, net_amount: net,
-      payment_date: v('s_date'), payment_method: v('s_method'),
-      tracking: v('s_tracking'), description: v('s_desc'), created_by: currentUser.id
+      staff_id: sid,
+      salary_month: v('s_month'),
+      base_amount: Math.round(hours * hourly),
+      bonus_amount: bonus,
+      deduction: deduction,
+      net_amount: net,
+      hours_worked: hours,
+      hourly_rate: hourly,
+      payment_date: v('s_date'),
+      payment_method: v('s_method'),
+      tracking: v('s_tracking'),
+      description: v('s_desc'),
+      created_by: currentUser.id
     });
     if(error) return toast(translateError(error), 'error');
-    await logAction('واریز حقوق');
+    await logAction(`واریز حقوق ${staffName(sid)} (${hours.toFixed(2)} ساعت)`);
     closeModal();
     await refreshApp();
-    toast('ثبت شد ✅', 'success');
+    toast('حقوق ثبت شد ✅', 'success');
   } finally { isProcessing = false; }
 }
 
@@ -2320,6 +2436,7 @@ function printSalary(id){
   <table>
     <tr><th>نام کارمند</th><td>${st.name} ${st.family}</td><th>کد</th><td>${st.code||'-'}</td></tr>
     <tr><th>سمت</th><td>${st.position||'-'}</td><th>ماه</th><td>${s.month}</td></tr>
+    <tr><th>حقوق ساعتی</th><td>${money(s.hourly_rate)}</td><th>ساعت تدریس</th><td>${s.hours_worked || '-'}</td></tr>
     <tr><th>حقوق پایه</th><td>${money(s.base)}</td><th>پاداش</th><td>${money(s.bonus)}</td></tr>
     <tr><th>کسورات</th><td>${money(s.deduction)}</td><th>روش</th><td>${s.method}</td></tr>
     <tr class="total"><th>خالص پرداختی</th><td colspan="3">${money(s.net_amount)}</td></tr>
@@ -2519,7 +2636,7 @@ async function saveDiscount(){
 }
 
 /* ============================================================
-   صورتحساب
+   صورتحساب / چاپ دسته‌ای
 ============================================================ */
 function invoiceRows(s){
   const rows = [];
@@ -2572,9 +2689,6 @@ function printInvoice(id){
   setTimeout(() => w.print(), 300);
 }
 
-/* ============================================================
-   چاپ دسته‌ای
-============================================================ */
 function renderBulk(){
   const q = v('bulkSearch'), m = v('bulkMethodFilter');
   const arr = db.payments.filter(p => {
@@ -2736,8 +2850,8 @@ function renderReport(){
   }
   else if(type === 'salaries'){
     const total = db.salaries.reduce((a,s) => a + (+s.net_amount||0), 0);
-    el.innerHTML = `<h3>جمع حقوق: ${money(total)}</h3><div class="table-wrap"><table class="table"><thead><tr><th>کارمند</th><th>ماه</th><th>خالص</th><th>تاریخ</th></tr></thead>
-    <tbody>${db.salaries.map(s => `<tr><td>${staffName(s.staffId)}</td><td>${s.month}</td><td>${money(s.net_amount)}</td><td>${s.date}</td></tr>`).join('')}</tbody></table></div>`;
+    el.innerHTML = `<h3>جمع حقوق: ${money(total)}</h3><div class="table-wrap"><table class="table"><thead><tr><th>کارمند</th><th>ماه</th><th>ساعت</th><th>خالص</th><th>تاریخ</th></tr></thead>
+    <tbody>${db.salaries.map(s => `<tr><td>${staffName(s.staffId)}</td><td>${s.month}</td><td>${s.hours_worked||'-'}</td><td>${money(s.net_amount)}</td><td>${s.date}</td></tr>`).join('')}</tbody></table></div>`;
   }
   else if(type === 'expenses'){
     const total = db.expenses.reduce((a,x) => a + (+x.amount||0), 0);
@@ -2825,7 +2939,7 @@ async function downloadBackup(){
   try {
     await loadData();
     const backup = {
-      version: '8.0',
+      version: '9.0',
       created_at: new Date().toISOString(),
       created_at_fa: new Date().toLocaleString('fa-IR'),
       created_by: currentUser?.email,
@@ -2902,7 +3016,6 @@ async function restoreFromFile(event){
       const studentCodeToId = {};
       const staffCodeToId = {};
 
-      // دانش‌آموزان
       if(d.students?.length){
         msg.textContent = `⏳ دانش‌آموزان...`;
         const mapped = d.students.map(s => ({
@@ -2919,13 +3032,14 @@ async function restoreFromFile(event){
       }
       bar.style.width = '40%';
 
-      // کارکنان
       if(d.staff?.length){
         msg.textContent = `⏳ کارکنان...`;
         const mapped = d.staff.map(s => ({
           staff_code: s.code || s.staff_code, name: s.name, family: s.family,
           position: s.position, phone: s.phone,
-          base_salary: s.base_salary||0, bonus: s.bonus||0, notes: s.notes||''
+          hourly_rate: s.hourly_rate||0,
+          session_duration_minutes: s.session_duration_minutes || 90,
+          notes: s.notes||''
         }));
         const { error, data } = await sb.from('staff').insert(mapped).select('id, staff_code');
         if(error) throw error;
@@ -2933,7 +3047,6 @@ async function restoreFromFile(event){
       }
       bar.style.width = '55%';
 
-      // پرداخت‌ها
       if(d.payments?.length){
         msg.textContent = `⏳ پرداخت‌ها...`;
         const valid = d.payments.map(p => {
@@ -2953,7 +3066,6 @@ async function restoreFromFile(event){
       }
       bar.style.width = '70%';
 
-      // اموال
       if(d.assets?.length){
         msg.textContent = `⏳ اموال...`;
         const mapped = d.assets.map(a => ({
@@ -2967,7 +3079,6 @@ async function restoreFromFile(event){
       }
       bar.style.width = '80%';
 
-      // چک‌ها
       if(d.checks?.length){
         msg.textContent = `⏳ چک‌ها...`;
         const valid = [];
@@ -2989,7 +3100,6 @@ async function restoreFromFile(event){
       }
       bar.style.width = '88%';
 
-      // حقوق
       if(d.salaries?.length){
         msg.textContent = `⏳ حقوق...`;
         const valid = [];
@@ -3004,6 +3114,8 @@ async function restoreFromFile(event){
             base_amount: s.base || s.base_amount||0,
             bonus_amount: s.bonus || s.bonus_amount||0,
             deduction: s.deduction||0, net_amount: s.net_amount||0,
+            hours_worked: s.hours_worked||0,
+            hourly_rate: s.hourly_rate||0,
             payment_date: s.date || s.payment_date,
             payment_method: s.method || s.payment_method,
             tracking: s.tracking||'', description: s.description||''
@@ -3013,7 +3125,6 @@ async function restoreFromFile(event){
       }
       bar.style.width = '94%';
 
-      // اقساط/تخفیف
       if(d.installments?.length){
         const valid = d.installments.map(i => {
           const oldId = i.studentId || i.student_id;
@@ -3042,7 +3153,6 @@ async function restoreFromFile(event){
         if(valid.length) await sb.from('discounts').insert(valid);
       }
 
-      // درآمد/هزینه
       if(d.incomes?.length){
         await sb.from('incomes').insert(d.incomes.map(x => ({
           title: x.title, category: x.category, amount: x.amount,
@@ -3084,7 +3194,7 @@ async function restoreFromFile(event){
 }
 
 /* ============================================================
-   حذف عمومی
+   حذف / لاگ / داشبورد / نمودار
 ============================================================ */
 async function deleteItem(table, id){
   if(!confirm('حذف؟')) return;
@@ -3099,9 +3209,6 @@ async function deleteItem(table, id){
   } finally { isProcessing = false; }
 }
 
-/* ============================================================
-   لاگ و داشبورد
-============================================================ */
 function renderLogs(){
   document.getElementById('logsTable').innerHTML = db.logs.map(x => `
     <tr><td>${x.action}</td><td>${x.date}</td><td>${x.time}</td></tr>`).join('')
@@ -3129,9 +3236,6 @@ function renderDashboardLists(){
   }).join('') || '<li>چکی نیست</li>';
 }
 
-/* ============================================================
-   نمودارها
-============================================================ */
 function drawCharts(){
   if(typeof Chart === 'undefined') return;
   charts.forEach(c => { try { c.destroy(); } catch(e){} });
