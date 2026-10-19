@@ -11,8 +11,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Estedad:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
+/* ============================== */
+/*   فونت و متغیرهای اصلی         */
+/* ============================== */
 @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap');
 
 :root {
@@ -20,37 +22,52 @@
   --primary-dark: #4f46e5;
   --primary-light: #818cf8;
   --primary-bg: #eef2ff;
+  
   --success: #10b981;
   --success-dark: #059669;
   --success-bg: #d1fae5;
+  
   --warning: #f59e0b;
   --warning-dark: #d97706;
   --warning-bg: #fef3c7;
+  
   --danger: #ef4444;
   --danger-dark: #dc2626;
   --danger-bg: #fee2e2;
+  
   --info: #3b82f6;
   --info-bg: #dbeafe;
+  
   --bg: #f8fafc;
   --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
   --card: #ffffff;
+  --card-hover: #fafbff;
+  
   --text: #1e293b;
   --text-soft: #475569;
   --muted: #64748b;
   --line: #e2e8f0;
+  
   --shadow-sm: 0 1px 2px rgba(0,0,0,.04);
   --shadow: 0 4px 6px -1px rgba(0,0,0,.05), 0 2px 4px -1px rgba(0,0,0,.03);
   --shadow-md: 0 10px 15px -3px rgba(99,102,241,.08), 0 4px 6px -2px rgba(0,0,0,.03);
   --shadow-lg: 0 20px 25px -5px rgba(99,102,241,.1), 0 10px 10px -5px rgba(0,0,0,.02);
   --shadow-xl: 0 25px 50px -12px rgba(99,102,241,.15);
+  
   --radius-sm: 8px;
   --radius: 14px;
   --radius-lg: 20px;
   --radius-xl: 24px;
+  
   --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
   font-family: 'Estedad', 'Vazirmatn', Tahoma, sans-serif;
@@ -60,13 +77,31 @@ body {
   font-weight: 400;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
-button, input, select, textarea { font-family: inherit; font-size: inherit; }
-button { cursor: pointer; border: 0; transition: var(--transition); }
 
-.app { display: flex; min-height: 100vh; }
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+}
 
-/* سایدبار */
+button {
+  cursor: pointer;
+  border: 0;
+  transition: var(--transition);
+}
+
+/* ============================== */
+/*   ساختار کلی                  */
+/* ============================== */
+.app {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ============================== */
+/*   سایدبار                      */
+/* ============================== */
 .sidebar {
   width: 270px;
   background: linear-gradient(180deg, #1e1b4b 0%, #312e81 50%, #1e1b4b 100%);
@@ -78,56 +113,88 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   bottom: 0;
   z-index: 20;
   overflow-y: auto;
+  overflow-x: hidden;
   box-shadow: -4px 0 20px rgba(30, 27, 75, 0.15);
 }
+
 .sidebar::-webkit-scrollbar { width: 6px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
 .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 3px; }
+
 .brand {
-  display: flex; gap: 12px; align-items: center;
+  display: flex;
+  gap: 12px;
+  align-items: center;
   padding: 8px 10px 22px;
   border-bottom: 1px solid rgba(255,255,255,.1);
   margin-bottom: 18px;
 }
+
 .brand img {
-  width: 58px; height: 58px;
+  width: 58px;
+  height: 58px;
   border-radius: 16px;
   object-fit: contain;
   background: #fff;
   padding: 5px;
   box-shadow: 0 4px 12px rgba(0,0,0,.2);
 }
-.brand h2 { font-size: 17px; margin: 0; font-weight: 800; letter-spacing: -.3px; }
-.brand small { color: #a5b4fc; font-size: 11px; font-weight: 500; }
+
+.brand h2 {
+  font-size: 17px;
+  margin: 0;
+  font-weight: 800;
+  letter-spacing: -.3px;
+}
+
+.brand small {
+  color: #a5b4fc;
+  font-size: 11px;
+  font-weight: 500;
+}
+
 .nav button {
-  width: 100%; background: transparent;
-  color: #c7d2fe; text-align: right;
-  padding: 12px 14px; border-radius: 12px;
+  width: 100%;
+  background: transparent;
+  color: #c7d2fe;
+  text-align: right;
+  padding: 12px 14px;
+  border-radius: 12px;
   margin: 3px 0;
-  display: flex; align-items: center; gap: 12px;
-  font-size: 13.5px; font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13.5px;
+  font-weight: 500;
   transition: var(--transition);
   position: relative;
 }
+
 .nav button:hover {
   background: rgba(255,255,255,.08);
   color: #fff;
   transform: translateX(-3px);
 }
+
 .nav button.active {
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   color: #fff;
   box-shadow: 0 4px 14px rgba(99,102,241,.4);
   font-weight: 700;
 }
+
 .nav button.active::before {
   content: '';
   position: absolute;
-  right: -14px; top: 50%;
+  right: -14px;
+  top: 50%;
   transform: translateY(-50%);
-  width: 4px; height: 24px;
+  width: 4px;
+  height: 24px;
   background: #fff;
   border-radius: 4px 0 0 4px;
 }
+
 .nav-section {
   padding: 16px 14px 8px;
   font-size: 10px;
@@ -137,11 +204,23 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   text-transform: uppercase;
 }
 
-/* محتوای اصلی */
-.main { margin-right: 270px; width: calc(100% - 270px); padding: 28px; min-height: 100vh; }
+/* ============================== */
+/*   محتوای اصلی                 */
+/* ============================== */
+.main {
+  margin-right: 270px;
+  width: calc(100% - 270px);
+  padding: 28px;
+  min-height: 100vh;
+}
+
 .topbar {
-  display: flex; justify-content: space-between; align-items: center;
-  gap: 15px; margin-bottom: 26px; flex-wrap: wrap;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 26px;
+  flex-wrap: wrap;
   background: rgba(255,255,255,.7);
   backdrop-filter: blur(12px);
   padding: 16px 20px;
@@ -149,8 +228,22 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   border: 1px solid rgba(255,255,255,.8);
   box-shadow: var(--shadow-sm);
 }
-.topbar h1 { font-size: 24px; margin: 0; font-weight: 800; letter-spacing: -.5px; color: var(--text); }
-.top-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+.topbar h1 {
+  font-size: 24px;
+  margin: 0;
+  font-weight: 800;
+  letter-spacing: -.5px;
+  color: var(--text);
+}
+
+.top-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 .search {
   background: #fff;
   border: 2px solid var(--line);
@@ -161,9 +254,15 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   outline: none;
   transition: var(--transition);
 }
-.search:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-bg); }
 
-/* دکمه‌ها */
+.search:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-bg);
+}
+
+/* ============================== */
+/*   دکمه‌ها                     */
+/* ============================== */
 .btn {
   padding: 11px 18px;
   border-radius: 12px;
@@ -178,26 +277,61 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   white-space: nowrap;
   border: 2px solid transparent;
 }
-.btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
 .btn:active { transform: translateY(0); }
+
 .btn.primary {
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
   color: #fff;
   box-shadow: 0 4px 14px rgba(99,102,241,.35);
 }
+
+.btn.primary:hover {
+  box-shadow: 0 6px 20px rgba(99,102,241,.45);
+}
+
 .btn.green {
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: #fff;
   box-shadow: 0 4px 14px rgba(16,185,129,.35);
 }
-.btn.red { background: var(--danger-bg); color: var(--danger-dark); border-color: #fecaca; }
-.btn.blue { background: var(--info-bg); color: #1e40af; border-color: #bfdbfe; }
-.btn.gold { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #fff; box-shadow: 0 4px 14px rgba(245,158,11,.35); }
-.btn.purple { background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); color: #fff; box-shadow: 0 4px 14px rgba(168,85,247,.35); }
 
-/* کارت کاربر */
+.btn.red {
+  background: var(--danger-bg);
+  color: var(--danger-dark);
+  border-color: #fecaca;
+}
+
+.btn.blue {
+  background: var(--info-bg);
+  color: #1e40af;
+  border-color: #bfdbfe;
+}
+
+.btn.gold {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(245,158,11,.35);
+}
+
+.btn.purple {
+  background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(168,85,247,.35);
+}
+
+/* ============================== */
+/*   کارت کاربر                  */
+/* ============================== */
 .user-chip {
-  display: flex; align-items: center; gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   background: #fff;
   border: 2px solid var(--line);
   border-radius: 14px;
@@ -205,27 +339,45 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   font-size: 13px;
   transition: var(--transition);
 }
-.user-chip:hover { border-color: var(--primary-light); box-shadow: var(--shadow-md); }
+
+.user-chip:hover {
+  border-color: var(--primary-light);
+  box-shadow: var(--shadow-md);
+}
+
 .user-chip .avatar {
-  width: 36px; height: 36px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  display: grid; place-items: center;
-  color: #fff; font-weight: 800; font-size: 14px;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-weight: 800;
+  font-size: 14px;
   box-shadow: 0 2px 8px rgba(99,102,241,.4);
 }
 
-/* صفحات */
+/* ============================== */
+/*   صفحات                       */
+/* ============================== */
 .page { display: none; }
-.page.active { display: block; animation: fadeInUp 0.4s ease; }
+.page.active {
+  display: block;
+  animation: fadeInUp 0.4s ease;
+}
+
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
 .grid { display: grid; gap: 18px; }
 .stats { grid-template-columns: repeat(4, 1fr); }
 
-/* کارت‌ها */
+/* ============================== */
+/*   کارت‌ها                     */
+/* ============================== */
 .card {
   background: var(--card);
   border: 1px solid var(--line);
@@ -234,47 +386,117 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   box-shadow: var(--shadow);
   transition: var(--transition);
 }
-.card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
 
-/* کارت آمار */
+.card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+/* ============================== */
+/*   کارت آمار                   */
+/* ============================== */
 .stat {
-  position: relative; overflow: hidden;
+  position: relative;
+  overflow: hidden;
   background: linear-gradient(135deg, #fff 0%, #fafbff 100%);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   padding: 22px;
   transition: var(--transition);
 }
+
 .stat::before {
   content: '';
   position: absolute;
-  top: 0; right: 0;
-  width: 4px; height: 100%;
+  top: 0;
+  right: 0;
+  width: 4px;
+  height: 100%;
   background: linear-gradient(180deg, var(--primary) 0%, var(--primary-light) 100%);
   opacity: 0;
   transition: var(--transition);
 }
+
 .stat:hover::before { opacity: 1; }
-.stat:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); border-color: var(--primary-light); }
-.stat .num { font-size: 26px; font-weight: 900; margin: 10px 0 4px; color: var(--text); letter-spacing: -.5px; }
-.stat .label { color: var(--muted); font-size: 12.5px; font-weight: 600; }
-.stat .ico { position: absolute; left: 20px; top: 20px; font-size: 32px; opacity: .9; filter: drop-shadow(0 2px 4px rgba(0,0,0,.1)); }
 
-/* سرصفحه */
-.section-head {
-  display: flex; justify-content: space-between; align-items: center;
-  margin: 28px 0 16px; flex-wrap: wrap; gap: 12px;
+.stat:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--primary-light);
 }
-.section-head h2 { font-size: 20px; margin: 0; font-weight: 800; letter-spacing: -.3px; color: var(--text); }
 
-/* نمودارها */
+.stat .num {
+  font-size: 26px;
+  font-weight: 900;
+  margin: 10px 0 4px;
+  color: var(--text);
+  letter-spacing: -.5px;
+}
+
+.stat .label {
+  color: var(--muted);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.stat .ico {
+  position: absolute;
+  left: 20px;
+  top: 20px;
+  font-size: 32px;
+  opacity: .9;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,.1));
+}
+
+/* ============================== */
+/*   سرصفحه بخش‌ها               */
+/* ============================== */
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 28px 0 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.section-head h2 {
+  font-size: 20px;
+  margin: 0;
+  font-weight: 800;
+  letter-spacing: -.3px;
+  color: var(--text);
+}
+
+/* ============================== */
+/*   نمودارها                    */
+/* ============================== */
 .charts { grid-template-columns: 1fr 1fr; }
 .chartbox { height: 320px; }
 
-/* جدول */
-.table-wrap { overflow: auto; border-radius: var(--radius); border: 1px solid var(--line); }
-.table { width: 100%; border-collapse: collapse; min-width: 850px; font-size: 13.5px; }
-.table th, .table td { padding: 14px 12px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+/* ============================== */
+/*   جدول                        */
+/* ============================== */
+.table-wrap {
+  overflow: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 850px;
+  font-size: 13.5px;
+}
+
+.table th, .table td {
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--line);
+  text-align: right;
+  white-space: nowrap;
+}
+
 .table th {
   background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
   color: var(--text-soft);
@@ -285,10 +507,16 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   top: 0;
   z-index: 1;
 }
-.table tr:last-child td { border-bottom: 0; }
-.table tr:hover td { background: var(--primary-bg); }
 
-/* بج‌ها */
+.table tr:last-child td { border-bottom: 0; }
+
+.table tr:hover td {
+  background: var(--primary-bg);
+}
+
+/* ============================== */
+/*   بج‌ها                       */
+/* ============================== */
 .badge {
   display: inline-flex;
   padding: 6px 12px;
@@ -297,20 +525,68 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   font-weight: 700;
   letter-spacing: -.1px;
 }
-.paid { background: var(--success-bg); color: var(--success-dark); }
-.debt { background: var(--warning-bg); color: var(--warning-dark); }
-.overdue { background: var(--danger-bg); color: var(--danger-dark); }
-.pending { background: #fef3c7; color: #92400e; }
-.returned { background: var(--danger-bg); color: var(--danger-dark); }
-.collected { background: var(--success-bg); color: var(--success-dark); }
 
-/* عملیات */
-.actions { display: flex; gap: 6px; flex-wrap: wrap; }
-.empty { text-align: center; color: var(--muted); padding: 40px 20px; font-size: 14px; }
+.paid {
+  background: var(--success-bg);
+  color: var(--success-dark);
+}
 
-/* فیلترها */
-.filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 16px; }
-.filters input, .filters select, .form input, .form select, .form textarea {
+.debt {
+  background: var(--warning-bg);
+  color: var(--warning-dark);
+}
+
+.overdue {
+  background: var(--danger-bg);
+  color: var(--danger-dark);
+}
+
+.pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.returned {
+  background: var(--danger-bg);
+  color: var(--danger-dark);
+}
+
+.collected {
+  background: var(--success-bg);
+  color: var(--success-dark);
+}
+
+/* ============================== */
+/*   عملیات                      */
+/* ============================== */
+.actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 40px 20px;
+  font-size: 14px;
+}
+
+/* ============================== */
+/*   فیلترها                     */
+/* ============================== */
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.filters input,
+.filters select,
+.form input,
+.form select,
+.form textarea {
   border: 2px solid var(--line);
   background: #fff;
   border-radius: 12px;
@@ -320,24 +596,38 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   transition: var(--transition);
   min-width: 180px;
 }
-.filters input:focus, .form input:focus, .form select:focus, .form textarea:focus {
+
+.filters input:focus,
+.form input:focus,
+.form select:focus,
+.form textarea:focus {
   border-color: var(--primary);
   box-shadow: 0 0 0 4px var(--primary-bg);
 }
 
-/* مودال */
+/* ============================== */
+/*   مودال                       */
+/* ============================== */
 .modal {
-  position: fixed; inset: 0;
+  position: fixed;
+  inset: 0;
   background: rgba(15, 23, 42, 0.65);
   backdrop-filter: blur(4px);
   display: none;
-  align-items: center; justify-content: center;
+  align-items: center;
+  justify-content: center;
   z-index: 50;
   padding: 15px;
   animation: fadeIn 0.25s ease;
 }
+
 .modal.show { display: flex; }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 .modalbox {
   background: #fff;
   width: min(920px, 100%);
@@ -348,89 +638,121 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   box-shadow: var(--shadow-xl);
   animation: slideUp 0.3s ease;
 }
+
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
 .modalhead {
-  display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 20px; padding-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
   border-bottom: 2px solid var(--line);
 }
-.modalhead h2 { margin: 0; font-size: 19px; font-weight: 800; letter-spacing: -.3px; }
 
-/* فرم */
-.formgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-.form label { display: block; font-size: 12.5px; color: var(--text-soft); margin-bottom: 6px; font-weight: 700; }
-.form textarea { min-height: 85px; width: 100%; resize: vertical; font-family: inherit; }
+.modalhead h2 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -.3px;
+}
+
+/* ============================== */
+/*   فرم‌ها                      */
+/* ============================== */
+.formgrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.form label {
+  display: block;
+  font-size: 12.5px;
+  color: var(--text-soft);
+  margin-bottom: 6px;
+  font-weight: 700;
+}
+
+.form textarea {
+  min-height: 85px;
+  width: 100%;
+  resize: vertical;
+  font-family: inherit;
+}
+
 .full { grid-column: 1 / -1; }
+
 .modalfoot {
-  display: flex; justify-content: flex-start; gap: 10px;
-  margin-top: 22px; padding-top: 18px;
+  display: flex;
+  justify-content: flex-start;
+  gap: 10px;
+  margin-top: 22px;
+  padding-top: 18px;
   border-top: 2px solid var(--line);
 }
 
-/* جزئیات */
+/* ============================== */
+/*   جزئیات                     */
+/* ============================== */
 .detail-grid { grid-template-columns: repeat(4, 1fr); }
+
 .mini {
   background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%);
   border: 1px solid var(--line);
   padding: 16px;
   border-radius: var(--radius);
 }
-.mini strong { display: block; font-size: 20px; margin-top: 8px; font-weight: 800; color: var(--primary-dark); }
-.mini span { color: var(--muted); font-size: 12px; font-weight: 600; }
 
-/* هشدارها */
-.alerts { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-.alert-list { margin: 0; padding: 0; list-style: none; }
+.mini strong {
+  display: block;
+  font-size: 20px;
+  margin-top: 8px;
+  font-weight: 800;
+  color: var(--primary-dark);
+}
+
+.mini span {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* ============================== */
+/*   هشدارها                     */
+/* ============================== */
+.alerts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+}
+
+.alert-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
 .alert-list li {
-  display: flex; justify-content: space-between;
+  display: flex;
+  justify-content: space-between;
   padding: 12px 0;
   border-bottom: 1px solid var(--line);
   font-size: 13.5px;
 }
+
 .alert-list li:last-child { border-bottom: 0; }
 
-/* کارت تولد */
-.birthday-card {
-  background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 50%, #fecaca 100%);
-  border: 2px solid #fbbf24;
-  border-radius: var(--radius-lg);
-  padding: 22px;
-  margin-bottom: 20px;
-  animation: birthdayPulse 2s ease-in-out infinite;
-}
-@keyframes birthdayPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(251,191,36,.4); }
-  50% { box-shadow: 0 0 0 12px rgba(251,191,36,0); }
-}
-.birthday-card h3 {
-  margin: 0 0 12px;
-  color: #92400e;
-  font-size: 18px;
-  display: flex; align-items: center; gap: 10px;
-}
-.birthday-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-.birthday-person {
-  background: #fff;
-  padding: 12px 18px;
-  border-radius: 14px;
-  display: flex; align-items: center; gap: 10px;
-  box-shadow: 0 2px 8px rgba(146,64,14,.1);
-  font-weight: 600;
-  color: #92400e;
-}
-.birthday-person .cake { font-size: 22px; }
-
-/* Toast */
+/* ============================== */
+/*   Toast                       */
+/* ============================== */
 .toast {
   position: fixed;
-  left: 24px; bottom: 24px;
+  left: 24px;
+  bottom: 24px;
   background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
   color: #fff;
   padding: 16px 22px;
@@ -443,30 +765,43 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   box-shadow: 0 10px 30px rgba(0,0,0,.3);
   font-weight: 500;
 }
-.toast.show { display: block; animation: slideInLeft 0.3s ease; }
+
+.toast.show {
+  display: block;
+  animation: slideInLeft 0.3s ease;
+}
+
 @keyframes slideInLeft {
   from { transform: translateX(-30px); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
+
 .toast.error { background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); }
 .toast.success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
 .toast.warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
 
-/* صفحه ورود */
+/* ============================== */
+/*   صفحه ورود                   */
+/* ============================== */
 #authScreen {
-  position: fixed; inset: 0;
+  position: fixed;
+  inset: 0;
   z-index: 9999;
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
-  display: grid; place-items: center;
+  display: grid;
+  place-items: center;
   padding: 20px;
 }
+
 #authScreen::before {
   content: '';
-  position: absolute; inset: 0;
+  position: absolute;
+  inset: 0;
   background: radial-gradient(circle at 20% 20%, rgba(255,255,255,.15) 0%, transparent 50%),
               radial-gradient(circle at 80% 80%, rgba(255,255,255,.1) 0%, transparent 50%);
   pointer-events: none;
 }
+
 .auth-card {
   width: min(440px, 100%);
   background: #fff;
@@ -478,16 +813,40 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   z-index: 1;
   animation: slideUp 0.5s ease;
 }
+
 .auth-card .auth-logo {
-  width: 110px; height: 110px;
+  width: 110px;
+  height: 110px;
   object-fit: contain;
   margin: 0 auto 15px;
   display: block;
   filter: drop-shadow(0 8px 16px rgba(99,102,241,.3));
 }
-.auth-card h2 { margin: 0 0 10px; color: var(--text); font-size: 22px; font-weight: 800; letter-spacing: -.5px; }
-.auth-card p { color: var(--muted); margin: 0 0 25px; font-size: 14px; font-weight: 500; }
-.auth-card label { display: block; font-size: 13px; color: var(--text-soft); margin-bottom: 8px; text-align: right; font-weight: 700; }
+
+.auth-card h2 {
+  margin: 0 0 10px;
+  color: var(--text);
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -.5px;
+}
+
+.auth-card p {
+  color: var(--muted);
+  margin: 0 0 25px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.auth-card label {
+  display: block;
+  font-size: 13px;
+  color: var(--text-soft);
+  margin-bottom: 8px;
+  text-align: right;
+  font-weight: 700;
+}
+
 .auth-card input {
   width: 100%;
   padding: 14px 16px;
@@ -498,8 +857,21 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   font-size: 14px;
   transition: var(--transition);
 }
-.auth-card input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px var(--primary-bg); }
-.auth-card button { width: 100%; padding: 14px; border-radius: 12px; margin-top: 10px; font-weight: 700; font-size: 14px; }
+
+.auth-card input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--primary-bg);
+}
+
+.auth-card button {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  margin-top: 10px;
+  font-weight: 700;
+  font-size: 14px;
+}
+
 .auth-msg {
   min-height: 24px;
   margin-top: 14px;
@@ -509,11 +881,15 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   text-align: center;
   font-weight: 600;
 }
+
 .auth-msg.ok { color: var(--success-dark); }
 
-/* Loading */
+/* ============================== */
+/*   Loading                     */
+/* ============================== */
 .loading-overlay {
-  position: fixed; inset: 0;
+  position: fixed;
+  inset: 0;
   background: rgba(255,255,255,.9);
   backdrop-filter: blur(4px);
   display: none;
@@ -523,26 +899,59 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   color: var(--primary);
   font-weight: 800;
 }
+
 .loading-overlay.show { display: grid; }
 
-/* کمکی */
-.clickable { cursor: pointer; color: var(--primary); font-weight: 700; transition: var(--transition); }
-.clickable:hover { color: var(--primary-dark); text-decoration: underline; }
-.checkbox-cell { text-align: center; }
-.checkbox-cell input { width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary); }
+/* ============================== */
+/*   کمکی                        */
+/* ============================== */
+.clickable {
+  cursor: pointer;
+  color: var(--primary);
+  font-weight: 700;
+  transition: var(--transition);
+}
 
-/* ریسپانسیو */
-@media (max-width: 1200px) { .stats { grid-template-columns: repeat(3, 1fr); } }
+.clickable:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
+}
+
+.checkbox-cell { text-align: center; }
+
+.checkbox-cell input {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: var(--primary);
+}
+
+/* ============================== */
+/*   ریسپانسیو                   */
+/* ============================== */
+@media (max-width: 1200px) {
+  .stats { grid-template-columns: repeat(3, 1fr); }
+}
+
 @media (max-width: 1050px) {
   .stats { grid-template-columns: repeat(2, 1fr); }
   .charts, .alerts { grid-template-columns: 1fr; }
   .sidebar { width: 240px; }
   .main { margin-right: 240px; width: calc(100% - 240px); padding: 20px; }
 }
+
 @media (max-width: 760px) {
-  .sidebar { position: static; width: 100%; height: auto; }
+  .sidebar {
+    position: static;
+    width: 100%;
+    height: auto;
+  }
   .app { display: block; }
-  .main { margin: 0; width: 100%; padding: 14px; }
+  .main {
+    margin: 0;
+    width: 100%;
+    padding: 14px;
+  }
   .nav { display: grid; grid-template-columns: repeat(2, 1fr); }
   .topbar { flex-direction: column; align-items: stretch; padding: 14px; }
   .top-actions { flex-direction: column; width: 100%; }
@@ -631,9 +1040,6 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 </header>
 <!-- داشبورد -->
 <section class="page active" id="dashboard">
-  <!-- کارت تولد امروز -->
-  <div id="birthdayContainer"></div>
-
   <div class="grid stats" id="stats"></div>
   
   <div class="section-head"><h2>📊 نمای کلی مالی</h2></div>
@@ -658,10 +1064,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 <section class="page" id="students">
   <div class="section-head">
     <h2>👩🏻‍🎓 مدیریت دانش‌آموزان</h2>
-    <div class="actions">
-      <button class="btn green" id="btnImportExcel">📥 ورود از Excel</button>
-      <button class="btn primary" id="btnNewStudent">ثبت دانش‌آموز +</button>
-    </div>
+    <button class="btn primary" id="btnNewStudent">ثبت دانش‌آموز +</button>
   </div>
   <div class="card">
     <div class="filters">
@@ -681,7 +1084,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
         <thead>
           <tr>
             <th>کد</th><th>نام و نام خانوادگی</th><th>پایه</th><th>کلاس</th>
-            <th>تاریخ تولد</th><th>شهریه</th><th>پرداخت</th><th>مانده</th><th>وضعیت</th><th>عملیات</th>
+            <th>شهریه</th><th>پرداخت</th><th>مانده</th><th>وضعیت</th><th>عملیات</th>
           </tr>
         </thead>
         <tbody id="studentsTable"></tbody>
@@ -935,7 +1338,6 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
         <option value="salaries">گزارش حقوق</option>
         <option value="expenses">گزارش هزینه‌ها</option>
         <option value="profit">گزارش درآمد و هزینه</option>
-        <option value="birthdays">گزارش تولدها</option>
       </select>
       <select id="reportGrade">
         <option value="">همه پایه‌ها</option>
@@ -1040,7 +1442,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
     <div class="card">
       <h3 style="margin-top:0">📥 دانلود پشتیبان</h3>
       <p style="color:var(--muted);font-size:13.5px;line-height:1.9">
-        از تمام اطلاعات مدرسه یک فایل JSON دانلود می‌شود.
+        از تمام اطلاعات مدرسه یک فایل JSON دانلود می‌شود. این فایل را در جای امن نگه‌داری کن.
       </p>
       <div style="background:var(--primary-bg);padding:16px;border-radius:12px;margin:18px 0;font-size:13.5px;line-height:2;border:1px solid #c7d2fe">
         <b style="color:var(--primary-dark)">📊 آمار فعلی:</b><br>
@@ -1053,7 +1455,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
     <div class="card">
       <h3 style="margin-top:0">📂 بازیابی از فایل</h3>
       <p style="color:var(--muted);font-size:13.5px;line-height:1.9">
-        فایل JSON پشتیبان را بارگذاری کن.
+        اگر می‌خواهی اطلاعات قبلی را برگردانی، فایل JSON پشتیبان را بارگذاری کن.
       </p>
       <div style="background:var(--warning-bg);padding:16px;border-radius:12px;margin:18px 0;font-size:13.5px;line-height:1.9;border:1px solid #fde68a">
         ⚠️ <b>هشدار:</b> این کار اطلاعات موجود را با فایل پشتیبان <b>جایگزین</b> می‌کند.
@@ -1076,6 +1478,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
     <ul style="line-height:2.2;color:var(--text-soft);font-size:13.5px;padding-right:24px">
       <li>✅ <b>هر هفته</b> یک بار پشتیبان بگیر و در <b>Google Drive یا ایمیل</b> ذخیره کن</li>
       <li>✅ قبل از بازیابی، مطمئن شو فایل پشتیبان <b>معتبر</b> است</li>
+      <li>✅ فایل‌های پشتیبان را با نام تاریخ ذخیره کن</li>
       <li>⚠️ فایل را در جای امن نگه‌دار (اطلاعات شخصی دانش‌آموزان در آن است)</li>
     </ul>
   </div>
@@ -1196,34 +1599,6 @@ function daysUntil(dateStr){
   } catch { return Infinity; }
 }
 
-/* بررسی اینکه امروز تولد کیه */
-function isBirthdayToday(birthDate){
-  if(!birthDate) return false;
-  try {
-    const parts = String(birthDate).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).split(/[\/\-]/).map(Number);
-    if(parts.length < 3) return false;
-    const [, bMonth, bDay] = parts;
-    const now = new Date();
-    const todayJalali = now.toLocaleDateString('fa-IR').replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).split('/').map(Number);
-    return bMonth === todayJalali[1] && bDay === todayJalali[2];
-  } catch { return false; }
-}
-
-/* محاسبه سن از تاریخ تولد */
-function calcAge(birthDate){
-  if(!birthDate) return '-';
-  try {
-    const parts = String(birthDate).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).split(/[\/\-]/).map(Number);
-    if(parts.length < 3) return '-';
-    const [by, bm, bd] = parts;
-    const now = new Date();
-    const todayJ = now.toLocaleDateString('fa-IR').replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).split('/').map(Number);
-    let age = todayJ[0] - by;
-    if(todayJ[1] < bm || (todayJ[1] === bm && todayJ[2] < bd)) age--;
-    return age;
-  } catch { return '-'; }
-}
-
 function status(s){
   const b = balance(s);
   if(b <= 0) return ['تسویه شده', 'paid'];
@@ -1294,7 +1669,7 @@ function initSupabase(){
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: false,
-        storageKey: 'haleh-mehr-auth-v7'
+        storageKey: 'haleh-mehr-auth-v6'
       }
     });
     return true;
@@ -1308,15 +1683,7 @@ function initSupabase(){
    نگاشت داده‌ها
 ============================================================ */
 function mapStudent(r){
-  return {
-    ...r,
-    class: r.class_name,
-    year: r.academic_year,
-    phone: r.phone || r.father_phone,
-    fatherPhone: r.father_phone,
-    motherPhone: r.mother_phone,
-    birthDate: r.birth_date
-  };
+  return { ...r, class: r.class_name, year: r.academic_year, phone: r.phone || r.father_phone, fatherPhone: r.father_phone, motherPhone: r.mother_phone };
 }
 function mapPayment(r){ return { ...r, studentId: r.student_id, date: r.payment_date, desc: r.description }; }
 function mapIncome(r){ return { ...r, date: r.income_date, desc: r.description }; }
@@ -1515,7 +1882,6 @@ function nav(page){
 ============================================================ */
 function renderAll(){
   document.getElementById('yearLabel').textContent = db.settings.year || '—';
-  renderBirthdays();
   renderStats();
   renderStudents();
   renderPayments();
@@ -1537,36 +1903,6 @@ function renderAll(){
 }
 
 /* ============================================================
-   کارت تولد امروز
-============================================================ */
-function renderBirthdays(){
-  const container = document.getElementById('birthdayContainer');
-  if(!container) return;
-  const birthdayPeople = db.students.filter(s => isBirthdayToday(s.birthDate));
-  if(!birthdayPeople.length){
-    container.innerHTML = '';
-    return;
-  }
-  container.innerHTML = `
-    <div class="birthday-card">
-      <h3>🎂 امروز تولد این عزیزان است!</h3>
-      <div class="birthday-list">
-        ${birthdayPeople.map(s => `
-          <div class="birthday-person">
-            <span class="cake">🎉</span>
-            <span>${s.name} ${s.family}</span>
-            <span style="font-size:12px;opacity:.7">(${s.grade||'-'} - ${s.class||'-'})</span>
-          </div>
-        `).join('')}
-      </div>
-      <p style="margin:14px 0 0;color:#92400e;font-size:13px;font-weight:600">
-        💝 فراموش نکن بهشون تبریک بگی!
-      </p>
-    </div>
-  `;
-}
-
-/* ============================================================
    آمار داشبورد
 ============================================================ */
 function renderStats(){
@@ -1574,6 +1910,7 @@ function renderStats(){
   const debt = db.students.filter(s => balance(s) > 0).length;
   const tuition = db.students.reduce((a,s) => a + finalTuition(s), 0);
   const received = db.payments.reduce((a,p) => a + (+p.amount||0), 0);
+  const salariesPaid = db.salaries.reduce((a,s) => a + (+s.net_amount||0), 0);
   const staffCount = db.staff.length;
   const checksPending = db.checks.filter(c => c.status === 'pending').length;
   const checksTotal = db.checks.reduce((a,c) => a + (+c.amount||0), 0);
@@ -1601,15 +1938,11 @@ function renderStudents(){
   );
   document.getElementById('studentsTable').innerHTML = arr.map(s => {
     const st = status(s);
-    const bday = isBirthdayToday(s.birthDate);
     return `<tr>
       <td><b>${s.code||'-'}</b></td>
-      <td><span class="clickable" data-action="details" data-id="${s.id}">${s.name} ${s.family}</span>${bday ? ' 🎂' : ''}</td>
+      <td><span class="clickable" data-action="details" data-id="${s.id}">${s.name} ${s.family}</span></td>
       <td>${s.grade||'-'}</td><td>${s.class||'-'}</td>
-      <td>${s.birthDate||'-'}</td>
-      <td>${money(finalTuition(s))}</td>
-      <td style="color:var(--success-dark);font-weight:700">${money(paid(s))}</td>
-      <td style="color:var(--danger);font-weight:700">${money(balance(s))}</td>
+      <td>${money(finalTuition(s))}</td><td style="color:var(--success-dark);font-weight:700">${money(paid(s))}</td><td style="color:var(--danger);font-weight:700">${money(balance(s))}</td>
       <td><span class="badge ${st[1]}">${st[0]}</span></td>
       <td class="actions">
         <button class="btn blue" data-action="details" data-id="${s.id}">صورتحساب</button>
@@ -1617,7 +1950,7 @@ function renderStudents(){
         <button class="btn red" data-action="del-student" data-id="${s.id}">حذف</button>
       </td>
     </tr>`;
-  }).join('') || `<tr><td colspan="10" class="empty">دانش‌آموزی یافت نشد.</td></tr>`;
+  }).join('') || `<tr><td colspan="9" class="empty">دانش‌آموزی یافت نشد.</td></tr>`;
 }
 
 /* ============================================================
@@ -1626,7 +1959,7 @@ function renderStudents(){
 function openStudent(id){
   const s = id ? studentById(id) : {
     id:'', code:'', name:'', family:'', grade:'دهم', class:'الف',
-    year: db.settings.year, phone:'', tuition:60000000, discount:0, birthDate:''
+    year: db.settings.year, phone:'', tuition:60000000, discount:0
   };
   if(!s) return;
 
@@ -1638,7 +1971,6 @@ function openStudent(id){
     <div><label>پایه</label><select id="f_grade">${GRADES.map(x => `<option ${x===s.grade?'selected':''}>${x}</option>`).join('')}</select></div>
     <div><label>کلاس</label><select id="f_class">${CLASSES.map(x => `<option ${x===s.class?'selected':''}>${x}</option>`).join('')}</select></div>
     <div><label>شماره همراه</label><input id="f_phone" value="${s.phone||''}" placeholder="0912..."></div>
-    <div><label>تاریخ تولد</label><input id="f_birth" value="${s.birthDate||''}" placeholder="1387/05/12"></div>
     <div><label>سال تحصیلی</label><input id="f_year" value="${s.year||db.settings.year}"></div>
     <div><label>شهریه (ریال) *</label><input type="number" id="f_tuition" value="${s.tuition||0}"></div>
     <div><label>تخفیف (ریال)</label><input type="number" id="f_discount" value="${s.discount||0}"></div>
@@ -1655,7 +1987,6 @@ async function saveStudent(id){
     code: v('f_code'), name: v('f_name'), family: v('f_family'),
     grade: v('f_grade'), class_name: v('f_class'),
     phone: v('f_phone'), father_phone: v('f_phone'),
-    birth_date: v('f_birth'),
     academic_year: v('f_year'),
     tuition: num('f_tuition'), discount: num('f_discount')
   };
@@ -1723,7 +2054,7 @@ function studentDetails(id){
       <td>پرداخت - ${p.method||'-'} ${p.tracking ? '('+p.tracking+')' : ''}</td>
       <td>-</td><td>${money(p.amount)}</td><td>${money(remaining)}</td>
       <td class="actions" style="padding:6px">
-        <button class="btn" data-action="edit-payment" data-id="${p.id}" style="padding:6px 10px;font-size:12px">✏️</button>
+        <button class="btn" data-action="edit-payment" data-id="${p.id}" style="padding:6px 10px;font-size:12px">✏️ ویرایش</button>
       </td>
     </tr>`;
   });
@@ -1733,7 +2064,6 @@ function studentDetails(id){
     <h2 style="margin:0;color:var(--primary);font-size:24px">${s.name} ${s.family}</h2>
     <div style="color:var(--muted);font-size:13.5px;margin-top:8px;font-weight:500">
       کد: ${s.code||'-'} | پایه: ${s.grade||'-'} | کلاس: ${s.class||'-'} | همراه: ${s.phone||'-'}
-      ${s.birthDate ? ' | تولد: ' + s.birthDate : ''}
     </div>
   </div>
   <div class="grid detail-grid">
@@ -1779,177 +2109,6 @@ function studentDetails(id){
       </table>
     </div>` : ''}
   `);
-}
-
-/* ============================================================
-   ورود از Excel
-============================================================ */
-function openExcelImport(){
-  openModal('📥 ورود گروهی از Excel', `
-  <div style="background:#f0f9ff;padding:16px;border-radius:12px;margin-bottom:20px;font-size:13.5px;line-height:2;border:1px solid #bfdbfe">
-    <b style="color:var(--info)">📋 راهنما:</b><br>
-    یک فایل Excel (xlsx, xls, csv) با ستون‌های زیر بساز:<br>
-    <code style="background:#fff;padding:4px 8px;border-radius:6px;display:inline-block;margin-top:6px;font-family:monospace">
-      کد | نام | نام خانوادگی | پایه | کلاس | شماره همراه | تاریخ تولد | شهریه | تخفیف
-    </code><br>
-    <span style="color:var(--muted);font-size:12.5px">ردیف اول باید عنوان ستون‌ها باشد.</span>
-    <br><br>
-    <b style="color:var(--info)">📌 نمونه:</b><br>
-    <span style="font-size:12px;color:var(--text-soft)">
-      1001 | زهرا | محمدی | دهم | الف | 09121234567 | 1387/05/12 | 60000000 | 0
-    </span>
-  </div>
-
-  <div style="border:2px dashed var(--primary-light);padding:30px;border-radius:14px;text-align:center;background:#fafbff">
-    <input type="file" accept=".xlsx,.xls,.csv" id="excelFile" hidden>
-    <button class="btn primary" id="btnSelectExcel" style="font-size:15px;padding:14px 28px">📂 انتخاب فایل Excel</button>
-    <div id="excelFileName" style="margin-top:14px;color:var(--muted);font-size:13px"></div>
-  </div>
-
-  <div id="excelPreview" style="margin-top:20px"></div>
-  `);
-
-  setTimeout(() => {
-    document.getElementById('btnSelectExcel').onclick = () => document.getElementById('excelFile').click();
-    document.getElementById('excelFile').onchange = handleExcelFile;
-  }, 100);
-}
-
-let excelImportData = [];
-
-async function handleExcelFile(e){
-  const file = e.target.files[0];
-  if(!file) return;
-
-  document.getElementById('excelFileName').textContent = `📄 ${file.name}`;
-
-  try {
-    const data = await file.arrayBuffer();
-    const workbook = XLSX.read(data, { type: 'array' });
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '' });
-
-    if(rows.length < 2){
-      return toast('فایل خالی است یا فقط عنوان دارد', 'error');
-    }
-
-    // ردیف اول = عنوان‌ها
-    const headers = rows[0].map(h => String(h).trim());
-    const dataRows = rows.slice(1);
-
-    // پیدا کردن ایندکس هر ستون
-    const findCol = (names) => {
-      for(const name of names){
-        const idx = headers.findIndex(h => h.includes(name) || name.includes(h));
-        if(idx >= 0) return idx;
-      }
-      return -1;
-    };
-
-    const cols = {
-      code: findCol(['کد', 'code', 'کد دانش']),
-      name: findCol(['نام', 'name']),
-      family: findCol(['خانوادگی', 'family', 'فامیل']),
-      grade: findCol(['پایه', 'grade']),
-      class: findCol(['کلاس', 'class']),
-      phone: findCol(['همراه', 'موبایل', 'phone', 'تلفن']),
-      birth: findCol(['تولد', 'birth', 'تاریخ تولد']),
-      tuition: findCol(['شهریه', 'tuition']),
-      discount: findCol(['تخفیف', 'discount'])
-    };
-
-    if(cols.code < 0 || cols.name < 0 || cols.family < 0){
-      return toast('ستون‌های «کد»، «نام» و «نام خانوادگی» الزامی است', 'error');
-    }
-
-    excelImportData = dataRows.map(row => ({
-      code: String(row[cols.code] || '').trim(),
-      name: String(row[cols.name] || '').trim(),
-      family: String(row[cols.family] || '').trim(),
-      grade: cols.grade >= 0 ? String(row[cols.grade] || 'دهم').trim() : 'دهم',
-      class_name: cols.class >= 0 ? String(row[cols.class] || 'الف').trim() : 'الف',
-      phone: cols.phone >= 0 ? String(row[cols.phone] || '').trim() : '',
-      birth_date: cols.birth >= 0 ? String(row[cols.birth] || '').trim() : '',
-      tuition: cols.tuition >= 0 ? (parseFloat(row[cols.tuition]) || 0) : 60000000,
-      discount: cols.discount >= 0 ? (parseFloat(row[cols.discount]) || 0) : 0,
-      academic_year: db.settings.year
-    })).filter(r => r.code && r.name && r.family);
-
-    renderExcelPreview();
-  } catch(err){
-    toast('خطا در خواندن فایل: ' + err.message, 'error');
-  }
-}
-
-function renderExcelPreview(){
-  const preview = document.getElementById('excelPreview');
-  if(!excelImportData.length){
-    preview.innerHTML = '<p class="empty">هیچ ردیف معتبری یافت نشد</p>';
-    return;
-  }
-
-  const existingCodes = new Set(db.students.map(s => s.code));
-  const dupCount = excelImportData.filter(r => existingCodes.has(r.code)).length;
-
-  preview.innerHTML = `
-    <div class="section-head" style="margin-top:0">
-      <h3 style="margin:0">پیش‌نمایش (${excelImportData.length} ردیف)</h3>
-      <button class="btn primary" id="btnConfirmImport">✅ تأیید و ذخیره در دیتابیس</button>
-    </div>
-    ${dupCount > 0 ? `<div style="background:var(--warning-bg);padding:12px;border-radius:10px;margin-bottom:14px;font-size:13px;border:1px solid #fde68a">
-      ⚠️ ${dupCount} دانش‌آموز با کد تکراری وجود دارد و ذخیره نخواهد شد.
-    </div>` : ''}
-    <div class="table-wrap">
-      <table class="table">
-        <thead><tr><th>#</th><th>کد</th><th>نام</th><th>خانوادگی</th><th>پایه</th><th>کلاس</th><th>همراه</th><th>تولد</th><th>شهریه</th><th>تخفیف</th></tr></thead>
-        <tbody>${excelImportData.slice(0, 100).map((r, i) => `
-          <tr style="${existingCodes.has(r.code) ? 'background:#fee2e2' : ''}">
-            <td>${i+1}</td><td>${r.code}</td><td>${r.name}</td><td>${r.family}</td>
-            <td>${r.grade}</td><td>${r.class_name}</td><td>${r.phone}</td><td>${r.birth_date}</td>
-            <td>${money(r.tuition)}</td><td>${money(r.discount)}</td>
-          </tr>`).join('')}
-        </tbody>
-      </table>
-      ${excelImportData.length > 100 ? '<p style="text-align:center;color:var(--muted);padding:10px">... و ' + (excelImportData.length - 100) + ' ردیف دیگر</p>' : ''}
-    </div>
-  `;
-
-  setTimeout(() => {
-    const btn = document.getElementById('btnConfirmImport');
-    if(btn) btn.onclick = confirmExcelImport;
-  }, 50);
-}
-
-async function confirmExcelImport(){
-  if(!excelImportData.length) return;
-
-  const existingCodes = new Set(db.students.map(s => s.code));
-  const toInsert = excelImportData.filter(r => !existingCodes.has(r.code));
-
-  if(!toInsert.length){
-    return toast('همه ردیف‌ها تکراری هستند', 'warning');
-  }
-
-  if(!confirm(`تعداد ${toInsert.length} دانش‌آموز به دیتابیس اضافه می‌شود. ادامه می‌دهید؟`)) return;
-
-  isProcessing = true;
-  const btn = document.getElementById('btnConfirmImport');
-  if(btn){ btn.disabled = true; btn.textContent = 'در حال ذخیره...'; }
-
-  try {
-    const { error } = await sb.from('students').insert(toInsert);
-    if(error) return toast(translateError(error), 'error');
-
-    await logAction(`ورود گروهی ${toInsert.length} دانش‌آموز از Excel`);
-    closeModal();
-    await refreshApp();
-    toast(`${toInsert.length} دانش‌آموز با موفقیت اضافه شد ✅`, 'success');
-  } catch(e){
-    toast('خطا: ' + e.message, 'error');
-  } finally {
-    isProcessing = false;
-    excelImportData = [];
-  }
 }
 
 /* ============================================================
@@ -2010,7 +2169,7 @@ async function updatePayment(id){
     return toast('⚠️ این شماره رسید قبلاً استفاده شده است', 'error');
   }
 
-  if(!confirm('آیا از ذخیره تغییرات مطمئنی؟')) return;
+  if(!confirm('آیا از ذخیره تغییرات مطمئنی؟ این تغییرات بر روی محاسبات مالی اثر می‌گذارد.')) return;
 
   isProcessing = true;
   const btn = document.getElementById('btnUpdatePayment');
@@ -2018,14 +2177,18 @@ async function updatePayment(id){
 
   try {
     const updates = {
-      student_id: sid, amount: amt, payment_date: v('ep_date'),
-      method: v('ep_method'), tracking: v('ep_tracking'),
-      receipt: receipt || 'R' + Date.now(), description: v('ep_desc')
+      student_id: sid,
+      amount: amt,
+      payment_date: v('ep_date'),
+      method: v('ep_method'),
+      tracking: v('ep_tracking'),
+      receipt: receipt || 'R' + Date.now(),
+      description: v('ep_desc')
     };
     const { error } = await sb.from('payments').update(updates).eq('id', id);
     if(error) return toast(translateError(error), 'error');
 
-    await logAction('✏️ ویرایش پرداخت ' + updates.receipt);
+    await logAction('✏️ ویرایش پرداخت شماره ' + updates.receipt);
     closeModal();
     await refreshApp();
     toast('پرداخت با موفقیت ویرایش شد ✅', 'success');
@@ -2305,26 +2468,31 @@ async function saveCheck(id){
 async function collectCheck(id){
   const c = db.checks.find(x => x.id == id);
   if(!c) return;
-  if(!confirm(`آیا چک شماره ${c.checkNumber} به مبلغ ${money(c.amount)} وصول شده است؟`)) return;
+  if(!confirm(`آیا چک شماره ${c.checkNumber} به مبلغ ${money(c.amount)} وصول شده است؟\n\nبا تأیید، این مبلغ به عنوان پرداخت ثبت می‌شود.`)) return;
   if(isProcessing) return;
   isProcessing = true;
 
   try {
     const receipt = 'CHK-' + c.checkNumber;
     const { data: payData, error: e1 } = await sb.from('payments').insert({
-      student_id: c.studentId, amount: c.amount, payment_date: today(),
-      method: 'چک', tracking: c.checkNumber, receipt,
+      student_id: c.studentId,
+      amount: c.amount,
+      payment_date: today(),
+      method: 'چک',
+      tracking: c.checkNumber,
+      receipt: receipt,
       description: `وصول چک ${c.bankName||''} - شماره ${c.checkNumber}`,
       created_by: currentUser.id
     }).select('id').single();
     if(e1) return toast(translateError(e1), 'error');
 
     const { error: e2 } = await sb.from('checks').update({
-      status: 'collected', payment_id: payData.id
+      status: 'collected',
+      payment_id: payData.id
     }).eq('id', id);
     if(e2) return toast(translateError(e2), 'error');
 
-    await logAction('✅ وصول چک ' + c.checkNumber);
+    await logAction('✅ وصول چک ' + c.checkNumber + ' و ثبت پرداخت');
     await refreshApp();
     toast('چک وصول شد و پرداخت ثبت گردید ✅', 'success');
   } catch(e){
@@ -2354,7 +2522,8 @@ async function returnCheck(id){
     isProcessing = false;
   }
 }
-  /* ============================================================
+
+/* ============================================================
    کارکنان
 ============================================================ */
 function renderStaff(){
@@ -2576,8 +2745,7 @@ function printSalary(id){
   w.document.close();
   setTimeout(() => w.print(), 300);
 }
-
-/* ============================================================
+  /* ============================================================
    درآمدها
 ============================================================ */
 function renderIncomes(){
@@ -2820,7 +2988,7 @@ async function saveDiscount(){
 }
 
 /* ============================================================
-   صورتحساب
+   صورتحساب (صفحه مستقل)
 ============================================================ */
 function invoiceRows(s){
   const rows = [];
@@ -3083,14 +3251,6 @@ function renderReport(){
     el.innerHTML = `<h3>جمع هزینه‌ها: ${money(total)}</h3><div class="table-wrap"><table class="table"><thead><tr><th>عنوان</th><th>دسته</th><th>مبلغ</th><th>تاریخ</th></tr></thead>
     <tbody>${db.expenses.map(x => `<tr><td>${x.title}</td><td>${x.category||'-'}</td><td>${money(x.amount)}</td><td>${x.date}</td></tr>`).join('')}</tbody></table></div>`;
   }
-  else if(type === 'birthdays'){
-    const withBday = arr.filter(s => s.birthDate).sort((a,b) => (a.birthDate||'').localeCompare(b.birthDate||''));
-    el.innerHTML = `<h3>${withBday.length} دانش‌آموز با تاریخ تولد ثبت‌شده</h3><div class="table-wrap"><table class="table"><thead><tr><th>نام</th><th>پایه</th><th>تاریخ تولد</th><th>سن</th><th>امروز؟</th></tr></thead>
-    <tbody>${withBday.map(s => {
-      const isB = isBirthdayToday(s.birthDate);
-      return `<tr style="${isB ? 'background:#fef3c7' : ''}"><td>${s.name} ${s.family}</td><td>${s.grade||'-'}</td><td>${s.birthDate}</td><td>${calcAge(s.birthDate)}</td><td>${isB ? '🎂 بله' : '-'}</td></tr>`;
-    }).join('')}</tbody></table></div>`;
-  }
   else {
     const inc = db.incomes.reduce((a,x) => a + (+x.amount||0), 0) + db.payments.reduce((a,x) => a + (+x.amount||0), 0);
     const exp = db.expenses.reduce((a,x) => a + (+x.amount||0), 0) + db.salaries.reduce((a,s) => a + (+s.net_amount||0), 0);
@@ -3104,8 +3264,8 @@ function renderReport(){
 
 function exportCSV(){
   const rows = [
-    ['نام','کد','پایه','کلاس','تاریخ تولد','شهریه','پرداخت','بدهی','همراه'],
-    ...db.students.map(s => [s.name + ' ' + s.family, s.code||'', s.grade||'', s.class||'', s.birthDate||'', finalTuition(s), paid(s), balance(s), s.phone||''])
+    ['نام','کد','پایه','کلاس','شهریه','پرداخت','بدهی','همراه'],
+    ...db.students.map(s => [s.name + ' ' + s.family, s.code||'', s.grade||'', s.class||'', finalTuition(s), paid(s), balance(s), s.phone||''])
   ];
   const csv = '\uFEFF' + rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
   const a = document.createElement('a');
@@ -3173,15 +3333,23 @@ async function downloadBackup(){
     await loadData();
 
     const backup = {
-      version: '7.0',
+      version: '6.0',
       created_at: new Date().toISOString(),
       created_at_fa: new Date().toLocaleString('fa-IR'),
       created_by: currentUser?.email || 'نامشخص',
       settings: db.settings,
+      stats: {
+        students: db.students.length, payments: db.payments.length,
+        staff: db.staff.length, salaries: db.salaries.length,
+        checks: db.checks.length,
+        incomes: db.incomes.length, expenses: db.expenses.length,
+        installments: db.installments.length, discounts: db.discounts.length
+      },
       data: {
         students: db.students, payments: db.payments,
         staff: db.staff, salaries: db.salaries,
-        checks: db.checks, incomes: db.incomes, expenses: db.expenses,
+        checks: db.checks,
+        incomes: db.incomes, expenses: db.expenses,
         installments: db.installments, discounts: db.discounts
       }
     };
@@ -3211,20 +3379,32 @@ async function downloadBackup(){
 function downloadExcelFull(){
   const rows = [
     ['=== دانش‌آموزان ==='],
-    ['کد','نام','نام خانوادگی','پایه','کلاس','تاریخ تولد','شماره همراه','شهریه','تخفیف','پرداخت‌شده','مانده'],
-    ...db.students.map(s => [s.code||'', s.name, s.family, s.grade||'', s.class||'', s.birthDate||'', s.phone||'', s.tuition||0, s.discount||0, paid(s), balance(s)]),
+    ['کد','نام','نام خانوادگی','پایه','کلاس','شماره همراه','شهریه','تخفیف','پرداخت‌شده','مانده'],
+    ...db.students.map(s => [s.code||'', s.name, s.family, s.grade||'', s.class||'', s.phone||'', s.tuition||0, s.discount||0, paid(s), balance(s)]),
     [],
     ['=== کارکنان ==='],
     ['کد پرسنلی','نام','نام خانوادگی','سمت','شماره همراه','حقوق پایه','پاداش'],
     ...db.staff.map(s => [s.code||'', s.name, s.family, s.position||'', s.phone||'', s.base_salary||0, s.bonus||0]),
     [],
-    ['=== چک‌ها ==='],
-    ['شماره چک','بانک','صاحب','دانش‌آموز','مبلغ','سررسید','وضعیت'],
-    ...db.checks.map(c => [c.checkNumber, c.bankName||'', c.holderName||'', studentName(c.studentId), c.amount, c.dueDate||'', checkStatusLabel(c.status)[0]]),
+    ['=== چک‌های دریافتی ==='],
+    ['شماره چک','بانک','صاحب چک','دانش‌آموز','مبلغ','تاریخ صدور','سررسید','وضعیت'],
+    ...db.checks.map(c => [c.checkNumber, c.bankName||'', c.holderName||'', studentName(c.studentId), c.amount, c.issueDate||'', c.dueDate||'', checkStatusLabel(c.status)[0]]),
+    [],
+    ['=== واریز حقوق ==='],
+    ['کارمند','ماه','حقوق پایه','پاداش','کسورات','خالص','تاریخ','روش'],
+    ...db.salaries.map(s => [staffName(s.staffId), s.month||'', s.base||0, s.bonus||0, s.deduction||0, s.net_amount||0, s.date||'', s.method||'']),
     [],
     ['=== پرداخت‌ها ==='],
-    ['تاریخ','دانش‌آموز','مبلغ','روش','رسید'],
-    ...db.payments.map(p => [p.date||'', studentName(p.studentId), p.amount, p.method||'', p.receipt||''])
+    ['تاریخ','دانش‌آموز','مبلغ','روش','رسید','پیگیری'],
+    ...db.payments.map(p => [p.date||'', studentName(p.studentId), p.amount, p.method||'', p.receipt||'', p.tracking||'']),
+    [],
+    ['=== هزینه‌ها ==='],
+    ['عنوان','دسته','مبلغ','تاریخ','روش'],
+    ...db.expenses.map(x => [x.title, x.category||'', x.amount, x.date||'', x.method||'']),
+    [],
+    ['=== درآمدها ==='],
+    ['عنوان','دسته','مبلغ','تاریخ'],
+    ...db.incomes.map(x => [x.title, x.category||'', x.amount, x.date||''])
   ];
 
   const csv = '\uFEFF' + rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n');
@@ -3238,7 +3418,7 @@ function downloadExcelFull(){
 }
 
 /* ============================================================
-   بازیابی
+   بازیابی هوشمند
 ============================================================ */
 async function restoreFromFile(event){
   const file = event.target.files[0];
@@ -3262,8 +3442,16 @@ async function restoreFromFile(event){
       if(!backup.data || !backup.data.students) throw new Error('فایل معتبر نیست');
 
       const d = backup.data;
-      const stats = { students: 0, payments: 0, paymentsSkipped: 0, staff: 0, salaries: 0, salariesSkipped: 0, checks: 0, checksSkipped: 0, incomes: 0, expenses: 0, installments: 0, installmentsSkipped: 0, discounts: 0, discountsSkipped: 0, errors: [] };
+      const stats = {
+        students: 0, payments: 0, paymentsSkipped: 0,
+        staff: 0, salaries: 0, salariesSkipped: 0,
+        checks: 0, checksSkipped: 0,
+        incomes: 0, expenses: 0,
+        installments: 0, installmentsSkipped: 0,
+        discounts: 0, discountsSkipped: 0, errors: []
+      };
 
+      // پاک کردن همه چیز
       msg.textContent = '⏳ پاک کردن اطلاعات قبلی...';
       bar.style.width = '10%';
       await sb.from('payments').delete().neq('id', 0);
@@ -3276,6 +3464,7 @@ async function restoreFromFile(event){
       await sb.from('incomes').delete().neq('id', 0);
       await sb.from('expenses').delete().neq('id', 0);
 
+      // دانش‌آموزان
       msg.textContent = `⏳ بازیابی ${d.students.length} دانش‌آموز...`;
       bar.style.width = '25%';
       const studentCodeToId = {};
@@ -3284,7 +3473,6 @@ async function restoreFromFile(event){
           code: s.code, name: s.name, family: s.family,
           grade: s.grade, class_name: s.class || s.class_name,
           phone: s.phone, father_phone: s.phone || s.father_phone,
-          birth_date: s.birthDate || s.birth_date || '',
           academic_year: s.year || s.academic_year,
           tuition: s.tuition || 0, discount: s.discount || 0
         }));
@@ -3294,6 +3482,7 @@ async function restoreFromFile(event){
         data?.forEach(s => { studentCodeToId[s.code] = s.id; });
       }
 
+      // کارکنان
       msg.textContent = `⏳ بازیابی کارکنان...`;
       bar.style.width = '40%';
       const staffCodeToId = {};
@@ -3309,17 +3498,18 @@ async function restoreFromFile(event){
         data?.forEach(s => { staffCodeToId[s.staff_code] = s.id; });
       }
 
+      // پرداخت‌ها
       msg.textContent = `⏳ بازیابی پرداخت‌ها...`;
       bar.style.width = '55%';
       if(d.payments && d.payments.length){
-        const valid = [];
+        const validPayments = [];
         for(const p of d.payments){
           const oldStudentId = p.studentId || p.student_id;
           const oldStudent = d.students.find(s => s.id == oldStudentId);
           if(!oldStudent){ stats.paymentsSkipped++; continue; }
           const newId = studentCodeToId[oldStudent.code];
           if(!newId){ stats.paymentsSkipped++; continue; }
-          valid.push({
+          validPayments.push({
             student_id: newId, amount: p.amount,
             payment_date: p.date || p.payment_date,
             method: p.method, tracking: p.tracking || '',
@@ -3327,47 +3517,54 @@ async function restoreFromFile(event){
             description: p.desc || p.description || ''
           });
         }
-        if(valid.length){
-          const { error, data } = await sb.from('payments').insert(valid).select('id');
+        if(validPayments.length){
+          const { error, data } = await sb.from('payments').insert(validPayments).select('id');
           if(error){ stats.errors.push('پرداخت‌ها: ' + error.message); }
           else { stats.payments = data?.length || 0; }
         }
       }
 
+      // چک‌ها
       msg.textContent = `⏳ بازیابی چک‌ها...`;
       bar.style.width = '65%';
       if(d.checks && d.checks.length){
-        const valid = [];
+        const validChecks = [];
         for(const c of d.checks){
           const oldStudentId = c.studentId || c.student_id;
           const oldStudent = d.students.find(s => s.id == oldStudentId);
           const newId = oldStudent ? studentCodeToId[oldStudent.code] : null;
           if(!newId){ stats.checksSkipped++; continue; }
-          valid.push({
-            student_id: newId, check_number: c.checkNumber || c.check_number,
-            bank_name: c.bankName || c.bank_name || '', amount: c.amount,
-            issue_date: c.issueDate || c.issue_date || '', due_date: c.dueDate || c.due_date || '',
+          validChecks.push({
+            student_id: newId,
+            check_number: c.checkNumber || c.check_number,
+            bank_name: c.bankName || c.bank_name || '',
+            amount: c.amount,
+            issue_date: c.issueDate || c.issue_date || '',
+            due_date: c.dueDate || c.due_date || '',
             holder_name: c.holderName || c.holder_name || '',
-            status: c.status || 'pending', description: c.description || ''
+            status: c.status || 'pending',
+            description: c.description || ''
           });
         }
-        if(valid.length){
-          const { error, data } = await sb.from('checks').insert(valid).select('id');
+        if(validChecks.length){
+          const { error, data } = await sb.from('checks').insert(validChecks).select('id');
           if(!error) stats.checks = data?.length || 0;
+          else stats.errors.push('چک‌ها: ' + error.message);
         }
       }
 
-      msg.textContent = `⏳ بازیابی حقوق...`;
+      // حقوق
+      msg.textContent = `⏳ بازیابی واریز حقوق...`;
       bar.style.width = '75%';
       if(d.salaries && d.salaries.length){
-        const valid = [];
+        const validSalaries = [];
         for(const s of d.salaries){
           const oldStaffId = s.staffId || s.staff_id;
           const oldStaff = d.staff?.find(x => x.id == oldStaffId);
           if(!oldStaff){ stats.salariesSkipped++; continue; }
           const newId = staffCodeToId[oldStaff.code || oldStaff.staff_code];
           if(!newId){ stats.salariesSkipped++; continue; }
-          valid.push({
+          validSalaries.push({
             staff_id: newId, salary_month: s.month || s.salary_month,
             base_amount: s.base || s.base_amount || 0,
             bonus_amount: s.bonus || s.bonus_amount || 0,
@@ -3377,53 +3574,56 @@ async function restoreFromFile(event){
             tracking: s.tracking || '', description: s.description || ''
           });
         }
-        if(valid.length){
-          const { data } = await sb.from('salaries').insert(valid).select('id');
-          if(data) stats.salaries = data.length;
+        if(validSalaries.length){
+          const { error, data } = await sb.from('salaries').insert(validSalaries).select('id');
+          if(!error) stats.salaries = data?.length || 0;
         }
       }
 
+      // اقساط
       msg.textContent = '⏳ بازیابی اقساط...';
       bar.style.width = '82%';
       if(d.installments && d.installments.length){
-        const valid = [];
+        const validInst = [];
         for(const i of d.installments){
           const oldId = i.studentId || i.student_id;
           const oldStudent = d.students.find(s => s.id == oldId);
           if(!oldStudent){ stats.installmentsSkipped++; continue; }
           const newId = studentCodeToId[oldStudent.code];
           if(!newId){ stats.installmentsSkipped++; continue; }
-          valid.push({ student_id: newId, amount: i.amount, due_date: i.due || i.due_date, paid: i.paid || false });
+          validInst.push({ student_id: newId, amount: i.amount, due_date: i.due || i.due_date, paid: i.paid || false });
         }
-        if(valid.length){
-          const { data } = await sb.from('installments').insert(valid).select('id');
-          if(data) stats.installments = data.length;
+        if(validInst.length){
+          const { error, data } = await sb.from('installments').insert(validInst).select('id');
+          if(!error) stats.installments = data?.length || 0;
         }
       }
 
+      // تخفیف‌ها
       msg.textContent = '⏳ بازیابی تخفیف‌ها...';
       bar.style.width = '88%';
       if(d.discounts && d.discounts.length){
-        const valid = [];
+        const validDisc = [];
         for(const x of d.discounts){
           const oldId = x.studentId || x.student_id;
           const oldStudent = d.students.find(s => s.id == oldId);
           if(!oldStudent){ stats.discountsSkipped++; continue; }
           const newId = studentCodeToId[oldStudent.code];
           if(!newId){ stats.discountsSkipped++; continue; }
-          valid.push({
+          validDisc.push({
             student_id: newId, base_amount: x.base || x.base_amount || 0,
             discount_type: x.type || x.discount_type, value: x.value || 0,
             final_amount: x.final || x.final_amount || 0,
             reason: x.reason || '', discount_date: x.date || x.discount_date
           });
         }
-        if(valid.length){
-          const { data } = await sb.from('discounts').insert(valid).select('id');
-          if(data) stats.discounts = data.length;
+        if(validDisc.length){
+          const { error, data } = await sb.from('discounts').insert(validDisc).select('id');
+          if(!error) stats.discounts = data?.length || 0;
         }
       }
 
+      // درآمد و هزینه
       msg.textContent = '⏳ بازیابی درآمد و هزینه...';
       bar.style.width = '95%';
       if(d.incomes && d.incomes.length){
@@ -3444,6 +3644,7 @@ async function restoreFromFile(event){
         if(data) stats.expenses = data.length;
       }
 
+      // تنظیمات
       if(backup.settings){
         await sb.from('settings').upsert({
           id: true,
@@ -3461,16 +3662,30 @@ async function restoreFromFile(event){
       await logAction('بازیابی پشتیبان');
       await refreshApp();
 
-      let report = `✅ بازیابی موفق!\n\n👩🏻‍🎓 دانش‌آموزان: ${stats.students}\n👨‍🏫 کارکنان: ${stats.staff}\n💳 پرداخت‌ها: ${stats.payments}`;
+      let report = `✅ بازیابی موفق!\n\n`;
+      report += `👩🏻‍🎓 دانش‌آموزان: ${stats.students}\n`;
+      report += `👨‍🏫 کارکنان: ${stats.staff}\n`;
+      report += `💳 پرداخت‌ها: ${stats.payments}`;
       if(stats.paymentsSkipped > 0) report += ` (${stats.paymentsSkipped} رد شد)`;
       report += `\n📝 چک‌ها: ${stats.checks}`;
       if(stats.checksSkipped > 0) report += ` (${stats.checksSkipped} رد شد)`;
-      report += `\n💰 حقوق: ${stats.salaries}\n📅 اقساط: ${stats.installments}\n🎁 تخفیف: ${stats.discounts}\n📈 درآمد: ${stats.incomes}\n📉 هزینه: ${stats.expenses}`;
+      report += `\n💰 واریز حقوق: ${stats.salaries}`;
+      if(stats.salariesSkipped > 0) report += ` (${stats.salariesSkipped} رد شد)`;
+      report += `\n📅 اقساط: ${stats.installments}`;
+      if(stats.installmentsSkipped > 0) report += ` (${stats.installmentsSkipped} رد شد)`;
+      report += `\n🎁 تخفیف‌ها: ${stats.discounts}`;
+      if(stats.discountsSkipped > 0) report += ` (${stats.discountsSkipped} رد شد)`;
+      report += `\n📈 درآمدها: ${stats.incomes}\n📉 هزینه‌ها: ${stats.expenses}`;
+
+      if(stats.errors.length) report += `\n\n⚠️ خطاها:\n${stats.errors.join('\n')}`;
 
       alert(report);
       toast('اطلاعات با موفقیت بازیابی شد ✅', 'success');
 
-      setTimeout(() => { progress.style.display = 'none'; bar.style.width = '0%'; }, 2000);
+      setTimeout(() => {
+        progress.style.display = 'none';
+        bar.style.width = '0%';
+      }, 2000);
 
     } catch(e){
       msg.textContent = '❌ خطا: ' + e.message;
@@ -3621,7 +3836,6 @@ function bindStaticButtons(){
   document.getElementById('btnOpenPayment').onclick = openPayment;
   document.getElementById('btnNewPayment').onclick = openPayment;
   document.getElementById('btnNewStudent').onclick = () => openStudent();
-  document.getElementById('btnImportExcel').onclick = openExcelImport;
   document.getElementById('btnNewStaff').onclick = () => openStaff();
   document.getElementById('btnNewSalary').onclick = () => openSalary();
   document.getElementById('btnNewIncome').onclick = openIncome;
