@@ -28,7 +28,6 @@
   --radius-sm: 8px; --radius: 14px; --radius-lg: 20px; --radius-xl: 24px;
   --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
 body.dark-mode {
   --bg: #0f172a; --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
   --card: #1e293b; --text: #f1f5f9; --text-soft: #cbd5e1; --muted: #94a3b8; --line: #334155;
@@ -55,9 +54,6 @@ body.dark-mode .btn { background: #334155; color: #f1f5f9; }
 body.dark-mode .stat { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
 body.dark-mode .mini { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); }
 body.dark-mode .salary-calc-box { background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%); }
-body.dark-mode .birthday-card { background: linear-gradient(135deg, #78350f 0%, #991b1b 100%); }
-body.dark-mode .birthday-card h3 { color: #fef3c7; }
-body.dark-mode .birthday-person { background: #1e293b; color: #fef3c7; }
 body.dark-mode .reminder-card { background: linear-gradient(135deg, #7c2d12 0%, #991b1b 100%); }
 
 * { box-sizing: border-box; }
@@ -129,7 +125,6 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .btn.purple { background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); color: #fff; box-shadow: 0 4px 14px rgba(168,85,247,.35); }
 .btn.icon-only { padding: 11px; width: 44px; height: 44px; justify-content: center; position: relative; }
 
-/* Notification bell */
 .notif-badge {
   position: absolute; top: -4px; right: -4px;
   background: var(--danger); color: #fff;
@@ -218,37 +213,166 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .alert-list li { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--line); font-size: 13.5px; }
 .alert-list li:last-child { border-bottom: 0; }
 
-.birthday-card {
-  background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 50%, #fecaca 100%);
+/* ==================================================
+   کارت تولد زیبا (نسخه جدید)
+================================================== */
+.birthday-section {
+  background: linear-gradient(135deg, #fef3c7 0%, #fce7f3 50%, #fed7aa 100%);
   border: 2px solid #fbbf24;
   border-radius: var(--radius-lg);
-  padding: 22px;
+  padding: 24px;
   margin-bottom: 20px;
-  animation: birthdayPulse 2s ease-in-out infinite;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 15px 35px rgba(251, 191, 36, 0.25);
+}
+.birthday-section::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 10% 20%, rgba(251, 191, 36, 0.15) 0%, transparent 50%),
+              radial-gradient(circle at 90% 80%, rgba(236, 72, 153, 0.15) 0%, transparent 50%);
+  pointer-events: none;
+}
+.birthday-section .floating-emoji {
+  position: absolute;
+  font-size: 40px;
+  opacity: 0.3;
+  animation: floatEmoji 4s ease-in-out infinite;
+  pointer-events: none;
+}
+.birthday-section .floating-emoji:nth-child(1) { top: 10%; right: 5%; animation-delay: 0s; }
+.birthday-section .floating-emoji:nth-child(2) { top: 60%; right: 15%; animation-delay: 1s; }
+.birthday-section .floating-emoji:nth-child(3) { top: 30%; left: 10%; animation-delay: 2s; }
+.birthday-section .floating-emoji:nth-child(4) { bottom: 10%; left: 5%; animation-delay: 0.5s; }
+@keyframes floatEmoji {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-15px) rotate(10deg); }
+}
+.birthday-section .birthday-title {
+  margin: 0 0 18px;
+  color: #92400e;
+  font-size: 20px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 1px 2px rgba(255,255,255,.5);
+}
+.birthday-section .birthday-title .sparkle {
+  animation: sparkle 1.5s infinite;
+  display: inline-block;
+}
+@keyframes sparkle {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  50% { transform: scale(1.3) rotate(20deg); opacity: 0.7; }
+}
+.birthday-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+  position: relative;
+  z-index: 1;
+}
+.birthday-person-card {
+  background: #fff;
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 8px 20px rgba(146, 64, 14, 0.15);
+  border: 2px solid #fde68a;
+  transition: all 0.3s;
   position: relative;
   overflow: hidden;
 }
-@keyframes birthdayPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(251,191,36,.4); }
-  50% { box-shadow: 0 0 0 12px rgba(251,191,36,0); }
+.birthday-person-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #fbbf24, #ec4899, #f97316);
+  background-size: 200% 100%;
+  animation: rainbowMove 3s linear infinite;
 }
-.birthday-card::before {
-  content: '🎉'; position: absolute; top: -20px; left: -20px;
-  font-size: 100px; opacity: .15; transform: rotate(-20deg);
+@keyframes rainbowMove {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
 }
-.birthday-card h3 {
-  margin: 0 0 14px; color: #92400e; font-size: 19px;
-  display: flex; align-items: center; gap: 10px;
-  font-weight: 800; position: relative; z-index: 1;
+.birthday-person-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 15px 30px rgba(146, 64, 14, 0.25);
 }
-.birthday-list { display: flex; flex-wrap: wrap; gap: 12px; position: relative; z-index: 1; }
-.birthday-person {
-  background: #fff; padding: 12px 18px; border-radius: 14px;
-  display: flex; align-items: center; gap: 10px;
-  box-shadow: 0 4px 12px rgba(146,64,14,.15);
-  font-weight: 700; color: #92400e; font-size: 14px;
+.birthday-person-card .emoji-big {
+  font-size: 32px;
+  animation: bounce 2s infinite;
 }
-.birthday-person .cake { font-size: 22px; }
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+.birthday-person-card .info {
+  flex: 1;
+  min-width: 0;
+}
+.birthday-person-card .info .name {
+  font-size: 15px;
+  font-weight: 800;
+  color: #92400e;
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.birthday-person-card .info .detail {
+  font-size: 12px;
+  color: #a16207;
+  font-weight: 600;
+}
+.birthday-person-card .info .age-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  color: #fff;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  margin-top: 4px;
+}
+.birthday-reminder {
+  margin-top: 18px;
+  padding: 14px 18px;
+  background: linear-gradient(135deg, #fff 0%, #fef3c7 100%);
+  border-radius: 14px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 800;
+  color: #92400e;
+  position: relative;
+  z-index: 1;
+  border: 2px dashed #fbbf24;
+  animation: reminderPulse 2s ease-in-out infinite;
+}
+@keyframes reminderPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.02); }
+}
+.birthday-empty {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 2px solid #86efac;
+  border-radius: var(--radius-lg);
+  padding: 22px;
+  margin-bottom: 20px;
+  text-align: center;
+  color: #166534;
+  font-weight: 700;
+  font-size: 14px;
+}
 
 /* Reminder Card */
 .reminder-card {
@@ -286,7 +410,126 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .reminder-item.info { border-right-color: #3b82f6; }
 .reminder-item .rem-icon { font-size: 20px; }
 
-/* Photo Card */
+/* Two tables section */
+.dashboard-two-tables {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-bottom: 20px;
+}
+.dashboard-table-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+.dashboard-table-card h3 {
+  margin: 0 0 14px;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--text);
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dashboard-table-card .mini-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.dashboard-table-card .mini-table th,
+.dashboard-table-card .mini-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--line);
+  text-align: right;
+}
+.dashboard-table-card .mini-table th {
+  background: var(--primary-bg);
+  color: var(--primary-dark);
+  font-weight: 800;
+  font-size: 12px;
+}
+.dashboard-table-card .mini-table tr:last-child td { border-bottom: 0; }
+.dashboard-table-card .mini-table tr:hover td { background: var(--primary-bg); }
+
+/* Student search in check */
+.student-search-box {
+  position: relative;
+  margin-bottom: 12px;
+}
+.student-search-box input {
+  width: 100%;
+  padding: 12px 16px 12px 44px;
+  border: 2px solid var(--primary-light);
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  background: var(--primary-bg);
+}
+.student-search-box .search-icon {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 18px;
+  color: var(--primary);
+}
+.student-search-results {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: 0;
+  background: #fff;
+  border: 2px solid var(--primary-light);
+  border-radius: 12px;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 10;
+  margin-top: 4px;
+  box-shadow: var(--shadow-lg);
+  display: none;
+}
+.student-search-results.show { display: block; }
+.student-result-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--line);
+  transition: background 0.15s;
+}
+.student-result-item:hover {
+  background: var(--primary-bg);
+}
+.student-result-item:last-child { border-bottom: 0; }
+.student-result-item .result-name { font-weight: 700; font-size: 14px; color: var(--text); }
+.student-result-item .result-detail { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.student-selected {
+  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+  border: 2px solid var(--success);
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 700;
+  color: var(--success-dark);
+}
+.student-selected .clear-btn {
+  margin-right: auto;
+  background: #fff;
+  border: 1px solid var(--success);
+  color: var(--success-dark);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+/* Photo upload */
 .student-photo {
   width: 50px; height: 50px; border-radius: 50%;
   object-fit: cover;
@@ -323,7 +566,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   border: 3px solid var(--primary);
 }
 
-/* Student ID Card */
+/* ID Card */
 .id-card {
   width: 340px;
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
@@ -334,41 +577,16 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   font-family: Tahoma, sans-serif;
   direction: rtl;
 }
-.id-card-header {
-  text-align: center;
-  border-bottom: 2px solid rgba(255,255,255,.3);
-  padding-bottom: 12px;
-  margin-bottom: 16px;
-}
+.id-card-header { text-align: center; border-bottom: 2px solid rgba(255,255,255,.3); padding-bottom: 12px; margin-bottom: 16px; }
 .id-card-header h3 { margin: 0; font-size: 16px; font-weight: 800; }
 .id-card-header p { margin: 4px 0 0; font-size: 11px; opacity: .9; }
-.id-card-body {
-  display: flex; gap: 16px; align-items: center;
-  margin-bottom: 16px;
-}
-.id-card-photo {
-  width: 80px; height: 80px; border-radius: 12px;
-  object-fit: cover;
-  border: 3px solid rgba(255,255,255,.5);
-  background: #fff;
-}
-.id-card-photo-ph {
-  width: 80px; height: 80px; border-radius: 12px;
-  background: rgba(255,255,255,.2);
-  display: grid; place-items: center;
-  font-size: 32px;
-  border: 3px solid rgba(255,255,255,.5);
-}
+.id-card-body { display: flex; gap: 16px; align-items: center; margin-bottom: 16px; }
+.id-card-photo { width: 80px; height: 80px; border-radius: 12px; object-fit: cover; border: 3px solid rgba(255,255,255,.5); background: #fff; }
+.id-card-photo-ph { width: 80px; height: 80px; border-radius: 12px; background: rgba(255,255,255,.2); display: grid; place-items: center; font-size: 32px; border: 3px solid rgba(255,255,255,.5); }
 .id-card-info { flex: 1; }
 .id-card-info .name { font-size: 16px; font-weight: 800; margin-bottom: 6px; }
 .id-card-info .detail { font-size: 12px; opacity: .9; margin: 2px 0; }
-.id-card-footer {
-  text-align: center;
-  font-size: 10px;
-  opacity: .8;
-  border-top: 1px solid rgba(255,255,255,.2);
-  padding-top: 10px;
-}
+.id-card-footer { text-align: center; font-size: 10px; opacity: .8; border-top: 1px solid rgba(255,255,255,.2); padding-top: 10px; }
 
 .toast { position: fixed; left: 24px; bottom: 24px; background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: #fff; padding: 16px 22px; border-radius: 14px; display: none; z-index: 100; max-width: 420px; font-size: 13.5px; line-height: 1.7; box-shadow: 0 10px 30px rgba(0,0,0,.3); font-weight: 500; }
 .toast.show { display: block; animation: slideInLeft 0.3s ease; }
@@ -398,7 +616,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .checkbox-cell { text-align: center; }
 .checkbox-cell input { width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary); }
 
-/* محاسبه حقوق */
+/* Salary calc */
 .salary-calc-box { background: linear-gradient(135deg, #eef2ff 0%, #f0f9ff 100%); border: 2px solid var(--primary-light); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; }
 .salary-calc-box h4 { margin: 0 0 12px; color: var(--primary-dark); font-size: 15px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
 .salary-calc-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
@@ -414,39 +632,13 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .sms-template-btn { padding: 8px 14px; background: #fff; border: 2px solid var(--line); border-radius: 10px; font-size: 12.5px; font-weight: 600; color: var(--text); cursor: pointer; transition: var(--transition); }
 .sms-template-btn:hover { border-color: var(--primary); background: var(--primary-bg); }
 
-/* Notification dropdown */
-.notif-dropdown {
-  position: fixed;
-  top: 90px;
-  left: 30px;
-  width: 400px;
-  max-height: 500px;
-  overflow-y: auto;
-  background: var(--card);
-  border: 2px solid var(--line);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-xl);
-  z-index: 60;
-  display: none;
-  animation: slideDown 0.3s ease;
-}
+.notif-dropdown { position: fixed; top: 90px; left: 30px; width: 400px; max-height: 500px; overflow-y: auto; background: var(--card); border: 2px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow-xl); z-index: 60; display: none; animation: slideDown 0.3s ease; }
 @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 .notif-dropdown.show { display: block; }
-.notif-header {
-  padding: 16px;
-  border-bottom: 2px solid var(--line);
-  display: flex; justify-content: space-between; align-items: center;
-}
+.notif-header { padding: 16px; border-bottom: 2px solid var(--line); display: flex; justify-content: space-between; align-items: center; }
 .notif-header h3 { margin: 0; font-size: 15px; font-weight: 800; }
 .notif-list { padding: 8px; }
-.notif-item {
-  padding: 12px;
-  border-radius: 10px;
-  margin-bottom: 6px;
-  cursor: pointer;
-  transition: var(--transition);
-  border-right: 4px solid transparent;
-}
+.notif-item { padding: 12px; border-radius: 10px; margin-bottom: 6px; cursor: pointer; transition: var(--transition); border-right: 4px solid transparent; }
 .notif-item:hover { background: var(--primary-bg); }
 .notif-item.urgent { border-right-color: #dc2626; }
 .notif-item.warning { border-right-color: #f59e0b; }
@@ -454,7 +646,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .notif-item .notif-title { font-weight: 700; font-size: 13px; margin-bottom: 4px; }
 .notif-item .notif-desc { font-size: 12px; color: var(--muted); }
 
-@media (max-width: 1200px) { .stats { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 1200px) { .stats { grid-template-columns: repeat(3, 1fr); } .dashboard-two-tables { grid-template-columns: 1fr; } }
 @media (max-width: 1050px) {
   .stats { grid-template-columns: repeat(2, 1fr); }
   .charts, .alerts { grid-template-columns: 1fr; }
@@ -475,6 +667,8 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   .section-head { flex-direction: column; align-items: stretch; }
   .salary-calc-row, .salary-calc-row.three { grid-template-columns: 1fr; }
   .notif-dropdown { left: 10px; right: 10px; width: auto; }
+  .birthday-grid { grid-template-columns: 1fr; }
+  .dashboard-two-tables { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -573,11 +767,30 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 </div>
 <!-- داشبورد -->
 <section class="page active" id="dashboard">
+  <!-- کارت تولد جدید (زیباتر) -->
   <div id="birthdayContainer"></div>
+  
+  <!-- کارت یادآوری -->
   <div id="reminderContainer"></div>
+  
+  <!-- آمار -->
   <div class="grid stats" id="stats"></div>
   
-  <div class="section-head"><h2>📊 نمای کلی مالی</h2></div>
+  <!-- دو جدول: تولدها + مسائل مالی -->
+  <div class="section-head"><h2>📋 نمای کلی</h2></div>
+  <div class="dashboard-two-tables">
+    <div class="dashboard-table-card">
+      <h3>🎂 تولدهای این ماه</h3>
+      <div id="birthdayTableDashboard"></div>
+    </div>
+    <div class="dashboard-table-card">
+      <h3>⚠️ مسائل مالی مهم</h3>
+      <div id="financialTableDashboard"></div>
+    </div>
+  </div>
+  
+  <!-- نمودارها -->
+  <div class="section-head"><h2>📊 نمودارها</h2></div>
   <div class="grid charts">
     <div class="card chartbox"><h3 style="margin-top:0">دریافت شهریه ماهانه</h3><canvas id="incomeChart"></canvas></div>
     <div class="card chartbox"><h3 style="margin-top:0">وضعیت پرداخت دانش‌آموزان</h3><canvas id="statusChart"></canvas></div>
@@ -585,6 +798,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
     <div class="card"><h3 style="margin-top:0">آخرین پرداخت‌ها</h3><div id="recentPayments"></div></div>
   </div>
   
+  <!-- اقساط و چک‌ها -->
   <div class="section-head"><h2>⏰ اقساط نزدیک و معوق</h2></div>
   <div class="grid alerts">
     <div class="card"><h3 style="margin-top:0">نزدیک به سررسید</h3><ul class="alert-list" id="dueSoon"></ul></div>
@@ -1002,8 +1216,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
     <div class="formgrid">
       <div class="full">
         <label>گیرنده‌ها</label>
-        <select id="smsRecipients" multiple style="min-height:120px;width:100%">
-        </select>
+        <select id="smsRecipients" multiple style="min-height:120px;width:100%"></select>
         <small style="color:var(--muted);font-size:12px;display:block;margin-top:6px">برای انتخاب چندگانه Ctrl را نگه دار</small>
       </div>
       <div class="full">
@@ -1108,9 +1321,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   <div class="grid" style="grid-template-columns:1fr 1fr;gap:18px">
     <div class="card">
       <h3 style="margin-top:0">📥 دانلود پشتیبان</h3>
-      <p style="color:var(--muted);font-size:13.5px;line-height:1.9">
-        از تمام اطلاعات مدرسه یک فایل JSON دانلود می‌شود.
-      </p>
+      <p style="color:var(--muted);font-size:13.5px;line-height:1.9">از تمام اطلاعات مدرسه یک فایل JSON دانلود می‌شود.</p>
       <div style="background:var(--primary-bg);padding:16px;border-radius:12px;margin:18px 0;font-size:13.5px;line-height:2;border:1px solid #c7d2fe">
         <b style="color:var(--primary-dark)">📊 آمار فعلی:</b><br>
         <span id="backupStats"></span>
@@ -1120,9 +1331,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
     </div>
     <div class="card">
       <h3 style="margin-top:0">📂 بازیابی از فایل</h3>
-      <p style="color:var(--muted);font-size:13.5px;line-height:1.9">
-        فایل JSON پشتیبان را بارگذاری کن.
-      </p>
+      <p style="color:var(--muted);font-size:13.5px;line-height:1.9">فایل JSON پشتیبان را بارگذاری کن.</p>
       <div style="background:var(--warning-bg);padding:16px;border-radius:12px;margin:18px 0;font-size:13.5px;line-height:1.9;border:1px solid #fde68a">
         ⚠️ <b>هشدار:</b> این کار اطلاعات موجود را با فایل پشتیبان <b>جایگزین</b> می‌کند.
       </div>
@@ -1348,7 +1557,7 @@ function initSupabase(){
         persistSession: true,
         autoRefreshToken: true,
         detectSessionInUrl: false,
-        storageKey: 'haleh-mehr-auth-v11'
+        storageKey: 'haleh-mehr-auth-v12'
       }
     });
     return true;
@@ -1537,6 +1746,12 @@ async function refreshApp(){
   await loadUsers();
 }
 
+async function refreshReload(){
+  await loadData();
+  renderAll();
+  updateBackupStats();
+}
+
 /* ============================================================
    احراز هویت
 ============================================================ */
@@ -1647,6 +1862,8 @@ function toggleTheme(){
 function renderAll(){
   document.getElementById('yearLabel').textContent = db.settings.year || '—';
   renderBirthdays();
+  renderDashboardBirthdayTable();
+  renderDashboardFinancialTable();
   renderReminders();
   renderNotifBadge();
   renderStats();
@@ -1672,7 +1889,7 @@ function renderAll(){
 }
 
 /* ============================================================
-   کارت تولد امروز
+   کارت تولد زیبا در بالای داشبورد
 ============================================================ */
 function renderBirthdays(){
   const container = document.getElementById('birthdayContainer');
@@ -1681,26 +1898,141 @@ function renderBirthdays(){
   const birthdayPeople = db.students.filter(s => isBirthdayToday(s.birthDate));
   
   if(!birthdayPeople.length){
-    container.innerHTML = '';
+    container.innerHTML = `
+      <div class="birthday-empty">
+        🌸 امروز تولد هیچ‌کدام از دانش‌آموزان نیست. روز خوبی داشته باشی!
+      </div>
+    `;
     return;
   }
   
   container.innerHTML = `
-    <div class="birthday-card">
-      <h3>🎂 امروز تولد این عزیزان است!</h3>
-      <div class="birthday-list">
+    <div class="birthday-section">
+      <span class="floating-emoji">🎈</span>
+      <span class="floating-emoji">🎁</span>
+      <span class="floating-emoji">✨</span>
+      <span class="floating-emoji">🎊</span>
+      
+      <h3 class="birthday-title">
+        <span class="sparkle">🎂</span>
+        امروز تولد ${birthdayPeople.length} نفر از عزیزان است!
+        <span class="sparkle">🎉</span>
+      </h3>
+      
+      <div class="birthday-grid">
         ${birthdayPeople.map(s => `
-          <div class="birthday-person">
-            <span class="cake">🎉</span>
-            <span>${s.name} ${s.family}</span>
-            <span style="font-size:12px;opacity:.7">(${s.grade||'-'} - ${s.class||'-'})</span>
+          <div class="birthday-person-card">
+            <div class="emoji-big">${['🎂','🕯️','🎆','🎈','🎁','🍰'][Math.floor(Math.random()*6)]}</div>
+            <div class="info">
+              <div class="name">${s.name} ${s.family}</div>
+              <div class="detail">${s.grade||'-'} • کلاس ${s.class||'-'}</div>
+              <span class="age-badge">${calcAge(s.birthDate)} ساله</span>
+            </div>
+            <div class="emoji-big">${['🎉','🎊','✨','🌟'][Math.floor(Math.random()*4)]}</div>
           </div>
         `).join('')}
       </div>
-      <p style="margin:14px 0 0;color:#92400e;font-size:13px;font-weight:600;position:relative;z-index:1">
-        💝 فراموش نکن بهشون تبریک بگی!
-      </p>
+      
+      <div class="birthday-reminder">
+        💝 فراموش نکن بهشون تبریک بگی! یه دنیا آرزوی قشنگ براشون داری 🌹
+      </div>
     </div>
+  `;
+}
+
+/* ============================================================
+   جدول تولدهای این ماه (در داشبورد)
+============================================================ */
+function renderDashboardBirthdayTable(){
+  const el = document.getElementById('birthdayTableDashboard');
+  if(!el) return;
+  
+  const thisMonth = db.students
+    .filter(s => isBirthdayThisMonth(s.birthDate))
+    .sort((a,b) => {
+      const aD = String(a.birthDate||'').split('/')[2] || '0';
+      const bD = String(b.birthDate||'').split('/')[2] || '0';
+      return Number(aD) - Number(bD);
+    });
+  
+  if(!thisMonth.length){
+    el.innerHTML = '<div class="empty" style="padding:20px">تولدی در این ماه نیست</div>';
+    return;
+  }
+  
+  el.innerHTML = `
+    <table class="mini-table">
+      <thead>
+        <tr>
+          <th>نام</th>
+          <th>پایه</th>
+          <th>تاریخ تولد</th>
+          <th>روز</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${thisMonth.slice(0, 10).map(s => {
+          const parts = String(s.birthDate||'').split('/');
+          const day = parts[2] || '-';
+          const isToday = isBirthdayToday(s.birthDate);
+          return `<tr>
+            <td>${isToday ? '🎂 ' : ''}<b>${s.name} ${s.family}</b></td>
+            <td>${s.grade||'-'}</td>
+            <td>${s.birthDate||'-'}</td>
+            <td>${isToday ? '<span class="badge paid">امروز</span>' : day}</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
+    ${thisMonth.length > 10 ? `<p style="text-align:center;color:var(--muted);font-size:12px;padding:8px 0;margin:0">و ${thisMonth.length - 10} تولد دیگر در این ماه</p>` : ''}
+  `;
+}
+
+/* ============================================================
+   جدول مسائل مالی (در داشبورد)
+============================================================ */
+function renderDashboardFinancialTable(){
+  const el = document.getElementById('financialTableDashboard');
+  if(!el) return;
+  
+  // دانش‌آموزان با بدهی بالا (بیش از ۵۰٪)
+  const topDebtors = db.students
+    .filter(s => {
+      const bal = balance(s);
+      const tot = finalTuition(s);
+      return bal > 0 && tot > 0 && (bal / tot) > 0.3;
+    })
+    .sort((a,b) => balance(b) - balance(a))
+    .slice(0, 10);
+  
+  if(!topDebtors.length){
+    el.innerHTML = '<div class="empty" style="padding:20px">همه دانش‌آموزان وضعیت مالی مناسبی دارند ✅</div>';
+    return;
+  }
+  
+  el.innerHTML = `
+    <table class="mini-table">
+      <thead>
+        <tr>
+          <th>نام</th>
+          <th>شهریه</th>
+          <th>پرداختی</th>
+          <th>مانده</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${topDebtors.map(s => {
+          const bal = balance(s);
+          const ratio = finalTuition(s) > 0 ? (bal / finalTuition(s) * 100) : 0;
+          return `<tr style="cursor:pointer" onclick="studentDetails(${s.id})">
+            <td><b>${s.name} ${s.family}</b></td>
+            <td>${money(finalTuition(s))}</td>
+            <td style="color:var(--success-dark)">${money(paid(s))}</td>
+            <td><span class="badge ${ratio > 70 ? 'overdue' : 'debt'}">${money(bal)}</span></td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>
   `;
 }
 
@@ -1710,86 +2042,47 @@ function renderBirthdays(){
 function getReminders(){
   const reminders = [];
   
-  // ۱. اقساط امروز
-  const todayDue = db.installments.filter(i => !i.paid && i.due === today());
-  todayDue.forEach(i => {
+  // اقساط امروز
+  db.installments.filter(i => !i.paid && i.due === today()).forEach(i => {
     const s = studentById(i.studentId);
-    reminders.push({
-      type: 'urgent',
-      icon: '📅',
-      title: 'قسط امروز سررسید',
-      desc: `${s ? s.name + ' ' + s.family : 'دانش‌آموز'} — ${money(i.amount)}`
-    });
+    reminders.push({ type: 'urgent', icon: '📅', title: 'قسط امروز سررسید', desc: `${s ? s.name + ' ' + s.family : 'دانش‌آموز'} — ${money(i.amount)}` });
   });
   
-  // ۲. اقساط نزدیک (تا ۳ روز آینده)
-  const soonDue = db.installments.filter(i => !i.paid && i.due !== today()) && db.installments.filter(i => {
+  // اقساط نزدیک (تا ۳ روز)
+  db.installments.filter(i => {
     if(i.paid) return false;
-    const days = daysUntil(i.due);
-    return days >= 0 && days <= 3;
-  });
-  soonDue.forEach(i => {
-    const days = daysUntil(i.due);
+    const d = daysUntil(i.due);
+    return d >= 0 && d <= 3;
+  }).forEach(i => {
     const s = studentById(i.studentId);
-    reminders.push({
-      type: 'warning',
-      icon: '⏰',
-      title: `قسط ${days} روز دیگر`,
-      desc: `${s ? s.name + ' ' + s.family : 'دانش‌آموز'} — ${money(i.amount)} (${i.due})`
-    });
+    const d = daysUntil(i.due);
+    reminders.push({ type: 'warning', icon: '⏰', title: `قسط ${d} روز دیگر`, desc: `${s ? s.name + ' ' + s.family : 'دانش‌آموز'} — ${money(i.amount)}` });
   });
   
-  // ۳. اقساط معوق
-  const overdue = db.installments.filter(i => !i.paid && isPast(i.due) && i.due !== today());
-  overdue.forEach(i => {
+  // اقساط معوق
+  db.installments.filter(i => !i.paid && isPast(i.due) && i.due !== today()).forEach(i => {
     const s = studentById(i.studentId);
-    reminders.push({
-      type: 'urgent',
-      icon: '⚠️',
-      title: 'قسط معوق',
-      desc: `${s ? s.name + ' ' + s.family : 'دانش‌آموز'} — ${money(i.amount)} (${i.due})`
-    });
+    reminders.push({ type: 'urgent', icon: '⚠️', title: 'قسط معوق', desc: `${s ? s.name + ' ' + s.family : 'دانش‌آموز'} — ${money(i.amount)}` });
   });
   
-  // ۴. چک‌های امروز
-  const checksToday = db.checks.filter(c => c.status === 'pending' && c.dueDate === today());
-  checksToday.forEach(c => {
-    reminders.push({
-      type: 'urgent',
-      icon: '📝',
-      title: 'چک امروز سررسید',
-      desc: `${c.checkNumber} — ${c.bankName||''} — ${money(c.amount)}`
-    });
+  // چک امروز
+  db.checks.filter(c => c.status === 'pending' && c.dueDate === today()).forEach(c => {
+    reminders.push({ type: 'urgent', icon: '📝', title: 'چک امروز سررسید', desc: `${c.checkNumber} — ${money(c.amount)}` });
   });
   
-  // ۵. چک‌های نزدیک (تا ۷ روز)
-  const checksSoon = db.checks.filter(c => {
+  // چک نزدیک (تا ۷ روز)
+  db.checks.filter(c => {
     if(c.status !== 'pending') return false;
-    const days = daysUntil(c.dueDate);
-    return days > 0 && days <= 7;
-  });
-  checksSoon.forEach(c => {
-    const days = daysUntil(c.dueDate);
-    reminders.push({
-      type: 'warning',
-      icon: '📝',
-      title: `چک ${days} روز دیگر`,
-      desc: `${c.checkNumber} — ${c.bankName||''} — ${money(c.amount)}`
-    });
+    const d = daysUntil(c.dueDate);
+    return d > 0 && d <= 7;
+  }).forEach(c => {
+    const d = daysUntil(c.dueDate);
+    reminders.push({ type: 'warning', icon: '📝', title: `چک ${d} روز دیگر`, desc: `${c.checkNumber} — ${money(c.amount)}` });
   });
   
-  // ۶. دانش‌آموزان جدید بدهکار (اگر بدهیشون بیشتر از ۵۰٪ باشه)
-  db.students.forEach(s => {
-    const bal = balance(s);
-    const total = finalTuition(s);
-    if(bal > 0 && total > 0 && (bal / total) > 0.5){
-      reminders.push({
-        type: 'warning',
-        icon: '💰',
-        title: 'بدهی بالا',
-        desc: `${s.name} ${s.family} — ${money(bal)} از ${money(total)}`
-      });
-    }
+  // تولد امروز
+  db.students.filter(s => isBirthdayToday(s.birthDate)).forEach(s => {
+    reminders.push({ type: 'info', icon: '🎂', title: 'تولد امروز', desc: `${s.name} ${s.family} — تبریک بگو!` });
   });
   
   return reminders;
@@ -1798,23 +2091,17 @@ function getReminders(){
 function renderReminders(){
   const container = document.getElementById('reminderContainer');
   if(!container) return;
-  
   const reminders = getReminders();
+  if(!reminders.length){ container.innerHTML = ''; return; }
   
-  if(!reminders.length){
-    container.innerHTML = '';
-    return;
-  }
-  
-  // نمایش حداکثر ۵ تا در داشبورد
-  const displayReminders = reminders.slice(0, 5);
-  const moreCount = reminders.length - 5;
+  const display = reminders.slice(0, 5);
+  const more = reminders.length - 5;
   
   container.innerHTML = `
     <div class="reminder-card">
       <h3>🔔 یادآوری‌های امروز (${reminders.length})</h3>
       <div class="reminder-list">
-        ${displayReminders.map(r => `
+        ${display.map(r => `
           <div class="reminder-item ${r.type}">
             <span class="rem-icon">${r.icon}</span>
             <div style="flex:1">
@@ -1824,7 +2111,7 @@ function renderReminders(){
           </div>
         `).join('')}
       </div>
-      ${moreCount > 0 ? `<p style="margin:14px 0 0;color:#92400e;font-size:12.5px;font-weight:600;text-align:center">و ${moreCount} یادآوری دیگر — روی 🔔 کلیک کن</p>` : ''}
+      ${more > 0 ? `<p style="margin:14px 0 0;color:#92400e;font-size:12.5px;font-weight:600;text-align:center">و ${more} یادآوری دیگر — روی 🔔 کلیک کن</p>` : ''}
     </div>
   `;
 }
@@ -1832,7 +2119,6 @@ function renderReminders(){
 function renderNotifBadge(){
   const badge = document.getElementById('notifBadge');
   if(!badge) return;
-  
   const reminders = getReminders();
   if(reminders.length > 0){
     badge.textContent = reminders.length;
@@ -1846,7 +2132,6 @@ function openNotif(){
   const dropdown = document.getElementById('notifDropdown');
   const list = document.getElementById('notifList');
   const reminders = getReminders();
-  
   if(!reminders.length){
     list.innerHTML = '<div class="empty">🎉 هیچ یادآوری‌ای وجود ندارد</div>';
   } else {
@@ -1857,7 +2142,6 @@ function openNotif(){
       </div>
     `).join('');
   }
-  
   dropdown.classList.add('show');
 }
 
@@ -1889,7 +2173,7 @@ function renderStats(){
 }
 
 /* ============================================================
-   دانش‌آموزان (با عکس)
+   دانش‌آموزان
 ============================================================ */
 function renderStudents(){
   const q = v('studentSearch'), g = v('gradeFilter'), c = v('classFilter'), b = v('birthdayFilter');
@@ -1930,7 +2214,7 @@ function renderStudents(){
 }
 
 /* ============================================================
-   فرم دانش‌آموز (با آپلود عکس)
+   فرم دانش‌آموز (با عکس + چک اولیه)
 ============================================================ */
 function openStudent(id){
   const s = id ? studentById(id) : {
@@ -1948,7 +2232,7 @@ function openStudent(id){
       }
       <div style="flex:1">
         <h4 style="margin:0 0 8px;color:var(--primary-dark)">عکس دانش‌آموز</h4>
-        <p style="margin:0 0 10px;color:var(--muted);font-size:12.5px">عکس مربعی یا عمودی (حداکثر ۲ مگابایت)</p>
+        <p style="margin:0 0 10px;color:var(--muted);font-size:12.5px">حداکثر ۲ مگابایت</p>
         <input type="file" accept="image/*" id="photoInput" hidden>
         <button class="btn primary" type="button" onclick="document.getElementById('photoInput').click()">📸 انتخاب عکس</button>
         ${s.photoUrl ? `<button class="btn red" type="button" onclick="removePhoto()">🗑️ حذف</button>` : ''}
@@ -1967,6 +2251,32 @@ function openStudent(id){
       <div><label>شهریه (ریال) *</label><input type="number" id="f_tuition" value="${s.tuition||0}"></div>
       <div><label>تخفیف (ریال)</label><input type="number" id="f_discount" value="${s.discount||0}"></div>
     </div>
+    
+    ${!id ? `
+    <div style="margin-top:20px;padding:16px;background:#fef3c7;border:2px dashed #fbbf24;border-radius:12px">
+      <h4 style="margin:0 0 12px;color:#92400e;font-size:14px">💳 ثبت چک اولیه (اختیاری)</h4>
+      <p style="margin:0 0 12px;color:#78350f;font-size:12px">اگر با چک پرداخت کرده، اینجا ثبت کن.</p>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:12px;font-weight:700">
+        <input type="checkbox" id="f_has_check" style="width:auto;min-width:auto" onchange="toggleCheckFields()">
+        <span>همراه با چک</span>
+      </label>
+      <div id="checkFields" style="display:none;grid-template-columns:repeat(3,1fr);gap:12px">
+        <div><label>شماره چک *</label><input id="f_check_number" placeholder="123456"></div>
+        <div><label>بانک</label>
+          <select id="f_check_bank">
+            <option>ملی</option><option>صادرات</option><option>تجارت</option><option>ملت</option>
+            <option>سپه</option><option>پاسارگاد</option><option>پارسیان</option><option>سامان</option>
+            <option>رفاه</option><option>مسکن</option><option>کشاورزی</option><option>مهر ایران</option>
+            <option>قوامین</option><option>اقتصاد نوین</option><option>شهر</option><option>سایر</option>
+          </select>
+        </div>
+        <div><label>مبلغ چک (ریال) *</label><input type="number" id="f_check_amount"></div>
+        <div><label>صاحب چک</label><input id="f_check_holder"></div>
+        <div><label>تاریخ صدور</label><input id="f_check_issue" value="${today()}"></div>
+        <div><label>تاریخ سررسید *</label><input id="f_check_due" placeholder="1405/08/15"></div>
+      </div>
+    </div>
+    ` : ''}
   </div>
   <div class="modalfoot"><button class="btn primary" id="btnSaveStudent" data-id="${id||0}">ذخیره</button></div></div>`);
 
@@ -2004,6 +2314,14 @@ function openStudent(id){
   document.getElementById('btnSaveStudent').onclick = () => saveStudent(id || 0);
 }
 
+function toggleCheckFields(){
+  const cb = document.getElementById('f_has_check');
+  const fields = document.getElementById('checkFields');
+  if(cb && fields){
+    fields.style.display = cb.checked ? 'grid' : 'none';
+  }
+}
+
 function removePhoto(){
   window.__currentPhotoUrl = '';
   const p = document.getElementById('photoPreview');
@@ -2033,36 +2351,70 @@ async function saveStudent(id){
     return toast(`⚠️ کد "${s.code}" قبلاً ثبت شده است.`, 'error');
   }
 
+  const hasCheck = !id && document.getElementById('f_has_check')?.checked;
+  let checkData = null;
+  
+  if(hasCheck){
+    const checkNumber = v('f_check_number');
+    const checkAmount = num('f_check_amount');
+    const checkDue = v('f_check_due');
+    
+    if(!checkNumber) return toast('شماره چک الزامی است', 'error');
+    if(checkAmount <= 0) return toast('مبلغ چک الزامی است', 'error');
+    if(!checkDue) return toast('تاریخ سررسید چک الزامی است', 'error');
+    if(db.checks.some(c => c.checkNumber === checkNumber)) return toast('شماره چک تکراری است', 'error');
+    
+    checkData = {
+      check_number: checkNumber,
+      bank_name: v('f_check_bank'),
+      amount: checkAmount,
+      holder_name: v('f_check_holder'),
+      issue_date: v('f_check_issue'),
+      due_date: checkDue,
+      status: 'pending',
+      description: 'چک ثبت‌نام اولیه'
+    };
+  }
+
   isProcessing = true;
   const btn = document.getElementById('btnSaveStudent');
   if(btn){ btn.disabled = true; btn.textContent = 'در حال ذخیره...'; }
 
   try {
-    let error;
+    let error, newStudentId;
+
     if(id){
       ({ error } = await sb.from('students').update(s).eq('id', id));
     } else {
-      ({ error } = await sb.from('students').insert(s));
+      const { data, error: e } = await sb.from('students').insert(s).select('id').single();
+      error = e;
+      if(data) newStudentId = data.id;
     }
+    
     if(error) return toast(translateError(error), 'error');
 
-    await logAction(id ? 'ویرایش دانش‌آموز' : `ثبت دانش‌آموز ${s.name} ${s.family}`);
+    if(checkData && newStudentId){
+      checkData.student_id = newStudentId;
+      checkData.created_by = currentUser.id;
+      const { error: cErr } = await sb.from('checks').insert(checkData);
+      if(cErr){
+        toast('دانش‌آموز ثبت شد ولی چک ثبت نشد: ' + translateError(cErr), 'warning');
+      } else {
+        toast('دانش‌آموز و چک ثبت شد ✅', 'success');
+      }
+    } else {
+      toast(id ? 'اطلاعات ویرایش شد ✅' : 'دانش‌آموز ثبت شد ✅', 'success');
+    }
+
+    await logAction(id ? 'ویرایش دانش‌آموز' : `ثبت دانش‌آموز ${s.name} ${s.family}${checkData ? ' + چک' : ''}`);
     closeModal();
     await refreshReload();
-    toast(id ? 'اطلاعات ویرایش شد ✅' : 'دانش‌آموز ثبت شد ✅', 'success');
   } catch(e){
     toast('خطا: ' + e.message, 'error');
   } finally {
     isProcessing = false;
     if(btn){ btn.disabled = false; btn.textContent = 'ذخیره'; }
   }
-}
-
-// helper: reload after save
-async function refreshReload(){
-  await loadData();
-  renderAll();
-  updateBackupStats();
 }
 
 /* ============================================================
@@ -2084,12 +2436,7 @@ function printStudentCard(id){
   <style>
     @page { size: 90mm 60mm; margin: 0; }
     body { font-family: 'Estedad', Tahoma, sans-serif; margin: 0; padding: 20px; background: #f0f0f0; direction: rtl; }
-    .id-card {
-      width: 340px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-      color: #fff; border-radius: 20px; padding: 20px;
-      box-shadow: 0 20px 40px rgba(99,102,241,.3);
-      margin: 20px auto;
-    }
+    .id-card { width: 340px; background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: #fff; border-radius: 20px; padding: 20px; box-shadow: 0 20px 40px rgba(99,102,241,.3); margin: 20px auto; }
     .id-card-header { text-align: center; border-bottom: 2px solid rgba(255,255,255,.3); padding-bottom: 12px; margin-bottom: 16px; }
     .id-card-header h3 { margin: 0; font-size: 16px; font-weight: 800; }
     .id-card-header p { margin: 4px 0 0; font-size: 11px; opacity: .9; }
@@ -2100,10 +2447,7 @@ function printStudentCard(id){
     .id-card-info .name { font-size: 16px; font-weight: 800; margin-bottom: 6px; }
     .id-card-info .detail { font-size: 12px; opacity: .9; margin: 2px 0; }
     .id-card-footer { text-align: center; font-size: 10px; opacity: .8; border-top: 1px solid rgba(255,255,255,.2); padding-top: 10px; }
-    @media print {
-      body { background: #fff; padding: 0; }
-      .id-card { box-shadow: none; margin: 0; page-break-after: always; }
-    }
+    @media print { body { background: #fff; padding: 0; } .id-card { box-shadow: none; margin: 0; page-break-after: always; } }
   </style>
   </head><body>
   <div class="id-card">
@@ -2219,6 +2563,280 @@ function studentDetails(id){
     </div>` : ''}
   `);
 }
+  /* ============================================================
+   ثبت چک (با جستجوی دانش‌آموز)
+============================================================ */
+function checkStats(){
+  const pending = db.checks.filter(c => c.status === 'pending');
+  const collected = db.checks.filter(c => c.status === 'collected');
+  const returned = db.checks.filter(c => c.status === 'returned');
+  return {
+    total: db.checks.length,
+    pending, collected, returned,
+    pendingAmount: pending.reduce((a,c) => a + (+c.amount||0), 0),
+    collectedAmount: collected.reduce((a,c) => a + (+c.amount||0), 0),
+    returnedAmount: returned.reduce((a,c) => a + (+c.amount||0), 0)
+  };
+}
+
+function renderChecks(){
+  const q = v('checkSearch'), status = v('checkStatusFilter'), bank = v('checkBankFilter');
+  const arr = db.checks.filter(c =>
+    (!q || `${c.checkNumber} ${c.bankName} ${c.holderName} ${studentName(c.studentId)}`.includes(q)) &&
+    (!status || c.status === status) &&
+    (!bank || c.bankName === bank)
+  );
+
+  const banks = [...new Set(db.checks.map(c => c.bankName).filter(Boolean))];
+  const bankFilter = document.getElementById('checkBankFilter');
+  if(bankFilter){
+    const cur = bankFilter.value;
+    bankFilter.innerHTML = '<option value="">همه بانک‌ها</option>' + banks.map(b => `<option ${b===cur?'selected':''}>${b}</option>`).join('');
+  }
+
+  const st = checkStats();
+  const statsEl = document.getElementById('checkStats');
+  if(statsEl){
+    statsEl.innerHTML = `
+      <div class="card stat"><div class="ico">📝</div><div class="label">کل چک‌ها</div><div class="num">${st.total}</div></div>
+      <div class="card stat"><div class="ico">⏳</div><div class="label">در جریان</div><div class="num" style="font-size:15px">${st.pending.length} - ${money(st.pendingAmount)}</div></div>
+      <div class="card stat"><div class="ico">✅</div><div class="label">وصول شده</div><div class="num" style="font-size:15px">${st.collected.length} - ${money(st.collectedAmount)}</div></div>
+      <div class="card stat"><div class="ico">❌</div><div class="label">برگشتی</div><div class="num" style="font-size:15px">${st.returned.length} - ${money(st.returnedAmount)}</div></div>
+    `;
+  }
+
+  const tbody = document.getElementById('checksTable');
+  if(!tbody) return;
+  tbody.innerHTML = arr.map(c => {
+    const stt = checkStatusLabel(c.status);
+    const days = daysUntil(c.dueDate);
+    let warn = '';
+    if(c.status === 'pending' && days !== Infinity){
+      if(days < 0) warn = ' <span class="badge overdue">گذشته</span>';
+      else if(days <= 7) warn = ` <span class="badge debt">${days} روز</span>`;
+    }
+    return `<tr>
+      <td><b>${c.checkNumber}</b></td>
+      <td>${c.bankName||'-'}</td>
+      <td>${c.holderName||'-'}</td>
+      <td><span class="clickable" data-action="details" data-id="${c.studentId}">${studentName(c.studentId)}</span></td>
+      <td style="font-weight:700">${money(c.amount)}</td>
+      <td>${c.issueDate||'-'}</td>
+      <td>${c.dueDate||'-'}${warn}</td>
+      <td><span class="badge ${stt[1]}">${stt[0]}</span></td>
+      <td class="actions">
+        ${c.status === 'pending' ? `
+          <button class="btn green" data-action="collect-check" data-id="${c.id}">✅ وصول</button>
+          <button class="btn red" data-action="return-check" data-id="${c.id}">❌ برگشتی</button>
+        ` : ''}
+        <button class="btn" data-action="edit-check" data-id="${c.id}">✏️</button>
+        <button class="btn red" data-action="del-check" data-id="${c.id}">حذف</button>
+      </td>
+    </tr>`;
+  }).join('') || `<tr><td colspan="9" class="empty">چکی نیست</td></tr>`;
+}
+
+// ⭐ متغیرهای جستجوی دانش‌آموز در چک
+let __checkStudentId = null;
+let __checkSearchTimer = null;
+
+function openCheck(id){
+  const c = id ? db.checks.find(x => x.id == id) : null;
+  const isEdit = !!c;
+  
+  __checkStudentId = c ? c.studentId : null;
+  
+  const banks = ['ملی','صادرات','تجارت','ملت','سپه','پاسارگاد','پارسیان','سامان','رفاه','مسکن','کشاورزی','مهر ایران','قوامین','اقتصاد نوین','شهر','سایر'];
+  
+  const selectedStudent = __checkStudentId ? studentById(__checkStudentId) : null;
+
+  openModal(isEdit ? '✏️ ویرایش چک' : '📝 ثبت چک جدید', `
+  <div class="form">
+    
+    <!-- ⭐ جستجوی دانش‌آموز -->
+    <div style="margin-bottom:16px">
+      <label style="display:block;font-size:12.5px;color:var(--text-soft);margin-bottom:6px;font-weight:700">دانش‌آموز * (جستجو کن)</label>
+      
+      <div id="selectedStudentBox" style="display:${selectedStudent ? 'flex' : 'none'}" class="student-selected">
+        <span>👩🏻‍🎓</span>
+        <div>
+          <div style="font-weight:800">${selectedStudent ? selectedStudent.name + ' ' + selectedStudent.family : ''}</div>
+          <div style="font-size:11px;opacity:.8">کد: ${selectedStudent ? selectedStudent.code : ''} | ${selectedStudent ? selectedStudent.grade + ' - ' + selectedStudent.class : ''}</div>
+        </div>
+        <button class="clear-btn" type="button" onclick="clearSelectedStudent()">✕ تغییر</button>
+      </div>
+      
+      <div id="studentSearchWrapper" style="display:${selectedStudent ? 'none' : 'block'}">
+        <div class="student-search-box">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="checkStudentSearch" placeholder="نام، نام خانوادگی یا کد دانش‌آموز..." autocomplete="off">
+        </div>
+        <div class="student-search-results" id="checkStudentResults"></div>
+      </div>
+    </div>
+    
+    <div class="formgrid">
+      <div><label>شماره چک *</label><input id="c_number" value="${c?c.checkNumber:''}" placeholder="123456"></div>
+      <div><label>بانک</label><select id="c_bank">${banks.map(b => `<option ${c && b===c.bankName?'selected':''}>${b}</option>`).join('')}</select></div>
+      <div><label>مبلغ (ریال) *</label><input type="number" id="c_amount" value="${c?c.amount:''}"></div>
+      <div><label>صاحب چک</label><input id="c_holder" value="${c?c.holderName||'':''}" placeholder="نام صاحب حساب"></div>
+      <div><label>تاریخ صدور</label><input id="c_issue" value="${c?c.issueDate||today():today()}"></div>
+      <div><label>سررسید *</label><input id="c_due" value="${c?c.dueDate||'':''}" placeholder="1405/08/15"></div>
+      <div><label>وضعیت</label><select id="c_status">
+        <option value="pending" ${c && c.status==='pending'?'selected':''}>در جریان</option>
+        <option value="collected" ${c && c.status==='collected'?'selected':''}>وصول شده</option>
+        <option value="returned" ${c && c.status==='returned'?'selected':''}>برگشتی</option>
+      </select></div>
+      <div class="full"><label>توضیحات</label><textarea id="c_desc">${c?c.description||'':''}</textarea></div>
+    </div>
+  </div>
+  <div class="modalfoot">
+    <button class="btn primary" id="btnSaveCheck" data-id="${id||0}">💾 ذخیره چک</button>
+  </div>`);
+
+  // ⭐ جستجوی زنده
+  const searchInput = document.getElementById('checkStudentSearch');
+  if(searchInput){
+    searchInput.addEventListener('input', (e) => {
+      clearTimeout(__checkSearchTimer);
+      __checkSearchTimer = setTimeout(() => {
+        searchStudentsForCheck(e.target.value);
+      }, 200);
+    });
+    searchInput.focus();
+  }
+
+  document.getElementById('btnSaveCheck').onclick = () => saveCheck(id || 0);
+}
+
+function searchStudentsForCheck(query){
+  const resultsBox = document.getElementById('checkStudentResults');
+  if(!resultsBox) return;
+  
+  const q = (query || '').trim();
+  if(!q || q.length < 2){
+    resultsBox.classList.remove('show');
+    resultsBox.innerHTML = '';
+    return;
+  }
+  
+  const matches = db.students.filter(s => 
+    `${s.name} ${s.family} ${s.code} ${s.grade} ${s.class}`.includes(q)
+  ).slice(0, 15);
+  
+  if(!matches.length){
+    resultsBox.innerHTML = '<div style="padding:16px;text-align:center;color:var(--muted)">دانش‌آموزی یافت نشد</div>';
+    resultsBox.classList.add('show');
+    return;
+  }
+  
+  resultsBox.innerHTML = matches.map(s => `
+    <div class="student-result-item" onclick="selectStudentForCheck(${s.id})">
+      <div class="result-name">${s.name} ${s.family}</div>
+      <div class="result-detail">کد: ${s.code||'-'} | ${s.grade||'-'} - کلاس ${s.class||'-'}</div>
+    </div>
+  `).join('');
+  resultsBox.classList.add('show');
+}
+
+function selectStudentForCheck(id){
+  const s = studentById(id);
+  if(!s) return;
+  __checkStudentId = id;
+  
+  const box = document.getElementById('selectedStudentBox');
+  const wrapper = document.getElementById('studentSearchWrapper');
+  const resultsBox = document.getElementById('checkStudentResults');
+  
+  box.innerHTML = `
+    <span>👩🏻‍🎓</span>
+    <div>
+      <div style="font-weight:800">${s.name} ${s.family}</div>
+      <div style="font-size:11px;opacity:.8">کد: ${s.code||'-'} | ${s.grade||'-'} - ${s.class||'-'}</div>
+    </div>
+    <button class="clear-btn" type="button" onclick="clearSelectedStudent()">✕ تغییر</button>
+  `;
+  box.style.display = 'flex';
+  wrapper.style.display = 'none';
+  resultsBox.classList.remove('show');
+  resultsBox.innerHTML = '';
+}
+
+function clearSelectedStudent(){
+  __checkStudentId = null;
+  document.getElementById('selectedStudentBox').style.display = 'none';
+  document.getElementById('studentSearchWrapper').style.display = 'block';
+  const input = document.getElementById('checkStudentSearch');
+  if(input){ input.value = ''; input.focus(); }
+}
+
+async function saveCheck(id){
+  if(isProcessing) return;
+  
+  if(!__checkStudentId){
+    return toast('ابتدا دانش‌آموز را جستجو و انتخاب کنید', 'error');
+  }
+  
+  const c = {
+    student_id: __checkStudentId,
+    check_number: v('c_number'),
+    bank_name: v('c_bank'),
+    amount: num('c_amount'),
+    issue_date: v('c_issue'),
+    due_date: v('c_due'),
+    holder_name: v('c_holder'),
+    status: v('c_status'),
+    description: v('c_desc')
+  };
+  
+  if(!c.check_number || c.amount <= 0 || !c.due_date) return toast('اطلاعات ناقص', 'error');
+  if(db.checks.some(x => x.checkNumber === c.check_number && x.id != id)) return toast('شماره چک تکراری', 'error');
+
+  isProcessing = true;
+  try {
+    let error;
+    if(id) ({ error } = await sb.from('checks').update(c).eq('id', id));
+    else { c.created_by = currentUser.id; ({ error } = await sb.from('checks').insert(c)); }
+    if(error) return toast(translateError(error), 'error');
+    await logAction(id ? 'ویرایش چک' : 'ثبت چک');
+    closeModal();
+    __checkStudentId = null;
+    await refreshReload();
+    toast('ذخیره شد ✅', 'success');
+  } finally { isProcessing = false; }
+}
+
+async function collectCheck(id){
+  const c = db.checks.find(x => x.id == id);
+  if(!c) return;
+  if(!confirm(`وصول چک ${c.checkNumber} (${money(c.amount)})؟`)) return;
+  if(isProcessing) return;
+  isProcessing = true;
+  try {
+    const { data: payData, error: e1 } = await sb.from('payments').insert({
+      student_id: c.studentId, amount: c.amount, payment_date: today(),
+      method: 'چک', tracking: c.checkNumber, receipt: 'CHK-'+c.checkNumber,
+      description: `وصول چک ${c.bankName||''}`, created_by: currentUser.id
+    }).select('id').single();
+    if(e1) return toast(translateError(e1), 'error');
+    await sb.from('checks').update({ status: 'collected', payment_id: payData.id }).eq('id', id);
+    await logAction('وصول چک');
+    await refreshReload();
+    toast('وصول شد ✅', 'success');
+  } finally { isProcessing = false; }
+}
+
+async function returnCheck(id){
+  if(!confirm('چک برگشت خورد؟')) return;
+  if(isProcessing) return;
+  isProcessing = true;
+  try {
+    await sb.from('checks').update({ status: 'returned' }).eq('id', id);
+    await logAction('چک برگشتی');
+    await refreshReload();
+    toast('ثبت شد', 'warning');
+  } finally { isProcessing = false; }
+}
 
 /* ============================================================
    آپلود Excel دانش‌آموزان
@@ -2226,9 +2844,8 @@ function studentDetails(id){
 function openExcelImport(){
   openModal('📥 ورود گروهی از Excel', `
   <div style="background:#f0f9ff;padding:16px;border-radius:12px;margin-bottom:20px;font-size:13.5px;line-height:2;border:1px solid #bfdbfe">
-    <b style="color:var(--info)">📋 راهنما:</b><br>
-    ستون‌ها: کد | نام | نام خانوادگی | پایه | کلاس | همراه | تولد | شهریه | تخفیف<br>
-    <b style="color:var(--success-dark)">✨ هوشمند:</b> اگر کد وجود داشته باشد، به‌روزرسانی می‌شود.
+    <b style="color:var(--info)">📋 ستون‌ها:</b><br>
+    کد | نام | نام خانوادگی | پایه | کلاس | همراه | تولد | شهریه | تخفیف
   </div>
   <div style="border:2px dashed var(--primary-light);padding:30px;border-radius:14px;text-align:center;background:#fafbff">
     <input type="file" accept=".xlsx,.xls,.csv" id="excelFile" hidden>
@@ -2344,7 +2961,6 @@ function renderExcelPreview(){
         }).join('')}
         </tbody>
       </table>
-      ${matches.length > 100 ? '<p style="text-align:center;color:var(--muted);padding:10px">... و ' + (matches.length - 100) + ' ردیف دیگر</p>' : ''}
     </div>
   `;
 
@@ -2393,7 +3009,152 @@ async function confirmExcelImport(){
     isProcessing = false;
   }
 }
-  /* ============================================================
+
+/* ============================================================
+   ورود Excel درآمد/هزینه
+============================================================ */
+function openIncomesExcelImport(){
+  openModal('📥 ورود درآمدها از Excel', `
+  <div style="background:#f0f9ff;padding:16px;border-radius:12px;margin-bottom:20px;font-size:13.5px;line-height:2;border:1px solid #bfdbfe">
+    <b>📋 ستون‌ها:</b> عنوان | دسته | مبلغ | تاریخ | توضیحات
+  </div>
+  <div style="border:2px dashed var(--primary-light);padding:30px;border-radius:14px;text-align:center;background:#fafbff">
+    <input type="file" accept=".xlsx,.xls,.csv" id="incomesExcelFile" hidden>
+    <button class="btn primary" id="btnSelectIncomesExcel" style="font-size:15px;padding:14px 28px">📂 انتخاب فایل</button>
+    <div id="incomesExcelFileName" style="margin-top:14px;color:var(--muted);font-size:13px"></div>
+  </div>
+  <div id="incomesExcelPreview" style="margin-top:20px"></div>
+  `);
+
+  setTimeout(() => {
+    document.getElementById('btnSelectIncomesExcel').onclick = () => document.getElementById('incomesExcelFile').click();
+    document.getElementById('incomesExcelFile').onchange = async (e) => {
+      const file = e.target.files[0];
+      if(!file) return;
+      document.getElementById('incomesExcelFileName').textContent = `📄 ${file.name}`;
+      try {
+        const data = await file.arrayBuffer();
+        const wb = XLSX.read(data, { type: 'array' });
+        const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, defval: '' });
+        if(rows.length < 2) return toast('فایل خالی', 'error');
+        const headers = rows[0].map(h => String(h).trim());
+        const findCol = (names) => headers.findIndex(h => names.some(n => h.includes(n)));
+        const cT = findCol(['عنوان']), cC = findCol(['دسته']), cA = findCol(['مبلغ']), cD = findCol(['تاریخ']), cDesc = findCol(['توضیح']);
+        
+        const items = rows.slice(1).map(r => ({
+          title: String(r[cT] || '').trim(),
+          category: String(r[cC] || 'سایر').trim(),
+          amount: parseFloat(r[cA]) || 0,
+          income_date: String(r[cD] || today()).trim(),
+          description: String(r[cDesc] || '').trim()
+        })).filter(x => x.title && x.amount > 0);
+
+        document.getElementById('incomesExcelPreview').innerHTML = `
+          <div style="background:#f0f9ff;padding:12px;border-radius:10px;margin-bottom:14px;font-size:13px">
+            <b>📊 ${items.length} درآمد آماده ذخیره</b>
+          </div>
+          <div class="section-head" style="margin-top:0">
+            <h3 style="margin:0">پیش‌نمایش</h3>
+            <button class="btn primary" id="btnConfirmIncomes">✅ تأیید و ذخیره</button>
+          </div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr><th>عنوان</th><th>دسته</th><th>مبلغ</th><th>تاریخ</th></tr></thead>
+              <tbody>${items.slice(0, 50).map(x => `<tr><td>${x.title}</td><td>${x.category}</td><td>${money(x.amount)}</td><td>${x.income_date}</td></tr>`).join('')}</tbody>
+            </table>
+          </div>
+        `;
+        
+        setTimeout(() => {
+          document.getElementById('btnConfirmIncomes').onclick = async () => {
+            let ok = 0;
+            for(const it of items){
+              const { error } = await sb.from('incomes').insert({ ...it, created_by: currentUser.id });
+              if(!error) ok++;
+            }
+            await logAction(`ورود ${ok} درآمد`);
+            closeModal();
+            await refreshReload();
+            toast(`✅ ${ok} درآمد اضافه شد`, 'success');
+          };
+        }, 50);
+      } catch(err){ toast('خطا: ' + err.message, 'error'); }
+    };
+  }, 100);
+}
+
+function openExpensesExcelImport(){
+  openModal('📥 ورود هزینه‌ها از Excel', `
+  <div style="background:#f0f9ff;padding:16px;border-radius:12px;margin-bottom:20px;font-size:13.5px;line-height:2;border:1px solid #bfdbfe">
+    <b>📋 ستون‌ها:</b> عنوان | دسته | مبلغ | تاریخ | روش | توضیحات
+  </div>
+  <div style="border:2px dashed var(--primary-light);padding:30px;border-radius:14px;text-align:center;background:#fafbff">
+    <input type="file" accept=".xlsx,.xls,.csv" id="expensesExcelFile" hidden>
+    <button class="btn primary" id="btnSelectExpensesExcel" style="font-size:15px;padding:14px 28px">📂 انتخاب فایل</button>
+    <div id="expensesExcelFileName" style="margin-top:14px;color:var(--muted);font-size:13px"></div>
+  </div>
+  <div id="expensesExcelPreview" style="margin-top:20px"></div>
+  `);
+
+  setTimeout(() => {
+    document.getElementById('btnSelectExpensesExcel').onclick = () => document.getElementById('expensesExcelFile').click();
+    document.getElementById('expensesExcelFile').onchange = async (e) => {
+      const file = e.target.files[0];
+      if(!file) return;
+      document.getElementById('expensesExcelFileName').textContent = `📄 ${file.name}`;
+      try {
+        const data = await file.arrayBuffer();
+        const wb = XLSX.read(data, { type: 'array' });
+        const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, defval: '' });
+        if(rows.length < 2) return toast('فایل خالی', 'error');
+        const headers = rows[0].map(h => String(h).trim());
+        const findCol = (names) => headers.findIndex(h => names.some(n => h.includes(n)));
+        const cT = findCol(['عنوان']), cC = findCol(['دسته']), cA = findCol(['مبلغ']), cD = findCol(['تاریخ']), cM = findCol(['روش']), cDesc = findCol(['توضیح']);
+        
+        const items = rows.slice(1).map(r => ({
+          title: String(r[cT] || '').trim(),
+          category: String(r[cC] || 'سایر').trim(),
+          amount: parseFloat(r[cA]) || 0,
+          expense_date: String(r[cD] || today()).trim(),
+          method: String(r[cM] || 'نقدی').trim(),
+          description: String(r[cDesc] || '').trim()
+        })).filter(x => x.title && x.amount > 0);
+
+        document.getElementById('expensesExcelPreview').innerHTML = `
+          <div style="background:#f0f9ff;padding:12px;border-radius:10px;margin-bottom:14px;font-size:13px">
+            <b>📊 ${items.length} هزینه آماده ذخیره</b>
+          </div>
+          <div class="section-head" style="margin-top:0">
+            <h3 style="margin:0">پیش‌نمایش</h3>
+            <button class="btn primary" id="btnConfirmExpenses">✅ تأیید و ذخیره</button>
+          </div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr><th>عنوان</th><th>دسته</th><th>مبلغ</th><th>تاریخ</th><th>روش</th></tr></thead>
+              <tbody>${items.slice(0, 50).map(x => `<tr><td>${x.title}</td><td>${x.category}</td><td>${money(x.amount)}</td><td>${x.expense_date}</td><td>${x.method}</td></tr>`).join('')}</tbody>
+            </table>
+          </div>
+        `;
+        
+        setTimeout(() => {
+          document.getElementById('btnConfirmExpenses').onclick = async () => {
+            let ok = 0;
+            for(const it of items){
+              const { error } = await sb.from('expenses').insert({ ...it, created_by: currentUser.id });
+              if(!error) ok++;
+            }
+            await logAction(`ورود ${ok} هزینه`);
+            closeModal();
+            await refreshReload();
+            toast(`✅ ${ok} هزینه اضافه شد`, 'success');
+          };
+        }, 50);
+      } catch(err){ toast('خطا: ' + err.message, 'error'); }
+    };
+  }, 100);
+}
+
+/* ============================================================
    پرداخت‌ها
 ============================================================ */
 function studentOptions(){
@@ -2527,10 +3288,7 @@ function printReceipt(id){
   <html dir="rtl"><head><meta charset="UTF-8"><title>رسید ${p.receipt}</title>
   <style>body{font-family:Tahoma;padding:40px;direction:rtl}h1{text-align:center}table{width:100%;border-collapse:collapse;margin-top:25px}td,th{border:1px solid #ddd;padding:12px;text-align:right}.head{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #6366f1;padding-bottom:15px}.logo{width:80px;height:80px;object-fit:contain}</style>
   </head><body>
-  <div class="head">
-    <img src="logo.png" class="logo" onerror="this.style.display='none'">
-    <h1 style="flex:1">${db.settings.school}</h1>
-  </div>
+  <div class="head"><img src="logo.png" class="logo" onerror="this.style.display='none'"><h1 style="flex:1">${db.settings.school}</h1></div>
   <h3 style="text-align:center">رسید پرداخت</h3>
   <table>
     <tr><th>دانش‌آموز</th><td>${s.name} ${s.family}</td><th>کد</th><td>${s.code||'-'}</td></tr>
@@ -2545,180 +3303,13 @@ function printReceipt(id){
   w.document.close();
   setTimeout(() => w.print(), 300);
 }
-
-/* ============================================================
-   چک‌ها
-============================================================ */
-function checkStats(){
-  const pending = db.checks.filter(c => c.status === 'pending');
-  const collected = db.checks.filter(c => c.status === 'collected');
-  const returned = db.checks.filter(c => c.status === 'returned');
-  return {
-    total: db.checks.length,
-    pending, collected, returned,
-    pendingAmount: pending.reduce((a,c) => a + (+c.amount||0), 0),
-    collectedAmount: collected.reduce((a,c) => a + (+c.amount||0), 0),
-    returnedAmount: returned.reduce((a,c) => a + (+c.amount||0), 0)
-  };
-}
-
-function renderChecks(){
-  const q = v('checkSearch'), status = v('checkStatusFilter'), bank = v('checkBankFilter');
-  const arr = db.checks.filter(c =>
-    (!q || `${c.checkNumber} ${c.bankName} ${c.holderName} ${studentName(c.studentId)}`.includes(q)) &&
-    (!status || c.status === status) &&
-    (!bank || c.bankName === bank)
-  );
-
-  const banks = [...new Set(db.checks.map(c => c.bankName).filter(Boolean))];
-  const bankFilter = document.getElementById('checkBankFilter');
-  if(bankFilter){
-    const cur = bankFilter.value;
-    bankFilter.innerHTML = '<option value="">همه بانک‌ها</option>' + banks.map(b => `<option ${b===cur?'selected':''}>${b}</option>`).join('');
-  }
-
-  const st = checkStats();
-  const statsEl = document.getElementById('checkStats');
-  if(statsEl){
-    statsEl.innerHTML = `
-      <div class="card stat"><div class="ico">📝</div><div class="label">کل چک‌ها</div><div class="num">${st.total}</div></div>
-      <div class="card stat"><div class="ico">⏳</div><div class="label">در جریان</div><div class="num" style="font-size:15px">${st.pending.length} - ${money(st.pendingAmount)}</div></div>
-      <div class="card stat"><div class="ico">✅</div><div class="label">وصول شده</div><div class="num" style="font-size:15px">${st.collected.length} - ${money(st.collectedAmount)}</div></div>
-      <div class="card stat"><div class="ico">❌</div><div class="label">برگشتی</div><div class="num" style="font-size:15px">${st.returned.length} - ${money(st.returnedAmount)}</div></div>
-    `;
-  }
-
-  const tbody = document.getElementById('checksTable');
-  if(!tbody) return;
-  tbody.innerHTML = arr.map(c => {
-    const stt = checkStatusLabel(c.status);
-    const days = daysUntil(c.dueDate);
-    let warn = '';
-    if(c.status === 'pending' && days !== Infinity){
-      if(days < 0) warn = ' <span class="badge overdue">گذشته</span>';
-      else if(days <= 7) warn = ` <span class="badge debt">${days} روز</span>`;
-    }
-    return `<tr>
-      <td><b>${c.checkNumber}</b></td>
-      <td>${c.bankName||'-'}</td>
-      <td>${c.holderName||'-'}</td>
-      <td><span class="clickable" data-action="details" data-id="${c.studentId}">${studentName(c.studentId)}</span></td>
-      <td style="font-weight:700">${money(c.amount)}</td>
-      <td>${c.issueDate||'-'}</td>
-      <td>${c.dueDate||'-'}${warn}</td>
-      <td><span class="badge ${stt[1]}">${stt[0]}</span></td>
-      <td class="actions">
-        ${c.status === 'pending' ? `
-          <button class="btn green" data-action="collect-check" data-id="${c.id}">✅ وصول</button>
-          <button class="btn red" data-action="return-check" data-id="${c.id}">❌ برگشتی</button>
-        ` : ''}
-        <button class="btn" data-action="edit-check" data-id="${c.id}">✏️</button>
-        <button class="btn red" data-action="del-check" data-id="${c.id}">حذف</button>
-      </td>
-    </tr>`;
-  }).join('') || `<tr><td colspan="9" class="empty">چکی نیست</td></tr>`;
-}
-
-function openCheck(id){
-  const c = id ? db.checks.find(x => x.id == id) : {
-    id:'', studentId:'', checkNumber:'', bankName:'', amount:0,
-    issueDate: today(), dueDate: '', holderName:'', status:'pending', description:''
-  };
-  if(!c) return;
-  const banks = ['ملی','صادرات','تجارت','ملت','سپه','پاسارگاد','پارسیان','سامان','رفاه','مسکن','کشاورزی','مهر ایران','قوامین','اقتصاد نوین','شهر','سایر'];
-
-  openModal(id ? '✏️ ویرایش چک' : '📝 ثبت چک', `
-  <div class="form"><div class="formgrid">
-    <div class="full"><label>دانش‌آموز *</label><select id="c_student"><option value="">انتخاب</option>${studentOptions()}</select></div>
-    <div><label>شماره چک *</label><input id="c_number" value="${c.checkNumber||''}"></div>
-    <div><label>بانک</label><select id="c_bank">${banks.map(b => `<option ${b===c.bankName?'selected':''}>${b}</option>`).join('')}</select></div>
-    <div><label>مبلغ *</label><input type="number" id="c_amount" value="${c.amount||0}"></div>
-    <div><label>صاحب چک</label><input id="c_holder" value="${c.holderName||''}"></div>
-    <div><label>تاریخ صدور</label><input id="c_issue" value="${c.issueDate||today()}"></div>
-    <div><label>سررسید *</label><input id="c_due" value="${c.dueDate||''}"></div>
-    <div><label>وضعیت</label><select id="c_status">
-      <option value="pending" ${c.status==='pending'?'selected':''}>در جریان</option>
-      <option value="collected" ${c.status==='collected'?'selected':''}>وصول شده</option>
-      <option value="returned" ${c.status==='returned'?'selected':''}>برگشتی</option>
-    </select></div>
-    <div class="full"><label>توضیحات</label><textarea id="c_desc">${c.description||''}</textarea></div>
-  </div>
-  <div class="modalfoot"><button class="btn primary" id="btnSaveCheck" data-id="${id||0}">ذخیره</button></div></div>`);
-
-  if(id && c.studentId){
-    setTimeout(() => { const el = document.getElementById('c_student'); if(el) el.value = c.studentId; }, 50);
-  }
-  document.getElementById('btnSaveCheck').onclick = () => saveCheck(id || 0);
-}
-
-async function saveCheck(id){
-  if(isProcessing) return;
-  const c = {
-    student_id: v('c_student') || null,
-    check_number: v('c_number'),
-    bank_name: v('c_bank'),
-    amount: num('c_amount'),
-    issue_date: v('c_issue'),
-    due_date: v('c_due'),
-    holder_name: v('c_holder'),
-    status: v('c_status'),
-    description: v('c_desc')
-  };
-  if(!c.check_number || c.amount <= 0 || !c.due_date) return toast('اطلاعات ناقص', 'error');
-  if(db.checks.some(x => x.checkNumber === c.check_number && x.id != id)) return toast('شماره چک تکراری', 'error');
-
-  isProcessing = true;
-  try {
-    let error;
-    if(id) ({ error } = await sb.from('checks').update(c).eq('id', id));
-    else { c.created_by = currentUser.id; ({ error } = await sb.from('checks').insert(c)); }
-    if(error) return toast(translateError(error), 'error');
-    await logAction(id ? 'ویرایش چک' : 'ثبت چک');
-    closeModal();
-    await refreshReload();
-    toast('ذخیره شد ✅', 'success');
-  } finally { isProcessing = false; }
-}
-
-async function collectCheck(id){
-  const c = db.checks.find(x => x.id == id);
-  if(!c) return;
-  if(!confirm(`وصول چک ${c.checkNumber} (${money(c.amount)})؟`)) return;
-  if(isProcessing) return;
-  isProcessing = true;
-  try {
-    const { data: payData, error: e1 } = await sb.from('payments').insert({
-      student_id: c.studentId, amount: c.amount, payment_date: today(),
-      method: 'چک', tracking: c.checkNumber, receipt: 'CHK-'+c.checkNumber,
-      description: `وصول چک ${c.bankName||''}`, created_by: currentUser.id
-    }).select('id').single();
-    if(e1) return toast(translateError(e1), 'error');
-    await sb.from('checks').update({ status: 'collected', payment_id: payData.id }).eq('id', id);
-    await logAction('وصول چک');
-    await refreshReload();
-    toast('وصول شد ✅', 'success');
-  } finally { isProcessing = false; }
-}
-
-async function returnCheck(id){
-  if(!confirm('چک برگشت خورد؟')) return;
-  if(isProcessing) return;
-  isProcessing = true;
-  try {
-    await sb.from('checks').update({ status: 'returned' }).eq('id', id);
-    await logAction('چک برگشتی');
-    await refreshReload();
-    toast('ثبت شد', 'warning');
-  } finally { isProcessing = false; }
-}
-
-/* ============================================================
+  /* ============================================================
    اموال
 ============================================================ */
 function renderAssets(){
   const q = v('assetSearch'), cat = v('assetCategoryFilter'), st = v('assetStatusFilter');
   const arr = db.assets.filter(a =>
-    (!q || `${a.name} ${a.serialNumber} ${a.location}`.includes(q)) &&
+    (!q || `${a.name} ${a.serial_number} ${a.location}`.includes(q)) &&
     (!cat || a.category === cat) &&
     (!st || a.status === st)
   );
@@ -2818,7 +3409,6 @@ function renderStaff(){
     const sessionMin = s.session_duration_minutes || 90;
     const hourlyRate = s.hourly_rate || 0;
     const perSession = Math.round((sessionMin / 60) * hourlyRate);
-
     return `<tr>
       <td><b>${s.code||'-'}</b></td>
       <td><b>${s.name} ${s.family}</b></td>
@@ -2982,13 +3572,9 @@ function openSalary(staffId){
   if(staffId){
     setTimeout(() => {
       const el = document.getElementById('s_staff');
-      if(el){
-        el.value = staffId;
-        loadStaffRates(staffId);
-      }
+      if(el){ el.value = staffId; loadStaffRates(staffId); }
     }, 100);
   }
-
   document.getElementById('s_staff').addEventListener('change', (e) => loadStaffRates(e.target.value));
 }
 
@@ -3029,23 +3615,15 @@ async function saveSalary(){
   const sid = v('s_staff');
   if(!sid) return toast('کارمند را انتخاب کنید', 'error');
 
-  const hourly = num('s_hourly');
-  const sessions = num('s_sessions');
-  const sessionMin = num('s_session_min') || 90;
-  const bonus = num('s_bonus');
-  const baseExtra = num('s_base_extra');
-  const insurance = num('s_insurance');
-  const tax = num('s_tax');
-  const absence = num('s_absence');
-  const advance = num('s_advance');
-  const otherDed = num('s_other_deductions');
-  const manualDed = num('s_deduction');
+  const hourly = num('s_hourly'), sessions = num('s_sessions'), sessionMin = num('s_session_min') || 90;
+  const bonus = num('s_bonus'), baseExtra = num('s_base_extra');
+  const insurance = num('s_insurance'), tax = num('s_tax'), absence = num('s_absence');
+  const advance = num('s_advance'), otherDed = num('s_other_deductions'), manualDed = num('s_deduction');
 
   const hours = (sessions * sessionMin) / 60;
   const baseCalc = Math.round(hours * hourly + baseExtra);
   const totalDeductions = insurance + tax + absence + advance + otherDed + manualDed;
   const net = Math.round(baseCalc + bonus - totalDeductions);
-
   if(baseCalc <= 0 && bonus <= 0) return toast('تعداد جلسه یا مبلغ را وارد کنید', 'error');
 
   isProcessing = true;
@@ -3053,8 +3631,7 @@ async function saveSalary(){
     const { error } = await sb.from('salaries').insert({
       staff_id: sid, salary_month: v('s_month'),
       base_amount: baseCalc, bonus_amount: bonus, deduction: manualDed,
-      insurance: insurance, tax: tax, absence: absence,
-      advance: advance, other_deductions: otherDed,
+      insurance, tax, absence, advance, other_deductions: otherDed,
       net_amount: net, hours_worked: hours, hourly_rate: hourly,
       payment_date: v('s_date'), payment_method: v('s_method'),
       description: v('s_desc'), created_by: currentUser.id
@@ -3072,10 +3649,8 @@ function printSalary(id){
   const st = s ? staffById(s.staffId) : null;
   if(!s || !st) return;
   const w = window.open('', '_blank');
-  if(!w) return toast('مسدود شد', 'error');
-  
+  if(!w) return toast('مسدود', 'error');
   const totalDeductions = (+s.insurance||0) + (+s.tax||0) + (+s.absence||0) + (+s.advance||0) + (+s.other_deductions||0) + (+s.deduction||0);
-  
   w.document.write(`
   <html dir="rtl"><head><meta charset="UTF-8"><title>فیش حقوقی</title>
   <style>body{font-family:Tahoma;padding:40px}h1{text-align:center;color:#6366f1}table{width:100%;border-collapse:collapse;margin-top:25px}td,th{border:1px solid #ddd;padding:12px;text-align:right}.total{background:#eef2ff;font-weight:bold;font-size:16px}</style>
@@ -3099,7 +3674,8 @@ function printSalary(id){
   w.document.close();
   setTimeout(() => w.print(), 300);
 }
-  /* ============================================================
+
+/* ============================================================
    درآمدها
 ============================================================ */
 function renderIncomes(){
@@ -3328,7 +3904,7 @@ function printInvoice(id){
   const s = studentById(id);
   if(!s) return;
   const w = window.open('', '_blank');
-  if(!w) return toast('مسدود شد', 'error');
+  if(!w) return toast('مسدود', 'error');
   w.document.write(`
   <html dir="rtl"><head><meta charset="UTF-8"><title>صورتحساب</title>
   <style>body{font-family:Tahoma;padding:35px}h1,h2{text-align:center}table{width:100%;border-collapse:collapse;margin-top:15px}td,th{border:1px solid #ddd;padding:10px}.head{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #6366f1;padding-bottom:15px;margin-bottom:20px}.logo{width:80px;height:80px;object-fit:contain}</style>
@@ -3378,10 +3954,8 @@ function bulkPrintSelected(){
   if(!ids.length) return toast('انتخاب کنید', 'error');
   const pays = ids.map(id => db.payments.find(p => p.id == id)).filter(Boolean);
   if(!pays.length) return;
-
   const w = window.open('', '_blank');
   if(!w) return toast('مسدود', 'error');
-
   const pages = pays.map(p => {
     const s = studentById(p.studentId);
     if(!s) return '';
@@ -3399,7 +3973,6 @@ function bulkPrintSelected(){
       <p style="margin-top:35px">${db.settings.footer}</p>
     </div>`;
   }).join('');
-
   w.document.write(`<html dir="rtl"><head><meta charset="UTF-8"><title>چاپ دسته‌ای</title>
   <style>body{font-family:Tahoma;padding:30px;direction:rtl}h1{text-align:center}table{width:100%;border-collapse:collapse;margin-top:25px}td,th{border:1px solid #ddd;padding:12px;text-align:right}.head{display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #6366f1;padding-bottom:15px}.logo{width:80px;height:80px;object-fit:contain}.receipt-page{page-break-after:always;padding-bottom:30px;border-bottom:1px dashed #ccc}.receipt-page:last-child{page-break-after:auto;border-bottom:0}@media print{.receipt-page{page-break-after:always}.receipt-page:last-child{page-break-after:auto}}</style>
   </head><body>${pages}</body></html>`);
@@ -3414,11 +3987,9 @@ function bulkPrintSelected(){
 function renderSmsPage(){
   const sel = document.getElementById('smsRecipients');
   if(!sel) return;
-  
   sel.innerHTML = db.students.filter(s => s.phone).map(s => 
     `<option value="${s.phone}">${s.name} ${s.family} — ${s.phone}</option>`
   ).join('');
-  
   updateSmsCounter();
   renderSmsLog();
 }
@@ -3439,10 +4010,8 @@ function updateSmsCounter(){
   const msg = v('smsMessage');
   const sel = document.getElementById('smsRecipients');
   const count = sel ? sel.selectedOptions.length : 0;
-  
   const charEl = document.getElementById('smsCharCount');
   if(charEl) charEl.textContent = `${msg.length} / 160`;
-  
   const recipientEl = document.getElementById('smsRecipientCount');
   if(recipientEl) recipientEl.textContent = `${count} گیرنده`;
 }
@@ -3461,40 +4030,33 @@ function setSmsTemplate(type){
 
 async function sendSms(){
   if(isProcessing) return;
-  
   const sel = document.getElementById('smsRecipients');
   const recipients = [...sel.selectedOptions].map(o => ({
     phone: o.value,
     name: o.textContent.split(' — ')[0]
   }));
   const message = v('smsMessage');
-  
   if(!recipients.length) return toast('حداقل یک گیرنده انتخاب کنید', 'error');
   if(!message) return toast('متن پیامک را وارد کنید', 'error');
-  
   if(!confirm(`ارسال پیامک به ${recipients.length} گیرنده؟`)) return;
   
   isProcessing = true;
   let saved = 0;
-  
   for(const r of recipients){
     try {
       await sb.from('sms_log').insert({
         phone: r.phone, message: message, recipient_name: r.name,
-        status: 'pending', provider_response: 'نیاز به Edge Function برای ارسال واقعی',
+        status: 'pending', provider_response: 'نیاز به Edge Function',
         sent_by: currentUser.id
       });
       saved++;
     } catch(e){ console.error(e); }
   }
-  
   await logAction(`ثبت ${saved} پیامک`);
   await loadData();
   renderSmsLog();
-  
   isProcessing = false;
-  
-  toast(`✅ ${saved} پیامک در تاریخچه ثبت شد. برای ارسال واقعی نیاز به Edge Function است.`, 'warning');
+  toast(`✅ ${saved} پیامک در تاریخچه ثبت شد`, 'warning');
 }
 
 function clearSms(){
@@ -3551,7 +4113,6 @@ function openUser(){
 async function saveUser(){
   const name = v('u_name'), email = v('u_email'), password = v('u_pass'), role = v('u_role');
   if(!name || !isValidEmail(email) || password.length < 6) return toast('اطلاعات نامعتبر', 'error');
-
   isProcessing = true;
   try {
     const { data, error } = await sb.auth.signUp({
@@ -3654,43 +4215,26 @@ function printMonthlyReport(){
   const inc = db.payments.reduce((a,x) => a + (+x.amount||0), 0) + db.incomes.reduce((a,x) => a + (+x.amount||0), 0);
   const exp = db.expenses.reduce((a,x) => a + (+x.amount||0), 0) + db.salaries.reduce((a,s) => a + (+s.net_amount||0), 0);
   const profit = inc - exp;
-  
   const w = window.open('', '_blank');
   if(!w) return toast('مسدود', 'error');
   w.document.write(`
-  <html dir="rtl"><head><meta charset="UTF-8"><title>گزارش مالی ماهانه</title>
+  <html dir="rtl"><head><meta charset="UTF-8"><title>گزارش مالی</title>
   <style>body{font-family:Tahoma;padding:40px;direction:rtl}h1,h2{text-align:center}h3{color:#6366f1;margin-top:30px}table{width:100%;border-collapse:collapse;margin-top:15px}td,th{border:1px solid #ddd;padding:12px;text-align:right}.total{background:#eef2ff;font-weight:bold;font-size:16px}.head{display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #6366f1;padding-bottom:20px;margin-bottom:30px}.logo{width:100px;height:100px;object-fit:contain}</style>
   </head><body>
-  <div class="head">
-    <img src="logo.png" class="logo" onerror="this.style.display='none'">
-    <div style="flex:1;text-align:center">
-      <h1 style="margin:0">${db.settings.school}</h1>
-      <p style="margin:8px 0 0;color:#666">گزارش مالی — ${today()}</p>
-    </div>
-  </div>
-  
+  <div class="head"><img src="logo.png" class="logo" onerror="this.style.display='none'"><div style="flex:1;text-align:center"><h1 style="margin:0">${db.settings.school}</h1><p style="margin:8px 0 0;color:#666">گزارش مالی — ${today()}</p></div></div>
   <h2>خلاصه مالی</h2>
   <table>
     <tr><th>کل درآمد</th><td style="color:#10b981;font-weight:bold">${money(inc)}</td></tr>
     <tr><th>کل هزینه</th><td style="color:#ef4444;font-weight:bold">${money(exp)}</td></tr>
-    <tr class="total"><th>مانده (سود/زیان)</th><td style="color:${profit >= 0 ? '#10b981' : '#ef4444'}">${money(profit)}</td></tr>
+    <tr class="total"><th>مانده</th><td style="color:${profit >= 0 ? '#10b981' : '#ef4444'}">${money(profit)}</td></tr>
   </table>
-  
   <h3>📊 آمار دانش‌آموزان</h3>
   <table>
     <tr><th>کل دانش‌آموزان</th><td>${db.students.length} نفر</td></tr>
     <tr><th>مجموع شهریه</th><td>${money(db.students.reduce((a,s) => a + finalTuition(s), 0))}</td></tr>
     <tr><th>مجموع دریافتی</th><td>${money(db.payments.reduce((a,p) => a + (+p.amount||0), 0))}</td></tr>
     <tr><th>بدهکاران</th><td>${db.students.filter(s => balance(s) > 0).length} نفر</td></tr>
-    <tr><th>مجموع بدهی</th><td>${money(db.students.reduce((a,s) => a + balance(s), 0))}</td></tr>
   </table>
-  
-  <h3>👨‍🏫 آمار کارکنان</h3>
-  <table>
-    <tr><th>کل کارکنان</th><td>${db.staff.length} نفر</td></tr>
-    <tr><th>مجموع حقوق پرداختی</th><td>${money(db.salaries.reduce((a,s) => a + (+s.net_amount||0), 0))}</td></tr>
-  </table>
-  
   <p style="margin-top:50px;text-align:center;color:#666">${db.settings.footer}</p>
   </body></html>`);
   w.document.close();
@@ -3709,16 +4253,12 @@ async function saveSettings(){
       phone: v('setPhone'), address: v('setAddress'), footer: v('setFooter'),
       updated_at: new Date().toISOString()
     });
-    
     await sb.from('sms_settings').upsert({
-      id: true,
-      provider: v('setSmsProvider'),
-      api_key: v('setSmsApiKey'),
-      sender_number: v('setSmsSender'),
+      id: true, provider: v('setSmsProvider'),
+      api_key: v('setSmsApiKey'), sender_number: v('setSmsSender'),
       is_enabled: document.getElementById('setSmsEnabled').checked,
       updated_at: new Date().toISOString()
     });
-    
     await logAction('تغییر تنظیمات');
     await refreshReload();
     toast('ذخیره شد ✅', 'success');
@@ -3753,7 +4293,7 @@ async function downloadBackup(){
   try {
     await loadData();
     const backup = {
-      version: '11.0',
+      version: '12.0',
       created_at: new Date().toISOString(),
       created_by: currentUser?.email,
       settings: db.settings,
@@ -3806,7 +4346,6 @@ async function restoreFromFile(event){
   const file = event.target.files[0];
   if(!file) return;
   if(!confirm('⚠️ همه اطلاعات جایگزین می‌شود. مطمئنی؟')) { event.target.value = ''; return; }
-
   const reader = new FileReader();
   const progress = document.getElementById('restoreProgress');
   const bar = document.getElementById('restoreBar');
@@ -3987,14 +4526,6 @@ async function restoreFromFile(event){
           footer: backup.settings.footer||''
         });
       }
-      if(backup.smsSettings){
-        await sb.from('sms_settings').upsert({
-          id: true, provider: backup.smsSettings.provider || 'kavenegar',
-          api_key: backup.smsSettings.api_key || '',
-          sender_number: backup.smsSettings.sender_number || '',
-          is_enabled: backup.smsSettings.is_enabled || false
-        });
-      }
 
       bar.style.width = '100%';
       msg.textContent = '✅ بازیابی کامل شد!';
@@ -4146,6 +4677,8 @@ function bindStaticButtons(){
   document.getElementById('btnNewPayment').onclick = openPayment;
   document.getElementById('btnNewStudent').onclick = () => openStudent();
   document.getElementById('btnImportExcel').onclick = openExcelImport;
+  document.getElementById('btnImportIncomesExcel').onclick = openIncomesExcelImport;
+  document.getElementById('btnImportExpensesExcel').onclick = openExpensesExcelImport;
   document.getElementById('btnNewStaff').onclick = () => openStaff();
   document.getElementById('btnNewSalary').onclick = () => openSalary();
   document.getElementById('btnNewIncome').onclick = openIncome;
@@ -4163,7 +4696,6 @@ function bindStaticButtons(){
   document.getElementById('btnDownloadBackup').onclick = downloadBackup;
   document.getElementById('btnDownloadExcelFull').onclick = downloadExcelFull;
 
-  // SMS
   const smsMsgEl = document.getElementById('smsMessage');
   if(smsMsgEl){
     smsMsgEl.addEventListener('input', updateSmsCounter);
@@ -4244,7 +4776,6 @@ function bindStaticButtons(){
     if(el) el.addEventListener('keydown', e => { if(e.key === 'Enter') doSignIn(); });
   });
 
-  // close notif on outside click
   document.addEventListener('click', (e) => {
     const dd = document.getElementById('notifDropdown');
     const bell = document.getElementById('btnNotifBell');
