@@ -4211,14 +4211,23 @@ function openStaff(id){
   };
   if(!s) return;
   
+  // ⭐ گرفتن دروس از دیتابیس
+  const allSubjects = db.subjects || [];
   const currentSubjects = String(s.subjects || '').split(',').map(x => x.trim()).filter(Boolean);
   
-  const subjectCheckboxes = db.subjects.map(sub => `
-    <label style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:${currentSubjects.includes(sub.name) ? 'var(--primary-bg)' : '#f8fafc'};border:2px solid ${currentSubjects.includes(sub.name) ? 'var(--primary)' : 'var(--line)'};border-radius:8px;cursor:pointer;font-weight:600">
-      <input type="checkbox" value="${sub.name}" ${currentSubjects.includes(sub.name) ? 'checked' : ''} style="width:auto;margin:0">
-      <span>${sub.name}</span>
-    </label>
-  `).join('');
+  // ⭐ ساخت چک‌باکس‌ها
+  let subjectCheckboxes = '';
+  if(allSubjects.length === 0){
+    subjectCheckboxes = '<p style="color:var(--muted);margin:0;padding:10px">⚠️ هیچ درسی در سیستم نیست. اول از بخش «مدیریت نمرات» درس اضافه کنید.</p>';
+  } else {
+    subjectCheckboxes = allSubjects.map(sub => {
+      const isChecked = currentSubjects.includes(sub.name);
+      return `<label style="display:flex;align-items:center;gap:8px;padding:10px 14px;background:${isChecked ? 'var(--primary-bg)' : '#fff'};border:2px solid ${isChecked ? 'var(--primary)' : 'var(--line)'};border-radius:10px;cursor:pointer;font-weight:700;font-size:13px">
+        <input type="checkbox" value="${sub.name}" ${isChecked ? 'checked' : ''} style="width:auto;margin:0">
+        <span>${sub.name}</span>
+      </label>`;
+    }).join('');
+  }
 
   openModal(id ? 'ویرایش کارمند' : 'ثبت کارمند', `
   <div class="form"><div class="formgrid">
@@ -4232,9 +4241,9 @@ function openStaff(id){
     <div><label>مدت جلسه (دقیقه)</label><input type="number" id="st_session" value="${s.session_duration_minutes||90}"></div>
     
     <div class="full">
-      <label style="margin-bottom:12px;display:block">📚 دروسی که این استاد تدریس می‌کند</label>
-      <div id="st_subjects_container" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;padding:14px;background:#f8fafc;border-radius:12px;border:2px dashed var(--line)">
-        ${subjectCheckboxes || '<p style="color:var(--muted);margin:0">هیچ درسی تعریف نشده. اول از بخش «مدیریت نمرات» درس اضافه کنید.</p>'}
+      <label style="margin-bottom:10px;display:block;font-size:13px">📚 دروسی که این استاد تدریس می‌کند</label>
+      <div id="st_subjects_container" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;padding:14px;background:#f8fafc;border-radius:12px;border:2px dashed var(--line);min-height:60px">
+        ${subjectCheckboxes}
       </div>
     </div>
     
