@@ -1781,12 +1781,13 @@ async function loadData(){
     sb.from('events').select('*').order('event_date').then(r => r.error ? { data: [], error: null } : r),
     sb.from('class_schedule').select('*').order('period').then(r => r.error ? { data: [], error: null } : r)
   ]);
-   const firstError = results.find(x => x.error)?.error;
-  if(firstError){ 
-    alert('خطا در لود دیتابیس: ' + translateError(firstError));
-    throw new Error(translateError(firstError)); 
-  }
-
+  // ⭐ نمایش خطاها
+const errors = results.map((r, i) => r.error ? `جدول ${i}: ${r.error.message} (کد: ${r.error.code || '?'})` : null).filter(Boolean);
+if(errors.length > 0){
+  alert('❌ خطا در لود دیتابیس:\n\n' + errors.join('\n\n') + '\n\nلطفاً این پیام را کپی کنید و برای پشتیبانی بفرستید.');
+}
+const firstError = results.find(x => x.error)?.error;
+if(firstError) throw new Error(translateError(firstError));
   db.settings = normalizeSettings(results[0].data);
   db.students = (results[1].data || []).map(mapStudent);
   db.payments = (results[2].data || []).map(mapPayment);
@@ -1925,61 +1926,72 @@ async function doTeacherLogin(){
   if(!nationalCode || !phone) return teacherAuthMsg('کد ملی و شماره تلفن را وارد کنید.');
 
   isProcessing = true;
-  teacherAuthMsg('در حال بارگذاری...', true);
+  teacherAuthMsg('در حال اتصال به دیتابیس...', true);
   
   try {
-    // لود مستقیم staff از دیتابیس
-    teacherAuthMsg('در حال اتصال به دیتابیس...', true);
+    // ⭐ مستقیم staff را از دیتابیس بخوانیم، بدون واسطه
     const { data: staffData, error: staffError } = await sb.from('staff').select('*');
     
+    // نمایش دقیق نتیجه
     if(staffError){
-      teacherAuthMsg('❌ خطای دیتابیس: ' + staffError.message + ' | کد: ' + (staffError.code || 'نامشخص'));
+      teacherAuthMsg('❌ خطای دیتابیس: ' + staffError.message + ' | کد: ' + (staffError.code || '?') + ' | جزئیات: ' + (staffError.details || '-'));
       isProcessing = false;
       return;
     }
     
-    if(!staffData || staffData.length === 0){
-      teacherAuthMsg('❌ جدول staff در دیتابیس خالی است. با مدیر یک استاد بسازید.');
+    if(!staffData){
+      teacherAuthMsg('❌ دیتابیس null برگرداند (نه آرایه). مشکل در RLS یا دسترسی.');
       isProcessing = false;
       return;
     }
     
-    // نمایش تعداد کارکنان
+    if(staffData.length === 0){
+      teacherAuthMsg('❌ جدول staff خالی برگشت. تعداد: 0. مشکل در RLS policy احتمالاً.');
+      isProcessing = false;
+      return;
+    }
+    
+    // ⭐ نمایش تعداد واقعی
     teacherAuthMsg(`✅ ${staffData.length} کارمند پیدا شد. در حال بررسی...`, true);
     
-    // ذخیره در db
-    db.staff = staffData.map(mapStaff);
+    // ذخیره موقت در db.staff (بدون mapStaff که ممکنه خطا بده)
+    db.staff = staffData;
     
     const cleanNational = String(nationalCode).replace(/\D/g, '');
     const cleanPhone = String(phone).replace(/\D/g, '');
     
-    // جستجو با کد ملی
-    let teacher = db.staff.find(s => {
-      const stored = String(s.nationalCode || '').replace(/\D/g, '');
-      return stored && stored === cleanNational;
-    });
+    // جستجو با کد ملی (مستقیم از national_code)
+    let teacher = null;
+    for(const s of staffData){
+      const stored = String(s.national_code || '').replace(/\D/g, '');
+      if(stored && stored === cleanNational){
+        teacher = s;
+        break;
+      }
+    }
     
-    // اگر پیدا نشد، با کد پرسنلی
+    // اگر با کد ملی پیدا نشد، با staff_code هم امتحان کن
     if(!teacher){
-      teacher = db.staff.find(s => {
-        const stored = String(s.code || '').replace(/\D/g, '');
-        return stored && stored === cleanNational;
-      });
+      for(const s of staffData){
+        const stored = String(s.staff_code || '').replace(/\D/g, '');
+        if(stored && stored === cleanNational){
+          teacher = s;
+          break;
+        }
+      }
     }
     
     if(!teacher){
-      // لیست کامل کارکنان را نشان بده
-      const list = staffData.map(s => {
-        const nat = s.national_code || 'ندارد';
-        const ph = s.phone || 'ندارد';
-        return `${s.name} ${s.family} (کدملی: ${nat}، تلفن: ${ph})`;
-      }).join(' | ');
-      teacherAuthMsg(`❌ استاد پیدا نشد. کارکنان موجود: ${list}`);
+      // لیست نام ۵ کارمند اول را نشان بده
+      const list = staffData.slice(0, 5).map(s => 
+        `${s.name || '?'} ${s.family || '?'} (کدملی: ${s.national_code || 'خالی'})`
+      ).join(' | ');
+      teacherAuthMsg(`❌ کد ملی «${nationalCode}» پیدا نشد. ۵ کارمند اول: ${list}`);
       isProcessing = false;
       return;
     }
     
-    // بررسی تلفن
+    // بررسی شماره تلفن
     const storedPhone = String(teacher.phone || '').replace(/\D/g, '');
     
     if(!storedPhone){
@@ -1989,30 +2001,32 @@ async function doTeacherLogin(){
     }
     
     if(cleanPhone !== storedPhone){
-      teacherAuthMsg(`❌ شماره تلفن اشتباه. شماره ثبت‌شده: ${teacher.phone}`);
+      teacherAuthMsg(`❌ شماره تلفن اشتباه. شماره ثبت‌شده در سیستم: ${teacher.phone}`);
       isProcessing = false;
       return;
     }
     
-    currentTeacher = teacher;
+    // ⭐ ورود موفق — ساختن currentTeacher با فیلدهای map‌شده
+    currentTeacher = {
+      ...teacher,
+      code: teacher.staff_code,
+      nationalCode: teacher.national_code,
+      canLogin: teacher.can_login,
+      isTeacher: teacher.is_teacher,
+      hourly_rate: teacher.hourly_rate || 0,
+      session_duration_minutes: teacher.session_duration_minutes || 90
+    };
+    
     teacherAuthMsg('');
     openTeacherPanel();
     toast(`خوش آمدید ${teacher.name} ${teacher.family}`, 'success');
     
   } catch(e){
-    teacherAuthMsg('❌ خطا: ' + (e.message || 'نامشخص'));
+    teacherAuthMsg('❌ خطای غیرمنتظره: ' + (e.message || 'نامشخص') + ' | ' + (e.stack || '').substring(0, 200));
   } finally { 
     isProcessing = false; 
   }
 }
-function openTeacherPanel(){
-  document.getElementById('authScreen').style.display = 'none';
-  document.getElementById('mainApp').style.display = 'none';
-  document.getElementById('parentApp').style.display = 'none';
-  document.getElementById('teacherApp').style.display = 'block';
-  renderTeacherPanel();
-}
-
 function closeTeacherPanel(){
   currentTeacher = null;
   document.getElementById('authScreen').style.display = 'grid';
