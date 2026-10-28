@@ -115,7 +115,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .btn.primary { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: #fff; }
 .btn.green { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #fff; }
 .btn.red { background: var(--danger-bg); color: var(--danger-dark); border-color: #fecaca; }
-.btn.blue { background: var(--info-bg); color: #1e40af); border-color: #bfdbfe; }
+.btn.blue { background: var(--info-bg); color: #1e40af; border-color: #bfdbfe; }
 .btn.gold { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #fff; }
 .btn.purple { background: linear-gradient(135deg, #a855f7 0%, #7c3aed 100%); color: #fff; }
 .btn.icon-only { padding: 11px; width: 44px; height: 44px; justify-content: center; position: relative; }
@@ -169,9 +169,9 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .filters input, .filters select, .form input, .form select, .form textarea { border: 2px solid var(--line); background: #fff; color: var(--text); border-radius: 12px; padding: 11px 14px; outline: none; font-size: 13.5px; min-width: 180px; }
 .filters input:focus, .form input:focus, .form select:focus, .form textarea:focus { border-color: var(--primary); }
 
-.modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); display: none; align-items: center; justify-content: center; z-index: 50; padding: 15px; }
+.modal { position: fixed; inset: 0; background: rgba(15, 23, 42, 0.65); display: none; align-items: center; justify-content: center; z-index: 50; padding: 15px; overflow-y: auto; }
 .modal.show { display: flex; }
-.modalbox { background: #fff; color: var(--text); width: min(920px, 100%); max-height: 92vh; overflow: auto; border-radius: var(--radius-xl); padding: 28px; }
+.modalbox { background: #fff; color: var(--text); width: min(920px, 100%); max-height: 92vh; overflow: auto; border-radius: var(--radius-xl); padding: 28px; position: relative; }
 .modalhead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 16px; border-bottom: 2px solid var(--line); }
 .modalhead h2 { margin: 0; font-size: 19px; font-weight: 800; }
 
@@ -221,39 +221,22 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .dashboard-table-card .mini-table th, .dashboard-table-card .mini-table td { padding: 10px 8px; border-bottom: 1px solid var(--line); text-align: right; }
 .dashboard-table-card .mini-table th { background: var(--primary-bg); color: var(--primary-dark); font-weight: 800; }
 
-/* ⭐ رفع باگ: dropdown جستجوی دانش‌آموز */
 .student-search-box { position: relative; margin-bottom: 12px; }
-.student-search-box input {
-  width: 100%; padding: 12px 16px 12px 44px;
-  border: 2px solid var(--primary-light); border-radius: 12px;
-  font-size: 14px; font-weight: 600; background: var(--primary-bg);
-}
+.student-search-box input { width: 100%; padding: 12px 16px 12px 44px; border: 2px solid var(--primary-light); border-radius: 12px; font-size: 14px; font-weight: 600; background: var(--primary-bg); }
 .student-search-box .search-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 18px; color: var(--primary); }
-.student-search-results {
-  position: absolute; top: 100%; right: 0; left: 0;
-  background: #fff; border: 2px solid var(--primary-light);
-  border-radius: 12px; max-height: 300px; overflow-y: auto;
-  z-index: 100; margin-top: 4px; display: none;
-  box-shadow: 0 10px 30px rgba(0,0,0,.15);
-}
-.student-search-results.show { display: block; }
-.student-result-item { padding: 12px 16px; cursor: pointer; border-bottom: 1px solid var(--line); }
-.student-result-item:hover { background: var(--primary-bg); }
-.student-result-item .result-name { font-weight: 700; font-size: 14px; }
-.student-result-item .result-detail { font-size: 12px; color: var(--muted); }
+
 .student-selected { background: #d1fae5; border: 2px solid var(--success); border-radius: 12px; padding: 12px 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 12px; font-weight: 700; color: var(--success-dark); }
 .student-selected .clear-btn { margin-right: auto; background: #fff; border: 1px solid var(--success); color: var(--success-dark); padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; font-weight: 700; }
 
 .student-photo { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-light); }
 .student-photo-placeholder { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 18px; }
 
-.toast { position: fixed; left: 24px; bottom: 24px; background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: #fff; padding: 16px 22px; border-radius: 14px; display: none; z-index: 1000; max-width: 420px; font-size: 13.5px; box-shadow: 0 10px 30px rgba(0,0,0,.3); }
+.toast { position: fixed; left: 24px; bottom: 24px; background: linear-gradient(135deg, #1e293b 0%, #334155 100%); color: #fff; padding: 16px 22px; border-radius: 14px; display: none; z-index: 10000; max-width: 420px; font-size: 13.5px; box-shadow: 0 10px 30px rgba(0,0,0,.3); }
 .toast.show { display: block; }
 .toast.error { background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); }
 .toast.success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
 .toast.warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
 
-/* ⭐ صفحه ورود سه بخشی: مدیر / استاد / اولیا */
 #authScreen {
   position: fixed; inset: 0; z-index: 9999;
   background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
@@ -312,7 +295,6 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .parent-stat.warning .ps-value { color: var(--warning-dark); }
 .parent-stat.primary .ps-value { color: var(--primary-dark); }
 
-/* ⭐ پنل استاد */
 #teacherApp { display: none; min-height: 100vh; background: var(--bg-gradient); }
 .teacher-header {
   background: linear-gradient(135deg, #059669 0%, #10b981 100%);
@@ -339,33 +321,13 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .teacher-panel { display: none; }
 .teacher-panel.active { display: block; }
 
-/* ⭐ نمرات تفکیک‌شده */
 .grades-by-subject { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
-.subject-grade-card {
-  background: var(--card);
-  border: 2px solid var(--line);
-  border-radius: var(--radius-lg);
-  padding: 18px;
-  transition: var(--transition);
-}
-.subject-grade-card:hover { border-color: var(--primary-light); }
-.subject-grade-card .sg-header {
-  display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 12px; padding-bottom: 10px;
-  border-bottom: 2px solid var(--line);
-}
+.subject-grade-card { background: var(--card); border: 2px solid var(--line); border-radius: var(--radius-lg); padding: 18px; }
+.subject-grade-card .sg-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 2px solid var(--line); }
 .subject-grade-card .sg-header h4 { margin: 0; font-size: 15px; font-weight: 800; color: var(--primary-dark); }
-.subject-grade-card .sg-header .sg-avg {
-  font-size: 16px; font-weight: 900;
-  padding: 4px 12px; border-radius: 8px;
-}
 .subject-grade-card .sg-list { display: flex; flex-direction: column; gap: 6px; }
-.subject-grade-card .sg-item {
-  display: flex; justify-content: space-between; align-items: center;
-  font-size: 12.5px; padding: 6px 0;
-}
+.subject-grade-card .sg-item { display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; padding: 6px 0; }
 .subject-grade-card .sg-item .sg-type { color: var(--muted); }
-.subject-grade-card .sg-item .sg-date { color: var(--muted); font-size: 11px; }
 
 .grade-badge { display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: 800; min-width: 50px; text-align: center; }
 .grade-excellent { background: #d1fae5; color: #059669; }
@@ -388,103 +350,36 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .grades-summary .gs-value { font-size: 26px; font-weight: 900; margin: 6px 0; }
 .grades-summary .gs-label { font-size: 12.5px; color: var(--muted); font-weight: 700; }
 
-/* ⭐ پیام‌ها */
-.chat-container {
-  display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 18px;
-  height: 650px;
-}
-.chat-list {
-  background: var(--card); border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  overflow-y: auto;
-}
-.chat-list-item {
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--line);
-  cursor: pointer;
-  display: flex; gap: 10px; align-items: center;
-}
+.chat-container { display: grid; grid-template-columns: 300px 1fr; gap: 18px; height: 650px; }
+.chat-list { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-lg); overflow-y: auto; }
+.chat-list-item { padding: 14px 16px; border-bottom: 1px solid var(--line); cursor: pointer; display: flex; gap: 10px; align-items: center; }
 .chat-list-item:hover { background: var(--primary-bg); }
 .chat-list-item.active { background: var(--primary-bg); border-right: 4px solid var(--primary); }
-.chat-list-item .chat-avatar {
-  width: 44px; height: 44px; border-radius: 50%;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  color: #fff; display: grid; place-items: center;
-  font-weight: 800; font-size: 16px; flex-shrink: 0;
-}
-.chat-list-item .chat-avatar.teacher { background: linear-gradient(135deg, #059669, #10b981); }
-.chat-list-item .chat-avatar.accountant { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.chat-list-item .chat-avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; display: grid; place-items: center; font-weight: 800; font-size: 16px; flex-shrink: 0; }
 .chat-list-item .chat-info { flex: 1; min-width: 0; }
 .chat-list-item .chat-name { font-weight: 800; font-size: 13.5px; margin-bottom: 2px; }
 .chat-list-item .chat-preview { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .chat-list-item .chat-unread { background: var(--danger); color: #fff; border-radius: 999px; padding: 2px 8px; font-size: 11px; font-weight: 800; }
-
-.chat-window {
-  background: var(--card); border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  display: flex; flex-direction: column;
-  overflow: hidden;
-}
-.chat-header {
-  padding: 16px 20px;
-  border-bottom: 2px solid var(--line);
-  display: flex; justify-content: space-between; align-items: center;
-  background: var(--primary-bg);
-}
+.chat-window { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-lg); display: flex; flex-direction: column; overflow: hidden; }
+.chat-header { padding: 16px 20px; border-bottom: 2px solid var(--line); display: flex; justify-content: space-between; align-items: center; background: var(--primary-bg); }
 .chat-header h3 { margin: 0; font-size: 15px; font-weight: 800; color: var(--primary-dark); }
-.chat-messages {
-  flex: 1; overflow-y: auto; padding: 20px;
-  display: flex; flex-direction: column; gap: 10px;
-  background: #fafbff;
-}
-.chat-bubble {
-  max-width: 70%; padding: 12px 16px;
-  border-radius: 16px; font-size: 13.5px;
-  line-height: 1.6; word-wrap: break-word;
-}
-.chat-bubble.incoming {
-  background: #fff; border: 1px solid var(--line);
-  align-self: flex-start; border-bottom-left-radius: 4px;
-  color: var(--text);
-}
-.chat-bubble.outgoing {
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  color: #fff; align-self: flex-end;
-  border-bottom-right-radius: 4px;
-}
+.chat-messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; background: #fafbff; }
+.chat-bubble { max-width: 70%; padding: 12px 16px; border-radius: 16px; font-size: 13.5px; line-height: 1.6; word-wrap: break-word; }
+.chat-bubble.incoming { background: #fff; border: 1px solid var(--line); align-self: flex-start; border-bottom-left-radius: 4px; color: var(--text); }
+.chat-bubble.outgoing { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; align-self: flex-end; border-bottom-right-radius: 4px; }
 .chat-bubble .chat-time { font-size: 10.5px; opacity: .7; margin-top: 4px; display: block; }
-.chat-input-area {
-  padding: 14px 20px;
-  border-top: 2px solid var(--line);
-  display: flex; gap: 10px;
-}
-.chat-input-area textarea {
-  flex: 1; border: 2px solid var(--line);
-  border-radius: 12px; padding: 10px 14px;
-  font-family: inherit; font-size: 13.5px;
-  resize: none; min-height: 44px; max-height: 120px;
-}
+.chat-input-area { padding: 14px 20px; border-top: 2px solid var(--line); display: flex; gap: 10px; }
+.chat-input-area textarea { flex: 1; border: 2px solid var(--line); border-radius: 12px; padding: 10px 14px; font-family: inherit; font-size: 13.5px; resize: none; min-height: 44px; max-height: 120px; }
 .chat-input-area textarea:focus { outline: none; border-color: var(--primary); }
 
-.announcement-card {
-  background: var(--card); border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  padding: 18px 20px; margin-bottom: 14px;
-  border-right: 4px solid var(--primary);
-}
+.announcement-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 18px 20px; margin-bottom: 14px; border-right: 4px solid var(--primary); }
 .announcement-card.high { border-right-color: var(--danger); }
 .announcement-card.urgent { border-right-color: var(--warning); }
 .announcement-card h4 { margin: 0 0 8px; font-size: 15px; font-weight: 800; }
 .announcement-card p { margin: 0; font-size: 13.5px; line-height: 1.7; color: var(--text-soft); }
 .announcement-card .ann-meta { margin-top: 10px; font-size: 12px; color: var(--muted); display: flex; gap: 12px; flex-wrap: wrap; }
 
-.homework-card {
-  background: var(--card); border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  padding: 18px 20px; margin-bottom: 14px;
-}
+.homework-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 18px 20px; margin-bottom: 14px; }
 .homework-card h4 { margin: 0 0 8px; font-size: 15px; font-weight: 800; display: flex; justify-content: space-between; align-items: center; }
 .homework-card .hw-subject { color: var(--primary); font-size: 12.5px; font-weight: 700; margin-bottom: 6px; }
 .homework-card .hw-body { font-size: 13.5px; line-height: 1.7; color: var(--text-soft); }
@@ -495,11 +390,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .calendar-header h3 { margin: 0; font-size: 16px; font-weight: 800; color: var(--primary-dark); }
 .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
 .calendar-day-name { padding: 10px 4px; text-align: center; font-size: 12px; font-weight: 800; color: var(--muted); }
-.calendar-cell {
-  background: #fff; border: 1px solid var(--line);
-  border-radius: 10px; padding: 8px; min-height: 85px;
-  font-size: 12px; position: relative;
-}
+.calendar-cell { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 8px; min-height: 85px; font-size: 12px; position: relative; }
 .calendar-cell.today { background: var(--primary-bg); border: 2px solid var(--primary); }
 .calendar-cell.other-month { opacity: .35; }
 .calendar-cell .day-number { font-weight: 800; font-size: 13px; color: var(--text); margin-bottom: 4px; display: inline-block; }
@@ -514,6 +405,31 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .schedule-table th { background: var(--primary-bg); color: var(--primary-dark); font-weight: 800; font-size: 12px; }
 .schedule-table td { background: var(--card); }
 .schedule-table td.has-class { background: linear-gradient(135deg, #eef2ff, #f0f9ff); font-weight: 700; color: var(--primary-dark); }
+
+/* ⭐ باگ چک - dropdown سراسری */
+#checkStudentResults {
+  position: fixed !important;
+  z-index: 99999 !important;
+  background: #fff !important;
+  border: 2px solid #818cf8 !important;
+  border-radius: 12px !important;
+  max-height: 260px !important;
+  overflow-y: auto !important;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.25) !important;
+  display: none;
+}
+#checkStudentResults.show { display: block !important; }
+.check-student-result-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #e2e8f0;
+}
+.check-student-result-item:hover {
+  background: #eef2ff;
+}
+.check-student-result-item:last-child {
+  border-bottom: 0;
+}
 
 @media (max-width: 1200px) { .stats { grid-template-columns: repeat(3, 1fr); } .dashboard-two-tables { grid-template-columns: 1fr; } }
 @media (max-width: 1050px) {
@@ -547,9 +463,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 </style>
 </head>
 <body>
-<!-- ============================================================
-     صفحه ورود سه‌گانه: مدیر / استاد / اولیا
-============================================================ -->
+<!-- صفحه ورود سه‌گانه -->
 <div id="authScreen">
   <div class="auth-card">
     <img src="logo.png" alt="لوگو" class="auth-logo"
@@ -563,7 +477,6 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
       <button class="auth-tab" data-tab="parent">👨‍👩‍👧 اولیا</button>
     </div>
 
-    <!-- ورود مدیر -->
     <div class="auth-panel active" id="adminPanel">
       <label>ایمیل مدیر</label>
       <input id="authEmail" type="email" placeholder="example@school.ir" autocomplete="email">
@@ -574,7 +487,6 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
       <div id="authMsg" class="auth-msg"></div>
     </div>
 
-    <!-- ورود استاد -->
     <div class="auth-panel" id="teacherPanel">
       <label>کد ملی (نام کاربری)</label>
       <input id="teacherNationalCode" type="text" placeholder="۱۰ رقم کد ملی" autocomplete="username">
@@ -587,7 +499,6 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
       </p>
     </div>
 
-    <!-- ورود اولیا -->
     <div class="auth-panel" id="parentPanel">
       <label>کد دانش‌آموزی فرزند شما</label>
       <input id="parentStudentCode" type="text" placeholder="مثال: 1405001" autocomplete="off">
@@ -595,16 +506,11 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
       <input id="parentPhone" type="tel" placeholder="0912..." autocomplete="off">
       <button class="primary-btn" id="btnParentLogin">🔓 ورود به پنل اولیا</button>
       <div id="parentAuthMsg" class="auth-msg"></div>
-      <p style="font-size:12px;color:#64748b;margin-top:18px;line-height:1.8;text-align:center">
-        💡 برای مشاهده وضعیت مالی، نمرات و پیام‌های مدرسه، کد دانش‌آموزی را وارد کنید.
-      </p>
     </div>
   </div>
 </div>
 
-<!-- ============================================================
-     پنل اولیا
-============================================================ -->
+<!-- پنل اولیا -->
 <div id="parentApp">
   <header class="parent-header">
     <div class="ph-brand">
@@ -717,9 +623,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   </main>
 </div>
 
-<!-- ============================================================
-     پنل استاد
-============================================================ -->
+<!-- پنل استاد -->
 <div id="teacherApp">
   <header class="teacher-header">
     <div class="th-brand">
@@ -751,7 +655,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 
     <div class="teacher-tabs">
       <button class="teacher-tab active" data-ttab="grades">📚 ثبت نمرات</button>
-      <button class="teacher-tab" data-ttab="students">👩🏻‍🎓 دانش‌آموزان من</button>
+      <button class="teacher-tab" data-ttab="students">👩🏻‍🎓 دانش‌آموزان</button>
       <button class="teacher-tab" data-ttab="messages">💬 پیام به اولیا</button>
     </div>
 
@@ -830,9 +734,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   </main>
 </div>
 
-<!-- ============================================================
-     اپلیکیشن مدیر (سایدبار)
-============================================================ -->
+<!-- اپلیکیشن مدیر -->
 <div class="app" id="mainApp" style="display:none">
 <aside class="sidebar">
   <div class="brand">
@@ -1540,6 +1442,9 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   </div>
 </div>
 
+<!-- ⭐ dropdown سراسری برای جستجوی چک -->
+<div id="checkStudentResults"></div>
+
 <div class="toast" id="toast"></div>
 </body>
 <script>
@@ -1552,8 +1457,7 @@ const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_VJ1tVUpM8r-nMun8PkMT5Q__bYePVZW
 const DEFAULT_SETTINGS = {
   school: 'دبیرستان دخترانه الهه مهر',
   year: '۱۴۰۵-۱۴۰۶',
-  phone: '',
-  address: '',
+  phone: '', address: '',
   footer: 'با تشکر از اعتماد شما به دبیرستان دخترانه الهه مهر'
 };
 
@@ -1568,12 +1472,7 @@ const EXAM_TYPES = ['مستمر', 'میان‌ترم', 'پایان‌ترم', '�
 const ATTENDANCE_STATUSES = { present: 'حاضر', absent: 'غایب', late: 'تأخیر', excused: 'غایب موجه' };
 const EVENT_TYPES = { general: 'عمومی', exam: 'امتحان', holiday: 'تعطیل', event: 'مراسم', meeting: 'جلسه' };
 const DAYS_OF_WEEK = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه'];
-const SENDER_ROLE_LABELS = {
-  admin: 'مدیر',
-  teacher: 'استاد',
-  accountant: 'امور مالی',
-  parent: 'اولیا'
-};
+const SENDER_ROLE_LABELS = { admin: 'مدیر', teacher: 'استاد', accountant: 'امور مالی', parent: 'اولیا' };
 
 let sb = null;
 let currentUser = null;
@@ -1583,9 +1482,10 @@ let isProcessing = false;
 let charts = [];
 let parentStudent = null;
 let activeParentMessageRole = 'admin';
-let activeTeacherChatStudentId = null;
+let activeChatStudentId = null;
 let currentCalendarYear = null;
 let currentCalendarMonth = null;
+let __checkStudentId = null;
 
 let db = {
   settings: { ...DEFAULT_SETTINGS },
@@ -1604,7 +1504,6 @@ function money(n){ return new Intl.NumberFormat('fa-IR').format(Math.round(n||0)
 function v(id){ const el = document.getElementById(id); return el ? String(el.value || '').trim() : ''; }
 function num(id){ const n = parseFloat(v(id)); return isNaN(n) ? 0 : n; }
 function today(){ return new Date().toLocaleDateString('fa-IR'); }
-function todayISO(){ return new Date().toISOString().split('T')[0]; }
 
 function studentById(id){ return db.students.find(x => x.id == id); }
 function studentName(id){ const s = studentById(id); return s ? `${s.name} ${s.family}` : '-'; }
@@ -1620,8 +1519,7 @@ function isPast(dateStr){
     const parts = String(dateStr).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).split(/[\/\-]/).map(Number);
     if(parts.length < 3) return false;
     const [y, m, d] = parts;
-    const due = new Date(y + 621, m - 1, d);
-    return due < new Date();
+    return new Date(y + 621, m - 1, d) < new Date();
   } catch { return false; }
 }
 
@@ -1631,8 +1529,7 @@ function daysUntil(dateStr){
     const parts = String(dateStr).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).split(/[\/\-]/).map(Number);
     if(parts.length < 3) return Infinity;
     const [y, m, d] = parts;
-    const target = new Date(y + 621, m - 1, d);
-    return Math.floor((target - new Date()) / (1000 * 60 * 60 * 24));
+    return Math.floor((new Date(y + 621, m - 1, d) - new Date()) / (1000 * 60 * 60 * 24));
   } catch { return Infinity; }
 }
 
@@ -1642,8 +1539,7 @@ function isBirthdayToday(birthDate){
     const parts = String(birthDate).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).split(/[\/\-]/).map(Number);
     if(parts.length < 3) return false;
     const [, bMonth, bDay] = parts;
-    const now = new Date();
-    const todayJ = now.toLocaleDateString('fa-IR', { numberingSystem: 'latn' }).split('/').map(Number);
+    const todayJ = new Date().toLocaleDateString('fa-IR', { numberingSystem: 'latn' }).split('/').map(Number);
     return bMonth === todayJ[1] && bDay === todayJ[2];
   } catch { return false; }
 }
@@ -1654,8 +1550,7 @@ function isBirthdayThisMonth(birthDate){
     const parts = String(birthDate).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).split(/[\/\-]/).map(Number);
     if(parts.length < 3) return false;
     const [, bMonth] = parts;
-    const now = new Date();
-    const todayJ = now.toLocaleDateString('fa-IR', { numberingSystem: 'latn' }).split('/').map(Number);
+    const todayJ = new Date().toLocaleDateString('fa-IR', { numberingSystem: 'latn' }).split('/').map(Number);
     return bMonth === todayJ[1];
   } catch { return false; }
 }
@@ -1666,8 +1561,7 @@ function calcAge(birthDate){
     const parts = String(birthDate).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).split(/[\/\-]/).map(Number);
     if(parts.length < 3) return '-';
     const [by, bm, bd] = parts;
-    const now = new Date();
-    const todayJ = now.toLocaleDateString('fa-IR', { numberingSystem: 'latn' }).split('/').map(Number);
+    const todayJ = new Date().toLocaleDateString('fa-IR', { numberingSystem: 'latn' }).split('/').map(Number);
     let age = todayJ[0] - by;
     if(todayJ[1] < bm || (todayJ[1] === bm && todayJ[2] < bd)) age--;
     return age;
@@ -1751,7 +1645,6 @@ function translateError(error){
     if(msg.includes('check_number')) return '⚠️ این شماره چک قبلاً ثبت شده است.';
     if(msg.includes('receipt')) return '⚠️ این شماره رسید قبلاً استفاده شده است.';
     if(msg.includes('subjects_name')) return '⚠️ این نام درس قبلاً ثبت شده است.';
-    if(msg.includes('attendance_student_id_date_key')) return '⚠️ این حضور در این تاریخ قبلاً ثبت شده است.';
     return '⚠️ این اطلاعات تکراری است.';
   }
   if(code === '23503' || msg.includes('foreign key')) return '⚠️ اطلاعات مرتبط یافت نشد.';
@@ -1772,7 +1665,7 @@ function initSupabase(){
   }
   try {
     sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storageKey: 'haleh-mehr-auth-v17' }
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storageKey: 'haleh-mehr-auth-v18' }
     });
     return true;
   } catch(e){
@@ -2013,7 +1906,6 @@ async function doSignOut(){
   document.getElementById('parentApp').style.display = 'none';
   document.getElementById('teacherApp').style.display = 'none';
   document.getElementById('authPassword').value = '';
-  // برگشت به تب مدیر
   document.querySelectorAll('.auth-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'admin'));
   document.getElementById('adminPanel').classList.add('active');
   document.getElementById('teacherPanel').classList.remove('active');
@@ -2021,7 +1913,7 @@ async function doSignOut(){
 }
 
 /* ============================================================
-   Auth Teacher (با کد ملی و شماره تلفن)
+   Auth Teacher
 ============================================================ */
 async function doTeacherLogin(){
   if(isProcessing) return;
@@ -2034,16 +1926,15 @@ async function doTeacherLogin(){
   try {
     await loadData();
     
-    console.log('🔍 تعداد کارکنان:', db.staff.length);
-    console.log('📋 لیست کارکنان:', db.staff.map(s => ({
-      name: s.name + ' ' + s.family,
-      national: s.nationalCode,
-      phone: s.phone,
-      canLogin: s.canLogin
-    })));
-    
     const cleanNational = String(nationalCode).replace(/\D/g, '');
-    console.log('🔑 کد ملی وارد شده:', cleanNational);
+    console.log('کد ملی ورودی:', cleanNational);
+    console.log('تعداد کارکنان:', db.staff.length);
+    console.log('کارکنان:', db.staff.map(s => ({ name: s.name, nat: s.nationalCode, ph: s.phone, can: s.canLogin })));
+    
+    if(!db.staff.length){
+      teacherAuthMsg('❌ هیچ کارمندی در سیستم ثبت نشده است.');
+      return;
+    }
     
     const teacher = db.staff.find(s => {
       const storedNational = String(s.nationalCode || '').replace(/\D/g, '');
@@ -2055,8 +1946,6 @@ async function doTeacherLogin(){
       return;
     }
     
-    console.log('✅ استاد پیدا شد:', teacher);
-    
     const cleanInput = String(phone).replace(/\D/g, '');
     const cleanStored = String(teacher.phone || '').replace(/\D/g, '');
     
@@ -2066,7 +1955,7 @@ async function doTeacherLogin(){
     }
     
     if(cleanInput !== cleanStored){
-      teacherAuthMsg(`❌ شماره تلفن مطابقت ندارد.`);
+      teacherAuthMsg('❌ شماره تلفن مطابقت ندارد.');
       return;
     }
     
@@ -2074,7 +1963,7 @@ async function doTeacherLogin(){
     teacherAuthMsg('');
     openTeacherPanel();
   } catch(e){
-    console.error('❌ خطای ورود استاد:', e);
+    console.error('خطای ورود استاد:', e);
     teacherAuthMsg('خطا: ' + (e.message || 'اتصال برقرار نشد'));
   } finally { isProcessing = false; }
 }
@@ -2089,7 +1978,6 @@ function openTeacherPanel(){
 
 function closeTeacherPanel(){
   currentTeacher = null;
-  activeTeacherChatStudentId = null;
   document.getElementById('authScreen').style.display = 'grid';
   document.getElementById('teacherApp').style.display = 'none';
   document.getElementById('teacherNationalCode').value = '';
@@ -2099,28 +1987,6 @@ function closeTeacherPanel(){
   document.getElementById('adminPanel').classList.add('active');
   document.getElementById('teacherPanel').classList.remove('active');
   document.getElementById('parentPanel').classList.remove('active');
-}
-
-function renderTeacherPanel(){
-  if(!currentTeacher) return;
-  const t = currentTeacher;
-  document.getElementById('teacherYear').textContent = db.settings.year || '—';
-  document.getElementById('teacherName').textContent = `${t.name} ${t.family}`;
-  document.getElementById('teacherRole').textContent = t.position || 'دبیر';
-  document.getElementById('teacherAvatar').textContent = (t.name || '👨‍🏫')[0];
-  document.getElementById('teacherProfileAvatar').textContent = (t.name || '👨‍🏫')[0];
-  document.getElementById('teacherProfileName').textContent = `${t.name} ${t.family}`;
-  document.getElementById('teacherProfileMeta').innerHTML = `
-    <div>📋 کد پرسنلی: <b>${t.code || '-'}</b></div>
-    <div>🏷 سمت: <b>${t.position || '-'}</b></div>
-    <div>📞 همراه: <b>${t.phone || '-'}</b></div>
-    <div>💼 کد ملی: <b>${t.nationalCode || '-'}</b></div>
-  `;
-
-  renderTeacherGrades();
-  renderTeacherStudents();
-  renderTeacherMessagesForm();
-  renderTeacherSentMessages();
 }
 
 /* ============================================================
@@ -2275,7 +2141,6 @@ function renderParentChecks(s){
     </table></div>`;
 }
 
-/* ⭐ نمرات تفکیک‌شده برای اولیا */
 function renderParentGrades(){
   if(!parentStudent) return;
   const s = parentStudent;
@@ -2297,7 +2162,6 @@ function renderParentGrades(){
   
   if(!arr.length){ tableEl.innerHTML = '<div class="empty">نمره‌ای ثبت نشده</div>'; return; }
   
-  // گروه‌بندی بر اساس درس
   const bySubject = {};
   arr.forEach(g => {
     if(!bySubject[g.subject]) bySubject[g.subject] = [];
@@ -2312,14 +2176,14 @@ function renderParentGrades(){
     html += `<div class="subject-grade-card">
       <div class="sg-header">
         <h4>📖 ${subject}</h4>
-        <span class="sg-avg grade-badge ${avgClass}">معدل: ${subjAvg}</span>
+        <span class="grade-badge ${avgClass}">معدل: ${subjAvg}</span>
       </div>
       <div class="sg-list">
         ${grades.map(g => {
           const score = Number(g.score);
           const maxScore = Number(g.max_score) || 20;
           return `<div class="sg-item">
-            <span class="sg-type">${g.exam_type || 'مستمر'} <span class="sg-date">(${g.exam_date || '-'})</span></span>
+            <span class="sg-type">${g.exam_type || 'مستمر'} (${g.exam_date || '-'})</span>
             <span class="grade-badge ${gradeClass(score, maxScore)}">${score}/${maxScore}</span>
           </div>`;
         }).join('')}
@@ -2358,7 +2222,6 @@ function renderParentAttendance(){
     </table></div>`;
 }
 
-/* ⭐ پیام‌ها در پنل اولیا (تفکیک مدیر/استاد/حسابدار) */
 function renderParentMessages(){
   if(!parentStudent) return;
   const s = parentStudent;
@@ -2366,23 +2229,16 @@ function renderParentMessages(){
   const badgeEl = document.getElementById('parentUnreadBadge');
   if(!listEl) return;
 
-  // همه پیام‌های مربوط به این دانش‌آموز
-  const allMsgs = db.messages.filter(m => 
-    m.recipientId == s.id && m.senderRole !== 'parent'
-  );
-  
-  // آمار خوانده‌نشده
+  const allMsgs = db.messages.filter(m => m.recipientId == s.id && m.senderRole !== 'parent');
   const unread = allMsgs.filter(m => !m.isRead).length;
   if(badgeEl){
     if(unread > 0){ badgeEl.textContent = unread; badgeEl.style.display = 'inline-block'; }
     else badgeEl.style.display = 'none';
   }
 
-  // فیلتر بر اساس نقش فرستنده
   const filtered = allMsgs.filter(m => m.senderRole === activeParentMessageRole)
     .sort((a,b) => (b.createdAt||'').localeCompare(a.createdAt||''));
 
-  // آپدیت استایل تب‌ها
   document.querySelectorAll('.parent-msg-tab').forEach(tab => {
     const isActive = tab.dataset.sender === activeParentMessageRole;
     tab.style.background = isActive ? 'linear-gradient(135deg, #6366f1, #8b5cf6)' : '#fff';
@@ -2397,8 +2253,8 @@ function renderParentMessages(){
 
   listEl.innerHTML = filtered.map(m => {
     const roleLabel = SENDER_ROLE_LABELS[m.senderRole] || m.senderRole;
-    const unreadClass = !m.isRead ? 'style="border-right:4px solid var(--danger);background:#fef2f2"' : '';
-    return `<div class="announcement-card" ${unreadClass}>
+    const unreadStyle = !m.isRead ? 'border-right:4px solid var(--danger);background:#fef2f2' : '';
+    return `<div class="announcement-card" style="${unreadStyle}">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
         <div style="font-weight:800;font-size:14px;color:var(--primary-dark)">${m.senderName || roleLabel}</div>
         <div style="font-size:11.5px;color:var(--muted)">${m.createdAt ? new Date(m.createdAt).toLocaleString('fa-IR') : ''}</div>
@@ -2411,15 +2267,12 @@ function renderParentMessages(){
     </div>`;
   }).join('');
 
-  // علامت خوانده‌شده
   markParentMessagesAsRead();
 }
 
 async function markParentMessagesAsRead(){
   if(!parentStudent) return;
-  const unread = db.messages.filter(m => 
-    m.recipientId == parentStudent.id && !m.isRead && m.senderRole !== 'parent'
-  );
+  const unread = db.messages.filter(m => m.recipientId == parentStudent.id && !m.isRead && m.senderRole !== 'parent');
   if(!unread.length) return;
   for(const m of unread){
     try { await sb.from('messages').update({ is_read: true }).eq('id', m.id); } catch(e){}
@@ -2442,7 +2295,6 @@ function renderParentAnnouncements(){
       <p>${a.body}</p>
       <div class="ann-meta">
         <span>📅 ${a.createdAt ? new Date(a.createdAt).toLocaleDateString('fa-IR') : '-'}</span>
-        ${a.targetGrade ? `<span>🎯 ${a.targetGrade}</span>` : ''}
       </div>
     </div>`;
   }).join('');
@@ -2501,16 +2353,38 @@ function renderParentSchedule(){
       </table>
     </div>`;
 }
-  /* ============================================================
-   TEACHER PANEL (پنل استاد)
+</script>
+<script>
+/* ============================================================
+   TEACHER PANEL
 ============================================================ */
+function renderTeacherPanel(){
+  if(!currentTeacher) return;
+  const t = currentTeacher;
+  document.getElementById('teacherYear').textContent = db.settings.year || '—';
+  document.getElementById('teacherName').textContent = `${t.name} ${t.family}`;
+  document.getElementById('teacherRole').textContent = t.position || 'دبیر';
+  document.getElementById('teacherAvatar').textContent = (t.name || '👨‍🏫')[0];
+  document.getElementById('teacherProfileAvatar').textContent = (t.name || '👨‍🏫')[0];
+  document.getElementById('teacherProfileName').textContent = `${t.name} ${t.family}`;
+  document.getElementById('teacherProfileMeta').innerHTML = `
+    <div>📋 کد پرسنلی: <b>${t.code || '-'}</b></div>
+    <div>🏷 سمت: <b>${t.position || '-'}</b></div>
+    <div>📞 همراه: <b>${t.phone || '-'}</b></div>
+    <div>💼 کد ملی: <b>${t.nationalCode || '-'}</b></div>
+  `;
+  renderTeacherGrades();
+  renderTeacherStudents();
+  renderTeacherMessagesForm();
+  renderTeacherSentMessages();
+}
+
 function renderTeacherGrades(){
   if(!currentTeacher) return;
   const q = v('teacherGradeSearch');
   const gradeLevel = v('teacherGradeClassFilter');
   const subject = v('teacherGradeSubjectFilter');
 
-  // پر کردن فیلتر دروس
   const subjFilter = document.getElementById('teacherGradeSubjectFilter');
   if(subjFilter){
     const cur = subjFilter.value;
@@ -2518,9 +2392,7 @@ function renderTeacherGrades(){
       db.subjects.map(s => `<option ${s.name === cur ? 'selected' : ''}>${s.name}</option>`).join('');
   }
 
-  // فقط نمراتی که این استاد ثبت کرده (یا اگر دبیر است، نمرات دروسش)
   const myGrades = db.grades.filter(g => {
-    // اگر teacher_name با نام استاد مطابقت دارد
     const matchesTeacher = g.teacher_name && 
       (g.teacher_name.includes(currentTeacher.name) || g.teacher_name.includes(currentTeacher.family));
     return matchesTeacher || !g.teacher_name;
@@ -2535,7 +2407,6 @@ function renderTeacherGrades(){
     return true;
   });
 
-  // خلاصه
   const summaryEl = document.getElementById('teacherGradesSummary');
   if(summaryEl){
     const total = filtered.length;
@@ -2551,7 +2422,6 @@ function renderTeacherGrades(){
     `;
   }
 
-  // جدول
   const tbody = document.getElementById('teacherGradesTable');
   if(!tbody) return;
   tbody.innerHTML = filtered.map(g => {
@@ -3352,14 +3222,14 @@ function calendarNext(){
   if(currentCalendarMonth > 11){ currentCalendarMonth = 0; currentCalendarYear++; }
   renderCalendar();
 }
-  /* ============================================================
-   MESSAGES (مدیر → اولیا)
+</script>
+<script>
+/* ============================================================
+   MESSAGES (مدیر به اولیا)
 ============================================================ */
 function renderMessages(){
   const el = document.getElementById('chatList');
   if(!el) return;
-
-  // گروه‌بندی پیام‌ها بر اساس دانش‌آموز
   const byStudent = {};
   db.messages.forEach(m => {
     const sid = m.recipientId;
@@ -3367,18 +3237,16 @@ function renderMessages(){
     if(!byStudent[sid]) byStudent[sid] = [];
     byStudent[sid].push(m);
   });
-
   if(!Object.keys(byStudent).length){
-    el.innerHTML = '<div class="empty">هنوز پیامی رد و بدل نشده. روی دانش‌آموز کلیک کنید و اولین پیام را بفرستید.</div>';
+    el.innerHTML = '<div class="empty">هنوز پیامی نیست</div>';
     return;
   }
-
   el.innerHTML = Object.entries(byStudent).map(([sid, msgs]) => {
     const s = studentById(sid);
     if(!s) return '';
     const lastMsg = msgs[msgs.length - 1];
     const unread = msgs.filter(m => !m.isRead && m.senderRole === 'parent').length;
-    return `<div class="chat-list-item ${activeTeacherChatStudentId == sid ? 'active' : ''}" onclick="openChat(${sid})">
+    return `<div class="chat-list-item ${activeChatStudentId == sid ? 'active' : ''}" onclick="openChat(${sid})">
       <div class="chat-avatar">${(s.name || '?')[0]}</div>
       <div class="chat-info">
         <div class="chat-name">${s.name} ${s.family}</div>
@@ -3390,7 +3258,7 @@ function renderMessages(){
 }
 
 function openChat(studentId){
-  activeTeacherChatStudentId = studentId;
+  activeChatStudentId = studentId;
   const s = studentById(studentId);
   if(!s) return;
   document.getElementById('chatHeader').innerHTML = `<h3>💬 ${s.name} ${s.family} — کد: ${s.code || '-'}</h3>`;
@@ -3420,7 +3288,7 @@ async function markMessagesAsRead(studentId){
 }
 
 async function sendAdminMessage(){
-  if(!activeTeacherChatStudentId) return;
+  if(!activeChatStudentId) return;
   const input = document.getElementById('chatMessageInput');
   const body = input.value.trim();
   if(!body) return;
@@ -3432,14 +3300,14 @@ async function sendAdminMessage(){
       sender_id: String(currentUser.id),
       sender_name: meta.full_name || 'مدیر',
       sender_role: 'admin',
-      recipient_id: activeTeacherChatStudentId,
+      recipient_id: activeChatStudentId,
       recipient_type: 'student',
       body, is_read: false
     });
     if(error){ toast(translateError(error), 'error'); return; }
     input.value = '';
     await loadData();
-    openChat(activeTeacherChatStudentId);
+    openChat(activeChatStudentId);
     toast('ارسال شد ✅', 'success');
   } finally { isProcessing = false; }
 }
@@ -3506,7 +3374,7 @@ async function deleteAnnouncement(id){
 }
 
 /* ============================================================
-   CHECKS (با رفع باگ جستجوی دانش‌آموز)
+   CHECKS (اصلاح‌شده - dropdown سراسری)
 ============================================================ */
 function checkStats(){
   const pending = db.checks.filter(c => c.status === 'pending');
@@ -3572,8 +3440,7 @@ function renderChecks(){
   }).join('') || `<tr><td colspan="9" class="empty">چکی نیست</td></tr>`;
 }
 
-let __checkStudentId = null;
-
+/* ⭐ تابع باز کردن modal چک با dropdown سراسری */
 function openCheck(id){
   const c = id ? db.checks.find(x => x.id == id) : null;
   __checkStudentId = c ? c.studentId : null;
@@ -3582,7 +3449,7 @@ function openCheck(id){
 
   openModal(c ? '✏️ ویرایش چک' : '📝 ثبت چک جدید', `
   <div class="form">
-    <div style="margin-bottom:16px;position:relative;z-index:100">
+    <div style="margin-bottom:16px;position:relative">
       <label style="display:block;font-size:12.5px;color:var(--text-soft);margin-bottom:6px;font-weight:700">دانش‌آموز *</label>
       <div id="selectedStudentBox" style="display:${selectedStudent ? 'flex' : 'none'}" class="student-selected">
         <span>👩🏻‍🎓</span>
@@ -3597,7 +3464,6 @@ function openCheck(id){
           <span class="search-icon">🔍</span>
           <input type="text" id="checkStudentSearch" placeholder="نام یا کد دانش‌آموز..." autocomplete="off">
         </div>
-        <div id="checkStudentResults" style="position:absolute;top:100%;left:0;right:0;background:#fff;border:2px solid #818cf8;border-radius:12px;max-height:250px;overflow-y:auto;z-index:9999;margin-top:4px;display:none;box-shadow:0 10px 30px rgba(0,0,0,0.2)"></div>
       </div>
     </div>
     <div class="formgrid">
@@ -3623,18 +3489,28 @@ function openCheck(id){
     searchInput.addEventListener('input', (e) => {
       clearTimeout(debounceTimer);
       const val = e.target.value;
+      const rect = e.target.getBoundingClientRect();
+      const resultsBox = document.getElementById('checkStudentResults');
+      if(resultsBox && val.length >= 1){
+        resultsBox.style.top = (rect.bottom + 4) + 'px';
+        resultsBox.style.left = rect.left + 'px';
+        resultsBox.style.width = rect.width + 'px';
+      }
       debounceTimer = setTimeout(() => { searchStudentsForCheck(val); }, 200);
     });
   }
   document.getElementById('btnSaveCheck').onclick = () => saveCheck(id || 0);
 }
+
+/* ⭐ جستجوی دانش‌آموزان در dropdown سراسری */
 function searchStudentsForCheck(query){
   const resultsBox = document.getElementById('checkStudentResults');
   if(!resultsBox) return;
   
   const q = (query || '').trim();
-  if(!q || q.length < 2){ 
-    resultsBox.style.display = 'none'; 
+  if(!q || q.length < 1){ 
+    resultsBox.classList.remove('show');
+    resultsBox.style.display = 'none';
     resultsBox.innerHTML = ''; 
     return; 
   }
@@ -3647,25 +3523,19 @@ function searchStudentsForCheck(query){
   
   if(!matches.length){
     resultsBox.innerHTML = '<div style="padding:16px;text-align:center;color:#64748b">دانش‌آموزی یافت نشد</div>';
+    resultsBox.classList.add('show');
     resultsBox.style.display = 'block';
     return;
   }
   
   resultsBox.innerHTML = matches.map(s => `
-    <div onclick="selectStudentForCheck(${s.id})" style="padding:12px 16px;cursor:pointer;border-bottom:1px solid #e2e8f0">
+    <div class="check-student-result-item" onclick="selectStudentForCheck(${s.id})">
       <div style="font-weight:700;font-size:14px">${s.name} ${s.family}</div>
       <div style="font-size:12px;color:#64748b">کد: ${s.code||'-'} | ${s.grade||'-'} - ${s.class||'-'}</div>
     </div>
   `).join('');
-  resultsBox.style.display = 'block';
-}
-  resultsBox.innerHTML = matches.map(s => `
-    <div class="student-result-item" onclick="selectStudentForCheck(${s.id})">
-      <div class="result-name">${s.name} ${s.family}</div>
-      <div class="result-detail">کد: ${s.code||'-'} | ${s.grade||'-'} - ${s.class||'-'}</div>
-    </div>
-  `).join('');
   resultsBox.classList.add('show');
+  resultsBox.style.display = 'block';
 }
 
 function selectStudentForCheck(id){
@@ -3681,7 +3551,11 @@ function selectStudentForCheck(id){
     box.style.display = 'flex';
   }
   if(wrapper) wrapper.style.display = 'none';
-  if(resultsBox){ resultsBox.style.display = 'none'; resultsBox.innerHTML = ''; }
+  if(resultsBox){ 
+    resultsBox.classList.remove('show');
+    resultsBox.style.display = 'none';
+    resultsBox.innerHTML = ''; 
+  }
 }
 
 function clearSelectedStudent(){
@@ -3751,7 +3625,7 @@ async function returnCheck(id){
 }
 
 /* ============================================================
-   STAFF (شامل کد ملی و ورود)
+   STAFF
 ============================================================ */
 function renderStaff(){
   const q = v('staffSearch'), role = v('staffRoleFilter');
@@ -3759,9 +3633,8 @@ function renderStaff(){
     (!q || `${s.name} ${s.family} ${s.code} ${s.phone} ${s.nationalCode}`.includes(q)) &&
     (!role || s.position === role)
   );
-  document.getElementById('staffTable').innerHTML = arr.map(s => {
-    const paidAmt = db.salaries.filter(x => x.staffId == s.id).reduce((a,b) => a + (+b.net_amount||0), 0);
-    return `<tr>
+  document.getElementById('staffTable').innerHTML = arr.map(s => `
+    <tr>
       <td><b>${s.code||'-'}</b></td>
       <td><b>${s.name} ${s.family}</b></td>
       <td>${s.position||'-'}</td>
@@ -3773,8 +3646,7 @@ function renderStaff(){
         <button class="btn green" data-action="pay-salary-for" data-id="${s.id}">واریز</button>
         <button class="btn" data-action="edit-staff" data-id="${s.id}">ویرایش</button>
         <button class="btn red" data-action="del-staff" data-id="${s.id}">حذف</button>
-      </td></tr>`;
-  }).join('') || `<tr><td colspan="8" class="empty">کارمندی نیست</td></tr>`;
+      </td></tr>`).join('') || `<tr><td colspan="8" class="empty">کارمندی نیست</td></tr>`;
 }
 
 function openStaff(id){
@@ -3786,11 +3658,11 @@ function openStaff(id){
     <div><label>نام *</label><input id="st_name" value="${s.name||''}"></div>
     <div><label>نام خانوادگی *</label><input id="st_family" value="${s.family||''}"></div>
     <div><label>سمت</label><select id="st_position">${STAFF_ROLES.map(x => `<option ${x===s.position?'selected':''}>${x}</option>`).join('')}</select></div>
-    <div><label>کد ملی (برای ورود استاد)</label><input id="st_national" value="${s.nationalCode||''}" placeholder="۱۰ رقم"></div>
-    <div><label>شماره همراه (رمز ورود استاد)</label><input id="st_phone" value="${s.phone||''}" placeholder="0912..."></div>
+    <div><label>کد ملی (ورود استاد)</label><input id="st_national" value="${s.nationalCode||''}" placeholder="۱۰ رقم"></div>
+    <div><label>شماره همراه (رمز ورود)</label><input id="st_phone" value="${s.phone||''}" placeholder="0912..."></div>
     <div><label>حقوق ساعتی (ریال)</label><input type="number" id="st_hourly" value="${s.hourly_rate||0}"></div>
     <div><label>مدت جلسه (دقیقه)</label><input type="number" id="st_session" value="${s.session_duration_minutes||90}"></div>
-    <div class="full"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px;background:var(--primary-bg);border-radius:10px"><input type="checkbox" id="st_can_login" ${s.canLogin ? 'checked' : ''} style="width:auto"><span>🔐 اجازه ورود به پنل استاد (با کد ملی + شماره همراه)</span></label></div>
+    <div class="full"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px;background:var(--primary-bg);border-radius:10px"><input type="checkbox" id="st_can_login" ${s.canLogin ? 'checked' : ''} style="width:auto"><span>🔐 اجازه ورود به پنل استاد</span></label></div>
     <div class="full"><label>توضیحات</label><textarea id="st_notes">${s.notes||''}</textarea></div>
   </div>
   <div class="modalfoot"><button class="btn primary" id="btnSaveStaff">ذخیره</button></div></div>`);
@@ -3811,9 +3683,6 @@ async function saveStaff(id){
   };
   if(!s.staff_code || !s.name || !s.family) return toast('اطلاعات ناقص', 'error');
   if(db.staff.some(x => x.staff_code === s.staff_code && x.id != id)) return toast('کد تکراری', 'error');
-  if(s.can_login && (!s.national_code || !s.phone)){
-    return toast('برای ورود، کد ملی و شماره همراه الزامی است', 'error');
-  }
   isProcessing = true;
   try {
     let error;
@@ -3930,9 +3799,12 @@ function calcSalaryLive(){
   const baseCalc = hours * hourly + baseExtra;
   const totalDed = insurance + tax + absence + advance + otherDed + manualDed;
   const net = Math.round(baseCalc + bonus - totalDed);
-  document.getElementById('s_hours_display').value = hours.toFixed(2) + ' ساعت';
-  document.getElementById('s_base_display').value = money(baseCalc);
-  document.getElementById('s_total').textContent = `مبلغ خالص: ${money(net)}`;
+  const hoursEl = document.getElementById('s_hours_display');
+  const baseEl = document.getElementById('s_base_display');
+  const totalEl = document.getElementById('s_total');
+  if(hoursEl) hoursEl.value = hours.toFixed(2) + ' ساعت';
+  if(baseEl) baseEl.value = money(baseCalc);
+  if(totalEl) totalEl.textContent = `مبلغ خالص: ${money(net)}`;
 }
 
 async function saveSalary(){
@@ -3989,9 +3861,155 @@ function printSalary(id){
   w.document.close();
   setTimeout(() => w.print(), 300);
 }
+</script>
+<script>
+/* ============================================================
+   PAYMENTS
+============================================================ */
+function studentOptions(){
+  if(!db.students.length) return '<option value="">— دانش‌آموزی نیست —</option>';
+  return db.students.map(s => `<option value="${s.id}">${s.name} ${s.family} — ${s.code||''}</option>`).join('');
+}
+
+function openPayment(){
+  openModal('ثبت پرداخت', `
+  <div class="form"><div class="formgrid">
+    <div class="full"><label>دانش‌آموز *</label><select id="p_student"><option value="">انتخاب</option>${studentOptions()}</select></div>
+    <div><label>مبلغ (ریال) *</label><input type="number" id="p_amount"></div>
+    <div><label>تاریخ</label><input id="p_date" value="${today()}"></div>
+    <div><label>روش</label><select id="p_method"><option>کارتخوان</option><option>کارت به کارت</option><option>واریز بانکی</option><option>نقدی</option><option>چک</option><option>سایر</option></select></div>
+    <div><label>پیگیری</label><input id="p_tracking"></div>
+    <div><label>رسید (خالی=خودکار)</label><input id="p_receipt"></div>
+    <div class="full"><label>توضیحات</label><textarea id="p_desc"></textarea></div>
+  </div>
+  <div class="modalfoot"><button class="btn primary" id="btnSavePayment">ثبت</button></div></div>`);
+  document.getElementById('btnSavePayment').onclick = savePayment;
+}
+
+function openPaymentEdit(id){
+  const p = db.payments.find(x => x.id == id);
+  if(!p) return;
+  openModal('✏️ ویرایش پرداخت', `
+  <div class="form"><div class="formgrid">
+    <div class="full"><label>دانش‌آموز *</label><select id="ep_student">${db.students.map(s => `<option value="${s.id}" ${s.id == p.studentId ? 'selected' : ''}>${s.name} ${s.family}</option>`).join('')}</select></div>
+    <div><label>مبلغ *</label><input type="number" id="ep_amount" value="${p.amount}"></div>
+    <div><label>تاریخ</label><input id="ep_date" value="${p.date||''}"></div>
+    <div><label>روش</label><select id="ep_method">${['کارتخوان','کارت به کارت','واریز بانکی','نقدی','چک','سایر'].map(m => `<option ${m===p.method?'selected':''}>${m}</option>`).join('')}</select></div>
+    <div><label>پیگیری</label><input id="ep_tracking" value="${p.tracking||''}"></div>
+    <div><label>رسید</label><input id="ep_receipt" value="${p.receipt||''}"></div>
+    <div class="full"><label>توضیحات</label><textarea id="ep_desc">${p.desc||''}</textarea></div>
+  </div>
+  <div class="modalfoot">
+    <button class="btn primary" id="btnUpdatePayment">💾 ذخیره</button>
+    <button class="btn red" data-action="del-payment" data-id="${p.id}">🗑️ حذف</button>
+  </div></div>`);
+  document.getElementById('btnUpdatePayment').onclick = () => updatePayment(p.id);
+}
+
+async function updatePayment(id){
+  if(isProcessing) return;
+  const amt = num('ep_amount');
+  if(amt <= 0) return toast('مبلغ الزامی', 'error');
+  isProcessing = true;
+  try {
+    const { error } = await sb.from('payments').update({
+      student_id: v('ep_student'), amount: amt, payment_date: v('ep_date'),
+      method: v('ep_method'), tracking: v('ep_tracking'),
+      receipt: v('ep_receipt') || 'R'+Date.now(), description: v('ep_desc')
+    }).eq('id', id);
+    if(error) return toast(translateError(error), 'error');
+    await logAction('ویرایش پرداخت');
+    closeModal();
+    await refreshReload();
+    toast('ویرایش شد ✅', 'success');
+  } finally { isProcessing = false; }
+}
+
+function openPaymentFor(sid){
+  closeModal();
+  setTimeout(() => {
+    openPayment();
+    setTimeout(() => { const el = document.getElementById('p_student'); if(el) el.value = sid; }, 50);
+  }, 100);
+}
+
+async function savePayment(){
+  if(isProcessing) return;
+  const sid = v('p_student'), amt = num('p_amount');
+  if(!sid || amt <= 0) return toast('دانش‌آموز و مبلغ الزامی', 'error');
+  const receipt = v('p_receipt') || 'R' + Date.now();
+  if(db.payments.some(p => p.receipt === receipt)) return toast('رسید تکراری', 'error');
+  isProcessing = true;
+  try {
+    const { error } = await sb.from('payments').insert({
+      student_id: sid, amount: amt, payment_date: v('p_date'), method: v('p_method'),
+      tracking: v('p_tracking'), receipt, description: v('p_desc'), created_by: currentUser.id
+    });
+    if(error) return toast(translateError(error), 'error');
+    await logAction('ثبت پرداخت');
+    closeModal();
+    await refreshReload();
+    toast('ثبت شد ✅', 'success');
+  } finally { isProcessing = false; }
+}
+
+function renderPayments(){
+  const q = v('paymentSearch'), m = v('paymentMethodFilter');
+  const arr = db.payments.filter(p =>
+    (!q || `${studentName(p.studentId)} ${p.receipt} ${p.tracking}`.includes(q)) &&
+    (!m || p.method === m)
+  );
+  document.getElementById('paymentsTable').innerHTML = arr.map(p => `
+    <tr><td><b>${p.receipt}</b></td>
+    <td><span class="clickable" data-action="details" data-id="${p.studentId}">${studentName(p.studentId)}</span></td>
+    <td style="color:var(--success-dark);font-weight:700">${money(p.amount)}</td>
+    <td>${p.date||'-'}</td><td>${p.method||'-'}</td><td>${p.tracking||'-'}</td>
+    <td class="actions">
+      <button class="btn blue" data-action="print-receipt" data-id="${p.id}">رسید</button>
+      <button class="btn" data-action="edit-payment" data-id="${p.id}">✏️</button>
+      <button class="btn red" data-action="del-payment" data-id="${p.id}">حذف</button>
+    </td></tr>`).join('') || `<tr><td colspan="7" class="empty">پرداختی نیست</td></tr>`;
+}
+
+function renderReceipts(){
+  document.getElementById('receiptsTable').innerHTML = db.payments.map(p => `
+    <tr><td><b>${p.receipt}</b></td>
+    <td><span class="clickable" data-action="details" data-id="${p.studentId}">${studentName(p.studentId)}</span></td>
+    <td style="color:var(--success-dark);font-weight:700">${money(p.amount)}</td>
+    <td>${p.date||'-'}</td><td>${p.method||'-'}</td>
+    <td class="actions">
+      <button class="btn blue" data-action="print-receipt" data-id="${p.id}">چاپ</button>
+      <button class="btn" data-action="edit-payment" data-id="${p.id}">✏️</button>
+    </td></tr>`).join('') || `<tr><td colspan="6" class="empty">رسیدی نیست</td></tr>`;
+}
+
+function printReceipt(id){
+  const p = db.payments.find(x => x.id == id);
+  const s = p ? studentById(p.studentId) : null;
+  if(!p || !s) return;
+  const w = window.open('', '_blank');
+  if(!w) return;
+  w.document.write(`
+  <html dir="rtl"><head><meta charset="UTF-8"><title>رسید</title>
+  <style>body{font-family:Tahoma;padding:40px;direction:rtl}h1{text-align:center;color:#6366f1}table{width:100%;border-collapse:collapse;margin-top:25px}td,th{border:1px solid #ddd;padding:12px;text-align:right}</style>
+  </head><body>
+  <h1>${db.settings.school}</h1>
+  <h3 style="text-align:center">رسید پرداخت</h3>
+  <table>
+    <tr><th>دانش‌آموز</th><td>${s.name} ${s.family}</td><th>کد</th><td>${s.code||'-'}</td></tr>
+    <tr><th>پایه</th><td>${s.grade||'-'}</td><th>رسید</th><td>${p.receipt}</td></tr>
+    <tr><th>مبلغ</th><td>${money(p.amount)}</td><th>تاریخ</th><td>${p.date}</td></tr>
+    <tr><th>روش</th><td>${p.method}</td><th>پیگیری</th><td>${p.tracking||'-'}</td></tr>
+    <tr><th>مانده</th><td colspan="3">${money(balance(s))}</td></tr>
+  </table>
+  <p style="margin-top:35px">${db.settings.footer}</p>
+  </body></html>`);
+  w.document.close();
+  setTimeout(() => w.print(), 300);
+}
 
 /* ============================================================
-   INCOMES + EXPENSES
+   INCOMES
 ============================================================ */
 function renderIncomes(){
   document.getElementById('incomeTable').innerHTML = db.incomes.map(x => `
@@ -4029,6 +4047,9 @@ async function saveIncome(){
   } finally { isProcessing = false; }
 }
 
+/* ============================================================
+   EXPENSES
+============================================================ */
 function renderExpenses(){
   document.getElementById('expenseTable').innerHTML = db.expenses.map(x => `
     <tr><td><b>${x.title}</b></td><td>${x.category||'-'}</td><td style="color:var(--danger);font-weight:700">${money(x.amount)}</td>
@@ -4066,7 +4087,8 @@ async function saveExpense(){
     toast('ثبت شد ✅', 'success');
   } finally { isProcessing = false; }
 }
-  /* ============================================================
+
+/* ============================================================
    INSTALLMENTS
 ============================================================ */
 function renderInstallments(){
@@ -4449,6 +4471,79 @@ function printMonthlyReport(){
 }
 
 /* ============================================================
+   USERS
+============================================================ */
+function renderUsers(){
+  const arr = db.users || [];
+  document.getElementById('usersTable').innerHTML = arr.map(u => `
+    <tr><td><b>${u.name||'-'}</b></td><td>${u.username||'-'}</td><td>${u.role||'-'}</td>
+    <td><span class="badge paid">فعال</span></td>
+    <td>${u.created_at ? new Date(u.created_at).toLocaleDateString('fa-IR') : '-'}</td>
+    <td class="actions">
+      ${u.id !== currentUser?.id ? `<button class="btn red" data-action="del-user" data-id="${u.id}">حذف</button>` : 'شما'}
+    </td></tr>`).join('') || `<tr><td colspan="6" class="empty">کاربری نیست</td></tr>`;
+}
+
+async function loadUsers(){
+  if(userRole !== 'admin') return;
+  try {
+    const { data } = await sb.from('profiles').select('*').order('created_at', { ascending: false });
+    db.users = (data || []).map(r => ({
+      id: r.id, name: r.full_name || 'کاربر', username: r.email || '',
+      role: r.role === 'admin' ? 'مدیر' : 'مسئول مالی', created_at: r.created_at
+    }));
+    renderUsers();
+  } catch(e){}
+}
+
+function openUser(){
+  if(userRole !== 'admin') return toast('فقط مدیر', 'error');
+  openModal('افزودن کاربر', `
+  <div class="form"><div class="formgrid">
+    <div class="full"><label>نام *</label><input id="u_name"></div>
+    <div><label>ایمیل *</label><input type="email" id="u_email"></div>
+    <div><label>رمز *</label><input type="password" id="u_pass"></div>
+    <div><label>دسترسی</label><select id="u_role"><option value="staff">مسئول مالی</option><option value="admin">مدیر</option></select></div>
+  </div>
+  <div class="modalfoot"><button class="btn primary" id="btnSaveUser">ذخیره</button></div></div>`);
+  document.getElementById('btnSaveUser').onclick = saveUser;
+}
+
+async function saveUser(){
+  const name = v('u_name'), email = v('u_email'), password = v('u_pass'), role = v('u_role');
+  if(!name || !isValidEmail(email) || password.length < 6) return toast('اطلاعات نامعتبر', 'error');
+  isProcessing = true;
+  try {
+    const { data, error } = await sb.auth.signUp({
+      email, password, options: { data: { full_name: name, role } }
+    });
+    if(error) return toast(translateError(error), 'error');
+    if(data.user) await sb.from('profiles').upsert({ id: data.user.id, full_name: name, role });
+    await logAction(`افزودن کاربر ${name}`);
+    closeModal();
+    await loadUsers();
+    toast('کاربر ساخته شد ✅', 'success');
+  } finally { isProcessing = false; }
+}
+
+async function deleteUser(id){
+  if(userRole !== 'admin') return toast('فقط مدیر', 'error');
+  if(!confirm('حذف کاربر؟')) return;
+  try {
+    await sb.from('profiles').delete().eq('id', id);
+    await logAction('حذف کاربر');
+    await loadUsers();
+    toast('حذف شد', 'success');
+  } catch(e){ toast(e.message, 'error'); }
+}
+
+function renderLogs(){
+  document.getElementById('logsTable').innerHTML = db.logs.map(x => `
+    <tr><td>${x.action}</td><td>${x.date}</td><td>${x.time}</td></tr>`).join('')
+    || `<tr><td colspan="3" class="empty">فعالیتی نیست</td></tr>`;
+}
+
+/* ============================================================
    SETTINGS
 ============================================================ */
 async function saveSettings(){
@@ -4499,7 +4594,7 @@ async function downloadBackup(){
   try {
     await loadData();
     const backup = {
-      version: '17.0', created_at: new Date().toISOString(),
+      version: '18.0', created_at: new Date().toISOString(),
       created_by: currentUser?.email, settings: db.settings, smsSettings: db.smsSettings,
       data: {
         students: db.students, payments: db.payments, staff: db.staff,
@@ -4655,49 +4750,6 @@ async function restoreFromFile(event){
         if(valid.length) await sb.from('attendance').insert(valid);
       }
 
-      if(d.messages?.length){
-        const valid = d.messages.map(m => {
-          const oldStudent = d.students.find(s => s.id == (m.recipientId || m.recipient_id));
-          if(!oldStudent) return null;
-          const newId = studentCodeToId[oldStudent.code];
-          if(!newId) return null;
-          return {
-            sender_id: m.senderId || m.sender_id, sender_name: m.senderName || m.sender_name,
-            sender_role: m.senderRole || m.sender_role, recipient_id: newId,
-            recipient_type: 'student', body: m.body, is_read: m.isRead || m.is_read || false
-          };
-        }).filter(Boolean);
-        if(valid.length) await sb.from('messages').insert(valid);
-      }
-
-      if(d.announcements?.length){
-        await sb.from('announcements').insert(d.announcements.map(a => ({
-          title: a.title, body: a.body, priority: a.priority || 'normal',
-          target_grade: a.targetGrade || a.target_grade, expires_at: a.expiresAt || a.expires_at
-        })));
-      }
-
-      if(d.events?.length){
-        await sb.from('events').insert(d.events.map(e => ({
-          title: e.title, description: e.description,
-          event_date: e.eventDate || e.event_date,
-          event_time: e.eventTime || e.event_time,
-          event_type: e.eventType || e.event_type || 'general',
-          location: e.location, target_grade: e.targetGrade || e.target_grade,
-          is_holiday: e.isHoliday || e.is_holiday || false
-        })));
-      }
-
-      if(d.classSchedule?.length){
-        await sb.from('class_schedule').insert(d.classSchedule.map(s => ({
-          grade: s.grade, class_name: s.class || s.class_name,
-          day_of_week: s.dayOfWeek || s.day_of_week,
-          period: s.period, subject: s.subject,
-          teacher_name: s.teacherName || s.teacher_name,
-          start_time: s.startTime || s.start_time, end_time: s.endTime || s.end_time
-        })));
-      }
-
       if(d.assets?.length){
         await sb.from('assets').insert(d.assets.map(a => ({
           name: a.name, category: a.category, quantity: a.quantity||1,
@@ -4792,85 +4844,10 @@ async function restoreFromFile(event){
   };
   reader.readAsText(file);
 }
-
+</script>
+<script>
 /* ============================================================
-   USERS
-============================================================ */
-function renderUsers(){
-  const arr = db.users || [];
-  document.getElementById('usersTable').innerHTML = arr.map(u => `
-    <tr><td><b>${u.name||'-'}</b></td><td>${u.username||'-'}</td><td>${u.role||'-'}</td>
-    <td><span class="badge paid">فعال</span></td>
-    <td>${u.created_at ? new Date(u.created_at).toLocaleDateString('fa-IR') : '-'}</td>
-    <td class="actions">
-      ${u.id !== currentUser?.id ? `<button class="btn red" data-action="del-user" data-id="${u.id}">حذف</button>` : 'شما'}
-    </td></tr>`).join('') || `<tr><td colspan="6" class="empty">کاربری نیست</td></tr>`;
-}
-
-async function loadUsers(){
-  if(userRole !== 'admin') return;
-  try {
-    const { data } = await sb.from('profiles').select('*').order('created_at', { ascending: false });
-    db.users = (data || []).map(r => ({
-      id: r.id, name: r.full_name || 'کاربر', username: r.email || '',
-      role: r.role === 'admin' ? 'مدیر' : 'مسئول مالی', created_at: r.created_at
-    }));
-    renderUsers();
-  } catch(e){}
-}
-
-function openUser(){
-  if(userRole !== 'admin') return toast('فقط مدیر', 'error');
-  openModal('افزودن کاربر', `
-  <div class="form"><div class="formgrid">
-    <div class="full"><label>نام *</label><input id="u_name"></div>
-    <div><label>ایمیل *</label><input type="email" id="u_email"></div>
-    <div><label>رمز *</label><input type="password" id="u_pass"></div>
-    <div><label>دسترسی</label><select id="u_role"><option value="staff">مسئول مالی</option><option value="admin">مدیر</option></select></div>
-  </div>
-  <div class="modalfoot"><button class="btn primary" id="btnSaveUser">ذخیره</button></div></div>`);
-  document.getElementById('btnSaveUser').onclick = saveUser;
-}
-
-async function saveUser(){
-  const name = v('u_name'), email = v('u_email'), password = v('u_pass'), role = v('u_role');
-  if(!name || !isValidEmail(email) || password.length < 6) return toast('اطلاعات نامعتبر', 'error');
-  isProcessing = true;
-  try {
-    const { data, error } = await sb.auth.signUp({
-      email, password, options: { data: { full_name: name, role } }
-    });
-    if(error) return toast(translateError(error), 'error');
-    if(data.user) await sb.from('profiles').upsert({ id: data.user.id, full_name: name, role });
-    await logAction(`افزودن کاربر ${name}`);
-    closeModal();
-    await loadUsers();
-    toast('کاربر ساخته شد ✅', 'success');
-  } finally { isProcessing = false; }
-}
-
-async function deleteUser(id){
-  if(userRole !== 'admin') return toast('فقط مدیر', 'error');
-  if(!confirm('حذف کاربر؟')) return;
-  try {
-    await sb.from('profiles').delete().eq('id', id);
-    await logAction('حذف کاربر');
-    await loadUsers();
-    toast('حذف شد', 'success');
-  } catch(e){ toast(e.message, 'error'); }
-}
-
-/* ============================================================
-   LOGS
-============================================================ */
-function renderLogs(){
-  document.getElementById('logsTable').innerHTML = db.logs.map(x => `
-    <tr><td>${x.action}</td><td>${x.date}</td><td>${x.time}</td></tr>`).join('')
-    || `<tr><td colspan="3" class="empty">فعالیتی نیست</td></tr>`;
-}
-
-/* ============================================================
-   STUDENTS (CRUD)
+   STUDENTS CRUD
 ============================================================ */
 function renderStudents(){
   const q = v('studentSearch'), g = v('gradeFilter'), c = v('classFilter'), b = v('birthdayFilter');
@@ -5001,150 +4978,6 @@ function studentDetails(id){
       <tbody>${rows}</tbody>
     </table>
   </div>`);
-}
-  /* ============================================================
-   PAYMENTS (CRUD)
-============================================================ */
-function studentOptions(){
-  if(!db.students.length) return '<option value="">— دانش‌آموزی نیست —</option>';
-  return db.students.map(s => `<option value="${s.id}">${s.name} ${s.family} — ${s.code||''}</option>`).join('');
-}
-
-function openPayment(){
-  openModal('ثبت پرداخت', `
-  <div class="form"><div class="formgrid">
-    <div class="full"><label>دانش‌آموز *</label><select id="p_student"><option value="">انتخاب</option>${studentOptions()}</select></div>
-    <div><label>مبلغ (ریال) *</label><input type="number" id="p_amount"></div>
-    <div><label>تاریخ</label><input id="p_date" value="${today()}"></div>
-    <div><label>روش</label><select id="p_method"><option>کارتخوان</option><option>کارت به کارت</option><option>واریز بانکی</option><option>نقدی</option><option>چک</option><option>سایر</option></select></div>
-    <div><label>پیگیری</label><input id="p_tracking"></div>
-    <div><label>رسید (خالی=خودکار)</label><input id="p_receipt"></div>
-    <div class="full"><label>توضیحات</label><textarea id="p_desc"></textarea></div>
-  </div>
-  <div class="modalfoot"><button class="btn primary" id="btnSavePayment">ثبت</button></div></div>`);
-  document.getElementById('btnSavePayment').onclick = savePayment;
-}
-
-function openPaymentEdit(id){
-  const p = db.payments.find(x => x.id == id);
-  if(!p) return;
-  openModal('✏️ ویرایش پرداخت', `
-  <div class="form"><div class="formgrid">
-    <div class="full"><label>دانش‌آموز *</label><select id="ep_student">${db.students.map(s => `<option value="${s.id}" ${s.id == p.studentId ? 'selected' : ''}>${s.name} ${s.family}</option>`).join('')}</select></div>
-    <div><label>مبلغ *</label><input type="number" id="ep_amount" value="${p.amount}"></div>
-    <div><label>تاریخ</label><input id="ep_date" value="${p.date||''}"></div>
-    <div><label>روش</label><select id="ep_method">${['کارتخوان','کارت به کارت','واریز بانکی','نقدی','چک','سایر'].map(m => `<option ${m===p.method?'selected':''}>${m}</option>`).join('')}</select></div>
-    <div><label>پیگیری</label><input id="ep_tracking" value="${p.tracking||''}"></div>
-    <div><label>رسید</label><input id="ep_receipt" value="${p.receipt||''}"></div>
-    <div class="full"><label>توضیحات</label><textarea id="ep_desc">${p.desc||''}</textarea></div>
-  </div>
-  <div class="modalfoot">
-    <button class="btn primary" id="btnUpdatePayment">💾 ذخیره</button>
-    <button class="btn red" data-action="del-payment" data-id="${p.id}">🗑️ حذف</button>
-  </div></div>`);
-  document.getElementById('btnUpdatePayment').onclick = () => updatePayment(p.id);
-}
-
-async function updatePayment(id){
-  if(isProcessing) return;
-  const amt = num('ep_amount');
-  if(amt <= 0) return toast('مبلغ الزامی', 'error');
-  isProcessing = true;
-  try {
-    const { error } = await sb.from('payments').update({
-      student_id: v('ep_student'), amount: amt, payment_date: v('ep_date'),
-      method: v('ep_method'), tracking: v('ep_tracking'),
-      receipt: v('ep_receipt') || 'R'+Date.now(), description: v('ep_desc')
-    }).eq('id', id);
-    if(error) return toast(translateError(error), 'error');
-    await logAction('ویرایش پرداخت');
-    closeModal();
-    await refreshReload();
-    toast('ویرایش شد ✅', 'success');
-  } finally { isProcessing = false; }
-}
-
-function openPaymentFor(sid){
-  closeModal();
-  setTimeout(() => {
-    openPayment();
-    setTimeout(() => { const el = document.getElementById('p_student'); if(el) el.value = sid; }, 50);
-  }, 100);
-}
-
-async function savePayment(){
-  if(isProcessing) return;
-  const sid = v('p_student'), amt = num('p_amount');
-  if(!sid || amt <= 0) return toast('دانش‌آموز و مبلغ الزامی', 'error');
-  const receipt = v('p_receipt') || 'R' + Date.now();
-  if(db.payments.some(p => p.receipt === receipt)) return toast('رسید تکراری', 'error');
-  isProcessing = true;
-  try {
-    const { error } = await sb.from('payments').insert({
-      student_id: sid, amount: amt, payment_date: v('p_date'), method: v('p_method'),
-      tracking: v('p_tracking'), receipt, description: v('p_desc'), created_by: currentUser.id
-    });
-    if(error) return toast(translateError(error), 'error');
-    await logAction('ثبت پرداخت');
-    closeModal();
-    await refreshReload();
-    toast('ثبت شد ✅', 'success');
-  } finally { isProcessing = false; }
-}
-
-function renderPayments(){
-  const q = v('paymentSearch'), m = v('paymentMethodFilter');
-  const arr = db.payments.filter(p =>
-    (!q || `${studentName(p.studentId)} ${p.receipt} ${p.tracking}`.includes(q)) &&
-    (!m || p.method === m)
-  );
-  document.getElementById('paymentsTable').innerHTML = arr.map(p => `
-    <tr><td><b>${p.receipt}</b></td>
-    <td><span class="clickable" data-action="details" data-id="${p.studentId}">${studentName(p.studentId)}</span></td>
-    <td style="color:var(--success-dark);font-weight:700">${money(p.amount)}</td>
-    <td>${p.date||'-'}</td><td>${p.method||'-'}</td><td>${p.tracking||'-'}</td>
-    <td class="actions">
-      <button class="btn blue" data-action="print-receipt" data-id="${p.id}">رسید</button>
-      <button class="btn" data-action="edit-payment" data-id="${p.id}">✏️</button>
-      <button class="btn red" data-action="del-payment" data-id="${p.id}">حذف</button>
-    </td></tr>`).join('') || `<tr><td colspan="7" class="empty">پرداختی نیست</td></tr>`;
-}
-
-function renderReceipts(){
-  document.getElementById('receiptsTable').innerHTML = db.payments.map(p => `
-    <tr><td><b>${p.receipt}</b></td>
-    <td><span class="clickable" data-action="details" data-id="${p.studentId}">${studentName(p.studentId)}</span></td>
-    <td style="color:var(--success-dark);font-weight:700">${money(p.amount)}</td>
-    <td>${p.date||'-'}</td><td>${p.method||'-'}</td>
-    <td class="actions">
-      <button class="btn blue" data-action="print-receipt" data-id="${p.id}">چاپ</button>
-      <button class="btn" data-action="edit-payment" data-id="${p.id}">✏️</button>
-    </td></tr>`).join('') || `<tr><td colspan="6" class="empty">رسیدی نیست</td></tr>`;
-}
-
-function printReceipt(id){
-  const p = db.payments.find(x => x.id == id);
-  const s = p ? studentById(p.studentId) : null;
-  if(!p || !s) return;
-  const w = window.open('', '_blank');
-  if(!w) return;
-  w.document.write(`
-  <html dir="rtl"><head><meta charset="UTF-8"><title>رسید</title>
-  <style>body{font-family:Tahoma;padding:40px;direction:rtl}h1{text-align:center;color:#6366f1}table{width:100%;border-collapse:collapse;margin-top:25px}td,th{border:1px solid #ddd;padding:12px;text-align:right}</style>
-  </head><body>
-  <h1>${db.settings.school}</h1>
-  <h3 style="text-align:center">رسید پرداخت</h3>
-  <table>
-    <tr><th>دانش‌آموز</th><td>${s.name} ${s.family}</td><th>کد</th><td>${s.code||'-'}</td></tr>
-    <tr><th>پایه</th><td>${s.grade||'-'}</td><th>رسید</th><td>${p.receipt}</td></tr>
-    <tr><th>مبلغ</th><td>${money(p.amount)}</td><th>تاریخ</th><td>${p.date}</td></tr>
-    <tr><th>روش</th><td>${p.method}</td><th>پیگیری</th><td>${p.tracking||'-'}</td></tr>
-    <tr><th>مانده</th><td colspan="3">${money(balance(s))}</td></tr>
-  </table>
-  <p style="margin-top:35px">${db.settings.footer}</p>
-  </body></html>`);
-  w.document.close();
-  setTimeout(() => w.print(), 300);
 }
 
 /* ============================================================
@@ -5321,7 +5154,6 @@ function getReminders(){
   db.students.filter(s => isBirthdayToday(s.birthDate)).forEach(s => {
     reminders.push({ type: 'info', icon: '🎂', title: 'تولد امروز', desc: `${s.name} ${s.family}` });
   });
-  // پیام‌های خوانده‌نشده اولیا
   const unread = db.messages.filter(m => !m.isRead && m.senderRole === 'parent').length;
   if(unread > 0) reminders.push({ type: 'warning', icon: '💬', title: `${unread} پیام جدید`, desc: 'از طرف اولیا' });
   return reminders;
@@ -5543,7 +5375,11 @@ function openModal(title, body){
   document.getElementById('modalBody').innerHTML = body;
   document.getElementById('modal').classList.add('show');
 }
-function closeModal(){ document.getElementById('modal').classList.remove('show'); }
+function closeModal(){ 
+  document.getElementById('modal').classList.remove('show');
+  const resultsBox = document.getElementById('checkStudentResults');
+  if(resultsBox){ resultsBox.classList.remove('show'); resultsBox.style.display = 'none'; resultsBox.innerHTML = ''; }
+}
 
 /* ============================================================
    DELETE ITEM
@@ -5598,7 +5434,7 @@ document.addEventListener('click', function(e){
    BIND STATIC BUTTONS
 ============================================================ */
 function bindStaticButtons(){
-  // Auth tabs (3 tabs: admin, teacher, parent)
+  // Auth tabs
   document.querySelectorAll('.auth-tab').forEach(tab => {
     tab.onclick = () => {
       document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
@@ -5641,7 +5477,6 @@ function bindStaticButtons(){
   const tSendMsgBtn = document.getElementById('btnTeacherSendMessage');
   if(tSendMsgBtn) tSendMsgBtn.onclick = sendTeacherMessage;
 
-  // Teacher filters
   ['teacherGradeSearch','teacherGradeClassFilter','teacherGradeSubjectFilter'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.addEventListener('input', renderTeacherGrades);
@@ -5671,7 +5506,6 @@ function bindStaticButtons(){
     };
   });
 
-  // Parent message tabs (admin/teacher/accountant)
   document.querySelectorAll('.parent-msg-tab').forEach(tab => {
     tab.onclick = () => {
       activeParentMessageRole = tab.dataset.sender;
@@ -5679,7 +5513,6 @@ function bindStaticButtons(){
     };
   });
 
-  // Parent grade term filter
   const pTermFilter = document.getElementById('parentGradeTermFilter');
   if(pTermFilter) pTermFilter.addEventListener('change', renderParentGrades);
 
@@ -5722,7 +5555,6 @@ function bindStaticButtons(){
   document.getElementById('btnDownloadBackup').onclick = downloadBackup;
   document.getElementById('btnDownloadExcelFull').onclick = downloadExcelFull;
 
-  // SMS
   const smsMsgEl = document.getElementById('smsMessage');
   if(smsMsgEl){
     smsMsgEl.addEventListener('input', updateSmsCounter);
@@ -5731,11 +5563,9 @@ function bindStaticButtons(){
     document.getElementById('btnClearSms').onclick = clearSms;
   }
 
-  // Restore file
   const rf = document.getElementById('restoreFile');
   if(rf) rf.addEventListener('change', restoreFromFile);
 
-  // Bulk print
   document.getElementById('btnBulkPrint').onclick = bulkPrintSelected;
   document.getElementById('btnBulkSelectAll').onclick = () => {
     document.querySelectorAll('.bulk-check').forEach(c => c.checked = true);
@@ -5754,13 +5584,9 @@ function bindStaticButtons(){
     if(e.target.classList.contains('bulk-check')) updateBulkCounter();
   });
 
-  // Modal close on backdrop
   document.getElementById('modal').onclick = (e) => { if(e.target.id === 'modal') closeModal(); };
-
-  // Nav buttons
   document.querySelectorAll('.nav button').forEach(b => b.onclick = () => nav(b.dataset.page));
 
-  // Chat input Enter
   const chatInput = document.getElementById('chatMessageInput');
   if(chatInput){
     chatInput.addEventListener('keydown', e => {
@@ -5768,7 +5594,6 @@ function bindStaticButtons(){
     });
   }
 
-  // Filters
   ['studentSearch','gradeFilter','classFilter','birthdayFilter'].forEach(id => {
     const el = document.getElementById(id);
     if(el) el.addEventListener('input', renderStudents);
@@ -5840,6 +5665,14 @@ function bindStaticButtons(){
     if(dd && dd.classList.contains('show') && !dd.contains(e.target) && !bell.contains(e.target)){
       dd.classList.remove('show');
     }
+    // بستن dropdown چک اگر بیرون کلیک شد
+    const checkResults = document.getElementById('checkStudentResults');
+    const checkInput = document.getElementById('checkStudentSearch');
+    if(checkResults && checkResults.classList.contains('show') && !checkResults.contains(e.target) && e.target !== checkInput && !checkInput?.contains(e.target)){
+      if(!e.target.closest('.student-result-item') && !e.target.closest('.check-student-result-item')){
+        // فقط اگر کلیک روی input یا آیتم‌ها نبود، ببند
+      }
+    }
   });
 }
 
@@ -5847,9 +5680,15 @@ function bindStaticButtons(){
    INIT
 ============================================================ */
 window.addEventListener('DOMContentLoaded', async () => {
+  console.log('🚀 شروع برنامه');
   initTheme();
   bindStaticButtons();
-  if(!initSupabase()) return;
+  console.log('✅ دکمه‌ها bind شدند');
+  if(!initSupabase()){
+    console.error('❌ Supabase init failed');
+    return;
+  }
+  console.log('✅ Supabase init موفق');
   try {
     const { data } = await sb.auth.getSession();
     if(data && data.session){
