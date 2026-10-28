@@ -1756,66 +1756,102 @@ function normalizeSettings(s){
 ============================================================ */
 async function loadData(){
   if(!sb) throw new Error('Supabase init نشده');
-  const results = await Promise.all([
-    sb.from('settings').select('*').eq('id', true).maybeSingle(),
-    sb.from('students').select('*').order('created_at', { ascending: false }),
-    sb.from('payments').select('*').order('created_at', { ascending: false }),
-    sb.from('incomes').select('*').order('created_at', { ascending: false }),
-    sb.from('expenses').select('*').order('created_at', { ascending: false }),
-    sb.from('installments').select('*').order('created_at', { ascending: false }),
-    sb.from('discounts').select('*').order('created_at', { ascending: false }),
-    sb.from('activity_logs').select('*').order('created_at', { ascending: false }).limit(200),
-    sb.from('staff').select('*').order('created_at', { ascending: false }),
-    sb.from('salaries').select('*').order('created_at', { ascending: false }).then(r => r.error ? { data: [], error: null } : r),
-    sb.from('checks').select('*').order('created_at', { ascending: false }).then(r => r.error ? { data: [], error: null } : r),
-    sb.from('assets').select('*').order('created_at', { ascending: false }).then(r => r.error ? { data: [], error: null } : r),
-    sb.from('sms_log').select('*').order('sent_at', { ascending: false }).limit(100).then(r => r.error ? { data: [], error: null } : r),
-    sb.from('sms_settings').select('*').eq('id', true).maybeSingle().then(r => r.error ? { data: null, error: null } : r),
-    sb.from('grades').select('*').order('created_at', { ascending: false }).then(r => r.error ? { data: [], error: null } : r),
-    sb.from('subjects').select('*').order('name').then(r => r.error ? { data: [], error: null } : r),
-    sb.from('attendance').select('*').order('date', { ascending: false }).then(r => r.error ? { data: [], error: null } : r),
-    sb.from('messages').select('*').order('created_at', { ascending: true }).then(r => r.error ? { data: [], error: null } : r),
-    sb.from('announcements').select('*').order('created_at', { ascending: false }).then(r => r.error ? { data: [], error: null } : r),
-    sb.from('homework').select('*').order('created_at', { ascending: false }).then(r => r.error ? { data: [], error: null } : r),
-    sb.from('homework_submissions').select('*').then(r => r.error ? { data: [], error: null } : r),
-    sb.from('events').select('*').order('event_date').then(r => r.error ? { data: [], error: null } : r),
-    sb.from('class_schedule').select('*').order('period').then(r => r.error ? { data: [], error: null } : r)
+  
+  // ⭐ لود امن هر جدول — خطای یکی بقیه را خراب نمی‌کند
+  const loadTable = async (tableName, orderBy, ascending) => {
+    try {
+      let query = sb.from(tableName).select('*');
+      if(orderBy) query = query.order(orderBy, { ascending: ascending !== false });
+      const { data, error } = await query;
+      if(error){
+        console.warn('⚠️ خطا در ' + tableName + ':', error.message);
+        return [];
+      }
+      return data || [];
+    } catch(e){
+      console.warn('⚠️ خطا در ' + tableName + ':', e.message);
+      return [];
+    }
+  };
+  
+  // لود settings
+  let settingsData = null;
+  try {
+    const { data } = await sb.from('settings').select('*').eq('id', true).maybeSingle();
+    settingsData = data;
+  } catch(e){ console.warn('settings:', e.message); }
+  
+  // لود sms_settings
+  let smsSettingsData = null;
+  try {
+    const { data } = await sb.from('sms_settings').select('*').eq('id', true).maybeSingle();
+    smsSettingsData = data;
+  } catch(e){ console.warn('sms_settings:', e.message); }
+  
+  // لود بقیه جداول به صورت موازی
+  const loaded = await Promise.all([
+    loadTable('students', 'created_at', false),
+    loadTable('payments', 'created_at', false),
+    loadTable('incomes', 'created_at', false),
+    loadTable('expenses', 'created_at', false),
+    loadTable('installments', 'created_at', false),
+    loadTable('discounts', 'created_at', false),
+    loadTable('activity_logs', 'created_at', false),
+    loadTable('staff', 'created_at', false),
+    loadTable('salaries', 'created_at', false),
+    loadTable('checks', 'created_at', false),
+    loadTable('assets', 'created_at', false),
+    loadTable('sms_log', 'sent_at', false),
+    loadTable('grades', 'created_at', false),
+    loadTable('subjects', 'name', true),
+    loadTable('attendance', 'date', false),
+    loadTable('messages', 'created_at', true),
+    loadTable('announcements', 'created_at', false),
+    loadTable('homework', 'created_at', false),
+    loadTable('homework_submissions', null, null),
+    loadTable('events', 'event_date', true),
+    loadTable('class_schedule', 'period', true)
   ]);
-  // ⭐ نمایش خطاها
-const errors = results.map((r, i) => r.error ? `جدول ${i}: ${r.error.message} (کد: ${r.error.code || '?'})` : null).filter(Boolean);
-if(errors.length > 0){
-  alert('❌ خطا در لود دیتابیس:\n\n' + errors.join('\n\n') + '\n\nلطفاً این پیام را کپی کنید و برای پشتیبانی بفرستید.');
-}
-const firstError = results.find(x => x.error)?.error;
-if(firstError) throw new Error(translateError(firstError));
-  db.settings = normalizeSettings(results[0].data);
-  db.students = (results[1].data || []).map(mapStudent);
-  db.payments = (results[2].data || []).map(mapPayment);
-  db.incomes = (results[3].data || []).map(mapIncome);
-  db.expenses = (results[4].data || []).map(mapExpense);
-  db.installments = (results[5].data || []).map(mapInstallment);
-  db.discounts = (results[6].data || []).map(mapDiscount);
-  db.logs = (results[7].data || []).map(x => ({
-    action: x.action, date: new Date(x.created_at).toLocaleDateString('fa-IR'),
+  
+  // ⭐ ذخیره در db
+  db.settings = normalizeSettings(settingsData);
+  db.students = (loaded[0] || []).map(mapStudent);
+  db.payments = (loaded[1] || []).map(mapPayment);
+  db.incomes = (loaded[2] || []).map(mapIncome);
+  db.expenses = (loaded[3] || []).map(mapExpense);
+  db.installments = (loaded[4] || []).map(mapInstallment);
+  db.discounts = (loaded[5] || []).map(mapDiscount);
+  db.logs = (loaded[6] || []).map(x => ({
+    action: x.action,
+    date: new Date(x.created_at).toLocaleDateString('fa-IR'),
     time: new Date(x.created_at).toLocaleTimeString('fa-IR')
   }));
-  db.staff = (results[8].data || []).map(mapStaff);
-  db.salaries = (results[9].data || []).map(mapSalary);
-  db.checks = (results[10].data || []).map(mapCheck);
-  db.assets = (results[11].data || []).map(mapAsset);
-  db.smsLog = (results[12].data || []).map(mapSmsLog);
-  db.smsSettings = mapSmsSettings(results[13].data);
-  db.grades = results[14].data || [];
-  db.subjects = results[15].data || [];
-  db.attendance = results[16].data || [];
-  db.messages = (results[17].data || []).map(mapMessage);
-  db.announcements = (results[18].data || []).map(mapAnnouncement);
-  db.homework = (results[19].data || []).map(mapHomework);
-  db.homeworkSubmissions = (results[20].data || []).map(mapHomeworkSubmission);
-  db.events = (results[21].data || []).map(mapEvent);
-  db.classSchedule = (results[22].data || []).map(mapScheduleItem);
+  db.staff = (loaded[7] || []).map(mapStaff);
+  db.salaries = (loaded[8] || []).map(mapSalary);
+  db.checks = (loaded[9] || []).map(mapCheck);
+  db.assets = (loaded[10] || []).map(mapAsset);
+  db.smsLog = (loaded[11] || []).map(mapSmsLog);
+  db.smsSettings = mapSmsSettings(smsSettingsData);
+  db.grades = loaded[12] || [];
+  db.subjects = loaded[13] || [];
+  db.attendance = loaded[14] || [];
+  db.messages = (loaded[15] || []).map(mapMessage);
+  db.announcements = (loaded[16] || []).map(mapAnnouncement);
+  db.homework = (loaded[17] || []).map(mapHomework);
+  db.homeworkSubmissions = (loaded[18] || []).map(mapHomeworkSubmission);
+  db.events = (loaded[19] || []).map(mapEvent);
+  db.classSchedule = (loaded[20] || []).map(mapScheduleItem);
+  
+  // لاگ در کنسول
+  console.log('✅ دیتابیس لود شد:', {
+    students: db.students.length,
+    staff: db.staff.length,
+    grades: db.grades.length,
+    attendance: db.attendance.length,
+    messages: db.messages.length,
+    payments: db.payments.length
+  });
 }
-
 async function logAction(action){
   if(!sb || !currentUser) return;
   try { await sb.from('activity_logs').insert({ user_id: currentUser.id, action }); } catch(e){}
