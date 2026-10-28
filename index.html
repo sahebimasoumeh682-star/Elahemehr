@@ -1919,6 +1919,47 @@ async function doSignOut(){
 /* ============================================================
    Auth Teacher
 ============================================================ */
+  function openTeacherPanel(){
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('mainApp').style.display = 'none';
+  document.getElementById('parentApp').style.display = 'none';
+  document.getElementById('teacherApp').style.display = 'block';
+  renderTeacherPanel();
+}
+
+function closeTeacherPanel(){
+  currentTeacher = null;
+  document.getElementById('authScreen').style.display = 'grid';
+  document.getElementById('teacherApp').style.display = 'none';
+  document.getElementById('teacherNationalCode').value = '';
+  document.getElementById('teacherPhone').value = '';
+  teacherAuthMsg('');
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'admin'));
+  document.getElementById('adminPanel').classList.add('active');
+  document.getElementById('teacherPanel').classList.remove('active');
+  document.getElementById('parentPanel').classList.remove('active');
+}
+
+function renderTeacherPanel(){
+  if(!currentTeacher) return;
+  const t = currentTeacher;
+  document.getElementById('teacherYear').textContent = db.settings.year || '—';
+  document.getElementById('teacherName').textContent = `${t.name} ${t.family}`;
+  document.getElementById('teacherRole').textContent = t.position || 'دبیر';
+  document.getElementById('teacherAvatar').textContent = (t.name || '👨‍🏫')[0];
+  document.getElementById('teacherProfileAvatar').textContent = (t.name || '👨‍🏫')[0];
+  document.getElementById('teacherProfileName').textContent = `${t.name} ${t.family}`;
+  document.getElementById('teacherProfileMeta').innerHTML = `
+    <div>📋 کد پرسنلی: <b>${t.code || '-'}</b></div>
+    <div>🏷 سمت: <b>${t.position || '-'}</b></div>
+    <div>📞 همراه: <b>${t.phone || '-'}</b></div>
+    <div>💼 کد ملی: <b>${t.nationalCode || '-'}</b></div>
+  `;
+  if(typeof renderTeacherGrades === 'function') renderTeacherGrades();
+  if(typeof renderTeacherStudents === 'function') renderTeacherStudents();
+  if(typeof renderTeacherMessagesForm === 'function') renderTeacherMessagesForm();
+  if(typeof renderTeacherSentMessages === 'function') renderTeacherSentMessages();
+}
 async function doTeacherLogin(){
   if(isProcessing) return;
   const nationalCode = v('teacherNationalCode');
