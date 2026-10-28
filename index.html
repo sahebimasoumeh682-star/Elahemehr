@@ -1765,7 +1765,7 @@ async function loadData(){
     sb.from('installments').select('*').order('created_at', { ascending: false }),
     sb.from('discounts').select('*').order('created_at', { ascending: false }),
     sb.from('activity_logs').select('*').order('created_at', { ascending: false }).limit(200),
-    sb.from('staff').select('*').order('created_at', { ascending: false }).then(r => r.error ? { data: [], error: null } : r),
+    sb.from('staff').select('*').order('created_at', { ascending: false }),
     sb.from('salaries').select('*').order('created_at', { ascending: false }).then(r => r.error ? { data: [], error: null } : r),
     sb.from('checks').select('*').order('created_at', { ascending: false }).then(r => r.error ? { data: [], error: null } : r),
     sb.from('assets').select('*').order('created_at', { ascending: false }).then(r => r.error ? { data: [], error: null } : r),
@@ -1781,8 +1781,11 @@ async function loadData(){
     sb.from('events').select('*').order('event_date').then(r => r.error ? { data: [], error: null } : r),
     sb.from('class_schedule').select('*').order('period').then(r => r.error ? { data: [], error: null } : r)
   ]);
-  const firstError = results.find(x => x.error)?.error;
-  if(firstError) throw new Error(translateError(firstError));
+   const firstError = results.find(x => x.error)?.error;
+  if(firstError){ 
+    alert('خطا در لود دیتابیس: ' + translateError(firstError));
+    throw new Error(translateError(firstError)); 
+  }
 
   db.settings = normalizeSettings(results[0].data);
   db.students = (results[1].data || []).map(mapStudent);
@@ -1925,30 +1928,38 @@ async function doTeacherLogin(){
   teacherAuthMsg('در حال بارگذاری...', true);
   
   try {
-    // مرحله ۱: لود کامل دیتابیس
-    await loadData();
+    // لود مستقیم staff از دیتابیس
+    teacherAuthMsg('در حال اتصال به دیتابیس...', true);
+    const { data: staffData, error: staffError } = await sb.from('staff').select('*');
     
-    // مرحله ۲: چک کارکنان
-    if(!db.staff || db.staff.length === 0){
-      teacherAuthMsg('❌ هیچ کارمندی در سیستم ثبت نشده. اول با مدیر وارد شوید و از بخش «کارکنان» یک استاد بسازید.');
+    if(staffError){
+      teacherAuthMsg('❌ خطای دیتابیس: ' + staffError.message + ' | کد: ' + (staffError.code || 'نامشخص'));
       isProcessing = false;
       return;
     }
     
-    // مرحله ۳: نرمال‌سازی ورودی
+    if(!staffData || staffData.length === 0){
+      teacherAuthMsg('❌ جدول staff در دیتابیس خالی است. با مدیر یک استاد بسازید.');
+      isProcessing = false;
+      return;
+    }
+    
+    // نمایش تعداد کارکنان
+    teacherAuthMsg(`✅ ${staffData.length} کارمند پیدا شد. در حال بررسی...`, true);
+    
+    // ذخیره در db
+    db.staff = staffData.map(mapStaff);
+    
     const cleanNational = String(nationalCode).replace(/\D/g, '');
     const cleanPhone = String(phone).replace(/\D/g, '');
     
-    // مرحله ۴: جستجو در کارکنان (با هر دو فیلد national_code و staff_code به عنوان fallback)
-    let teacher = null;
-    
-    // اول با کد ملی
-    teacher = db.staff.find(s => {
+    // جستجو با کد ملی
+    let teacher = db.staff.find(s => {
       const stored = String(s.nationalCode || '').replace(/\D/g, '');
       return stored && stored === cleanNational;
     });
     
-    // اگر پیدا نشد، با کد پرسنلی هم امتحان کن
+    // اگر پیدا نشد، با کد پرسنلی
     if(!teacher){
       teacher = db.staff.find(s => {
         const stored = String(s.code || '').replace(/\D/g, '');
@@ -1957,41 +1968,43 @@ async function doTeacherLogin(){
     }
     
     if(!teacher){
-      // لیست کارکنان موجود را نشان بده برای راهنمایی
-      const names = db.staff.map(s => `${s.name} ${s.family}`).join('، ');
-      teacherAuthMsg(`❌ استادی با کد ملی «${nationalCode}» پیدا نشد. کارکنان موجود: ${names}`);
+      // لیست کامل کارکنان را نشان بده
+      const list = staffData.map(s => {
+        const nat = s.national_code || 'ندارد';
+        const ph = s.phone || 'ندارد';
+        return `${s.name} ${s.family} (کدملی: ${nat}، تلفن: ${ph})`;
+      }).join(' | ');
+      teacherAuthMsg(`❌ استاد پیدا نشد. کارکنان موجود: ${list}`);
       isProcessing = false;
       return;
     }
     
-    // مرحله ۵: بررسی شماره تلفن
+    // بررسی تلفن
     const storedPhone = String(teacher.phone || '').replace(/\D/g, '');
     
     if(!storedPhone){
-      teacherAuthMsg(`❌ برای «${teacher.name} ${teacher.family}» شماره تلفنی ثبت نشده است. با مدیر تماس بگیرید.`);
+      teacherAuthMsg(`❌ برای «${teacher.name} ${teacher.family}» شماره تلفن ثبت نشده.`);
       isProcessing = false;
       return;
     }
     
     if(cleanPhone !== storedPhone){
-      teacherAuthMsg(`❌ شماره تلفن اشتباه است. (شماره ثبت‌شده: ${teacher.phone})`);
+      teacherAuthMsg(`❌ شماره تلفن اشتباه. شماره ثبت‌شده: ${teacher.phone}`);
       isProcessing = false;
       return;
     }
     
-    // مرحله ۶: ورود موفق
     currentTeacher = teacher;
     teacherAuthMsg('');
     openTeacherPanel();
     toast(`خوش آمدید ${teacher.name} ${teacher.family}`, 'success');
     
   } catch(e){
-    teacherAuthMsg('❌ خطا در اتصال: ' + (e.message || 'نامشخص'));
+    teacherAuthMsg('❌ خطا: ' + (e.message || 'نامشخص'));
   } finally { 
     isProcessing = false; 
   }
 }
-
 function openTeacherPanel(){
   document.getElementById('authScreen').style.display = 'none';
   document.getElementById('mainApp').style.display = 'none';
