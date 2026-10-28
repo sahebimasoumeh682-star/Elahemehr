@@ -2068,6 +2068,273 @@ async function doTeacherLogin(){
     isProcessing = false; 
   }
 }
+  /* ============================================================
+   TEACHER PANEL FUNCTIONS
+============================================================ */
+function renderTeacherGrades(){
+  if(!currentTeacher) return;
+  const q = v('teacherGradeSearch');
+  const gradeLevel = v('teacherGradeClassFilter');
+  const subject = v('teacherGradeSubjectFilter');
+
+  const subjFilter = document.getElementById('teacherGradeSubjectFilter');
+  if(subjFilter){
+    const cur = subjFilter.value;
+    subjFilter.innerHTML = '<option value="">همه دروس</option>' +
+      db.subjects.map(s => `<option ${s.name === cur ? 'selected' : ''}>${s.name}</option>`).join('');
+  }
+
+  const myGrades = db.grades.filter(g => {
+    const matchesTeacher = g.teacher_name && 
+      (g.teacher_name.includes(currentTeacher.name) || g.teacher_name.includes(currentTeacher.family));
+    return matchesTeacher || !g.teacher_name;
+  });
+
+  const filtered = myGrades.filter(g => {
+    const student = studentById(g.student_id);
+    if(!student) return false;
+    if(q && !`${student.name} ${student.family} ${student.code}`.includes(q)) return false;
+    if(gradeLevel && student.grade !== gradeLevel) return false;
+    if(subject && g.subject !== subject) return false;
+    return true;
+  });
+
+  const summaryEl = document.getElementById('teacherGradesSummary');
+  if(summaryEl){
+    const total = filtered.length;
+    const avg = total > 0
+      ? (filtered.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / total).toFixed(2)
+      : '0';
+    const passCount = filtered.filter(g => Number(g.score) / Number(g.max_score || 20) >= 0.5).length;
+    summaryEl.innerHTML = `
+      <div class="card"><div class="gs-label">📊 نمرات ثبت‌شده</div><div class="gs-value" style="color:var(--primary)">${total}</div></div>
+      <div class="card"><div class="gs-label">⭐ معدل</div><div class="gs-value" style="color:${parseFloat(avg) >= 15 ? 'var(--success)' : parseFloat(avg) >= 10 ? 'var(--warning)' : 'var(--danger)'}">${avg}</div></div>
+      <div class="card"><div class="gs-label">✅ قبول</div><div class="gs-value" style="color:var(--success-dark)">${passCount}</div></div>
+      <div class="card"><div class="gs-label">❌ مردود</div><div class="gs-value" style="color:var(--danger)">${total - passCount}</div></div>
+    `;
+  }
+
+  const tbody = document.getElementById('teacherGradesTable');
+  if(!tbody) return;
+  tbody.innerHTML = filtered.map(g => {
+    const student = studentById(g.student_id);
+    if(!student) return '';
+    const score = Number(g.score);
+    const maxScore = Number(g.max_score) || 20;
+    return `<tr>
+      <td><b>${student.name} ${student.family}</b></td>
+      <td>${student.grade || '-'}</td>
+      <td>${g.subject}</td>
+      <td>${g.term}</td>
+      <td>${g.exam_type || '-'}</td>
+      <td><span class="grade-badge ${gradeClass(score, maxScore)}">${score}</span></td>
+      <td>${maxScore}</td>
+      <td>${g.exam_date || '-'}</td>
+      <td class="actions">
+        <button class="btn" onclick="openTeacherGrade(${g.id})">✏️</button>
+        <button class="btn red" onclick="deleteTeacherGrade(${g.id})">🗑️</button>
+      </td>
+    </tr>`;
+  }).join('') || '<tr><td colspan="9" class="empty">نمره‌ای ثبت نشده. روی «+ ثبت نمره» کلیک کنید.</td></tr>';
+}
+
+function openTeacherGrade(id){
+  if(!currentTeacher) return;
+  const g = id ? db.grades.find(x => x.id == id) : null;
+  const subjectOptions = db.subjects.length
+    ? db.subjects.map(s => `<option ${g && g.subject === s.name ? 'selected' : ''}>${s.name}</option>`).join('')
+    : '<option value="">ابتدا درس اضافه کنید</option>';
+
+  const teacherFullName = `${currentTeacher.name} ${currentTeacher.family}`;
+
+  openModal(g ? '✏️ ویرایش نمره' : '📚 ثبت نمره جدید', `
+  <div class="form"><div class="formgrid">
+    <div class="full"><label>دانش‌آموز *</label>
+      <select id="tg_student">
+        <option value="">انتخاب</option>
+        ${db.students.map(s => `<option value="${s.id}" ${g && g.student_id == s.id ? 'selected' : ''}>${s.name} ${s.family} — ${s.code || ''} (${s.grade || '-'})</option>`).join('')}
+      </select>
+    </div>
+    <div><label>درس *</label><select id="tg_subject">${subjectOptions}</select></div>
+    <div><label>ترم *</label>
+      <select id="tg_term">${GRADE_TERMS.map(t => `<option ${g && g.term === t ? 'selected' : ''}>${t}</option>`).join('')}</select>
+    </div>
+    <div><label>نوع آزمون</label>
+      <select id="tg_exam_type">${EXAM_TYPES.map(t => `<option ${g && g.exam_type === t ? 'selected' : ''}>${t}</option>`).join('')}</select>
+    </div>
+    <div><label>نمره *</label><input type="number" step="0.25" id="tg_score" value="${g ? g.score : ''}" min="0"></div>
+    <div><label>از (حداکثر)</label><input type="number" id="tg_max_score" value="${g ? g.max_score : 20}" min="1"></div>
+    <div><label>تاریخ</label><input id="tg_date" value="${g ? (g.exam_date || today()) : today()}"></div>
+    <div class="full"><label>نام دبیر</label><input id="tg_teacher" value="${g ? (g.teacher_name || teacherFullName) : teacherFullName}"></div>
+    <div class="full"><label>توضیحات</label><textarea id="tg_desc">${g ? (g.description || '') : ''}</textarea></div>
+  </div>
+  <div class="modalfoot"><button class="btn green" id="btnSaveTeacherGrade">💾 ذخیره</button></div></div>`);
+
+  document.getElementById('btnSaveTeacherGrade').onclick = () => saveTeacherGrade(id || 0);
+}
+
+async function saveTeacherGrade(id){
+  if(isProcessing) return;
+  const student_id = v('tg_student');
+  const subject = v('tg_subject');
+  const score = parseFloat(v('tg_score'));
+  if(!student_id || !subject || isNaN(score)) return toast('دانش‌آموز، درس و نمره الزامی است', 'error');
+
+  const data = {
+    student_id: Number(student_id), subject, term: v('tg_term'),
+    exam_type: v('tg_exam_type'), score,
+    max_score: parseFloat(v('tg_max_score')) || 20,
+    exam_date: v('tg_date'), teacher_name: v('tg_teacher'),
+    description: v('tg_desc'), updated_at: new Date().toISOString()
+  };
+
+  isProcessing = true;
+  try {
+    let error;
+    if(id) ({ error } = await sb.from('grades').update(data).eq('id', id));
+    else { data.created_by = String(currentTeacher.id); ({ error } = await sb.from('grades').insert(data)); }
+    if(error) return toast(translateError(error), 'error');
+    await logAction(`ثبت نمره توسط ${currentTeacher.name} ${currentTeacher.family}`);
+    closeModal();
+    await loadData();
+    renderTeacherGrades();
+    renderTeacherStudents();
+    toast('نمره ذخیره شد ✅', 'success');
+  } finally { isProcessing = false; }
+}
+
+async function deleteTeacherGrade(id){
+  if(!confirm('حذف نمره؟')) return;
+  if(isProcessing) return;
+  isProcessing = true;
+  try {
+    const { error } = await sb.from('grades').delete().eq('id', id);
+    if(error) return toast(translateError(error), 'error');
+    await logAction('حذف نمره');
+    await loadData();
+    renderTeacherGrades();
+    renderTeacherStudents();
+    toast('حذف شد ✅', 'success');
+  } finally { isProcessing = false; }
+}
+
+function renderTeacherStudents(){
+  if(!currentTeacher) return;
+  const q = v('teacherStudentSearch');
+  const g = v('teacherStudentGradeFilter');
+  const arr = db.students.filter(s => {
+    if(q && !`${s.name} ${s.family} ${s.code}`.includes(q)) return false;
+    if(g && s.grade !== g) return false;
+    return true;
+  });
+  const tbody = document.getElementById('teacherStudentsTable');
+  if(!tbody) return;
+  if(arr.length === 0){
+    tbody.innerHTML = '<tr><td colspan="6" class="empty">دانش‌آموزی در سیستم نیست. با مدیر اضافه کنید.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = arr.map(s => {
+    const grades = db.grades.filter(gr => gr.student_id == s.id);
+    const avg = grades.length > 0
+      ? (grades.reduce((a,gr) => a + (Number(gr.score) / Number(gr.max_score || 20) * 20), 0) / grades.length).toFixed(2)
+      : '-';
+    return `<tr>
+      <td><b>${s.code || '-'}</b></td>
+      <td><b>${s.name} ${s.family}</b></td>
+      <td>${s.grade || '-'} / ${s.class || '-'}</td>
+      <td>${grades.length}</td>
+      <td>${avg}</td>
+      <td class="actions">
+        <button class="btn green" onclick="openTeacherGradeForStudent(${s.id})">ثبت نمره</button>
+        <button class="btn" onclick="teacherMessageToStudent(${s.id})">💬 پیام</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openTeacherGradeForStudent(studentId){
+  openTeacherGrade();
+  setTimeout(() => {
+    const sel = document.getElementById('tg_student');
+    if(sel) sel.value = studentId;
+  }, 100);
+}
+
+function teacherMessageToStudent(studentId){
+  const s = studentById(studentId);
+  if(!s) return;
+  document.querySelectorAll('.teacher-tab').forEach(t => t.classList.remove('active'));
+  const msgTab = document.querySelector('.teacher-tab[data-ttab="messages"]');
+  if(msgTab) msgTab.classList.add('active');
+  document.querySelectorAll('.teacher-panel').forEach(p => p.classList.remove('active'));
+  const msgPanel = document.getElementById('teacher-messages');
+  if(msgPanel) msgPanel.classList.add('active');
+  setTimeout(() => {
+    const sel = document.getElementById('teacherMessageStudent');
+    if(sel) sel.value = studentId;
+    const body = document.getElementById('teacherMessageBody');
+    if(body) body.focus();
+  }, 100);
+}
+
+function renderTeacherMessagesForm(){
+  if(!currentTeacher) return;
+  const sel = document.getElementById('teacherMessageStudent');
+  if(!sel) return;
+  sel.innerHTML = '<option value="">انتخاب دانش‌آموز</option>' +
+    db.students.map(s => `<option value="${s.id}">${s.name} ${s.family} — ${s.code || ''} (${s.grade || '-'})</option>`).join('');
+}
+
+async function sendTeacherMessage(){
+  if(!currentTeacher) return;
+  const studentId = v('teacherMessageStudent');
+  const body = v('teacherMessageBody');
+  if(!studentId) return toast('دانش‌آموز را انتخاب کنید', 'error');
+  if(!body) return toast('متن پیام را وارد کنید', 'error');
+  if(isProcessing) return;
+  isProcessing = true;
+  try {
+    const { error } = await sb.from('messages').insert({
+      sender_id: String(currentTeacher.id),
+      sender_name: `${currentTeacher.name} ${currentTeacher.family}`,
+      sender_role: 'teacher',
+      recipient_id: Number(studentId),
+      recipient_type: 'student',
+      body: body,
+      is_read: false
+    });
+    if(error){ toast(translateError(error), 'error'); return; }
+    await logAction(`پیام استاد به اولیای ${studentName(studentId)}`);
+    document.getElementById('teacherMessageBody').value = '';
+    document.getElementById('teacherMessageStudent').value = '';
+    await loadData();
+    renderTeacherSentMessages();
+    toast('پیام ارسال شد ✅', 'success');
+  } finally { isProcessing = false; }
+}
+
+function renderTeacherSentMessages(){
+  if(!currentTeacher) return;
+  const el = document.getElementById('teacherSentMessages');
+  if(!el) return;
+  const sent = db.messages.filter(m => 
+    m.senderRole === 'teacher' && 
+    String(m.senderId) === String(currentTeacher.id)
+  ).sort((a,b) => (b.createdAt||'').localeCompare(a.createdAt||''));
+  if(!sent.length){ el.innerHTML = '<div class="empty">پیامی ارسال نکرده‌اید</div>'; return; }
+  el.innerHTML = sent.map(m => `
+    <div class="announcement-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <div style="font-weight:800;font-size:14px;color:var(--primary-dark)">به: ${studentName(m.recipientId)}</div>
+        <div style="font-size:11.5px;color:var(--muted)">${m.createdAt ? new Date(m.createdAt).toLocaleString('fa-IR') : ''}</div>
+      </div>
+      <p style="white-space:pre-wrap">${m.body}</p>
+      <div class="ann-meta">
+        ${m.isRead ? '<span class="badge paid">خوانده شد</span>' : '<span class="badge debt">خوانده نشده</span>'}
+      </div>
+    </div>
+  `).join('');
+}
 function closeTeacherPanel(){
   currentTeacher = null;
   document.getElementById('authScreen').style.display = 'grid';
