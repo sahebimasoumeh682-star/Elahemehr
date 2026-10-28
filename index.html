@@ -1080,6 +1080,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 <section class="page" id="messages">
   <div class="section-head">
     <h2>💬 پیام‌ها</h2>
+    <button class="btn primary" id="btnNewMessage">پیام جدید +</button>
   </div>
   <div class="chat-container">
     <div class="chat-list" id="chatList"></div>
@@ -1483,6 +1484,7 @@ let charts = [];
 let parentStudent = null;
 let activeParentMessageRole = 'admin';
 let activeChatStudentId = null;
+let activeChatType = 'student';
 let currentCalendarYear = null;
 let currentCalendarMonth = null;
 let __checkStudentId = null;
@@ -3625,40 +3627,95 @@ function calendarNext(){
 function renderMessages(){
   const el = document.getElementById('chatList');
   if(!el) return;
+
+  // ⭐ گروه‌بندی: اول دانش‌آموزان، بعد اساتید
   const byStudent = {};
+  const byTeacher = {};
+  
   db.messages.forEach(m => {
     const sid = m.recipientId;
     if(!sid) return;
-    if(!byStudent[sid]) byStudent[sid] = [];
-    byStudent[sid].push(m);
+    if(m.recipientType === 'teacher'){
+      if(!byTeacher[sid]) byTeacher[sid] = [];
+      byTeacher[sid].push(m);
+    } else {
+      if(!byStudent[sid]) byStudent[sid] = [];
+      byStudent[sid].push(m);
+    }
   });
-  if(!Object.keys(byStudent).length){
-    el.innerHTML = '<div class="empty">هنوز پیامی نیست</div>';
+
+  const hasStudents = Object.keys(byStudent).length > 0;
+  const hasTeachers = Object.keys(byTeacher).length > 0;
+
+  if(!hasStudents && !hasTeachers){
+    el.innerHTML = '<div class="empty" style="padding:20px">هنوز پیامی رد و بدل نشده. روی «+ پیام جدید» کلیک کنید.</div>';
     return;
   }
-  el.innerHTML = Object.entries(byStudent).map(([sid, msgs]) => {
-    const s = studentById(sid);
-    if(!s) return '';
-    const lastMsg = msgs[msgs.length - 1];
-    const unread = msgs.filter(m => !m.isRead && m.senderRole === 'parent').length;
-    return `<div class="chat-list-item ${activeChatStudentId == sid ? 'active' : ''}" onclick="openChat(${sid})">
-      <div class="chat-avatar">${(s.name || '?')[0]}</div>
-      <div class="chat-info">
-        <div class="chat-name">${s.name} ${s.family}</div>
-        <div class="chat-preview">${lastMsg ? (lastMsg.senderRole === 'admin' ? '📤 ' : '📥 ') + lastMsg.body.substring(0, 40) : ''}</div>
-      </div>
-      ${unread > 0 ? `<div class="chat-unread">${unread}</div>` : ''}
-    </div>`;
-  }).join('');
-}
 
-function openChat(studentId){
-  activeChatStudentId = studentId;
-  const s = studentById(studentId);
-  if(!s) return;
-  document.getElementById('chatHeader').innerHTML = `<h3>💬 ${s.name} ${s.family} — کد: ${s.code || '-'}</h3>`;
+  let html = '';
+
+  // بخش دانش‌آموزان
+  if(hasStudents){
+    html += '<div style="padding:12px 16px;font-size:11px;font-weight:800;color:var(--muted);background:var(--primary-bg);border-bottom:1px solid var(--line)">👩🏻‍🎓 دانش‌آموزان</div>';
+    html += Object.entries(byStudent).map(([sid, msgs]) => {
+      const s = studentById(sid);
+      if(!s) return '';
+      const lastMsg = msgs[msgs.length - 1];
+      const unread = msgs.filter(m => !m.isRead && m.senderRole === 'parent').length;
+      return `<div class="chat-list-item ${activeChatStudentId == sid && activeChatType === 'student' ? 'active' : ''}" onclick="openChat(${sid}, 'student')">
+        <div class="chat-avatar">${(s.name || '?')[0]}</div>
+        <div class="chat-info">
+          <div class="chat-name">${s.name} ${s.family}</div>
+          <div class="chat-preview">${lastMsg ? (lastMsg.senderRole === 'admin' ? '📤 ' : '📥 ') + (lastMsg.body || '').substring(0, 40) : ''}</div>
+        </div>
+        ${unread > 0 ? `<div class="chat-unread">${unread}</div>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  // بخش اساتید
+  if(hasTeachers){
+    html += '<div style="padding:12px 16px;font-size:11px;font-weight:800;color:var(--muted);background:var(--primary-bg);border-bottom:1px solid var(--line)">👨‍🏫 اساتید</div>';
+    html += Object.entries(byTeacher).map(([tid, msgs]) => {
+      const t = staffById(tid);
+      if(!t) return '';
+      const lastMsg = msgs[msgs.length - 1];
+      const unread = msgs.filter(m => !m.isRead && m.senderRole === 'teacher').length;
+      return `<div class="chat-list-item ${activeChatStudentId == tid && activeChatType === 'teacher' ? 'active' : ''}" onclick="openChat(${tid}, 'teacher')">
+        <div class="chat-avatar" style="background:linear-gradient(135deg,#059669,#10b981)">${(t.name || '?')[0]}</div>
+        <div class="chat-info">
+          <div class="chat-name">${t.name} ${t.family}</div>
+          <div class="chat-preview">${lastMsg ? (lastMsg.senderRole === 'admin' ? '📤 ' : '📥 ') + (lastMsg.body || '').substring(0, 40) : ''}</div>
+        </div>
+        ${unread > 0 ? `<div class="chat-unread">${unread}</div>` : ''}
+      </div>`;
+    }).join('');
+  }
+
+  el.innerHTML = html;
+}
+function openChat(contactId, contactType){
+  activeChatStudentId = contactId;
+  activeChatType = contactType || 'student';
+  
+  let contact;
+  if(activeChatType === 'teacher'){
+    contact = staffById(contactId);
+  } else {
+    contact = studentById(contactId);
+  }
+  
+  if(!contact) return;
+  
+  document.getElementById('chatHeader').innerHTML = `<h3>💬 ${contact.name} ${contact.family} — ${activeChatType === 'teacher' ? 'استاد' : 'دانش‌آموز'}</h3>`;
   document.getElementById('chatInputArea').style.display = 'flex';
-  const msgs = db.messages.filter(m => m.recipientId == studentId).sort((a,b) => (a.createdAt||'').localeCompare(b.createdAt||''));
+  
+  const msgs = db.messages.filter(m => 
+    m.recipientId == contactId && 
+    ((activeChatType === 'teacher' && m.recipientType === 'teacher') ||
+     (activeChatType === 'student' && m.recipientType !== 'teacher'))
+  ).sort((a,b) => (a.createdAt||'').localeCompare(b.createdAt||''));
+  
   const messagesEl = document.getElementById('chatMessages');
   messagesEl.innerHTML = msgs.length ? msgs.map(m => {
     const isOutgoing = m.senderRole === 'admin' || m.senderRole === 'accountant';
@@ -3667,23 +3724,91 @@ function openChat(studentId){
       ${m.body}
       <span class="chat-time">${m.createdAt ? new Date(m.createdAt).toLocaleString('fa-IR') : ''}</span>
     </div>`;
-  }).join('') : '<div class="empty">پیامی نیست</div>';
+  }).join('') : '<div class="empty">پیامی نیست. اولین پیام را بفرستید.</div>';
+  
   messagesEl.scrollTop = messagesEl.scrollHeight;
-  markMessagesAsRead(studentId);
+  markMessagesAsRead(contactId, activeChatType);
   renderMessages();
 }
 
-async function markMessagesAsRead(studentId){
-  const unread = db.messages.filter(m => m.recipientId == studentId && !m.isRead && m.senderRole === 'parent');
+async function markMessagesAsRead(contactId, contactType){
+  const unread = db.messages.filter(m => 
+    m.recipientId == contactId && 
+    !m.isRead && 
+    (contactType === 'teacher' ? m.senderRole === 'teacher' : m.senderRole === 'parent')
+  );
   if(!unread.length) return;
   for(const m of unread){
     try { await sb.from('messages').update({ is_read: true }).eq('id', m.id); } catch(e){}
     m.isRead = true;
   }
 }
+  function openNewMessageModal(){
+  const studentsOpts = db.students.map(s => 
+    `<option value="student_${s.id}">👩🏻‍🎓 ${s.name} ${s.family} — ${s.code || ''}</option>`
+  ).join('');
+  
+  const teachersOpts = db.staff.filter(t => t.canLogin || t.position === 'دبیر').map(t => 
+    `<option value="teacher_${t.id}">👨‍🏫 ${t.name} ${t.family} — ${t.position || ''}</option>`
+  ).join('');
+
+  openModal('💬 پیام جدید', `
+  <div class="form">
+    <div class="formgrid">
+      <div class="full">
+        <label>مخاطب *</label>
+        <select id="newMsgRecipient">
+          <option value="">انتخاب کنید</option>
+          <optgroup label="👩🏻‍🎓 دانش‌آموزان">${studentsOpts}</optgroup>
+          <optgroup label="👨‍🏫 اساتید">${teachersOpts}</optgroup>
+        </select>
+      </div>
+      <div class="full">
+        <label>متن پیام *</label>
+        <textarea id="newMsgBody" style="min-height:120px" placeholder="متن پیام..."></textarea>
+      </div>
+    </div>
+  </div>
+  <div class="modalfoot">
+    <button class="btn primary" id="btnSendNewMessage">📤 ارسال</button>
+  </div>`);
+
+  document.getElementById('btnSendNewMessage').onclick = async () => {
+    const recipientValue = v('newMsgRecipient');
+    const body = v('newMsgBody');
+    
+    if(!recipientValue) return toast('مخاطب را انتخاب کنید', 'error');
+    if(!body) return toast('متن پیام را وارد کنید', 'error');
+    
+    const parts = recipientValue.split('_');
+    const type = parts[0];
+    const recipientId = Number(parts[1]);
+    
+    if(!recipientId) return toast('مخاطب نامعتبر', 'error');
+    
+    isProcessing = true;
+    try {
+      const meta = currentUser.user_metadata || {};
+      const { error } = await sb.from('messages').insert({
+        sender_id: String(currentUser.id),
+        sender_name: meta.full_name || 'مدیر',
+        sender_role: 'admin',
+        recipient_id: recipientId,
+        recipient_type: type,
+        body: body,
+        is_read: false
+      });
+      if(error){ toast(translateError(error), 'error'); return; }
+      closeModal();
+      await loadData();
+      renderMessages();
+      toast(`پیام به ${type === 'teacher' ? 'استاد' : 'دانش‌آموز'} ارسال شد ✅`, 'success');
+    } finally { isProcessing = false; }
+  };
+}
 
 async function sendAdminMessage(){
-  if(!activeChatStudentId) return;
+  if(!activeChatStudentId) return toast('یک مخاطب انتخاب کنید', 'error');
   const input = document.getElementById('chatMessageInput');
   const body = input.value.trim();
   if(!body) return;
@@ -3696,13 +3821,14 @@ async function sendAdminMessage(){
       sender_name: meta.full_name || 'مدیر',
       sender_role: 'admin',
       recipient_id: activeChatStudentId,
-      recipient_type: 'student',
-      body, is_read: false
+      recipient_type: activeChatType || 'student',
+      body: body,
+      is_read: false
     });
     if(error){ toast(translateError(error), 'error'); return; }
     input.value = '';
     await loadData();
-    openChat(activeChatStudentId);
+    openChat(activeChatStudentId, activeChatType);
     toast('ارسال شد ✅', 'success');
   } finally { isProcessing = false; }
 }
@@ -5829,6 +5955,8 @@ document.addEventListener('click', function(e){
    BIND STATIC BUTTONS
 ============================================================ */
 function bindStaticButtons(){
+    const btnNewMsg = document.getElementById('btnNewMessage');
+  if(btnNewMsg) btnNewMsg.onclick = openNewMessageModal;
   // Auth tabs
   document.querySelectorAll('.auth-tab').forEach(tab => {
     tab.onclick = () => {
