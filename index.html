@@ -222,6 +222,32 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .dashboard-table-card .mini-table th { background: var(--primary-bg); color: var(--primary-dark); font-weight: 800; }
 
 .student-search-box { position: relative; margin-bottom: 12px; }
+  /* ⭐ فیکس چک‌باکس‌های دروس */
+#st_subjects_container input[type="checkbox"] {
+  width: 18px !important;
+  height: 18px !important;
+  min-width: 18px !important;
+  max-width: 18px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  accent-color: var(--primary);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+#st_subjects_container label {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  min-width: 0;
+}
+
+#st_subjects_container label span {
+  display: inline-block !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .student-search-box input { width: 100%; padding: 12px 16px 12px 44px; border: 2px solid var(--primary-light); border-radius: 12px; font-size: 14px; font-weight: 600; background: var(--primary-bg); }
 .student-search-box .search-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 18px; color: var(--primary); }
 
