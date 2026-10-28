@@ -1923,49 +1923,73 @@ async function doTeacherLogin(){
 
   isProcessing = true;
   teacherAuthMsg('در حال بارگذاری...', true);
+  
   try {
+    // مرحله ۱: لود کامل دیتابیس
     await loadData();
     
-    const cleanNational = String(nationalCode).replace(/\D/g, '');
-    console.log('کد ملی ورودی:', cleanNational);
-    console.log('تعداد کارکنان:', db.staff.length);
-    console.log('کارکنان:', db.staff.map(s => ({ name: s.name, nat: s.nationalCode, ph: s.phone, can: s.canLogin })));
-    
-    if(!db.staff.length){
-      teacherAuthMsg('❌ هیچ کارمندی در سیستم ثبت نشده است.');
+    // مرحله ۲: چک کارکنان
+    if(!db.staff || db.staff.length === 0){
+      teacherAuthMsg('❌ هیچ کارمندی در سیستم ثبت نشده. اول با مدیر وارد شوید و از بخش «کارکنان» یک استاد بسازید.');
+      isProcessing = false;
       return;
     }
     
-    const teacher = db.staff.find(s => {
-      const storedNational = String(s.nationalCode || '').replace(/\D/g, '');
-      return storedNational && storedNational === cleanNational;
+    // مرحله ۳: نرمال‌سازی ورودی
+    const cleanNational = String(nationalCode).replace(/\D/g, '');
+    const cleanPhone = String(phone).replace(/\D/g, '');
+    
+    // مرحله ۴: جستجو در کارکنان (با هر دو فیلد national_code و staff_code به عنوان fallback)
+    let teacher = null;
+    
+    // اول با کد ملی
+    teacher = db.staff.find(s => {
+      const stored = String(s.nationalCode || '').replace(/\D/g, '');
+      return stored && stored === cleanNational;
     });
     
+    // اگر پیدا نشد، با کد پرسنلی هم امتحان کن
     if(!teacher){
-      teacherAuthMsg(`❌ استادی با کد ملی «${nationalCode}» یافت نشد.`);
+      teacher = db.staff.find(s => {
+        const stored = String(s.code || '').replace(/\D/g, '');
+        return stored && stored === cleanNational;
+      });
+    }
+    
+    if(!teacher){
+      // لیست کارکنان موجود را نشان بده برای راهنمایی
+      const names = db.staff.map(s => `${s.name} ${s.family}`).join('، ');
+      teacherAuthMsg(`❌ استادی با کد ملی «${nationalCode}» پیدا نشد. کارکنان موجود: ${names}`);
+      isProcessing = false;
       return;
     }
     
-    const cleanInput = String(phone).replace(/\D/g, '');
-    const cleanStored = String(teacher.phone || '').replace(/\D/g, '');
+    // مرحله ۵: بررسی شماره تلفن
+    const storedPhone = String(teacher.phone || '').replace(/\D/g, '');
     
-    if(!cleanStored){
-      teacherAuthMsg('❌ برای این استاد شماره تلفنی ثبت نشده است.');
+    if(!storedPhone){
+      teacherAuthMsg(`❌ برای «${teacher.name} ${teacher.family}» شماره تلفنی ثبت نشده است. با مدیر تماس بگیرید.`);
+      isProcessing = false;
       return;
     }
     
-    if(cleanInput !== cleanStored){
-      teacherAuthMsg('❌ شماره تلفن مطابقت ندارد.');
+    if(cleanPhone !== storedPhone){
+      teacherAuthMsg(`❌ شماره تلفن اشتباه است. (شماره ثبت‌شده: ${teacher.phone})`);
+      isProcessing = false;
       return;
     }
     
+    // مرحله ۶: ورود موفق
     currentTeacher = teacher;
     teacherAuthMsg('');
     openTeacherPanel();
+    toast(`خوش آمدید ${teacher.name} ${teacher.family}`, 'success');
+    
   } catch(e){
-    console.error('خطای ورود استاد:', e);
-    teacherAuthMsg('خطا: ' + (e.message || 'اتصال برقرار نشد'));
-  } finally { isProcessing = false; }
+    teacherAuthMsg('❌ خطا در اتصال: ' + (e.message || 'نامشخص'));
+  } finally { 
+    isProcessing = false; 
+  }
 }
 
 function openTeacherPanel(){
