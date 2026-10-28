@@ -468,7 +468,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   <div class="auth-card">
     <img src="logo.png" alt="لوگو" class="auth-logo"
          onerror="this.outerHTML='<div style=\'font-size:70px;text-align:center;margin-bottom:10px\'>🌸</div>'">
-    <h2>حسابداری الهه مهر</h2>
+    <h2>دبیرستان دخترانه الهه مهر</h2>
     <p class="auth-subtitle">سامانه مالی و آموزشی مدرسه</p>
 
     <div class="auth-tabs">
@@ -4169,29 +4169,12 @@ function renderStaff(){
         <button class="btn red" data-action="del-staff" data-id="${s.id}">حذف</button>
       </td></tr>`).join('') || `<tr><td colspan="8" class="empty">کارمندی نیست</td></tr>`;
 }
-
-function openStaff(id){
-  const s = id ? staffById(id) : { id:'', code:'', name:'', family:'', position:'دبیر', phone:'', nationalCode:'', hourly_rate: 0, session_duration_minutes: 90, notes:'', isTeacher: true, canLogin: true };
-  if(!s) return;
-  openModal(id ? 'ویرایش کارمند' : 'ثبت کارمند', `
-  <div class="form"><div class="formgrid">
-    <div><label>کد پرسنلی *</label><input id="st_code" value="${s.code||''}"></div>
-    <div><label>نام *</label><input id="st_name" value="${s.name||''}"></div>
-    <div><label>نام خانوادگی *</label><input id="st_family" value="${s.family||''}"></div>
-    <div><label>سمت</label><select id="st_position">${STAFF_ROLES.map(x => `<option ${x===s.position?'selected':''}>${x}</option>`).join('')}</select></div>
-    <div><label>کد ملی (ورود استاد)</label><input id="st_national" value="${s.nationalCode||''}" placeholder="۱۰ رقم"></div>
-    <div><label>شماره همراه (رمز ورود)</label><input id="st_phone" value="${s.phone||''}" placeholder="0912..."></div>
-    <div><label>حقوق ساعتی (ریال)</label><input type="number" id="st_hourly" value="${s.hourly_rate||0}"></div>
-    <div><label>مدت جلسه (دقیقه)</label><input type="number" id="st_session" value="${s.session_duration_minutes||90}"></div>
-    <div class="full"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px;background:var(--primary-bg);border-radius:10px"><input type="checkbox" id="st_can_login" ${s.canLogin ? 'checked' : ''} style="width:auto"><span>🔐 اجازه ورود به پنل استاد</span></label></div>
-    <div class="full"><label>توضیحات</label><textarea id="st_notes">${s.notes||''}</textarea></div>
-  </div>
-  <div class="modalfoot"><button class="btn primary" id="btnSaveStaff">ذخیره</button></div></div>`);
-  document.getElementById('btnSaveStaff').onclick = () => saveStaff(id || 0);
-}
-
-async function saveStaff(id){
+  async function saveStaff(id){
   if(isProcessing) return;
+  
+  const checkedSubjects = [...document.querySelectorAll('#st_subjects_container input[type="checkbox"]:checked')].map(cb => cb.value);
+  const subjectsStr = checkedSubjects.join(',');
+  
   const s = { 
     staff_code: v('st_code'), name: v('st_name'), family: v('st_family'),
     position: v('st_position'), phone: v('st_phone'),
@@ -4200,8 +4183,10 @@ async function saveStaff(id){
     can_login: document.getElementById('st_can_login').checked,
     hourly_rate: num('st_hourly'), 
     session_duration_minutes: num('st_session') || 90,
-    notes: v('st_notes') 
+    notes: v('st_notes'),
+    subjects: subjectsStr || null
   };
+  
   if(!s.staff_code || !s.name || !s.family) return toast('اطلاعات ناقص', 'error');
   if(db.staff.some(x => x.staff_code === s.staff_code && x.id != id)) return toast('کد تکراری', 'error');
   isProcessing = true;
@@ -4217,6 +4202,49 @@ async function saveStaff(id){
   } finally { isProcessing = false; }
 }
 
+
+function openStaff(id){
+  const s = id ? staffById(id) : { 
+    id:'', code:'', name:'', family:'', position:'دبیر', phone:'', nationalCode:'', 
+    hourly_rate: 0, session_duration_minutes: 90, notes:'', isTeacher: true, canLogin: true,
+    subjects: ''
+  };
+  if(!s) return;
+  
+  const currentSubjects = String(s.subjects || '').split(',').map(x => x.trim()).filter(Boolean);
+  
+  const subjectCheckboxes = db.subjects.map(sub => `
+    <label style="display:flex;align-items:center;gap:8px;padding:8px 12px;background:${currentSubjects.includes(sub.name) ? 'var(--primary-bg)' : '#f8fafc'};border:2px solid ${currentSubjects.includes(sub.name) ? 'var(--primary)' : 'var(--line)'};border-radius:8px;cursor:pointer;font-weight:600">
+      <input type="checkbox" value="${sub.name}" ${currentSubjects.includes(sub.name) ? 'checked' : ''} style="width:auto;margin:0">
+      <span>${sub.name}</span>
+    </label>
+  `).join('');
+
+  openModal(id ? 'ویرایش کارمند' : 'ثبت کارمند', `
+  <div class="form"><div class="formgrid">
+    <div><label>کد پرسنلی *</label><input id="st_code" value="${s.code||''}"></div>
+    <div><label>نام *</label><input id="st_name" value="${s.name||''}"></div>
+    <div><label>نام خانوادگی *</label><input id="st_family" value="${s.family||''}"></div>
+    <div><label>سمت</label><select id="st_position">${STAFF_ROLES.map(x => `<option ${x===s.position?'selected':''}>${x}</option>`).join('')}</select></div>
+    <div><label>کد ملی</label><input id="st_national" value="${s.nationalCode||''}" placeholder="۱۰ رقم"></div>
+    <div><label>شماره همراه</label><input id="st_phone" value="${s.phone||''}" placeholder="0912..."></div>
+    <div><label>حقوق ساعتی (ریال)</label><input type="number" id="st_hourly" value="${s.hourly_rate||0}"></div>
+    <div><label>مدت جلسه (دقیقه)</label><input type="number" id="st_session" value="${s.session_duration_minutes||90}"></div>
+    
+    <div class="full">
+      <label style="margin-bottom:12px;display:block">📚 دروسی که این استاد تدریس می‌کند</label>
+      <div id="st_subjects_container" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;padding:14px;background:#f8fafc;border-radius:12px;border:2px dashed var(--line)">
+        ${subjectCheckboxes || '<p style="color:var(--muted);margin:0">هیچ درسی تعریف نشده. اول از بخش «مدیریت نمرات» درس اضافه کنید.</p>'}
+      </div>
+    </div>
+    
+    <div class="full"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;padding:10px;background:var(--primary-bg);border-radius:10px"><input type="checkbox" id="st_can_login" ${s.canLogin ? 'checked' : ''} style="width:auto"><span>🔐 اجازه ورود به پنل استاد</span></label></div>
+    <div class="full"><label>توضیحات</label><textarea id="st_notes">${s.notes||''}</textarea></div>
+  </div>
+  <div class="modalfoot"><button class="btn primary" id="btnSaveStaff">ذخیره</button></div></div>`);
+  
+  document.getElementById('btnSaveStaff').onclick = () => saveStaff(id || 0);
+}
 /* ============================================================
    SALARIES
 ============================================================ */
@@ -5429,7 +5457,38 @@ function openStudent(id){
   <div class="modalfoot"><button class="btn primary" id="btnSaveStudent">ذخیره</button></div></div>`);
   document.getElementById('btnSaveStudent').onclick = () => saveStudent(id || 0);
 }
-
+async function saveStaff(id){
+  if(isProcessing) return;
+  
+  const checkedSubjects = [...document.querySelectorAll('#st_subjects_container input[type="checkbox"]:checked')].map(cb => cb.value);
+  const subjectsStr = checkedSubjects.join(',');
+  
+  const s = { 
+    staff_code: v('st_code'), name: v('st_name'), family: v('st_family'),
+    position: v('st_position'), phone: v('st_phone'),
+    national_code: v('st_national') || null,
+    is_teacher: v('st_position') === 'دبیر',
+    can_login: document.getElementById('st_can_login').checked,
+    hourly_rate: num('st_hourly'), 
+    session_duration_minutes: num('st_session') || 90,
+    notes: v('st_notes'),
+    subjects: subjectsStr || null
+  };
+  
+  if(!s.staff_code || !s.name || !s.family) return toast('اطلاعات ناقص', 'error');
+  if(db.staff.some(x => x.staff_code === s.staff_code && x.id != id)) return toast('کد تکراری', 'error');
+  isProcessing = true;
+  try {
+    let error;
+    if(id) ({ error } = await sb.from('staff').update(s).eq('id', id));
+    else ({ error } = await sb.from('staff').insert(s));
+    if(error) return toast(translateError(error), 'error');
+    await logAction(id ? 'ویرایش کارمند' : 'ثبت کارمند');
+    closeModal();
+    await refreshReload();
+    toast('ذخیره شد ✅', 'success');
+  } finally { isProcessing = false; }
+}
 async function saveStudent(id){
   if(isProcessing) return;
   const s = {
