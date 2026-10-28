@@ -2212,27 +2212,35 @@ function openTeacherGrade(id){
     ? teacherSubjectsStr.split(',').map(x => x.trim()).filter(Boolean)
     : [];
   
-  // اگر استاد درسی ندارد، پیام بده
-  if(teacherSubjects.length === 0 && !g){
-    return toast('⚠️ هیچ درسی به شما اختصاص نیافته. با مدیر تماس بگیرید.', 'error');
+  // ⭐ اگر استاد درس دارد، فقط آن‌ها را نشان بده. اگر ندارد، همه دروس
+  let availableSubjects;
+  if(teacherSubjects.length > 0){
+    availableSubjects = db.subjects.filter(sub => teacherSubjects.includes(sub.name));
+    if(availableSubjects.length === 0){
+      availableSubjects = db.subjects;
+    }
+  } else {
+    availableSubjects = db.subjects;
   }
-  
-  // فیلتر دروس: فقط دروس استاد
-  const availableSubjects = teacherSubjects.length > 0
-    ? db.subjects.filter(sub => teacherSubjects.includes(sub.name))
-    : db.subjects;
   
   const subjectOptions = availableSubjects.length > 0
     ? availableSubjects.map(s => `<option ${g && g.subject === s.name ? 'selected' : ''}>${s.name}</option>`).join('')
-    : '<option value="">هیچ درسی اختصاص نیافته</option>';
-
+    : '<option value="">هیچ درسی نیست</option>';
+  
   const teacherFullName = `${currentTeacher.name} ${currentTeacher.family}`;
+  
+  // پیام هشدار اگر درسی اختصاص نیافته
+  const warningMsg = teacherSubjects.length === 0 
+    ? `<div style="background:#fef3c7;padding:12px;border-radius:10px;margin-bottom:16px;font-size:13px;font-weight:700;color:#92400e">
+        ⚠️ هیچ درسی به شما اختصاص نیافته. با مدیر تماس بگیرید. (موقتاً همه دروس نمایش داده می‌شود)
+       </div>`
+    : `<div style="background:var(--primary-bg);padding:12px;border-radius:10px;margin-bottom:16px;font-size:13px;font-weight:700;color:var(--primary-dark)">
+        📚 دروس شما: ${teacherSubjects.join(' • ')}
+       </div>`;
 
   openModal(g ? '✏️ ویرایش نمره' : '📚 ثبت نمره جدید', `
   <div class="form">
-    <div style="background:var(--primary-bg);padding:12px;border-radius:10px;margin-bottom:16px;font-size:13px;font-weight:700;color:var(--primary-dark)">
-      📚 دروس شما: ${teacherSubjects.length > 0 ? teacherSubjects.join(' • ') : 'هیچ'}
-    </div>
+    ${warningMsg}
     <div class="formgrid">
       <div class="full"><label>دانش‌آموز *</label>
         <select id="tg_student">
@@ -2258,7 +2266,6 @@ function openTeacherGrade(id){
 
   document.getElementById('btnSaveTeacherGrade').onclick = () => saveTeacherGrade(id || 0);
 }
-
 async function saveTeacherGrade(id){
   if(isProcessing) return;
   const student_id = v('tg_student');
