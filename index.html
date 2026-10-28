@@ -2901,32 +2901,60 @@ function renderTeacherGrades(){
 function openTeacherGrade(id){
   if(!currentTeacher) return;
   const g = id ? db.grades.find(x => x.id == id) : null;
-  const subjectOptions = db.subjects.length
-    ? db.subjects.map(s => `<option ${g && g.subject === s.name ? 'selected' : ''}>${s.name}</option>`).join('')
-    : '<option value="">ابتدا درس اضافه کنید</option>';
-
+  
+  // ⭐ دروس استاد
+  const teacherSubjects = String(currentTeacher.subjects || '').split(',').map(x => x.trim()).filter(Boolean);
+  
+  let availableSubjects = teacherSubjects.length > 0 
+    ? db.subjects.filter(sub => teacherSubjects.includes(sub.name))
+    : db.subjects;
+  
+  if(availableSubjects.length === 0) availableSubjects = db.subjects;
+  
+  const subjectOptions = availableSubjects.length > 0
+    ? availableSubjects.map(s => `<option ${g && g.subject === s.name ? 'selected' : ''}>${s.name}</option>`).join('')
+    : '<option value="">هیچ درسی نیست</option>';
+  
+  const studentOptions = db.students.length > 0
+    ? db.students.map(s => `<option value="${s.id}" ${g && g.student_id == s.id ? 'selected' : ''}>${s.name} ${s.family} — ${s.code || ''} (${s.grade || '-'})</option>`).join('')
+    : '<option value="">هیچ دانش‌آموزی نیست</option>';
+  
   const teacherFullName = `${currentTeacher.name} ${currentTeacher.family}`;
+  
+  let infoBox = '';
+  if(db.students.length === 0){
+    infoBox = '<div style="background:#fee2e2;padding:12px;border-radius:10px;margin-bottom:16px;color:#991b1b;font-weight:700">⚠️ هیچ دانش‌آموزی در سیستم نیست. با مدیر تماس بگیرید.</div>';
+  } else if(db.subjects.length === 0){
+    infoBox = '<div style="background:#fee2e2;padding:12px;border-radius:10px;margin-bottom:16px;color:#991b1b;font-weight:700">⚠️ هیچ درسی در سیستم نیست. با مدیر تماس بگیرید.</div>';
+  } else if(teacherSubjects.length === 0){
+    infoBox = '<div style="background:#fef3c7;padding:12px;border-radius:10px;margin-bottom:16px;color:#92400e;font-weight:700">⚠️ درسی به شما اختصاص نیافته. همه دروس نمایش داده می‌شود.</div>';
+  } else {
+    infoBox = `<div style="background:var(--primary-bg);padding:12px;border-radius:10px;margin-bottom:16px;color:var(--primary-dark);font-weight:700">📚 دروس شما: ${teacherSubjects.join(' • ')}</div>`;
+  }
 
-  openModal(g ? '✏️ ویرایش نمره' : '📚 ثبت نمره جدید', `
-  <div class="form"><div class="formgrid">
-    <div class="full"><label>دانش‌آموز *</label>
-      <select id="tg_student">
-        <option value="">انتخاب</option>
-        ${db.students.map(s => `<option value="${s.id}" ${g && g.student_id == s.id ? 'selected' : ''}>${s.name} ${s.family} — ${s.code || ''} (${s.grade || '-'})</option>`).join('')}
-      </select>
+  openModal(g ? '✏️ ویرایش نمره' : '📚 ثبت نمره', `
+  <div class="form">
+    ${infoBox}
+    <div class="formgrid">
+      <div class="full"><label>دانش‌آموز *</label>
+        <select id="tg_student">
+          <option value="">انتخاب کنید</option>
+          ${studentOptions}
+        </select>
+      </div>
+      <div><label>درس *</label><select id="tg_subject">${subjectOptions}</select></div>
+      <div><label>ترم *</label>
+        <select id="tg_term">${GRADE_TERMS.map(t => `<option ${g && g.term === t ? 'selected' : ''}>${t}</option>`).join('')}</select>
+      </div>
+      <div><label>نوع آزمون</label>
+        <select id="tg_exam_type">${EXAM_TYPES.map(t => `<option ${g && g.exam_type === t ? 'selected' : ''}>${t}</option>`).join('')}</select>
+      </div>
+      <div><label>نمره *</label><input type="number" step="0.25" id="tg_score" value="${g ? g.score : ''}" min="0"></div>
+      <div><label>از (حداکثر)</label><input type="number" id="tg_max_score" value="${g ? g.max_score : 20}" min="1"></div>
+      <div><label>تاریخ</label><input id="tg_date" value="${g ? (g.exam_date || today()) : today()}"></div>
+      <div class="full"><label>نام دبیر</label><input id="tg_teacher" value="${g ? (g.teacher_name || teacherFullName) : teacherFullName}"></div>
+      <div class="full"><label>توضیحات</label><textarea id="tg_desc">${g ? (g.description || '') : ''}</textarea></div>
     </div>
-    <div><label>درس *</label><select id="tg_subject">${subjectOptions}</select></div>
-    <div><label>ترم *</label>
-      <select id="tg_term">${GRADE_TERMS.map(t => `<option ${g && g.term === t ? 'selected' : ''}>${t}</option>`).join('')}</select>
-    </div>
-    <div><label>نوع آزمون</label>
-      <select id="tg_exam_type">${EXAM_TYPES.map(t => `<option ${g && g.exam_type === t ? 'selected' : ''}>${t}</option>`).join('')}</select>
-    </div>
-    <div><label>نمره *</label><input type="number" step="0.25" id="tg_score" value="${g ? g.score : ''}" min="0"></div>
-    <div><label>از (حداکثر)</label><input type="number" id="tg_max_score" value="${g ? g.max_score : 20}" min="1"></div>
-    <div><label>تاریخ</label><input id="tg_date" value="${g ? (g.exam_date || today()) : today()}"></div>
-    <div class="full"><label>نام دبیر</label><input id="tg_teacher" value="${g ? (g.teacher_name || teacherFullName) : teacherFullName}"></div>
-    <div class="full"><label>توضیحات</label><textarea id="tg_desc">${g ? (g.description || '') : ''}</textarea></div>
   </div>
   <div class="modalfoot"><button class="btn green" id="btnSaveTeacherGrade">💾 ذخیره</button></div></div>`);
 
