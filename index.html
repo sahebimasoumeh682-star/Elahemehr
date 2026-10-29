@@ -2313,20 +2313,30 @@ async function deleteTeacherGrade(id){
 
 function renderTeacherStudents(){
   if(!currentTeacher) return;
-  const q = v('teacherStudentSearch');
+  const q = (v('teacherStudentSearch') || '').toLowerCase();
   const g = v('teacherStudentGradeFilter');
+  
   const arr = db.students.filter(s => {
-    if(q && !`${s.name} ${s.family} ${s.code}`.includes(q)) return false;
     if(g && s.grade !== g) return false;
+    if(q){
+      const fullName = `${s.name || ''} ${s.family || ''}`.toLowerCase();
+      const code = String(s.code || '').toLowerCase();
+      const phone = String(s.phone || '');
+      const national = String(s.national || '');
+      return fullName.includes(q) || code.includes(q) || phone.includes(q) || national.includes(q);
+    }
     return true;
   });
+  
   const tbody = document.getElementById('teacherStudentsTable');
   if(!tbody) return;
+  
   if(arr.length === 0){
-    tbody.innerHTML = '<tr><td colspan="6" class="empty">دانش‌آموزی در سیستم نیست. با مدیر اضافه کنید.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="empty">دانش‌آموزی یافت نشد</td></tr>';
     return;
   }
-  tbody.innerHTML = arr.map(s => {
+  
+  tbody.innerHTML = arr.slice(0, 100).map(s => {
     const grades = db.grades.filter(gr => gr.student_id == s.id);
     const avg = grades.length > 0
       ? (grades.reduce((a,gr) => a + (Number(gr.score) / Number(gr.max_score || 20) * 20), 0) / grades.length).toFixed(2)
@@ -2379,12 +2389,18 @@ function renderTeacherMessagesForm(){
 }
 
 async function sendTeacherMessage(){
-  if(!currentTeacher) return;
+  if(!currentTeacher) return toast('استاد وارد نشده', 'error');
+  
   const studentId = v('teacherMessageStudent');
-  const body = v('teacherMessageBody');
+  const body = (v('teacherMessageBody') || '').trim();
+  
   if(!studentId) return toast('دانش‌آموز را انتخاب کنید', 'error');
   if(!body) return toast('متن پیام را وارد کنید', 'error');
   if(isProcessing) return;
+  
+  const student = studentById(studentId);
+  if(!student) return toast('دانش‌آموز یافت نشد', 'error');
+  
   isProcessing = true;
   try {
     const { error } = await sb.from('messages').insert({
@@ -2396,16 +2412,29 @@ async function sendTeacherMessage(){
       body: body,
       is_read: false
     });
-    if(error){ toast(translateError(error), 'error'); return; }
-    await logAction(`پیام استاد به اولیای ${studentName(studentId)}`);
-    document.getElementById('teacherMessageBody').value = '';
-    document.getElementById('teacherMessageStudent').value = '';
+    
+    if(error){ 
+      toast('خطا: ' + (error.message || 'نامشخص'), 'error'); 
+      return; 
+    }
+    
+    toast(`پیام به اولیای ${student.name} ${student.family} ارسال شد ✅`, 'success');
+    
+    // پاک کردن فرم
+    const bodyEl = document.getElementById('teacherMessageBody');
+    const selEl = document.getElementById('teacherMessageStudent');
+    if(bodyEl) bodyEl.value = '';
+    if(selEl) selEl.value = '';
+    
+    // رفرش
     await loadData();
     renderTeacherSentMessages();
-    toast('پیام ارسال شد ✅', 'success');
-  } finally { isProcessing = false; }
+  } catch(e){
+    toast('خطا: ' + (e.message || 'نامشخص'), 'error');
+  } finally {
+    isProcessing = false;
+  }
 }
-
 function renderTeacherSentMessages(){
   if(!currentTeacher) return;
   const el = document.getElementById('teacherSentMessages');
@@ -2902,13 +2931,11 @@ function openTeacherGrade(id){
   if(!currentTeacher) return;
   const g = id ? db.grades.find(x => x.id == id) : null;
   
-  // ⭐ دروس استاد
   const teacherSubjects = String(currentTeacher.subjects || '').split(',').map(x => x.trim()).filter(Boolean);
   
   let availableSubjects = teacherSubjects.length > 0 
     ? db.subjects.filter(sub => teacherSubjects.includes(sub.name))
     : db.subjects;
-  
   if(availableSubjects.length === 0) availableSubjects = db.subjects;
   
   const subjectOptions = availableSubjects.length > 0
@@ -2916,31 +2943,21 @@ function openTeacherGrade(id){
     : '<option value="">هیچ درسی نیست</option>';
   
   const studentOptions = db.students.length > 0
-    ? db.students.map(s => `<option value="${s.id}" ${g && g.student_id == s.id ? 'selected' : ''}>${s.name} ${s.family} — ${s.code || ''} (${s.grade || '-'})</option>`).join('')
+    ? db.students.map(s => `<option value="${s.id}" ${g && g.student_id == s.id ? 'selected' : ''}>${s.name} ${s.family} — ${s.code || ''}</option>`).join('')
     : '<option value="">هیچ دانش‌آموزی نیست</option>';
   
   const teacherFullName = `${currentTeacher.name} ${currentTeacher.family}`;
   
-  let infoBox = '';
-  if(db.students.length === 0){
-    infoBox = '<div style="background:#fee2e2;padding:12px;border-radius:10px;margin-bottom:16px;color:#991b1b;font-weight:700">⚠️ هیچ دانش‌آموزی در سیستم نیست. با مدیر تماس بگیرید.</div>';
-  } else if(db.subjects.length === 0){
-    infoBox = '<div style="background:#fee2e2;padding:12px;border-radius:10px;margin-bottom:16px;color:#991b1b;font-weight:700">⚠️ هیچ درسی در سیستم نیست. با مدیر تماس بگیرید.</div>';
-  } else if(teacherSubjects.length === 0){
-    infoBox = '<div style="background:#fef3c7;padding:12px;border-radius:10px;margin-bottom:16px;color:#92400e;font-weight:700">⚠️ درسی به شما اختصاص نیافته. همه دروس نمایش داده می‌شود.</div>';
-  } else {
-    infoBox = `<div style="background:var(--primary-bg);padding:12px;border-radius:10px;margin-bottom:16px;color:var(--primary-dark);font-weight:700">📚 دروس شما: ${teacherSubjects.join(' • ')}</div>`;
-  }
+  const infoBox = teacherSubjects.length > 0
+    ? `<div style="background:var(--primary-bg);padding:12px;border-radius:10px;margin-bottom:16px;color:var(--primary-dark);font-weight:700">📚 دروس شما: ${teacherSubjects.join(' • ')}</div>`
+    : '<div style="background:#fef3c7;padding:12px;border-radius:10px;margin-bottom:16px;color:#92400e;font-weight:700">⚠️ درسی به شما اختصاص نیافته</div>';
 
   openModal(g ? '✏️ ویرایش نمره' : '📚 ثبت نمره', `
   <div class="form">
     ${infoBox}
     <div class="formgrid">
       <div class="full"><label>دانش‌آموز *</label>
-        <select id="tg_student">
-          <option value="">انتخاب کنید</option>
-          ${studentOptions}
-        </select>
+        <select id="tg_student"><option value="">انتخاب کنید</option>${studentOptions}</select>
       </div>
       <div><label>درس *</label><select id="tg_subject">${subjectOptions}</select></div>
       <div><label>ترم *</label>
@@ -2950,9 +2967,9 @@ function openTeacherGrade(id){
         <select id="tg_exam_type">${EXAM_TYPES.map(t => `<option ${g && g.exam_type === t ? 'selected' : ''}>${t}</option>`).join('')}</select>
       </div>
       <div><label>نمره *</label><input type="number" step="0.25" id="tg_score" value="${g ? g.score : ''}" min="0"></div>
-      <div><label>از (حداکثر)</label><input type="number" id="tg_max_score" value="${g ? g.max_score : 20}" min="1"></div>
+      <div><label>از</label><input type="number" id="tg_max_score" value="${g ? g.max_score : 20}"></div>
       <div><label>تاریخ</label><input id="tg_date" value="${g ? (g.exam_date || today()) : today()}"></div>
-      <div class="full"><label>نام دبیر</label><input id="tg_teacher" value="${g ? (g.teacher_name || teacherFullName) : teacherFullName}"></div>
+      <div class="full"><label>دبیر</label><input id="tg_teacher" value="${g ? (g.teacher_name || teacherFullName) : teacherFullName}"></div>
       <div class="full"><label>توضیحات</label><textarea id="tg_desc">${g ? (g.description || '') : ''}</textarea></div>
     </div>
   </div>
@@ -2960,7 +2977,6 @@ function openTeacherGrade(id){
 
   document.getElementById('btnSaveTeacherGrade').onclick = () => saveTeacherGrade(id || 0);
 }
-
 async function saveTeacherGrade(id){
   if(isProcessing) return;
   const student_id = v('tg_student');
