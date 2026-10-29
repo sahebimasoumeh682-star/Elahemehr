@@ -2321,9 +2321,7 @@ function renderTeacherStudents(){
     if(q){
       const fullName = `${s.name || ''} ${s.family || ''}`.toLowerCase();
       const code = String(s.code || '').toLowerCase();
-      const phone = String(s.phone || '');
-      const national = String(s.national || '');
-      return fullName.includes(q) || code.includes(q) || phone.includes(q) || national.includes(q);
+      return fullName.includes(q) || code.includes(q);
     }
     return true;
   });
@@ -2331,12 +2329,17 @@ function renderTeacherStudents(){
   const tbody = document.getElementById('teacherStudentsTable');
   if(!tbody) return;
   
-  if(arr.length === 0){
-    tbody.innerHTML = '<tr><td colspan="6" class="empty">دانش‌آموزی یافت نشد</td></tr>';
+  if(db.students.length === 0){
+    tbody.innerHTML = '<tr><td colspan="6" class="empty" style="color:red;font-weight:700">⚠️ هیچ دانش‌آموزی در دیتابیس نیست</td></tr>';
     return;
   }
   
-  tbody.innerHTML = arr.slice(0, 100).map(s => {
+  if(arr.length === 0){
+    tbody.innerHTML = '<tr><td colspan="6" class="empty">دانش‌آموزی با این جستجو یافت نشد. جستجو را پاک کنید.</td></tr>';
+    return;
+  }
+  
+  tbody.innerHTML = arr.slice(0, 200).map(s => {
     const grades = db.grades.filter(gr => gr.student_id == s.id);
     const avg = grades.length > 0
       ? (grades.reduce((a,gr) => a + (Number(gr.score) / Number(gr.max_score || 20) * 20), 0) / grades.length).toFixed(2)
@@ -2354,7 +2357,6 @@ function renderTeacherStudents(){
     </tr>`;
   }).join('');
 }
-
 function openTeacherGradeForStudent(studentId){
   openTeacherGrade();
   setTimeout(() => {
