@@ -2399,29 +2399,31 @@ function renderTeacherSentMessages(){
   if(!el) return;
   
   const sent = db.messages.filter(m => 
-    m.senderRole === 'teacher' && 
-    String(m.senderId) === String(currentTeacher.id)
-  ).sort((a,b) => (b.createdAt||'').localeCompare(a.createdAt||''));
+    String(m.senderId) === String(currentTeacher.id) && m.senderRole === 'teacher'
+  ).sort((a,b) => String(b.createdAt||'').localeCompare(String(a.createdAt||'')));
   
-  if(!sent.length){ 
-    el.innerHTML = '<div class="empty">پیامی ارسال نکرده‌اید</div>'; 
+  if(sent.length === 0){ 
+    el.innerHTML = '<div class="empty" style="padding:20px">هنوز پیامی ارسال نکرده‌اید</div>'; 
     return; 
   }
   
-  el.innerHTML = sent.map(m => `
-    <div class="announcement-card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
-        <div style="font-weight:800;font-size:14px;color:var(--primary-dark)">به: ${studentName(m.recipientId)}</div>
-        <div style="font-size:11.5px;color:var(--muted)">${m.createdAt ? new Date(m.createdAt).toLocaleString('fa-IR') : ''}</div>
-      </div>
-      <p style="white-space:pre-wrap">${m.body}</p>
-      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
-        ${m.isRead ? '<span class="badge paid">خوانده شد</span>' : '<span class="badge debt">خوانده نشده</span>'}
-        <button onclick="editMessage(${m.id})" style="background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3;padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;font-weight:700">✏️ ویرایش</button>
-        <button onclick="deleteMessage(${m.id})" style="background:#fee2e2;border:1px solid #fecaca;color:#991b1b;padding:6px 12px;border-radius:8px;font-size:12px;cursor:pointer;font-weight:700">🗑️ حذف</button>
-      </div>
-    </div>
-  `).join('');
+  let html = '';
+  for(let i = 0; i < sent.length; i++){
+    const m = sent[i];
+    html += '<div class="announcement-card" style="margin-bottom:12px">';
+    html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">';
+    html += '<div style="font-weight:800;font-size:14px;color:var(--primary-dark)">به: ' + studentName(m.recipientId) + '</div>';
+    html += '<div style="font-size:11.5px;color:var(--muted)">' + (m.createdAt ? new Date(m.createdAt).toLocaleString('fa-IR') : '') + '</div>';
+    html += '</div>';
+    html += '<p style="white-space:pre-wrap;margin:0 0 10px 0">' + (m.body || '') + '</p>';
+    html += '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">';
+    html += m.isRead ? '<span class="badge paid">خوانده شد</span>' : '<span class="badge debt">خوانده نشده</span>';
+    html += '<button onclick="editMessage(' + m.id + ')" style="background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3;padding:6px 14px;border-radius:8px;font-size:12px;cursor:pointer;font-weight:700">✏️ ویرایش</button>';
+    html += '<button onclick="deleteMessage(' + m.id + ')" style="background:#fee2e2;border:1px solid #fecaca;color:#991b1b;padding:6px 14px;border-radius:8px;font-size:12px;cursor:pointer;font-weight:700">🗑️ حذف</button>';
+    html += '</div>';
+    html += '</div>';
+  }
+  el.innerHTML = html;
 }
 function closeTeacherPanel(){
   currentTeacher = null;
@@ -3882,43 +3884,58 @@ async function deleteMessage(id){
   if(isProcessing) return;
   isProcessing = true;
   try {
-    // ⭐ اول چک کن پیام واقعاً وجود دارد
-    const msg = db.messages.find(m => m.id == id);
-    if(!msg){
-      toast('پیام پیدا نشد', 'error');
-      isProcessing = false;
-      return;
-    }
-    
-    // ⭐ حذف از دیتابیس
     const { error } = await sb.from('messages').delete().eq('id', id);
-    
-    if(error){ 
-      toast('خطا: ' + (error.message || 'نامشخص') + ' | کد: ' + (error.code || '?'), 'error'); 
-      isProcessing = false;
-      return; 
-    }
-    
+    if(error){ toast('خطا: ' + error.message, 'error'); return; }
     toast('پیام حذف شد ✅', 'success');
-    
-    // ⭐ رفرش چت
     await loadData();
-    
-    // اگر در پنل مدیر هستیم
     if(activeChatStudentId){
       openChat(activeChatStudentId, activeChatType);
     }
-    
-    // اگر در پنل استاد هستیم
     if(currentTeacher){
       renderTeacherSentMessages();
     }
-    
-  } catch(e){
-    toast('خطا: ' + (e.message || 'نامشخص'), 'error');
   } finally {
     isProcessing = false;
   }
+}
+
+function editMessage(id){
+  const msg = db.messages.find(m => m.id == id);
+  if(!msg) return;
+  
+  openModal('✏️ ویرایش پیام', `
+  <div class="form">
+    <div class="full">
+      <label>متن پیام</label>
+      <textarea id="editMsgBody" style="min-height:120px">${msg.body || ''}</textarea>
+    </div>
+  </div>
+  <div class="modalfoot">
+    <button class="btn primary" id="btnSaveEditMsg">💾 ذخیره</button>
+    <button class="btn red" onclick="deleteMessage(${id})">🗑️ حذف</button>
+  </div>`);
+  
+  document.getElementById('btnSaveEditMsg').onclick = async () => {
+    const newBody = (v('editMsgBody') || '').trim();
+    if(!newBody) return toast('متن پیام خالی است', 'error');
+    if(isProcessing) return;
+    isProcessing = true;
+    try {
+      const { error } = await sb.from('messages').update({ body: newBody }).eq('id', id);
+      if(error){ toast('خطا: ' + error.message, 'error'); return; }
+      toast('پیام ویرایش شد ✅', 'success');
+      closeModal();
+      await loadData();
+      if(activeChatStudentId){
+        openChat(activeChatStudentId, activeChatType);
+      }
+      if(currentTeacher){
+        renderTeacherSentMessages();
+      }
+    } finally {
+      isProcessing = false;
+    }
+  };
 }
 async function sendAdminMessage(){
   if(!activeChatStudentId) return toast('یک مخاطب انتخاب کنید', 'error');
