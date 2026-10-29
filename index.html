@@ -2031,103 +2031,59 @@ async function doTeacherLogin(){
   if(!nationalCode || !phone) return teacherAuthMsg('کد ملی و شماره تلفن را وارد کنید.');
 
   isProcessing = true;
-  teacherAuthMsg('در حال اتصال به دیتابیس...', true);
+  teacherAuthMsg('در حال اتصال...', true);
   
   try {
-    // ⭐ مستقیم staff را از دیتابیس بخوانیم، بدون واسطه
-    const { data: staffData, error: staffError } = await sb.from('staff').select('*');
-    
-    // نمایش دقیق نتیجه
-    if(staffError){
-      teacherAuthMsg('❌ خطای دیتابیس: ' + staffError.message + ' | کد: ' + (staffError.code || '?') + ' | جزئیات: ' + (staffError.details || '-'));
-      isProcessing = false;
-      return;
-    }
-    
-    if(!staffData){
-      teacherAuthMsg('❌ دیتابیس null برگرداند (نه آرایه). مشکل در RLS یا دسترسی.');
-      isProcessing = false;
-      return;
-    }
-    
-    if(staffData.length === 0){
-      teacherAuthMsg('❌ جدول staff خالی برگشت. تعداد: 0. مشکل در RLS policy احتمالاً.');
-      isProcessing = false;
-      return;
-    }
-    
-    // ⭐ نمایش تعداد واقعی
-    teacherAuthMsg(`✅ ${staffData.length} کارمند پیدا شد. در حال بررسی...`, true);
-    
-    // ذخیره موقت در db.staff (بدون mapStaff که ممکنه خطا بده)
-    db.staff = staffData;
+    // ⭐ لود کامل دیتابیس (شامل دانش‌آموزان)
+    await loadData();
     
     const cleanNational = String(nationalCode).replace(/\D/g, '');
     const cleanPhone = String(phone).replace(/\D/g, '');
     
-    // جستجو با کد ملی (مستقیم از national_code)
-    let teacher = null;
-    for(const s of staffData){
-      const stored = String(s.national_code || '').replace(/\D/g, '');
-      if(stored && stored === cleanNational){
-        teacher = s;
-        break;
-      }
-    }
-    
-    // اگر با کد ملی پیدا نشد، با staff_code هم امتحان کن
-    if(!teacher){
-      for(const s of staffData){
-        const stored = String(s.staff_code || '').replace(/\D/g, '');
-        if(stored && stored === cleanNational){
-          teacher = s;
-          break;
-        }
-      }
-    }
-    
-    if(!teacher){
-      // لیست نام ۵ کارمند اول را نشان بده
-      const list = staffData.slice(0, 5).map(s => 
-        `${s.name || '?'} ${s.family || '?'} (کدملی: ${s.national_code || 'خالی'})`
-      ).join(' | ');
-      teacherAuthMsg(`❌ کد ملی «${nationalCode}» پیدا نشد. ۵ کارمند اول: ${list}`);
+    if(!db.staff || db.staff.length === 0){
+      teacherAuthMsg('❌ جدول staff خالی است. با مدیر یک استاد بسازید.');
       isProcessing = false;
       return;
     }
     
-    // بررسی شماره تلفن
-    const storedPhone = String(teacher.phone || '').replace(/\D/g, '');
+    let teacher = db.staff.find(s => {
+      const stored = String(s.nationalCode || '').replace(/\D/g, '');
+      return stored && stored === cleanNational;
+    });
     
+    if(!teacher){
+      teacherAuthMsg(`❌ استادی با کد ملی «${nationalCode}» پیدا نشد.`);
+      isProcessing = false;
+      return;
+    }
+    
+    const storedPhone = String(teacher.phone || '').replace(/\D/g, '');
     if(!storedPhone){
-      teacherAuthMsg(`❌ برای «${teacher.name} ${teacher.family}» شماره تلفن ثبت نشده.`);
+      teacherAuthMsg('❌ برای این استاد شماره تلفنی ثبت نشده.');
       isProcessing = false;
       return;
     }
     
     if(cleanPhone !== storedPhone){
-      teacherAuthMsg(`❌ شماره تلفن اشتباه. شماره ثبت‌شده در سیستم: ${teacher.phone}`);
+      teacherAuthMsg('❌ شماره تلفن اشتباه.');
       isProcessing = false;
       return;
     }
     
-    // ⭐ ورود موفق — ساختن currentTeacher با فیلدهای map‌شده
-    currentTeacher = {
-      ...teacher,
-      code: teacher.staff_code,
-      nationalCode: teacher.national_code,
-      canLogin: teacher.can_login,
-      isTeacher: teacher.is_teacher,
-      hourly_rate: teacher.hourly_rate || 0,
-      session_duration_minutes: teacher.session_duration_minutes || 90
-    };
+    // ⭐ بررسی لود دانش‌آموزان
+    if(!db.students || db.students.length === 0){
+      teacherAuthMsg('⚠️ استاد پیدا شد ولی هیچ دانش‌آموزی در سیستم نیست.');
+      isProcessing = false;
+      return;
+    }
     
+    currentTeacher = teacher;
     teacherAuthMsg('');
     openTeacherPanel();
-    toast(`خوش آمدید ${teacher.name} ${teacher.family}`, 'success');
+    toast(`خوش آمدید ${teacher.name} ${teacher.family} (${db.students.length} دانش‌آموز لود شد)`, 'success');
     
   } catch(e){
-    teacherAuthMsg('❌ خطای غیرمنتظره: ' + (e.message || 'نامشخص') + ' | ' + (e.stack || '').substring(0, 200));
+    teacherAuthMsg('❌ خطا: ' + (e.message || 'نامشخص'));
   } finally { 
     isProcessing = false; 
   }
