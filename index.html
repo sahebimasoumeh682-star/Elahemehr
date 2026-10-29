@@ -3878,60 +3878,43 @@ async function deleteMessage(id){
   if(isProcessing) return;
   isProcessing = true;
   try {
+    // ⭐ اول چک کن پیام واقعاً وجود دارد
+    const msg = db.messages.find(m => m.id == id);
+    if(!msg){
+      toast('پیام پیدا نشد', 'error');
+      isProcessing = false;
+      return;
+    }
+    
+    // ⭐ حذف از دیتابیس
     const { error } = await sb.from('messages').delete().eq('id', id);
-    if(error){ toast('خطا: ' + error.message, 'error'); return; }
+    
+    if(error){ 
+      toast('خطا: ' + (error.message || 'نامشخص') + ' | کد: ' + (error.code || '?'), 'error'); 
+      isProcessing = false;
+      return; 
+    }
+    
     toast('پیام حذف شد ✅', 'success');
+    
+    // ⭐ رفرش چت
     await loadData();
-    // رفرش چت
+    
+    // اگر در پنل مدیر هستیم
     if(activeChatStudentId){
       openChat(activeChatStudentId, activeChatType);
     }
+    
+    // اگر در پنل استاد هستیم
     if(currentTeacher){
       renderTeacherSentMessages();
     }
+    
+  } catch(e){
+    toast('خطا: ' + (e.message || 'نامشخص'), 'error');
   } finally {
     isProcessing = false;
   }
-}
-
-/* ⭐ ویرایش پیام */
-function editMessage(id){
-  const msg = db.messages.find(m => m.id == id);
-  if(!msg) return;
-  
-  openModal('✏️ ویرایش پیام', `
-  <div class="form">
-    <div class="full">
-      <label>متن پیام</label>
-      <textarea id="editMsgBody" style="min-height:120px">${msg.body || ''}</textarea>
-    </div>
-  </div>
-  <div class="modalfoot">
-    <button class="btn primary" id="btnSaveEditMsg">💾 ذخیره</button>
-    <button class="btn red" onclick="deleteMessage(${id})">🗑️ حذف</button>
-  </div>`);
-  
-  document.getElementById('btnSaveEditMsg').onclick = async () => {
-    const newBody = (v('editMsgBody') || '').trim();
-    if(!newBody) return toast('متن پیام خالی است', 'error');
-    if(isProcessing) return;
-    isProcessing = true;
-    try {
-      const { error } = await sb.from('messages').update({ body: newBody }).eq('id', id);
-      if(error){ toast('خطا: ' + error.message, 'error'); return; }
-      toast('پیام ویرایش شد ✅', 'success');
-      closeModal();
-      await loadData();
-      if(activeChatStudentId){
-        openChat(activeChatStudentId, activeChatType);
-      }
-      if(currentTeacher){
-        renderTeacherSentMessages();
-      }
-    } finally {
-      isProcessing = false;
-    }
-  };
 }
 async function sendAdminMessage(){
   if(!activeChatStudentId) return toast('یک مخاطب انتخاب کنید', 'error');
