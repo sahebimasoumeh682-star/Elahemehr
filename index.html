@@ -584,7 +584,6 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
     </div>
 
     <div class="parent-panel" id="parent-grades">
-      <button class="btn green" id="btnParentRating" style="margin-right:8px">⭐ نظرسنجی اساتید</button>
       <div class="actions" style="margin-bottom:14px">
   <button class="btn purple" id="btnPrintReportCard" style="background:linear-gradient(135deg,#a855f7 0%,#7c3aed 100%);color:#fff">🖨 چاپ کارنامه</button>
 </div>
@@ -1850,7 +1849,6 @@ async function loadData(){
     loadTable('homework_submissions', null, null),
     loadTable('events', 'event_date', true),
     loadTable('class_schedule', 'period', true)
-    loadTable('teacher_ratings', 'created_at', false)
   ]);
   
   // ⭐ ذخیره در db
@@ -1881,7 +1879,6 @@ async function loadData(){
   db.homeworkSubmissions = (loaded[18] || []).map(mapHomeworkSubmission);
   db.events = (loaded[19] || []).map(mapEvent);
   db.classSchedule = (loaded[20] || []).map(mapScheduleItem);
-    db.teacherRatings = (loaded[21] || []);
   
   // لاگ در کنسول
   console.log('✅ دیتابیس لود شد:', {
@@ -2626,163 +2623,6 @@ function renderParentChecks(s){
       </tbody>
     </table></div>`;
 }
-  function openRatingModal(){
-  if(!parentStudent) return toast('دانش‌آموزی انتخاب نشده', 'error');
-  
-  const s = parentStudent;
-  
-  // پیدا کردن اساتیدی که به این دانش‌آموز نمره دادن (یعنی دروسشون)
-  const teachers = [];
-  const seenTeachers = new Set();
-  
-  db.grades.filter(g => g.student_id == s.id).forEach(g => {
-    if(g.teacher_name && !seenTeachers.has(g.teacher_name)){
-      seenTeachers.add(g.teacher_name);
-      // پیدا کردن id استاد از staff
-      const teacher = db.staff.find(t => 
-        g.teacher_name.includes(t.name) || g.teacher_name.includes(t.family)
-      );
-      teachers.push({
-        name: g.teacher_name,
-        id: teacher ? teacher.id : null,
-        subject: g.subject
-      });
-    }
-  });
-  
-  if(!teachers.length){
-    return toast('هنوز هیچ استادی برای فرزند شما نمره ثبت نکرده', 'warning');
-  }
-  
-  // گرفتن رای‌های قبلی
-  const existingRatings = db.teacherRatings.filter(r => r.student_id == s.id);
-  
-  let ratingCards = '';
-  teachers.forEach((t, idx) => {
-    const existing = existingRatings.find(r => r.teacher_name === t.name);
-    const currentRating = existing ? existing.rating : 0;
-    const currentComment = existing ? (existing.comment || '') : '';
-    
-    ratingCards += `
-      <div class="card" style="margin-bottom:14px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-          <div>
-            <div style="font-weight:800;font-size:15px;color:var(--primary-dark)">👨‍🏫 ${t.name}</div>
-            <div style="font-size:12px;color:var(--muted)">📖 ${t.subject}</div>
-          </div>
-        </div>
-        <div style="display:flex;gap:8px;margin:12px 0;justify-content:center" data-teacher="${t.id || idx}">
-          ${[1,2,3,4,5].map(num => `
-            <button class="rating-star" data-teacher-idx="${idx}" data-value="${num}" 
-              style="background:${currentRating >= num ? '#fbbf24' : '#e2e8f0'};color:${currentRating >= num ? '#fff' : '#94a3b8'};border:none;width:44px;height:44px;border-radius:50%;font-size:20px;cursor:pointer;transition:all 0.2s">★</button>
-          `).join('')}
-        </div>
-        <div style="text-align:center;font-size:12px;color:var(--muted);margin-bottom:10px" id="rating_label_${idx}">
-          ${currentRating > 0 ? ['خیلی ضعیف','ضعیف','متوسط','خوب','عالی'][currentRating - 1] : 'رای نداده‌اید'}
-        </div>
-        <textarea id="rating_comment_${idx}" placeholder="نظر شما (اختیاری)" style="width:100%;padding:10px;border:2px solid var(--line);border-radius:10px;font-family:inherit;font-size:13px;min-height:60px;resize:vertical">${currentComment}</textarea>
-      </div>
-    `;
-  });
-  
-  openModal('⭐ نظرسنجی اساتید', `
-    <div style="background:var(--primary-bg);padding:14px;border-radius:12px;margin-bottom:18px;font-size:13.5px;line-height:1.8;border:2px solid var(--primary-light)">
-      <b style="color:var(--primary-dark)">💡 راهنما:</b><br>
-      با کلیک روی ستاره‌ها به هر استاد امتیاز بدهید (۱ = خیلی ضعیف، ۵ = عالی).<br>
-      نظر شما برای بهبود کیفیت آموزش بسیار ارزشمند است.
-    </div>
-    ${ratingCards}
-    <div class="modalfoot">
-      <button class="btn primary" id="btnSaveRatings">💾 ثبت نظرسنجی</button>
-    </div>
-  `);
-  
-  // ذخیره انتخاب‌ها
-  window.__ratingsState = {};
-  teachers.forEach((t, idx) => {
-    const existing = existingRatings.find(r => r.teacher_name === t.name);
-    window.__ratingsState[idx] = {
-      teacherId: t.id,
-      teacherName: t.name,
-      subject: t.subject,
-      rating: existing ? existing.rating : 0,
-      comment: existing ? (existing.comment || '') : ''
-    };
-  });
-  
-  // رویداد کلیک روی ستاره‌ها
-  document.querySelectorAll('.rating-star').forEach(btn => {
-    btn.onclick = () => {
-      const idx = Number(btn.dataset.teacherIdx);
-      const value = Number(btn.dataset.value);
-      window.__ratingsState[idx].rating = value;
-      
-      // آپدیت استایل ستاره‌ها
-      document.querySelectorAll(`.rating-star[data-teacher-idx="${idx}"]`).forEach(b => {
-        const v = Number(b.dataset.value);
-        b.style.background = value >= v ? '#fbbf24' : '#e2e8f0';
-        b.style.color = value >= v ? '#fff' : '#94a3b8';
-      });
-      
-      // آپدیت لیبل
-      const labelEl = document.getElementById(`rating_label_${idx}`);
-      if(labelEl) labelEl.textContent = ['خیلی ضعیف','ضعیف','متوسط','خوب','عالی'][value - 1];
-    };
-  });
-  
-  // ذخیره نظرسنجی
-  document.getElementById('btnSaveRatings').onclick = async () => {
-    const state = window.__ratingsState;
-    const ratingsToSave = [];
-    
-    for(const idx in state){
-      const item = state[idx];
-      const commentEl = document.getElementById(`rating_comment_${idx}`);
-      const comment = commentEl ? commentEl.value.trim() : '';
-      
-      if(item.rating === 0){
-        return toast(`برای «${item.teacherName}» امتیاز انتخاب کنید`, 'warning');
-      }
-      
-      ratingsToSave.push({
-        teacher_id: item.teacherId || 0,
-        teacher_name: item.teacherName,
-        student_id: s.id,
-        student_name: `${s.name} ${s.family}`,
-        rating: item.rating,
-        comment: comment
-      });
-    }
-    
-    if(!ratingsToSave.length) return toast('هیچ رایی ثبت نشد', 'error');
-    if(isProcessing) return;
-    
-    isProcessing = true;
-    const btn = document.getElementById('btnSaveRatings');
-    if(btn){ btn.disabled = true; btn.textContent = 'در حال ذخیره...'; }
-    
-    try {
-      let saved = 0, errors = 0;
-      for(const r of ratingsToSave){
-        // upsert: اگر قبلاً رای داده، آپدیت کن
-        const { error } = await sb.from('teacher_ratings').upsert(r, { onConflict: 'student_id,teacher_id' });
-        if(error){ errors++; console.error(error); }
-        else saved++;
-      }
-      
-      await logAction(`ثبت ${saved} نظرسنجی توسط اولیا`);
-      await loadData();
-      closeModal();
-      toast(`✅ ${saved} نظرسنجی ثبت شد${errors ? ' (' + errors + ' خطا)' : ''}`, 'success');
-    } catch(e){
-      toast('خطا: ' + e.message, 'error');
-    } finally {
-      isProcessing = false;
-      if(btn){ btn.disabled = false; btn.textContent = '💾 ثبت نظرسنجی'; }
-    }
-  };
-}
-
 function printReportCard(){
   if(!parentStudent) return toast('دانش‌آموزی انتخاب نشده', 'error');
   
@@ -6515,8 +6355,6 @@ document.addEventListener('click', function(e){
    BIND STATIC BUTTONS
 ============================================================ */
 function bindStaticButtons(){
-    const btnParentRating = document.getElementById('btnParentRating');
-  if(btnParentRating) btnParentRating.onclick = openRatingModal;
     const btnPrintRC = document.getElementById('btnPrintReportCard');
   if(btnPrintRC) btnPrintRC.onclick = printReportCard;
     const btnNewMsg = document.getElementById('btnNewMessage');
