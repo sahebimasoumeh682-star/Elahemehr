@@ -526,10 +526,10 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
     </div>
 
     <div class="auth-panel" id="parentPanel">
-      <label>کد دانش‌آموزی فرزند شما</label>
-      <input id="parentStudentCode" type="text" placeholder="مثال: 1405001" autocomplete="off">
-      <label>شماره همراه ثبت‌شده (اختیاری)</label>
-      <input id="parentPhone" type="tel" placeholder="0912..." autocomplete="off">
+     <label>شماره ملی دانش‌آموز</label>
+      <input id="parentStudentCode" type="text" placeholder="مثال: 2841025624" autocomplete="off">
+      <label>شماره موبایل (رمز عبور)</label>
+      <input id="parentPhone" type="tel" placeholder="09141234567" autocomplete="off">
       <button class="primary-btn" id="btnParentLogin">🔓 ورود به پنل اولیا</button>
       <div id="parentAuthMsg" class="auth-msg"></div>
     </div>
@@ -2450,28 +2450,52 @@ function closeTeacherPanel(){
 ============================================================ */
 async function doParentLogin(){
   if(isProcessing) return;
-  const code = v('parentStudentCode');
+  const nationalCode = v('parentStudentCode');
   const phone = v('parentPhone');
-  if(!code) return parentAuthMsg('کد دانش‌آموزی را وارد کنید.');
+  
+  if(!nationalCode) return parentAuthMsg('شماره ملی را وارد کنید.');
+  if(!phone) return parentAuthMsg('شماره موبایل را وارد کنید.');
 
   isProcessing = true;
   parentAuthMsg('در حال بارگذاری...', true);
   try {
     await loadData();
-    const student = db.students.find(s => String(s.code || '').trim() === String(code).trim());
-    if(!student){ parentAuthMsg('❌ دانش‌آموزی با این کد یافت نشد.'); return; }
-    if(phone && student.phone){
-      const cleanInput = phone.replace(/\D/g, '');
-      const cleanStored = String(student.phone).replace(/\D/g, '');
-      if(cleanInput !== cleanStored){ parentAuthMsg('❌ شماره همراه مطابقت ندارد.'); return; }
+    
+    const cleanNational = String(nationalCode).replace(/\D/g, '');
+    const cleanPhone = String(phone).replace(/\D/g, '');
+    
+    const student = db.students.find(s => {
+      const storedNational = String(s.national || '').replace(/\D/g, '');
+      return storedNational && storedNational === cleanNational;
+    });
+    
+    if(!student){ 
+      parentAuthMsg('❌ دانش‌آموزی با این شماره ملی یافت نشد.'); 
+      isProcessing = false;
+      return; 
     }
+    
+    const storedPhone = String(student.phone || '').replace(/\D/g, '');
+    if(!storedPhone){
+      parentAuthMsg('❌ برای این دانش‌آموز شماره موبایلی ثبت نشده است.');
+      isProcessing = false;
+      return;
+    }
+    
+    if(cleanPhone !== storedPhone){
+      parentAuthMsg('❌ شماره موبایل مطابقت ندارد.');
+      isProcessing = false;
+      return;
+    }
+    
     parentStudent = student;
     parentAuthMsg('');
     openParentPanel();
-  } catch(e){ parentAuthMsg('خطا: ' + (e.message || 'اتصال برقرار نشد')); }
+  } catch(e){ 
+    parentAuthMsg('خطا: ' + (e.message || 'اتصال برقرار نشد')); 
+  }
   finally { isProcessing = false; }
 }
-
 function openParentPanel(){
   document.getElementById('authScreen').style.display = 'none';
   document.getElementById('mainApp').style.display = 'none';
