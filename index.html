@@ -584,6 +584,9 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
     </div>
 
     <div class="parent-panel" id="parent-grades">
+      <div class="actions" style="margin-bottom:14px">
+  <button class="btn purple" id="btnPrintReportCard" style="background:linear-gradient(135deg,#a855f7 0%,#7c3aed 100%);color:#fff">🖨 چاپ کارنامه</button>
+</div>
       <div class="parent-stats" id="parentGradeStats"></div>
       <div class="card">
         <h3 style="margin-top:0">📋 کارنامه فرزند شما (تفکیک هر درس)</h3>
@@ -2619,6 +2622,172 @@ function renderParentChecks(s){
         <td>${c.dueDate||'-'}</td><td><span class="badge ${stt[1]}">${stt[0]}</span></td></tr>`; }).join('')}
       </tbody>
     </table></div>`;
+}
+function printReportCard(){
+  if(!parentStudent) return toast('دانش‌آموزی انتخاب نشده', 'error');
+  
+  const s = parentStudent;
+  const termFilter = v('parentGradeTermFilter') || 'همه ترم‌ها';
+  
+  let allGrades = db.grades.filter(g => g.student_id == s.id);
+  if(termFilter && termFilter !== 'همه ترم‌ها'){
+    allGrades = allGrades.filter(g => g.term === termFilter);
+  }
+  
+  if(!allGrades.length){
+    return toast('نمره‌ای برای چاپ وجود ندارد', 'warning');
+  }
+  
+  const bySubject = {};
+  allGrades.forEach(g => {
+    if(!bySubject[g.subject]) bySubject[g.subject] = [];
+    bySubject[g.subject].push(g);
+  });
+  
+  const totalAvg = (allGrades.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / allGrades.length).toFixed(2);
+  
+  const classmates = db.students.filter(st => st.grade === s.grade && st.class === s.class);
+  const classAverages = classmates.map(st => {
+    const grds = db.grades.filter(g => g.student_id == st.id);
+    if(!grds.length) return { id: st.id, avg: 0 };
+    return {
+      id: st.id,
+      avg: grds.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / grds.length
+    };
+  }).sort((a,b) => b.avg - a.avg);
+  
+  const rank = classAverages.findIndex(c => c.id == s.id) + 1;
+  const totalClass = classmates.length;
+  
+  const w = window.open('', '_blank');
+  if(!w) return toast('پنجره چاپ مسدود شد', 'error');
+  
+  let subjectRows = '';
+  Object.entries(bySubject).forEach(([subject, grades]) => {
+    const subjAvg = (grades.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / grades.length).toFixed(2);
+    const teacherName = grades[0].teacher_name || '-';
+    
+    grades.forEach((g, idx) => {
+      if(idx === 0){
+        subjectRows += `<tr>
+          <td rowspan="${grades.length}" style="font-weight:800;background:#f8fafc">${subject}</td>
+          <td>${g.exam_type || 'مستمر'}</td>
+          <td style="text-align:center;font-weight:700">${g.score}</td>
+          <td style="text-align:center">${g.max_score || 20}</td>
+          <td rowspan="${grades.length}" style="text-align:center;font-weight:800;background:${parseFloat(subjAvg) >= 15 ? '#d1fae5' : parseFloat(subjAvg) >= 10 ? '#fef3c7' : '#fee2e2'};color:${parseFloat(subjAvg) >= 15 ? '#059669' : parseFloat(subjAvg) >= 10 ? '#92400e' : '#dc2626'}">${subjAvg}</td>
+          <td rowspan="${grades.length}" style="text-align:center;font-size:11px">${teacherName}</td>
+          <td rowspan="${grades.length}" style="text-align:center;font-size:11px">${g.exam_date || '-'}</td>
+        </tr>`;
+      } else {
+        subjectRows += `<tr>
+          <td>${g.exam_type || 'مستمر'}</td>
+          <td style="text-align:center;font-weight:700">${g.score}</td>
+          <td style="text-align:center">${g.max_score || 20}</td>
+        </tr>`;
+      }
+    });
+  });
+  
+  w.document.write(`
+  <html dir="rtl"><head><meta charset="UTF-8"><title>کارنامه ${s.name} ${s.family}</title>
+  <style>
+    @page { size: A4; margin: 15mm; }
+    body { font-family: Tahoma, sans-serif; direction: rtl; color: #1e293b; margin: 0; padding: 20px; background: #fff; }
+    .header { text-align: center; border-bottom: 3px solid #6366f1; padding-bottom: 15px; margin-bottom: 25px; }
+    .header h1 { margin: 0 0 5px 0; color: #6366f1; font-size: 24px; }
+    .header h2 { margin: 0; color: #64748b; font-size: 16px; font-weight: 500; }
+    .header .school-year { font-size: 13px; color: #64748b; margin-top: 8px; }
+    .student-info { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 25px; background: #f8fafc; padding: 15px; border-radius: 10px; border: 1px solid #e2e8f0; }
+    .info-item { font-size: 13px; }
+    .info-item .label { color: #64748b; font-weight: 600; }
+    .info-item .value { color: #1e293b; font-weight: 800; margin-right: 5px; }
+    .summary { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 25px; }
+    .summary-card { text-align: center; padding: 15px; border-radius: 10px; border: 2px solid; }
+    .summary-card.green { background: #d1fae5; border-color: #10b981; color: #059669; }
+    .summary-card.blue { background: #dbeafe; border-color: #3b82f6; color: #1e40af; }
+    .summary-card.yellow { background: #fef3c7; border-color: #f59e0b; color: #92400e; }
+    .summary-card.purple { background: #eef2ff; border-color: #6366f1; color: #4f46e5; }
+    .summary-card .num { font-size: 26px; font-weight: 900; margin: 5px 0; }
+    .summary-card .lbl { font-size: 12px; font-weight: 700; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    table th, table td { border: 1px solid #cbd5e1; padding: 8px 10px; text-align: right; font-size: 13px; }
+    table th { background: #6366f1; color: #fff; font-weight: 800; text-align: center; }
+    .signature { margin-top: 40px; display: flex; justify-content: space-between; padding: 0 20px; }
+    .signature div { text-align: center; font-size: 13px; }
+    .signature .line { margin-top: 35px; border-top: 1px solid #94a3b8; padding-top: 5px; }
+    .footer-text { text-align: center; margin-top: 30px; font-size: 11px; color: #94a3b8; }
+  </style>
+  </head><body>
+  
+  <div class="header">
+    <h1>${db.settings.school}</h1>
+    <h2>کارنامه تحصیلی</h2>
+    <div class="school-year">سال تحصیلی: ${db.settings.year} | ترم: ${termFilter}</div>
+  </div>
+  
+  <div class="student-info">
+    <div class="info-item"><span class="label">نام:</span> <span class="value">${s.name} ${s.family}</span></div>
+    <div class="info-item"><span class="label">کد دانش‌آموزی:</span> <span class="value">${s.code || '-'}</span></div>
+    <div class="info-item"><span class="label">شماره ملی:</span> <span class="value">${s.national || '-'}</span></div>
+    <div class="info-item"><span class="label">پایه:</span> <span class="value">${s.grade || '-'}</span></div>
+    <div class="info-item"><span class="label">کلاس:</span> <span class="value">${s.class || '-'}</span></div>
+    <div class="info-item"><span class="label">تاریخ چاپ:</span> <span class="value">${today()}</span></div>
+  </div>
+  
+  <div class="summary">
+    <div class="summary-card blue">
+      <div class="lbl">📚 تعداد دروس</div>
+      <div class="num">${Object.keys(bySubject).length}</div>
+    </div>
+    <div class="summary-card purple">
+      <div class="lbl">⭐ معدل کل</div>
+      <div class="num">${totalAvg}</div>
+    </div>
+    <div class="summary-card yellow">
+      <div class="lbl">🏆 رتبه در کلاس</div>
+      <div class="num">${rank} از ${totalClass}</div>
+    </div>
+    <div class="summary-card green">
+      <div class="lbl">📊 تعداد نمرات</div>
+      <div class="num">${allGrades.length}</div>
+    </div>
+  </div>
+  
+  <table>
+    <thead>
+      <tr>
+        <th style="width:15%">درس</th>
+        <th style="width:15%">نوع آزمون</th>
+        <th style="width:10%">نمره</th>
+        <th style="width:10%">از</th>
+        <th style="width:12%">معدل درس</th>
+        <th style="width:20%">دبیر</th>
+        <th style="width:12%">تاریخ</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${subjectRows}
+    </tbody>
+  </table>
+  
+  <div class="signature">
+    <div>
+      <div>مهر و امضای مدیر</div>
+      <div class="line">${db.settings.school}</div>
+    </div>
+    <div>
+      <div>مهر و امضای مشاور</div>
+      <div class="line">امور آموزشی</div>
+    </div>
+  </div>
+  
+  <div class="footer-text">
+    ${db.settings.footer}
+  </div>
+  
+  </body></html>`);
+  w.document.close();
+  setTimeout(() => w.print(), 500);
 }
 
 function renderParentGrades(){
@@ -6186,6 +6355,8 @@ document.addEventListener('click', function(e){
    BIND STATIC BUTTONS
 ============================================================ */
 function bindStaticButtons(){
+    const btnPrintRC = document.getElementById('btnPrintReportCard');
+  if(btnPrintRC) btnPrintRC.onclick = printReportCard;
     const btnNewMsg = document.getElementById('btnNewMessage');
   if(btnNewMsg) btnNewMsg.onclick = openNewMessageModal;
   // Auth tabs
