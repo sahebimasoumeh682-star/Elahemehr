@@ -2401,7 +2401,9 @@ function renderTeacherSentMessages(){
     m.senderRole === 'teacher' && 
     String(m.senderId) === String(currentTeacher.id)
   ).sort((a,b) => (b.createdAt||'').localeCompare(a.createdAt||''));
+  
   if(!sent.length){ el.innerHTML = '<div class="empty">پیامی ارسال نکرده‌اید</div>'; return; }
+  
   el.innerHTML = sent.map(m => `
     <div class="announcement-card">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
@@ -2409,8 +2411,10 @@ function renderTeacherSentMessages(){
         <div style="font-size:11.5px;color:var(--muted)">${m.createdAt ? new Date(m.createdAt).toLocaleString('fa-IR') : ''}</div>
       </div>
       <p style="white-space:pre-wrap">${m.body}</p>
-      <div class="ann-meta">
+      <div class="ann-meta" style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         ${m.isRead ? '<span class="badge paid">خوانده شد</span>' : '<span class="badge debt">خوانده نشده</span>'}
+        <button onclick="editMessage(${m.id})" style="background:#eef2ff;border:1px solid #c7d2fe;color:#3730a3;padding:4px 10px;border-radius:8px;font-size:11px;cursor:pointer;font-weight:700">✏️ ویرایش</button>
+        <button onclick="deleteMessage(${m.id})" style="background:#fee2e2;border:1px solid #fecaca;color:#991b1b;padding:4px 10px;border-radius:8px;font-size:11px;cursor:pointer;font-weight:700">🗑️ حذف</button>
       </div>
     </div>
   `).join('');
@@ -3776,18 +3780,23 @@ function openChat(contactId, contactType){
   const messagesEl = document.getElementById('chatMessages');
   messagesEl.innerHTML = msgs.length ? msgs.map(m => {
     const isOutgoing = m.senderRole === 'admin' || m.senderRole === 'accountant';
-    return `<div class="chat-bubble ${isOutgoing ? 'outgoing' : 'incoming'}">
+    return `<div class="chat-bubble ${isOutgoing ? 'outgoing' : 'incoming'}" style="position:relative">
       <div style="font-size:11px;font-weight:800;margin-bottom:3px">${m.senderName || SENDER_ROLE_LABELS[m.senderRole] || 'مدیر'}</div>
-      ${m.body}
+      <div>${m.body}</div>
       <span class="chat-time">${m.createdAt ? new Date(m.createdAt).toLocaleString('fa-IR') : ''}</span>
+      ${isOutgoing ? `
+        <div style="margin-top:6px;display:flex;gap:6px">
+          <button onclick="editMessage(${m.id})" style="background:rgba(255,255,255,.25);border:none;color:#fff;padding:3px 8px;border-radius:6px;font-size:11px;cursor:pointer">✏️ ویرایش</button>
+          <button onclick="deleteMessage(${m.id})" style="background:rgba(255,255,255,.25);border:none;color:#fff;padding:3px 8px;border-radius:6px;font-size:11px;cursor:pointer">🗑️ حذف</button>
+        </div>
+      ` : ''}
     </div>`;
-  }).join('') : '<div class="empty">پیامی نیست. اولین پیام را بفرستید.</div>';
+  }).join('') : '<div class="empty">پیامی نیست</div>';
   
   messagesEl.scrollTop = messagesEl.scrollHeight;
   markMessagesAsRead(contactId, activeChatType);
   renderMessages();
 }
-
 async function markMessagesAsRead(contactId, contactType){
   const unread = db.messages.filter(m => 
     m.recipientId == contactId && 
@@ -3863,7 +3872,67 @@ async function markMessagesAsRead(contactId, contactType){
     } finally { isProcessing = false; }
   };
 }
+/* ⭐ حذف پیام */
+async function deleteMessage(id){
+  if(!confirm('این پیام حذف شود؟')) return;
+  if(isProcessing) return;
+  isProcessing = true;
+  try {
+    const { error } = await sb.from('messages').delete().eq('id', id);
+    if(error){ toast('خطا: ' + error.message, 'error'); return; }
+    toast('پیام حذف شد ✅', 'success');
+    await loadData();
+    // رفرش چت
+    if(activeChatStudentId){
+      openChat(activeChatStudentId, activeChatType);
+    }
+    if(currentTeacher){
+      renderTeacherSentMessages();
+    }
+  } finally {
+    isProcessing = false;
+  }
+}
 
+/* ⭐ ویرایش پیام */
+function editMessage(id){
+  const msg = db.messages.find(m => m.id == id);
+  if(!msg) return;
+  
+  openModal('✏️ ویرایش پیام', `
+  <div class="form">
+    <div class="full">
+      <label>متن پیام</label>
+      <textarea id="editMsgBody" style="min-height:120px">${msg.body || ''}</textarea>
+    </div>
+  </div>
+  <div class="modalfoot">
+    <button class="btn primary" id="btnSaveEditMsg">💾 ذخیره</button>
+    <button class="btn red" onclick="deleteMessage(${id})">🗑️ حذف</button>
+  </div>`);
+  
+  document.getElementById('btnSaveEditMsg').onclick = async () => {
+    const newBody = (v('editMsgBody') || '').trim();
+    if(!newBody) return toast('متن پیام خالی است', 'error');
+    if(isProcessing) return;
+    isProcessing = true;
+    try {
+      const { error } = await sb.from('messages').update({ body: newBody }).eq('id', id);
+      if(error){ toast('خطا: ' + error.message, 'error'); return; }
+      toast('پیام ویرایش شد ✅', 'success');
+      closeModal();
+      await loadData();
+      if(activeChatStudentId){
+        openChat(activeChatStudentId, activeChatType);
+      }
+      if(currentTeacher){
+        renderTeacherSentMessages();
+      }
+    } finally {
+      isProcessing = false;
+    }
+  };
+}
 async function sendAdminMessage(){
   if(!activeChatStudentId) return toast('یک مخاطب انتخاب کنید', 'error');
   const input = document.getElementById('chatMessageInput');
