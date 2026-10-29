@@ -1706,8 +1706,15 @@ function initSupabase(){
    Mapping
 ============================================================ */
 function mapStudent(r){
-  return { ...r, class: r.class_name, year: r.academic_year,
-    phone: r.phone || r.father_phone, birthDate: r.birth_date || '', photoUrl: r.photo_url || '' };
+  return { 
+    ...r, 
+    class: r.class_name, 
+    year: r.academic_year,
+    phone: r.phone || r.father_phone, 
+    birthDate: r.birth_date || '', 
+    photoUrl: r.photo_url || '',
+    national: r.national || ''
+  };
 }
 function mapPayment(r){ return { ...r, studentId: r.student_id, date: r.payment_date, desc: r.description }; }
 function mapIncome(r){ return { ...r, date: r.income_date, desc: r.description }; }
@@ -5575,7 +5582,7 @@ function renderStudents(){
 function openStudent(id){
   const s = id ? studentById(id) : {
     id:'', code:'', name:'', family:'', grade:'دهم', class:'الف',
-    year: db.settings.year, phone:'', tuition:60000000, discount:0, birthDate:'', photoUrl:''
+    year: db.settings.year, phone:'', tuition:60000000, discount:0, birthDate:'', photoUrl:'', national:''
   };
   if(!s) return;
   openModal(id ? 'ویرایش دانش‌آموز' : 'ثبت دانش‌آموز', `
@@ -5584,9 +5591,10 @@ function openStudent(id){
       <div><label>کد دانش‌آموزی *</label><input id="f_code" value="${s.code||''}"></div>
       <div><label>نام *</label><input id="f_name" value="${s.name||''}"></div>
       <div><label>نام خانوادگی *</label><input id="f_family" value="${s.family||''}"></div>
+      <div><label>کد ملی</label><input id="f_national" value="${s.national||''}" placeholder="۱۰ رقم"></div>
       <div><label>پایه</label><select id="f_grade">${GRADES.map(x => `<option ${x===s.grade?'selected':''}>${x}</option>`).join('')}</select></div>
       <div><label>کلاس</label><select id="f_class">${CLASSES.map(x => `<option ${x===s.class?'selected':''}>${x}</option>`).join('')}</select></div>
-      <div><label>شماره همراه</label><input id="f_phone" value="${s.phone||''}"></div>
+      <div><label>شماره همراه</label><input id="f_phone" value="${s.phone||''}" placeholder="0912..."></div>
       <div><label>🎂 تاریخ تولد</label><input id="f_birth" value="${s.birthDate||''}" placeholder="1392/05/12"></div>
       <div><label>سال تحصیلی</label><input id="f_year" value="${s.year||db.settings.year}"></div>
       <div><label>شهریه (ریال)</label><input type="number" id="f_tuition" value="${s.tuition||0}"></div>
@@ -5632,13 +5640,14 @@ async function saveStudent(id){
   if(isProcessing) return;
   const s = {
     code: v('f_code'), name: v('f_name'), family: v('f_family'),
+    national: v('f_national') || null,
     grade: v('f_grade'), class_name: v('f_class'),
     phone: v('f_phone'), father_phone: v('f_phone'),
     birth_date: v('f_birth'), academic_year: v('f_year'),
     tuition: num('f_tuition'), discount: num('f_discount')
   };
   if(!s.code || !s.name || !s.family) return toast('اطلاعات ناقص', 'error');
-  if(db.students.find(x => x.code === s.code && x.id != id)) return toast('کد تکراری', 'error');
+  if(db.students.find(x => x.code === s.code && x.id != id)) return toast('کد دانش‌آموزی تکراری', 'error');
   isProcessing = true;
   try {
     let error;
