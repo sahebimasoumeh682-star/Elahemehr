@@ -995,10 +995,20 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
       <select id="gradeTermFilter"><option value="">همه ترم‌ها</option><option>ترم اول</option><option>ترم دوم</option><option>پایان سال</option></select>
       <select id="gradeSubjectFilter"><option value="">همه دروس</option></select>
       <select id="gradeClassFilter">
-        <option value="">همه پایه‌ها</option>
-        <option>هفتم</option><option>هشتم</option><option>نهم</option>
-        <option>دهم</option><option>یازدهم</option><option>دوازدهم</option>
-      </select>
+  <option value="">همه کلاس‌ها</option>
+  <option>هفتم</option>
+  <option>هشتم</option>
+  <option>نهم</option>
+  <option>دهم انسانی</option>
+  <option>دهم تجربی</option>
+  <option>دهم ریاضی</option>
+  <option>یازدهم انسانی</option>
+  <option>یازدهم تجربی</option>
+  <option>یازدهم ریاضی</option>
+  <option>دوازدهم انسانی</option>
+  <option>دوازدهم تجربی</option>
+  <option>دوازدهم ریاضی</option>
+</select>
     </div>
     <div class="grades-summary" id="gradesSummary"></div>
     <div class="table-wrap">
@@ -1022,10 +1032,20 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
     <div class="filters">
       <input type="date" id="attendanceDate">
       <select id="attendanceClassFilter">
-        <option value="">همه کلاس‌ها</option>
-        <option>هفتم</option><option>هشتم</option><option>نهم</option>
-        <option>دهم</option><option>یازدهم</option><option>دوازدهم</option>
-      </select>
+  <option value="">همه کلاس‌ها</option>
+  <option>هفتم</option>
+  <option>هشتم</option>
+  <option>نهم</option>
+  <option>دهم انسانی</option>
+  <option>دهم تجربی</option>
+  <option>دهم ریاضی</option>
+  <option>یازدهم انسانی</option>
+  <option>یازدهم تجربی</option>
+  <option>یازدهم ریاضی</option>
+  <option>دوازدهم انسانی</option>
+  <option>دوازدهم تجربی</option>
+  <option>دوازدهم ریاضی</option>
+</select>
       <select id="attendanceStatusFilter">
         <option value="">همه وضعیت‌ها</option>
         <option value="present">حاضر</option>
@@ -5944,8 +5964,7 @@ function openStudent(id){
       <div><label>نام *</label><input id="f_name" value="${s.name||''}"></div>
       <div><label>نام خانوادگی *</label><input id="f_family" value="${s.family||''}"></div>
       <div><label>کد ملی</label><input id="f_national" value="${s.national||''}" placeholder="۱۰ رقم"></div>
-      <div><label>پایه</label><select id="f_grade">${GRADES.map(x => `<option ${x===s.grade?'selected':''}>${x}</option>`).join('')}</select></div>
-      <div><label>کلاس</label><select id="f_class">${CLASSES.map(x => `<option ${x===s.class?'selected':''}>${x}</option>`).join('')}</select></div>
+      <div><label>کلاس</label><select id="f_grade">${GRADES.map(x => `<option ${x===s.grade?'selected':''}>${x}</option>`).join('')}</select></div>
       <div><label>شماره همراه</label><input id="f_phone" value="${s.phone||''}" placeholder="0912..."></div>
       <div><label>🎂 تاریخ تولد</label><input id="f_birth" value="${s.birthDate||''}" placeholder="1392/05/12"></div>
       <div><label>سال تحصیلی</label><input id="f_year" value="${s.year||db.settings.year}"></div>
