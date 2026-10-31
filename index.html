@@ -722,10 +722,20 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
         <div class="filters">
           <input id="teacherStudentSearch" placeholder="🔍 جستجو...">
           <select id="teacherStudentGradeFilter">
-            <option value="">همه پایه‌ها</option>
-            <option>هفتم</option><option>هشتم</option><option>نهم</option>
-            <option>دهم</option><option>یازدهم</option><option>دوازدهم</option>
-          </select>
+  <option value="">همه کلاس‌ها</option>
+  <option>هفتم</option>
+  <option>هشتم</option>
+  <option>نهم</option>
+  <option>دهم انسانی</option>
+  <option>دهم تجربی</option>
+  <option>دهم ریاضی</option>
+  <option>یازدهم انسانی</option>
+  <option>یازدهم تجربی</option>
+  <option>یازدهم ریاضی</option>
+  <option>دوازدهم انسانی</option>
+  <option>دوازدهم تجربی</option>
+  <option>دوازدهم ریاضی</option>
+</select>
         </div>
         <div class="table-wrap">
           <table class="table">
@@ -2202,6 +2212,7 @@ function renderTeacherGrades(){
 }
 
 function openTeacherGrade(id){
+    // ⭐ اگر id ندارد (ثبت جدید)، از کاربر کلاس بپرس
   if(!currentTeacher) return;
   const g = id ? db.grades.find(x => x.id == id) : null;
   
@@ -3289,10 +3300,23 @@ function openTeacherGrade(id){
     ? availableSubjects.map(s => `<option ${g && g.subject === s.name ? 'selected' : ''}>${s.name}</option>`).join('')
     : '<option value="">هیچ درسی نیست</option>';
   
-  const studentOptions = db.students.length > 0
-    ? db.students.map(s => `<option value="${s.id}" ${g && g.student_id == s.id ? 'selected' : ''}>${s.name} ${s.family} — ${s.code || ''}</option>`).join('')
-    : '<option value="">هیچ دانش‌آموزی نیست</option>';
+  const allClasses = [
+    'هفتم', 'هشتم', 'نهم',
+    'دهم انسانی', 'دهم تجربی', 'دهم ریاضی',
+    'یازدهم انسانی', 'یازدهم تجربی', 'یازدهم ریاضی',
+    'دوازدهم انسانی', 'دوازدهم تجربی', 'دوازدهم ریاضی'
+  ];
   
+  const selectedClass = g ? (studentById(g.student_id)?.grade || '') : '';
+  
+  const studentsInClass = selectedClass 
+    ? db.students.filter(s => s.grade === selectedClass)
+    : [];
+  
+  const studentOptions = studentsInClass.length > 0
+    ? studentsInClass.map(s => `<option value="${s.id}" ${g && g.student_id == s.id ? 'selected' : ''}>${s.name} ${s.family} — ${s.code || ''}</option>`).join('')
+    : '<option value="">ابتدا کلاس را انتخاب کنید</option>';
+
   const teacherFullName = `${currentTeacher.name} ${currentTeacher.family}`;
   
   const infoBox = teacherSubjects.length > 0
@@ -3303,8 +3327,17 @@ function openTeacherGrade(id){
   <div class="form">
     ${infoBox}
     <div class="formgrid">
+      <div class="full"><label>کلاس *</label>
+        <select id="tg_class_select">
+          <option value="">انتخاب کلاس</option>
+          ${allClasses.map(c => `<option ${c === selectedClass ? 'selected' : ''}>${c}</option>`).join('')}
+        </select>
+      </div>
       <div class="full"><label>دانش‌آموز *</label>
-        <select id="tg_student"><option value="">انتخاب کنید</option>${studentOptions}</select>
+        <select id="tg_student">
+          <option value="">ابتدا کلاس را انتخاب کنید</option>
+          ${studentOptions}
+        </select>
       </div>
       <div><label>درس *</label><select id="tg_subject">${subjectOptions}</select></div>
       <div><label>ترم *</label>
@@ -3321,6 +3354,30 @@ function openTeacherGrade(id){
     </div>
   </div>
   <div class="modalfoot"><button class="btn green" id="btnSaveTeacherGrade">💾 ذخیره</button></div></div>`);
+
+  // ⭐ وقتی کلاس عوض می‌شه، دانش‌آموزان هم عوض بشن
+  const classEl = document.getElementById('tg_class_select');
+  if(classEl){
+    classEl.addEventListener('change', function(){
+      const newClass = this.value;
+      const studentEl = document.getElementById('tg_student');
+      if(!studentEl) return;
+      
+      if(!newClass){
+        studentEl.innerHTML = '<option value="">ابتدا کلاس را انتخاب کنید</option>';
+        return;
+      }
+      
+      const students = db.students.filter(s => s.grade === newClass);
+      if(students.length === 0){
+        studentEl.innerHTML = '<option value="">دانش‌آموزی در این کلاس نیست</option>';
+        return;
+      }
+      
+      studentEl.innerHTML = '<option value="">انتخاب کنید</option>' + 
+        students.map(s => `<option value="${s.id}">${s.name} ${s.family} — ${s.code || ''}</option>`).join('');
+    });
+  }
 
   document.getElementById('btnSaveTeacherGrade').onclick = () => saveTeacherGrade(id || 0);
 }
