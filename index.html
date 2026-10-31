@@ -886,11 +886,21 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   <div class="card">
     <div class="filters">
       <input id="studentSearch" placeholder="🔍 جستجو...">
-      <select id="gradeFilter">
-        <option value="">همه پایه‌ها</option>
-        <option>هفتم</option><option>هشتم</option><option>نهم</option>
-        <option>دهم</option><option>یازدهم</option><option>دوازدهم</option>
-      </select>
+     <select id="gradeFilter">
+  <option value="">همه کلاس‌ها</option>
+  <option>هفتم</option>
+  <option>هشتم</option>
+  <option>نهم</option>
+  <option>دهم انسانی</option>
+  <option>دهم تجربی</option>
+  <option>دهم ریاضی</option>
+  <option>یازدهم انسانی</option>
+  <option>یازدهم تجربی</option>
+  <option>یازدهم ریاضی</option>
+  <option>دوازدهم انسانی</option>
+  <option>دوازدهم تجربی</option>
+  <option>دوازدهم ریاضی</option>
+</select>
       <select id="classFilter">
         <option value="">همه کلاس‌ها</option>
         <option>الف</option><option>ب</option><option>ج</option><option>د</option>
@@ -1492,7 +1502,7 @@ const DEFAULT_SETTINGS = {
   footer: 'با تشکر از اعتماد شما به دبیرستان دخترانه الهه مهر'
 };
 
-const GRADES = ['هفتم','هشتم','نهم','دهم','یازدهم','دوازدهم'];
+const GRADES = ['هفتم','هشتم','نهم','دهم انسانی','دهم تجربی','دهم ریاضی','یازدهم انسانی','یازدهم تجربی','یازدهم ریاضی','دوازدهم انسانی','دوازدهم تجربی','دوازدهم ریاضی'];
 const CLASSES = ['الف','ب','ج','د'];
 const STAFF_ROLES = ['دبیر','مدیر','معاون','مشاور','حسابدار','منشی','خدمات','سایر'];
 const MONTHS = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
