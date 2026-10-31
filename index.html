@@ -698,10 +698,20 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
         <div class="filters">
           <input id="teacherGradeSearch" placeholder="🔍 جستجوی دانش‌آموز...">
           <select id="teacherGradeClassFilter">
-            <option value="">همه پایه‌ها</option>
-            <option>هفتم</option><option>هشتم</option><option>نهم</option>
-            <option>دهم</option><option>یازدهم</option><option>دوازدهم</option>
-          </select>
+  <option value="">همه کلاس‌ها</option>
+  <option>هفتم</option>
+  <option>هشتم</option>
+  <option>نهم</option>
+  <option>دهم انسانی</option>
+  <option>دهم تجربی</option>
+  <option>دهم ریاضی</option>
+  <option>یازدهم انسانی</option>
+  <option>یازدهم تجربی</option>
+  <option>یازدهم ریاضی</option>
+  <option>دوازدهم انسانی</option>
+  <option>دوازدهم تجربی</option>
+  <option>دوازدهم ریاضی</option>
+</select>
           <select id="teacherGradeSubjectFilter">
             <option value="">همه دروس</option>
           </select>
@@ -1492,8 +1502,13 @@ const DEFAULT_SETTINGS = {
   footer: 'با تشکر از اعتماد شما به دبیرستان دخترانه الهه مهر'
 };
 
-const GRADES = ['هفتم','هشتم','نهم','دهم','یازدهم','دوازدهم'];
-const CLASSES = ['الف','ب','ج','د'];
+const GRADES = [
+  'هفتم', 'هشتم', 'نهم',
+  'دهم انسانی', 'دهم تجربی', 'دهم ریاضی',
+  'یازدهم انسانی', 'یازدهم تجربی', 'یازدهم ریاضی',
+  'دوازدهم انسانی', 'دوازدهم تجربی', 'دوازدهم ریاضی'
+];
+const CLASSES = [''];
 const STAFF_ROLES = ['دبیر','مدیر','معاون','مشاور','حسابدار','منشی','خدمات','سایر'];
 const MONTHS = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
 const ASSET_CATEGORIES = ['رایانه','لوازم اداری','لوازم آموزشی','تجهیزات صوتی','مبلمان','لوازم ورزشی','لوازم آزمایشگاهی','سایر'];
@@ -2175,22 +2190,97 @@ function openTeacherGrade(id){
   if(!currentTeacher) return;
   const g = id ? db.grades.find(x => x.id == id) : null;
   
-  // ⭐ دروس اختصاصی استاد
-  const teacherSubjectsStr = String(currentTeacher.subjects || '').trim();
-  const teacherSubjects = teacherSubjectsStr 
-    ? teacherSubjectsStr.split(',').map(x => x.trim()).filter(Boolean)
-    : [];
+  const teacherSubjects = String(currentTeacher.subjects || '').split(',').map(x => x.trim()).filter(Boolean);
   
-  // ⭐ اگر استاد درس دارد، فقط آن‌ها را نشان بده. اگر ندارد، همه دروس
-  let availableSubjects;
-  if(teacherSubjects.length > 0){
-    availableSubjects = db.subjects.filter(sub => teacherSubjects.includes(sub.name));
-    if(availableSubjects.length === 0){
-      availableSubjects = db.subjects;
+  let availableSubjects = teacherSubjects.length > 0 
+    ? db.subjects.filter(sub => teacherSubjects.includes(sub.name))
+    : db.subjects;
+  if(availableSubjects.length === 0) availableSubjects = db.subjects;
+  
+  const subjectOptions = availableSubjects.length > 0
+    ? availableSubjects.map(s => `<option ${g && g.subject === s.name ? 'selected' : ''}>${s.name}</option>`).join('')
+    : '<option value="">هیچ درسی نیست</option>';
+  
+  // ⭐ لیست کلاس‌ها
+  const allClasses = [
+    'هفتم', 'هشتم', 'نهم',
+    'دهم انسانی', 'دهم تجربی', 'دهم ریاضی',
+    'یازدهم انسانی', 'یازدهم تجربی', 'یازدهم ریاضی',
+    'دوازدهم انسانی', 'دوازدهم تجربی', 'دوازدهم ریاضی'
+  ];
+  
+  const teacherFullName = `${currentTeacher.name} ${currentTeacher.family}`;
+  
+  const infoBox = teacherSubjects.length > 0
+    ? `<div style="background:var(--primary-bg);padding:12px;border-radius:10px;margin-bottom:16px;color:var(--primary-dark);font-weight:700">📚 دروس شما: ${teacherSubjects.join(' • ')}</div>`
+    : '<div style="background:#fef3c7;padding:12px;border-radius:10px;margin-bottom:16px;color:#92400e;font-weight:700">⚠️ درسی به شما اختصاص نیافته</div>';
+
+  openModal(g ? '✏️ ویرایش نمره' : '📚 ثبت نمره', `
+  <div class="form">
+    ${infoBox}
+    <div class="formgrid">
+      <div class="full"><label>کلاس *</label>
+        <select id="tg_class" onchange="filterStudentsByClass()">
+          <option value="">انتخاب کلاس</option>
+          ${allClasses.map(c => `<option ${g && studentById(g.student_id) && studentById(g.student_id).grade === c ? 'selected' : ''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="full"><label>دانش‌آموز *</label>
+        <select id="tg_student">
+          <option value="">ابتدا کلاس را انتخاب کنید</option>
+        </select>
+      </div>
+      <div><label>درس *</label><select id="tg_subject">${subjectOptions}</select></div>
+      <div><label>ترم *</label>
+        <select id="tg_term">${GRADE_TERMS.map(t => `<option ${g && g.term === t ? 'selected' : ''}>${t}</option>`).join('')}</select>
+      </div>
+      <div><label>نوع آزمون</label>
+        <select id="tg_exam_type">${EXAM_TYPES.map(t => `<option ${g && g.exam_type === t ? 'selected' : ''}>${t}</option>`).join('')}</select>
+      </div>
+      <div><label>نمره *</label><input type="number" step="0.25" id="tg_score" value="${g ? g.score : ''}" min="0"></div>
+      <div><label>از</label><input type="number" id="tg_max_score" value="${g ? g.max_score : 20}"></div>
+      <div><label>تاریخ</label><input id="tg_date" value="${g ? (g.exam_date || today()) : today()}"></div>
+      <div class="full"><label>دبیر</label><input id="tg_teacher" value="${g ? (g.teacher_name || teacherFullName) : teacherFullName}"></div>
+      <div class="full"><label>توضیحات</label><textarea id="tg_desc">${g ? (g.description || '') : ''}</textarea></div>
+    </div>
+  </div>
+  <div class="modalfoot"><button class="btn green" id="btnSaveTeacherGrade">💾 ذخیره</button></div></div>`);
+
+  // ⭐ اگر در حالت ویرایش هست، کلاس دانش‌آموز رو انتخاب کن
+  if(g){
+    const st = studentById(g.student_id);
+    if(st){
+      const classEl = document.getElementById('tg_class');
+      if(classEl) classEl.value = st.grade || '';
+      filterStudentsByClass(g.student_id);
     }
-  } else {
-    availableSubjects = db.subjects;
   }
+
+  document.getElementById('btnSaveTeacherGrade').onclick = () => saveTeacherGrade(id || 0);
+}
+
+// ⭐ تابع کمکی: فیلتر دانش‌آموزان بر اساس کلاس
+function filterStudentsByClass(selectedId){
+  const classEl = document.getElementById('tg_class');
+  const studentEl = document.getElementById('tg_student');
+  if(!classEl || !studentEl) return;
+  
+  const selectedClass = classEl.value;
+  if(!selectedClass){
+    studentEl.innerHTML = '<option value="">ابتدا کلاس را انتخاب کنید</option>';
+    return;
+  }
+  
+  const students = db.students.filter(s => s.grade === selectedClass);
+  
+  if(students.length === 0){
+    studentEl.innerHTML = '<option value="">دانش‌آموزی در این کلاس نیست</option>';
+    return;
+  }
+  
+  studentEl.innerHTML = '<option value="">انتخاب کنید</option>' + 
+    students.map(s => `<option value="${s.id}" ${selectedId == s.id ? 'selected' : ''}>${s.name} ${s.family} — ${s.code || ''}</option>`).join('');
+}
   
   const subjectOptions = availableSubjects.length > 0
     ? availableSubjects.map(s => `<option ${g && g.subject === s.name ? 'selected' : ''}>${s.name}</option>`).join('')
@@ -3856,7 +3946,7 @@ function openScheduleItem(id){
   openModal(it ? '✏️ ویرایش جلسه' : '📆 افزودن جلسه', `
   <div class="form"><div class="formgrid">
     <div><label>پایه *</label><select id="sc_grade">${GRADES.map(g => `<option ${it && it.grade === g ? 'selected' : ''}>${g}</option>`).join('')}</select></div>
-    <div><label>کلاس</label><select id="sc_class"><option value="">همه</option>${CLASSES.map(c => `<option ${it && it.class === c ? 'selected' : ''}>${c}</option>`).join('')}</select></div>
+    <div><label>کلاس</label><select id="f_class"><option value="">بدون کلاس</option>${CLASSES.filter(c => c).map(x => `<option ${x===s.class?'selected':''}>${x}</option>`).join('')}</select></div>
     <div><label>روز *</label><select id="sc_day">${DAYS_OF_WEEK.slice(0, 6).map(d => `<option ${it && it.dayOfWeek === d ? 'selected' : ''}>${d}</option>`).join('')}</select></div>
     <div><label>زنگ *</label><input type="number" id="sc_period" value="${it ? it.period : 1}" min="1" max="10"></div>
     <div><label>درس *</label><select id="sc_subject">${subjectOptions}</select></div>
