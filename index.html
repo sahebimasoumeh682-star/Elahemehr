@@ -815,7 +815,6 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
     <div class="nav-section">کارکنان</div>
     <button data-page="staff">👨‍🏫 <span>کارکنان و دبیران</span></button>
     <button data-page="teacherRatings">⭐ <span>امتیازات اساتید</span></button>
-        <button data-page="achievements">🏆 <span>گالری افتخارات</span></button>
     <button data-page="salaries">💰 <span>واریز حقوق</span></button>
 
     <div class="nav-section">مالی</div>
@@ -1202,45 +1201,6 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   </div>
 </section>
 <!-- ⭐ صفحه امتیازات اساتید -->
-  <!-- ⭐ صفحه گالری افتخارات -->
-<section class="page" id="achievements">
-  <div class="section-head">
-    <h2>🏆 گالری افتخارات</h2>
-    <button class="btn primary" id="btnNewAchievement">ثبت افتخار +</button>
-  </div>
-  <div class="card">
-    <div class="filters">
-      <input id="achievementSearch" placeholder="🔍 جستجوی دانش‌آموز یا عنوان...">
-      <select id="achievementCategoryFilter">
-        <option value="">همه دسته‌ها</option>
-        <option>علمی</option>
-        <option>ورزشی</option>
-        <option>اخلاقی</option>
-        <option>فرهنگی</option>
-        <option>هنری</option>
-        <option>قرآنی</option>
-        <option>سایر</option>
-      </select>
-      <select id="achievementGradeFilter">
-        <option value="">همه کلاس‌ها</option>
-        <option>هفتم</option>
-        <option>هشتم</option>
-        <option>نهم</option>
-        <option>دهم انسانی</option>
-        <option>دهم تجربی</option>
-        <option>دهم ریاضی</option>
-        <option>یازدهم انسانی</option>
-        <option>یازدهم تجربی</option>
-        <option>یازدهم ریاضی</option>
-        <option>دوازدهم انسانی</option>
-        <option>دوازدهم تجربی</option>
-        <option>دوازدهم ریاضی</option>
-      </select>
-    </div>
-    <div id="achievementsGallery"></div>
-  </div>
-</section>
-
 <section class="page" id="teacherRatings">
   <div class="section-head">
     <h2>⭐ امتیازات اساتید</h2>
@@ -1658,7 +1618,6 @@ let db = {
   messages: [], announcements: [], homework: [], homeworkSubmissions: [],
   events: [], classSchedule: [],
     teacherRatings: []
-    achievements: [],
 };
 
 /* ============================================================
@@ -1982,8 +1941,7 @@ async function loadData(){
     loadTable('homework_submissions', null, null),
     loadTable('events', 'event_date', true),
     loadTable('class_schedule', 'period', true),
-        loadTable('teacher_ratings', 'created_at', false),
-        loadTable('achievements', 'created_at', false)
+        loadTable('teacher_ratings', 'created_at', false)
   ]);
   
   // ⭐ ذخیره در db
@@ -2015,7 +1973,6 @@ async function loadData(){
   db.events = (loaded[19] || []).map(mapEvent);
   db.classSchedule = (loaded[20] || []).map(mapScheduleItem);
     db.teacherRatings = loaded[21] || [];
-    db.achievements = loaded[22] || [];
   // لاگ در کنسول
   console.log('✅ دیتابیس لود شد:', {
     students: db.students.length,
@@ -4934,145 +4891,6 @@ async function returnCheck(id){
 /* ============================================================
    STAFF
 ============================================================ */
-  /* ============================================================
-   GALLERY OF HONORS
-============================================================ */
-function renderAchievements(){
-  const el = document.getElementById('achievementsGallery');
-  if(!el) return;
-  
-  const q = (v('achievementSearch') || '').toLowerCase();
-  const cat = v('achievementCategoryFilter');
-  const grade = v('achievementGradeFilter');
-  
-  const arr = (db.achievements || []).filter(a => {
-    if(q && !`${a.student_name || ''} ${a.title || ''} ${a.description || ''}`.toLowerCase().includes(q)) return false;
-    if(cat && a.category !== cat) return false;
-    if(grade && a.student_grade !== grade) return false;
-    return true;
-  }).sort((a,b) => (b.created_at || '').localeCompare(a.created_at || ''));
-  
-  if(!arr.length){
-    el.innerHTML = '<div class="empty" style="padding:40px">هنوز افتخاری ثبت نشده است. روی «+ ثبت افتخار» کلیک کنید.</div>';
-    return;
-  }
-  
-  el.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px">
-    ${arr.map(a => {
-      const categoryColors = {
-        'علمی': { bg: '#dbeafe', color: '#1e40af', icon: '📚' },
-        'ورزشی': { bg: '#dcfce7', color: '#166534', icon: '⚽' },
-        'اخلاقی': { bg: '#fef3c7', color: '#92400e', icon: '🌟' },
-        'فرهنگی': { bg: '#fce7f3', color: '#9d174d', icon: '🎭' },
-        'هنری': { bg: '#ede9fe', color: '#6d28d9', icon: '🎨' },
-        'قرآنی': { bg: '#d1fae5', color: '#065f46', icon: '🕌' },
-        'سایر': { bg: '#e2e8f0', color: '#334155', icon: '🏅' }
-      };
-      const cc = categoryColors[a.category] || categoryColors['سایر'];
-      const rankText = a.rank === 1 ? '🥇 مقام اول' : a.rank === 2 ? '🥈 مقام دوم' : a.rank === 3 ? '🥉 مقام سوم' : (a.rank ? `مقام ${a.rank}` : '');
-      
-      return `<div class="card" style="padding:18px;position:relative;overflow:hidden;border-top:4px solid ${cc.color}">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-          <div style="font-size:36px">${cc.icon}</div>
-          <div style="flex:1">
-            <div style="font-weight:800;font-size:15px;color:${cc.color}">${a.title}</div>
-            <div style="font-size:11.5px;color:var(--muted);margin-top:2px">${a.category || 'سایر'} ${a.student_grade ? '• ' + a.student_grade : ''}</div>
-          </div>
-        </div>
-        <div style="background:${cc.bg};color:${cc.color};padding:10px 14px;border-radius:10px;margin-bottom:10px">
-          <div style="font-size:12px;font-weight:700">👩🏻‍🎓 ${a.student_name || '-'}</div>
-          ${rankText ? `<div style="font-size:11.5px;margin-top:4px;font-weight:800">${rankText}</div>` : ''}
-        </div>
-        ${a.description ? `<p style="font-size:12.5px;color:var(--text-soft);margin:0 0 10px;line-height:1.7">${a.description}</p>` : ''}
-        <div style="font-size:11px;color:var(--muted);display:flex;justify-content:space-between;align-items:center">
-          <span>📅 ${a.achievement_date || (a.created_at ? new Date(a.created_at).toLocaleDateString('fa-IR') : '-')}</span>
-          <button class="btn red" style="padding:4px 10px;font-size:11px" onclick="deleteAchievement(${a.id})">🗑️</button>
-        </div>
-      </div>`;
-    }).join('')}
-  </div>`;
-}
-
-function openAchievement(){
-  openModal('🏆 ثبت افتخار جدید', `
-  <div class="form">
-    <div class="formgrid">
-      <div class="full"><label>دانش‌آموز *</label>
-        <select id="ach_student">
-          <option value="">انتخاب کنید</option>
-          ${db.students.map(s => `<option value="${s.id}">${s.name} ${s.family} — ${s.grade || '-'}</option>`).join('')}
-        </select>
-      </div>
-      <div class="full"><label>عنوان افتخار *</label><input id="ach_title" placeholder="مثلاً: رتبه اول المپیاد ریاضی"></div>
-      <div><label>دسته</label>
-        <select id="ach_category">
-          <option>علمی</option><option>ورزشی</option><option>اخلاقی</option><option>فرهنگی</option><option>هنری</option><option>قرآنی</option><option>سایر</option>
-        </select>
-      </div>
-      <div><label>مقام</label>
-        <select id="ach_rank">
-          <option value="">بدون مقام</option>
-          <option value="1">🥇 اول</option>
-          <option value="2">🥈 دوم</option>
-          <option value="3">🥉 سوم</option>
-          <option value="4">چهارم</option>
-          <option value="5">پنجم</option>
-        </select>
-      </div>
-      <div><label>تاریخ</label><input id="ach_date" value="${today()}"></div>
-      <div class="full"><label>توضیحات</label><textarea id="ach_desc" placeholder="توضیحات بیشتر..."></textarea></div>
-    </div>
-  </div>
-  <div class="modalfoot"><button class="btn primary" id="btnSaveAchievement">💾 ذخیره</button></div>`);
-  
-  document.getElementById('btnSaveAchievement').onclick = saveAchievement;
-}
-
-async function saveAchievement(){
-  if(isProcessing) return;
-  const studentId = v('ach_student');
-  const title = v('ach_title');
-  if(!studentId) return toast('دانش‌آموز را انتخاب کنید', 'error');
-  if(!title) return toast('عنوان الزامی است', 'error');
-  
-  const student = studentById(studentId);
-  if(!student) return toast('دانش‌آموز یافت نشد', 'error');
-  
-  isProcessing = true;
-  try {
-    const { error } = await sb.from('achievements').insert({
-      student_id: Number(studentId),
-      student_name: `${student.name} ${student.family}`,
-      student_grade: student.grade || null,
-      title: title,
-      category: v('ach_category'),
-      description: v('ach_desc'),
-      achievement_date: v('ach_date'),
-      rank: v('ach_rank') ? parseInt(v('ach_rank')) : null,
-      created_by: currentUser?.id || 'admin'
-    });
-    if(error){ toast('خطا: ' + error.message, 'error'); return; }
-    await logAction(`ثبت افتخار: ${title}`);
-    closeModal();
-    await loadData();
-    renderAchievements();
-    toast('افتخار ثبت شد ✅', 'success');
-  } finally { isProcessing = false; }
-}
-
-async function deleteAchievement(id){
-  if(!confirm('این افتخار حذف شود؟')) return;
-  if(isProcessing) return;
-  isProcessing = true;
-  try {
-    const { error } = await sb.from('achievements').delete().eq('id', id);
-    if(error){ toast('خطا: ' + error.message, 'error'); return; }
-    await loadData();
-    renderAchievements();
-    toast('حذف شد ✅', 'success');
-  } finally { isProcessing = false; }
-}
-
   function renderTeacherRatings(){
   const statsEl = document.getElementById('teacherRatingsStats');
   const tbody = document.getElementById('teacherRatingsTable');
@@ -6934,7 +6752,6 @@ function drawCharts(){
 function renderAll(){
   document.getElementById('yearLabel').textContent = db.settings.year || '—';
   renderTeacherRatings();
-  renderAchievements();
   renderBirthdays();
   renderDashboardBirthdayTable();
   renderDashboardFinancialTable();
@@ -6983,7 +6800,7 @@ function nav(page){
     grades: 'مدیریت نمرات', attendance: 'حضور و غیاب',
     homework: 'تکالیف', schedule: 'برنامه هفتگی', calendar: 'تقویم',
     messages: 'پیام‌ها', announcements: 'اطلاعیه‌ها',
-    staff: 'کارکنان', salaries: 'واریز حقوق', teacherRatings: 'امتیازات اساتید', achievements: 'گالری افتخارات',
+    staff: 'کارکنان', salaries: 'واریز حقوق', teacherRatings: 'امتیازات اساتید',
     incomes: 'درآمدها', expenses: 'هزینه‌ها', installments: 'اقساط', discounts: 'تخفیف‌ها',
     assets: 'اموال', reports: 'گزارش‌ها', invoices: 'صورتحساب‌ها', bulk: 'چاپ دسته‌ای',
     sms: 'ارسال پیامک', users: 'کاربران', logs: 'فعالیت‌ها',
@@ -6994,7 +6811,6 @@ function nav(page){
   if(page === 'backup') updateBackupStats();
   if(page === 'sms') renderSmsPage();
     if(page === 'teacherRatings') renderTeacherRatings();
-    if(page === 'achievements') renderAchievements();
 }
 
 function initTheme(){
@@ -7079,13 +6895,6 @@ document.addEventListener('click', function(e){
    BIND STATIC BUTTONS
 ============================================================ */
 function bindStaticButtons(){
-    const btnNewAch = document.getElementById('btnNewAchievement');
-  if(btnNewAch) btnNewAch.onclick = openAchievement;
-  
-  ['achievementSearch','achievementCategoryFilter','achievementGradeFilter'].forEach(id => {
-    const el = document.getElementById(id);
-    if(el) el.addEventListener('input', renderAchievements);
-  });
     const btnParentRating = document.getElementById('btnParentRating');
   if(btnParentRating) btnParentRating.onclick = openRatingModal;
     const btnPrintRC = document.getElementById('btnPrintReportCard');
