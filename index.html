@@ -1114,11 +1114,21 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   </div>
   <div class="card">
     <div class="filters">
-      <select id="scheduleGradeFilter">
-        <option value="">همه پایه‌ها</option>
-        <option>هفتم</option><option>هشتم</option><option>نهم</option>
-        <option>دهم</option><option>یازدهم</option><option>دوازدهم</option>
-      </select>
+     <select id="scheduleGradeFilter">
+  <option value="">همه کلاس‌ها</option>
+  <option>دهم انسانی</option>
+  <option>دهم تجربی</option>
+  <option>دهم ریاضی</option>
+  <option>یازدهم انسانی</option>
+  <option>یازدهم تجربی</option>
+  <option>یازدهم ریاضی</option>
+  <option>دوازدهم انسانی</option>
+  <option>دوازدهم تجربی</option>
+  <option>دوازدهم ریاضی</option>
+  <option>هفتم</option>
+  <option>هشتم</option>
+  <option>نهم</option>
+</select>
       <select id="scheduleClassFilter">
         <option value="">همه کلاس‌ها</option>
         <option>الف</option><option>ب</option><option>ج</option><option>د</option>
@@ -3942,7 +3952,20 @@ function openScheduleItem(id){
     : '<option value="">ابتدا درس اضافه کنید</option>';
   openModal(it ? '✏️ ویرایش جلسه' : '📆 افزودن جلسه', `
   <div class="form"><div class="formgrid">
-    <div><label>پایه *</label><select id="sc_grade">${GRADES.map(g => `<option ${it && it.grade === g ? 'selected' : ''}>${g}</option>`).join('')}</select></div>
+    <div><label>پایه *</label><select id="sc_grade">
+  <option>دهم انسانی</option>
+  <option>دهم تجربی</option>
+  <option>دهم ریاضی</option>
+  <option>یازدهم انسانی</option>
+  <option>یازدهم تجربی</option>
+  <option>یازدهم ریاضی</option>
+  <option>دوازدهم انسانی</option>
+  <option>دوازدهم تجربی</option>
+  <option>دوازدهم ریاضی</option>
+  <option>هفتم</option>
+  <option>هشتم</option>
+  <option>نهم</option>
+</select>
     <div><label>کلاس</label><select id="sc_class"><option value="">همه</option>${CLASSES.map(c => `<option ${it && it.class === c ? 'selected' : ''}>${c}</option>`).join('')}</select></div>
     <div><label>روز *</label><select id="sc_day">${DAYS_OF_WEEK.slice(0, 6).map(d => `<option ${it && it.dayOfWeek === d ? 'selected' : ''}>${d}</option>`).join('')}</select></div>
     <div><label>زنگ *</label><input type="number" id="sc_period" value="${it ? it.period : 1}" min="1" max="10"></div>
