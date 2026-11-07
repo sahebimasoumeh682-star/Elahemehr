@@ -565,6 +565,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
       <button class="parent-tab" data-ptab="grades">📚 نمرات</button>
       <button class="parent-tab" data-ptab="attendance">📅 حضور و غیاب</button>
       <button class="parent-tab" data-ptab="messages">💬 پیام‌ها <span id="parentUnreadBadge" class="badge overdue" style="display:none;margin-right:4px">0</span></button>
+      <button class="parent-tab" data-ptab="forecast">🎓 پیش‌بینی معدل</button>
       <button class="parent-tab" data-ptab="announcements">📢 اطلاعیه‌ها</button>
       <button class="parent-tab" data-ptab="homework">📝 تکالیف</button>
       <button class="parent-tab" data-ptab="schedule">📆 برنامه هفتگی</button>
@@ -645,6 +646,16 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
     </div>
 
     <div class="parent-panel" id="parent-payments">
+          <div class="parent-panel" id="parent-forecast">
+      <div class="card" style="margin-bottom:20px">
+        <h3 style="margin-top:0">🎓 پیش‌بینی معدل</h3>
+        <p style="color:var(--muted);font-size:13px;line-height:1.9;margin:0 0 18px">
+          💡 این پیش‌بینی بر اساس نمرات فعلی فرزند شما محاسبه می‌شود. معدل نهایی ممکن است متفاوت باشد.
+        </p>
+        <div id="parentForecastResult"></div>
+      </div>
+    </div>
+
       <div class="card">
         <h3 style="margin-top:0">🧾 تاریخچه پرداخت‌ها</h3>
         <div id="parentPaymentList"></div>
@@ -2644,6 +2655,7 @@ function renderParentPanel(){
   renderParentAnnouncements();
   renderParentHomework();
   renderParentSchedule();
+    renderParentForecast();
 }
 
 function renderParentFinance(s){
@@ -3017,6 +3029,119 @@ function printReportCard(){
   </body></html>`);
   w.document.close();
   setTimeout(() => w.print(), 500);
+}
+function renderParentForecast(){
+  if(!parentStudent) return;
+  const s = parentStudent;
+  const el = document.getElementById('parentForecastResult');
+  if(!el) return;
+  
+  const grades = db.grades.filter(g => g.student_id == s.id);
+  
+  if(grades.length === 0){
+    el.innerHTML = '<div class="empty">هنوز نمره‌ای ثبت نشده. بعد از ثبت نمرات، پیش‌بینی نمایش داده می‌شود.</div>';
+    return;
+  }
+  
+  // گروه‌بندی بر اساس درس
+  const bySubject = {};
+  grades.forEach(g => {
+    if(!bySubject[g.subject]) bySubject[g.subject] = [];
+    bySubject[g.subject].push(g);
+  });
+  
+  // محاسبه معدل فعلی
+  const totalAvg = grades.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / grades.length;
+  
+  // پیش‌بینی: بر اساس معدل فعلی
+  const forecast = totalAvg.toFixed(2);
+  
+  // معدل هر درس
+  const subjectData = Object.entries(bySubject).map(([subject, grds]) => {
+    const subjAvg = grds.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / grds.length;
+    return { subject, avg: subjAvg.toFixed(2), count: grds.length, grades: grds };
+  }).sort((a,b) => parseFloat(b.avg) - parseFloat(a.avg));
+  
+  // بهترین و ضعیف‌ترین درس
+  const bestSubject = subjectData[0];
+  const worstSubject = subjectData[subjectData.length - 1];
+  
+  // محاسبه رتبه در کلاس (برای نمایش بهتر)
+  const classmates = db.students.filter(st => st.grade === s.grade);
+  const classAverages = classmates.map(st => {
+    const grds = db.grades.filter(g => g.student_id == st.id);
+    if(!grds.length) return { id: st.id, avg: 0 };
+    return {
+      id: st.id,
+      avg: grds.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / grds.length
+    };
+  }).sort((a,b) => b.avg - a.avg);
+  const rank = classAverages.findIndex(c => c.id == s.id) + 1;
+  
+  el.innerHTML = `
+    <div class="parent-stats">
+      <div class="parent-stat primary">
+        <div class="ps-ico">📊</div>
+        <div class="ps-label">معدل فعلی</div>
+        <div class="ps-value">${totalAvg.toFixed(2)}</div>
+      </div>
+      <div class="parent-stat ${parseFloat(forecast) >= 15 ? 'success' : parseFloat(forecast) >= 10 ? 'warning' : 'danger'}">
+        <div class="ps-ico">🎯</div>
+        <div class="ps-label">پیش‌بینی معدل نهایی</div>
+        <div class="ps-value">${forecast}</div>
+      </div>
+      <div class="parent-stat primary">
+        <div class="ps-ico">🏆</div>
+        <div class="ps-label">رتبه در کلاس</div>
+        <div class="ps-value">${rank} از ${classmates.length}</div>
+      </div>
+      <div class="parent-stat ${parseFloat(forecast) >= 17 ? 'success' : parseFloat(forecast) >= 14 ? 'warning' : 'danger'}">
+        <div class="ps-ico">${parseFloat(forecast) >= 17 ? '🌟' : parseFloat(forecast) >= 14 ? '👍' : '📈'}</div>
+        <div class="ps-label">وضعیت</div>
+        <div class="ps-value" style="font-size:14px">${parseFloat(forecast) >= 17 ? 'عالی' : parseFloat(forecast) >= 14 ? 'خوب' : parseFloat(forecast) >= 10 ? 'متوسط' : 'نیاز به تلاش'}</div>
+      </div>
+    </div>
+    
+    <div class="card" style="margin-bottom:16px;background:linear-gradient(135deg,#eef2ff 0%,#f0f9ff 100%);border:2px solid var(--primary-light)">
+      <h4 style="margin:0 0 12px;color:var(--primary-dark)">📈 تحلیل عملکرد</h4>
+      <div style="display:flex;flex-direction:column;gap:10px;font-size:13.5px">
+        <div style="display:flex;justify-content:space-between;padding:10px;background:#fff;border-radius:8px">
+          <span>🌟 بهترین درس:</span>
+          <b style="color:var(--success-dark)">${bestSubject ? bestSubject.subject + ' (معدل ' + bestSubject.avg + ')' : '-'}</b>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:10px;background:#fff;border-radius:8px">
+          <span>📚 نیاز به تقویت:</span>
+          <b style="color:var(--danger)">${worstSubject ? worstSubject.subject + ' (معدل ' + worstSubject.avg + ')' : '-'}</b>
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:10px;background:#fff;border-radius:8px">
+          <span>📊 تعداد نمرات ثبت‌شده:</span>
+          <b>${grades.length} نمره در ${Object.keys(bySubject).length} درس</b>
+        </div>
+      </div>
+    </div>
+    
+    <div class="card">
+      <h4 style="margin:0 0 12px;color:var(--primary-dark)">📋 معدل هر درس</h4>
+      <div style="display:grid;gap:10px">
+        ${subjectData.map(sd => {
+          const avg = parseFloat(sd.avg);
+          const color = avg >= 15 ? '#10b981' : avg >= 10 ? '#f59e0b' : '#ef4444';
+          const width = Math.min(100, (avg / 20) * 100);
+          return `
+            <div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:13px">
+                <b>${sd.subject}</b>
+                <span style="color:${color};font-weight:800">${sd.avg} (${sd.count} نمره)</span>
+              </div>
+              <div style="background:#e2e8f0;height:10px;border-radius:5px;overflow:hidden">
+                <div style="background:${color};height:100%;width:${width}%;border-radius:5px;transition:width 0.5s"></div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  `;
 }
 
 function renderParentGrades(){
@@ -6845,6 +6970,7 @@ function bindStaticButtons(){
       const target = document.getElementById('parent-' + tab.dataset.ptab);
       if(target) target.classList.add('active');
       if(tab.dataset.ptab === 'messages') renderParentMessages();
+      if(tab.dataset.ptab === 'forecast') renderParentForecast();
     };
   });
 
