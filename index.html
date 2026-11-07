@@ -566,6 +566,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
       <button class="parent-tab" data-ptab="attendance">📅 حضور و غیاب</button>
       <button class="parent-tab" data-ptab="messages">💬 پیام‌ها <span id="parentUnreadBadge" class="badge overdue" style="display:none;margin-right:4px">0</span></button>
       <button class="parent-tab" data-ptab="forecast">🎓 پیش‌بینی معدل</button>
+            <button class="parent-tab" data-ptab="progress">📈 گزارش پیشرفت</button>
       <button class="parent-tab" data-ptab="announcements">📢 اطلاعیه‌ها</button>
       <button class="parent-tab" data-ptab="homework">📝 تکالیف</button>
       <button class="parent-tab" data-ptab="schedule">📆 برنامه هفتگی</button>
@@ -642,6 +643,15 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
       <div class="card">
         <h3 style="margin-top:0">📆 برنامه هفتگی کلاس</h3>
         <div id="parentScheduleTable"></div>
+      </div>
+    </div>
+    <div class="parent-panel" id="parent-progress">
+      <div class="card" style="margin-bottom:20px">
+        <h3 style="margin-top:0">📈 گزارش پیشرفت</h3>
+        <p style="color:var(--muted);font-size:13px;margin:0 0 16px">
+          💡 نمودار پیشرفت نمرات فرزند شما در طول زمان
+        </p>
+        <div id="parentProgressContent"></div>
       </div>
     </div>
 
@@ -2752,6 +2762,7 @@ function renderParentPanel(){
   renderParentHomework();
   renderParentSchedule();
     renderParentForecast();
+    renderParentProgress();
 }
 
 function renderParentFinance(s){
@@ -3126,6 +3137,133 @@ function printReportCard(){
   w.document.close();
   setTimeout(() => w.print(), 500);
 }
+  function renderParentProgress(){
+  if(!parentStudent) return;
+  const s = parentStudent;
+  const el = document.getElementById('parentProgressContent');
+  if(!el) return;
+  
+  const grades = db.grades.filter(g => g.student_id == s.id);
+  
+  if(!grades.length){
+    el.innerHTML = '<div class="empty" style="padding:30px">هنوز نمره‌ای ثبت نشده. بعد از ثبت نمرات، نمودار پیشرفت نمایش داده می‌شود.</div>';
+    return;
+  }
+  
+  // گروه‌بندی بر اساس درس
+  const bySubject = {};
+  grades.forEach(g => {
+    if(!bySubject[g.subject]) bySubject[g.subject] = [];
+    bySubject[g.subject].push(g);
+  });
+  
+  // آمار
+  const totalGrades = grades.length;
+  const avgScore = grades.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / grades.length;
+  const bestGrade = Math.max(...grades.map(g => (Number(g.score) / Number(g.max_score || 20) * 20)));
+  const worstGrade = Math.min(...grades.map(g => (Number(g.score) / Number(g.max_score || 20) * 20)));
+  
+  // نمودار
+  let chartHTML = `
+    <div class="parent-stats" style="margin-bottom:20px">
+      <div class="parent-stat primary"><div class="ps-ico">📊</div><div class="ps-label">کل نمرات</div><div class="ps-value">${totalGrades}</div></div>
+      <div class="parent-stat ${avgScore >= 15 ? 'success' : avgScore >= 10 ? 'warning' : 'danger'}"><div class="ps-ico">⭐</div><div class="ps-label">میانگین</div><div class="ps-value">${avgScore.toFixed(2)}</div></div>
+      <div class="parent-stat success"><div class="ps-ico">🏆</div><div class="ps-label">بالاترین</div><div class="ps-value">${bestGrade.toFixed(2)}</div></div>
+      <div class="parent-stat danger"><div class="ps-ico">📉</div><div class="ps-label">پایین‌ترین</div><div class="ps-value">${worstGrade.toFixed(2)}</div></div>
+    </div>
+  `;
+  
+  // لیست دروس با پیشرفت
+  chartHTML += '<div style="margin-bottom:20px"><h4 style="margin:0 0 14px;color:var(--primary-dark)">📚 پیشرفت هر درس</h4>';
+  chartHTML += '<div style="display:grid;gap:14px">';
+  
+  Object.entries(bySubject).forEach(([subject, grds]) => {
+    // مرتب‌سازی بر اساس تاریخ
+    const sorted = [...grds].sort((a,b) => (a.exam_date || '').localeCompare(b.exam_date || ''));
+    const subjAvg = sorted.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / sorted.length;
+    
+    // محاسبه پیشرفت: مقایسه نیمه اول و نیمه دوم
+    let trend = 'stable';
+    if(sorted.length >= 2){
+      const half = Math.floor(sorted.length / 2);
+      const firstHalf = sorted.slice(0, half);
+      const secondHalf = sorted.slice(half);
+      const firstAvg = firstHalf.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / firstHalf.length;
+      const secondAvg = secondHalf.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / secondHalf.length;
+      if(secondAvg - firstAvg > 2) trend = 'up';
+      else if(secondAvg - firstAvg < -2) trend = 'down';
+    }
+    
+    const trendIcon = trend === 'up' ? '📈' : trend === 'down' ? '📉' : '➡️';
+    const trendColor = trend === 'up' ? '#10b981' : trend === 'down' ? '#ef4444' : '#64748b';
+    const trendText = trend === 'up' ? 'پیشرفت' : trend === 'down' ? 'افت' : 'ثابت';
+    const avgColor = subjAvg >= 15 ? '#10b981' : subjAvg >= 10 ? '#f59e0b' : '#ef4444';
+    
+    chartHTML += `
+      <div style="background:#fff;border:2px solid var(--line);border-radius:12px;padding:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <div style="font-weight:800;font-size:14px">${subject}</div>
+          <div style="display:flex;gap:8px;align-items:center">
+            <span style="font-size:11px;color:${trendColor};font-weight:700">${trendIcon} ${trendText}</span>
+            <span style="background:${avgColor};color:#fff;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:800">${subjAvg.toFixed(2)}</span>
+          </div>
+        </div>
+        
+        <div style="display:flex;align-items:flex-end;gap:6px;height:70px;padding:8px 0;border-bottom:2px solid var(--line)">
+          ${sorted.map(g => {
+            const score = (Number(g.score) / Number(g.max_score || 20) * 20);
+            const height = Math.max(8, (score / 20) * 60);
+            const color = score >= 15 ? '#10b981' : score >= 10 ? '#f59e0b' : '#ef4444';
+            return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+              <div style="background:${color};width:100%;max-width:40px;height:${height}px;border-radius:6px 6px 0 0;position:relative" title="${g.exam_type || 'آزمون'}: ${g.score}/${g.max_score || 20}"></div>
+              <div style="font-size:9px;color:var(--muted);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:40px">${g.exam_date || '-'}</div>
+            </div>`;
+          }).join('')}
+        </div>
+        
+        <div style="margin-top:8px;font-size:11px;color:var(--muted);text-align:center">
+          ${sorted.length} نمره • ${sorted[0]?.teacher_name || '-'}
+        </div>
+      </div>
+    `;
+  });
+  
+  chartHTML += '</div></div>';
+  
+  // مقایسه با میانگین کلاس
+  const classmates = db.students.filter(st => st.grade === s.grade);
+  const classAvg = classmates.reduce((sum, st) => {
+    const grds = db.grades.filter(g => g.student_id == st.id);
+    if(!grds.length) return sum;
+    return sum + grds.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / grds.length;
+  }, 0) / classmates.filter(st => db.grades.some(g => g.student_id == st.id)).length || 0;
+  
+  const diff = avgScore - classAvg;
+  const diffColor = diff >= 0 ? 'var(--success-dark)' : 'var(--danger)';
+  const diffText = diff >= 0 ? `+${diff.toFixed(2)} بالاتر از میانگین` : `${diff.toFixed(2)} پایین‌تر از میانگین`;
+  
+  chartHTML += `
+    <div class="card" style="background:linear-gradient(135deg,#eef2ff 0%,#f0f9ff 100%);border:2px solid var(--primary-light);margin-top:20px">
+      <h4 style="margin:0 0 10px;color:var(--primary-dark)">📊 مقایسه با کلاس</h4>
+      <div style="display:flex;justify-content:space-between;align-items:center;font-size:13.5px">
+        <div>
+          <div style="color:var(--muted);font-size:12px">میانگین شما</div>
+          <div style="font-size:20px;font-weight:900;color:var(--primary)">${avgScore.toFixed(2)}</div>
+        </div>
+        <div style="text-align:center">
+          <div style="color:${diffColor};font-size:13px;font-weight:800">${diffText}</div>
+        </div>
+        <div style="text-align:left">
+          <div style="color:var(--muted);font-size:12px">میانگین کلاس</div>
+          <div style="font-size:20px;font-weight:900;color:var(--muted)">${classAvg.toFixed(2)}</div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  el.innerHTML = chartHTML;
+}
+
 function renderParentForecast(){
   if(!parentStudent) return;
   const s = parentStudent;
@@ -7068,6 +7206,7 @@ function bindStaticButtons(){
       if(target) target.classList.add('active');
       if(tab.dataset.ptab === 'messages') renderParentMessages();
       if(tab.dataset.ptab === 'forecast') renderParentForecast();
+      if(tab.dataset.ptab === 'progress') renderParentProgress();
     };
   });
 
