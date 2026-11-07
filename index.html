@@ -1189,6 +1189,34 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
     <div id="announcementsList"></div>
   </div>
 </section>
+<!-- ⭐ صفحه امتیازات اساتید -->
+<section class="page" id="teacherRatings">
+  <div class="section-head">
+    <h2>⭐ امتیازات اساتید</h2>
+  </div>
+  <div class="card">
+    <p style="color:var(--muted);font-size:13.5px;line-height:1.9;margin:0 0 18px">
+      💡 این امتیازات بر اساس نظرسنجی اولیا محاسبه می‌شود. هر اولیا به اساتید فرزندش از ۱ تا ۵ ستاره داده است.
+    </p>
+    <div class="grid stats" id="teacherRatingsStats" style="margin-bottom:20px"></div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>رتبه</th>
+            <th>نام استاد</th>
+            <th>سمت</th>
+            <th>تعداد رای</th>
+            <th>میانگین امتیاز</th>
+            <th>ستاره</th>
+            <th>عملیات</th>
+          </tr>
+        </thead>
+        <tbody id="teacherRatingsTable"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
 
 <section class="page" id="staff">
   <div class="section-head">
@@ -4738,6 +4766,132 @@ async function returnCheck(id){
 /* ============================================================
    STAFF
 ============================================================ */
+  function renderTeacherRatings(){
+  const statsEl = document.getElementById('teacherRatingsStats');
+  const tbody = document.getElementById('teacherRatingsTable');
+  if(!statsEl || !tbody) return;
+  
+  // گرفتن همه رای‌ها
+  const ratings = db.teacherRatings || [];
+  
+  if(ratings.length === 0){
+    statsEl.innerHTML = '';
+    tbody.innerHTML = '<tr><td colspan="7" class="empty">هنوز هیچ نظرسنجی ثبت نشده است. اولیا باید از پنل خود رای بدن.</td></tr>';
+    return;
+  }
+  
+  // گروه‌بندی بر اساس استاد
+  const byTeacher = {};
+  ratings.forEach(r => {
+    const key = r.teacher_name;
+    if(!byTeacher[key]){
+      byTeacher[key] = {
+        name: r.teacher_name,
+        total: 0,
+        count: 0,
+        ratings: []
+      };
+    }
+    byTeacher[key].total += r.rating;
+    byTeacher[key].count += 1;
+    byTeacher[key].ratings.push(r);
+  });
+  
+  // تبدیل به آرایه و مرتب‌سازی بر اساس میانگین
+  const teachers = Object.values(byTeacher).map(t => ({
+    ...t,
+    avg: (t.total / t.count).toFixed(2)
+  })).sort((a,b) => parseFloat(b.avg) - parseFloat(a.avg));
+  
+  // محاسبه آمار کلی
+  const totalRatings = ratings.length;
+  const overallAvg = (ratings.reduce((a,r) => a + r.rating, 0) / ratings.length).toFixed(2);
+  const teacherCount = teachers.length;
+  const topTeacher = teachers[0];
+  
+  statsEl.innerHTML = `
+    <div class="card stat">
+      <div class="ico">📊</div>
+      <div class="label">کل نظرسنجی‌ها</div>
+      <div class="num" style="color:var(--primary)">${totalRatings}</div>
+    </div>
+    <div class="card stat">
+      <div class="ico">⭐</div>
+      <div class="label">میانگین کلی</div>
+      <div class="num" style="color:var(--warning-dark)">${overallAvg}</div>
+    </div>
+    <div class="card stat">
+      <div class="ico">👨‍🏫</div>
+      <div class="label">اساتید ارزیابی‌شده</div>
+      <div class="num" style="color:var(--primary)">${teacherCount}</div>
+    </div>
+    <div class="card stat">
+      <div class="ico">🏆</div>
+      <div class="label">برترین استاد</div>
+      <div class="num" style="font-size:14px;color:var(--success-dark)">${topTeacher ? topTeacher.name : '-'}</div>
+    </div>
+  `;
+  
+  // ساخت جدول
+  tbody.innerHTML = teachers.map((t, idx) => {
+    const avg = parseFloat(t.avg);
+    const stars = '⭐'.repeat(Math.round(avg));
+    const rankColor = idx === 0 ? '#fbbf24' : idx === 1 ? '#94a3b8' : idx === 2 ? '#cd7f32' : 'var(--muted)';
+    const rankIcon = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : (idx + 1);
+    
+    // پیدا کردن استاد در دیتابیس
+    const teacher = db.staff.find(st => 
+      st.name && t.name.includes(st.name) && t.name.includes(st.family)
+    );
+    
+    return `<tr>
+      <td style="font-weight:800;color:${rankColor};font-size:16px">${rankIcon}</td>
+      <td><b>${t.name}</b></td>
+      <td>${teacher ? (teacher.position || '-') : '-'}</td>
+      <td>${t.count} نفر</td>
+      <td>
+        <span style="font-weight:800;font-size:15px;color:${avg >= 4 ? 'var(--success-dark)' : avg >= 3 ? 'var(--warning-dark)' : 'var(--danger)'}">${t.avg}</span>
+        <span style="color:var(--muted);font-size:12px"> از ۵</span>
+      </td>
+      <td style="font-size:14px">${stars || '-'}</td>
+      <td class="actions">
+        <button class="btn blue" onclick="viewTeacherRatings('${t.name.replace(/'/g, "\\'")}')">👁 جزئیات</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+/* ⭐ نمایش جزئیات رای‌های یک استاد */
+function viewTeacherRatings(teacherName){
+  const ratings = (db.teacherRatings || []).filter(r => r.teacher_name === teacherName);
+  if(!ratings.length) return toast('رایی نیست', 'warning');
+  
+  const avg = (ratings.reduce((a,r) => a + r.rating, 0) / ratings.length).toFixed(2);
+  
+  openModal(`⭐ امتیازات ${teacherName}`, `
+    <div style="background:var(--primary-bg);padding:16px;border-radius:12px;margin-bottom:18px;text-align:center">
+      <div style="font-size:14px;color:var(--muted);margin-bottom:6px">میانگین امتیاز</div>
+      <div style="font-size:32px;font-weight:900;color:var(--primary-dark)">${avg}</div>
+      <div style="font-size:14px;color:var(--muted);margin-top:4px">از ${ratings.length} رای</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      ${ratings.map(r => `
+        <div class="card" style="padding:14px">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <div style="font-weight:700;font-size:13.5px">👩🏻‍🎓 ${r.student_name}</div>
+            <div style="font-size:13px;color:${r.rating >= 4 ? 'var(--success-dark)' : r.rating >= 3 ? 'var(--warning-dark)' : 'var(--danger)'};font-weight:800">${'⭐'.repeat(r.rating)} (${r.rating}/5)</div>
+          </div>
+          ${r.comment ? `<div style="background:#f8fafc;padding:10px;border-radius:8px;font-size:12.5px;color:var(--text-soft);margin-top:8px">💬 ${r.comment}</div>` : ''}
+          <div style="font-size:11px;color:var(--muted);margin-top:8px">📅 ${r.created_at ? new Date(r.created_at).toLocaleDateString('fa-IR') : '-'}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="modalfoot">
+      <button class="btn primary" onclick="closeModal()">بستن</button>
+    </div>
+  `);
+}
+
 function renderStaff(){
   const q = v('staffSearch'), role = v('staffRoleFilter');
   const arr = db.staff.filter(s =>
@@ -6472,6 +6626,7 @@ function drawCharts(){
 ============================================================ */
 function renderAll(){
   document.getElementById('yearLabel').textContent = db.settings.year || '—';
+  renderTeacherRatings();
   renderBirthdays();
   renderDashboardBirthdayTable();
   renderDashboardFinancialTable();
@@ -6520,7 +6675,7 @@ function nav(page){
     grades: 'مدیریت نمرات', attendance: 'حضور و غیاب',
     homework: 'تکالیف', schedule: 'برنامه هفتگی', calendar: 'تقویم',
     messages: 'پیام‌ها', announcements: 'اطلاعیه‌ها',
-    staff: 'کارکنان', salaries: 'واریز حقوق',
+    staff: 'کارکنان', salaries: 'واریز حقوق', teacherRatings: 'امتیازات اساتید',
     incomes: 'درآمدها', expenses: 'هزینه‌ها', installments: 'اقساط', discounts: 'تخفیف‌ها',
     assets: 'اموال', reports: 'گزارش‌ها', invoices: 'صورتحساب‌ها', bulk: 'چاپ دسته‌ای',
     sms: 'ارسال پیامک', users: 'کاربران', logs: 'فعالیت‌ها',
@@ -6530,6 +6685,7 @@ function nav(page){
   renderAll();
   if(page === 'backup') updateBackupStats();
   if(page === 'sms') renderSmsPage();
+    if(page === 'teacherRatings') renderTeacherRatings();
 }
 
 function initTheme(){
