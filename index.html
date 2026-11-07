@@ -833,6 +833,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
     <div class="nav-section">کارکنان</div>
     <button data-page="staff">👨‍🏫 <span>کارکنان و دبیران</span></button>
     <button data-page="teacherRatings">⭐ <span>امتیازات اساتید</span></button>
+        <button data-page="phonebook">📞 <span>دفترچه تلفن</span></button>
     <button data-page="salaries">💰 <span>واریز حقوق</span></button>
 
     <div class="nav-section">مالی</div>
@@ -1219,6 +1220,24 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   </div>
 </section>
 <!-- ⭐ صفحه امتیازات اساتید -->
+  <!-- ⭐ صفحه دفترچه تلفن -->
+<section class="page" id="phonebook">
+  <div class="section-head">
+    <h2>📞 دفترچه تلفن</h2>
+  </div>
+  <div class="card">
+    <div class="filters">
+      <input id="phonebookSearch" placeholder="🔍 جستجوی نام یا شماره...">
+      <select id="phonebookTypeFilter">
+        <option value="">همه مخاطبین</option>
+        <option value="teacher">👨‍🏫 دبیران و کارکنان</option>
+        <option value="parent">👨‍👩‍👧 اولیای دانش‌آموزان</option>
+      </select>
+    </div>
+    <div id="phonebookResult"></div>
+  </div>
+</section>
+
 <section class="page" id="teacherRatings">
   <div class="section-head">
     <h2>⭐ امتیازات اساتید</h2>
@@ -5125,6 +5144,79 @@ async function returnCheck(id){
 /* ============================================================
    STAFF
 ============================================================ */
+  function renderPhonebook(){
+  const el = document.getElementById('phonebookResult');
+  if(!el) return;
+  
+  const q = (v('phonebookSearch') || '').toLowerCase();
+  const type = v('phonebookTypeFilter');
+  
+  let html = '';
+  
+  // ⭐ بخش دبیران و کارکنان
+  if(!type || type === 'teacher'){
+    const teachers = db.staff.filter(st => {
+      if(q && !`${st.name || ''} ${st.family || ''} ${st.phone || ''}`.toLowerCase().includes(q)) return false;
+      return true;
+    }).sort((a,b) => (a.family || '').localeCompare(b.family || ''));
+    
+    if(teachers.length > 0){
+      html += `<div style="margin-bottom:24px">
+        <h3 style="margin:0 0 14px;color:var(--primary-dark);font-size:16px;display:flex;align-items:center;gap:8px">
+          <span style="font-size:20px">👨‍🏫</span> دبیران و کارکنان <span style="background:var(--primary-bg);padding:3px 10px;border-radius:20px;font-size:12px">${teachers.length}</span>
+        </h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">
+          ${teachers.map(t => `
+            <div style="background:#fff;border:2px solid var(--line);border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px">
+              <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#059669,#10b981);color:#fff;display:grid;place-items:center;font-weight:800;font-size:18px;flex-shrink:0">${(t.name || '?')[0]}</div>
+              <div style="flex:1;min-width:0">
+                <div style="font-weight:800;font-size:14px">${t.name} ${t.family}</div>
+                <div style="font-size:12px;color:var(--muted)">${t.position || 'کارمند'}</div>
+                ${t.phone ? `<a href="tel:${t.phone}" style="font-size:12.5px;color:var(--primary);font-weight:700;text-decoration:none;display:inline-block;margin-top:4px">📱 ${t.phone}</a>` : '<div style="font-size:11px;color:var(--muted)">شماره ثبت نشده</div>'}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+    }
+  }
+  
+  // ⭐ بخش اولیا
+  if(!type || type === 'parent'){
+    const parents = db.students.filter(st => {
+      if(q && !`${st.name || ''} ${st.family || ''} ${st.phone || ''}`.toLowerCase().includes(q)) return false;
+      return true;
+    }).sort((a,b) => (a.family || '').localeCompare(b.family || ''));
+    
+    if(parents.length > 0){
+      html += `<div style="margin-bottom:24px">
+        <h3 style="margin:0 0 14px;color:var(--primary-dark);font-size:16px;display:flex;align-items:center;gap:8px">
+          <span style="font-size:20px">👨‍👩‍👧</span> اولیای دانش‌آموزان <span style="background:var(--primary-bg);padding:3px 10px;border-radius:20px;font-size:12px">${parents.length}</span>
+        </h3>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">
+          ${parents.map(st => `
+            <div style="background:#fff;border:2px solid var(--line);border-radius:12px;padding:14px;display:flex;align-items:center;gap:12px">
+              <div style="width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;display:grid;place-items:center;font-weight:800;font-size:18px;flex-shrink:0">${(st.name || '?')[0]}</div>
+              <div style="flex:1;min-width:0">
+                <div style="font-weight:800;font-size:14px">${st.name} ${st.family}</div>
+                <div style="font-size:12px;color:var(--muted)">${st.grade || '-'} • کد: ${st.code || '-'}</div>
+                ${st.phone ? `<a href="tel:${st.phone}" style="font-size:12.5px;color:var(--primary);font-weight:700;text-decoration:none;display:inline-block;margin-top:4px">📱 ${st.phone}</a>` : '<div style="font-size:11px;color:var(--muted)">شماره ثبت نشده</div>'}
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>`;
+    }
+  }
+  
+  if(!html){
+    el.innerHTML = '<div class="empty" style="padding:40px">مخاطبی با این مشخصات یافت نشد</div>';
+    return;
+  }
+  
+  el.innerHTML = html;
+}
+
   function renderTeacherRatings(){
   const statsEl = document.getElementById('teacherRatingsStats');
   const tbody = document.getElementById('teacherRatingsTable');
@@ -6985,6 +7077,7 @@ function drawCharts(){
 ============================================================ */
 function renderAll(){
   document.getElementById('yearLabel').textContent = db.settings.year || '—';
+    renderPhonebook();
   renderTeacherRatings();
   renderBirthdays();
   renderDashboardBirthdayTable();
@@ -7031,6 +7124,7 @@ function nav(page){
   const titles = {
     dashboard: 'داشبورد مالی', students: 'مدیریت دانش‌آموزان', payments: 'ثبت پرداخت',
     receipts: 'رسیدها', checks: 'چک‌های دریافتی',
+        phonebook: 'دفترچه تلفن',
     grades: 'مدیریت نمرات', attendance: 'حضور و غیاب',
     homework: 'تکالیف', schedule: 'برنامه هفتگی', calendar: 'تقویم',
     messages: 'پیام‌ها', announcements: 'اطلاعیه‌ها',
@@ -7129,6 +7223,10 @@ document.addEventListener('click', function(e){
    BIND STATIC BUTTONS
 ============================================================ */
 function bindStaticButtons(){
+    const pbSearch = document.getElementById('phonebookSearch');
+  if(pbSearch) pbSearch.addEventListener('input', renderPhonebook);
+  const pbType = document.getElementById('phonebookTypeFilter');
+  if(pbType) pbType.addEventListener('change', renderPhonebook);
     const btnParentRating = document.getElementById('btnParentRating');
   if(btnParentRating) btnParentRating.onclick = openRatingModal;
     const btnPrintRC = document.getElementById('btnPrintReportCard');
