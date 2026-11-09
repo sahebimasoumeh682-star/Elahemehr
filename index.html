@@ -716,6 +716,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
         <div class="section-head" style="margin-top:0">
           <h3 style="margin:0">📚 ثبت نمرات</h3>
           <button class="btn green" id="btnTeacherNewGrade">ثبت نمره +</button>
+                    <button class="btn purple" id="btnTeacherBulkGrade" style="background:linear-gradient(135deg,#a855f7 0%,#7c3aed 100%);color:#fff">📋 ثبت نمره گروهی</button>
         </div>
         <div class="filters">
           <input id="teacherGradeSearch" placeholder="🔍 جستجوی دانش‌آموز...">
@@ -2297,6 +2298,171 @@ function renderTeacherGrades(){
       </td>
     </tr>`;
   }).join('') || '<tr><td colspan="9" class="empty">نمره‌ای ثبت نشده. روی «+ ثبت نمره» کلیک کنید.</td></tr>';
+}
+function openBulkGrade(){
+  if(!currentTeacher) return;
+  
+  const teacherSubjects = String(currentTeacher.subjects || '').split(',').map(x => x.trim()).filter(Boolean);
+  const availableSubjects = teacherSubjects.length > 0 
+    ? db.subjects.filter(sub => teacherSubjects.includes(sub.name))
+    : db.subjects;
+  
+  if(!availableSubjects.length) return toast('هیچ درسی به شما اختصاص نیافته', 'warning');
+  
+  const subjectOptions = availableSubjects.map(s => `<option>${s.name}</option>`).join('');
+  const teacherFullName = `${currentTeacher.name} ${currentTeacher.family}`;
+  
+  const allClasses = [
+    'هفتم', 'هشتم', 'نهم',
+    'دهم انسانی', 'دهم تجربی', 'دهم ریاضی',
+    'یازدهم انسانی', 'یازدهم تجربی', 'یازدهم ریاضی',
+    'دوازدهم انسانی', 'دوازدهم تجربی', 'دوازدهم ریاضی'
+  ];
+  
+  openModal('📋 ثبت نمره گروهی', `
+  <div class="form">
+    <div style="background:var(--primary-bg);padding:12px;border-radius:10px;margin-bottom:16px;color:var(--primary-dark);font-weight:700">
+      📚 دروس شما: ${teacherSubjects.length > 0 ? teacherSubjects.join(' • ') : 'همه دروس'}
+    </div>
+    <div class="formgrid">
+      <div><label>کلاس *</label>
+        <select id="bg_class" onchange="loadBulkStudents()">
+          <option value="">انتخاب کلاس</option>
+          ${allClasses.map(c => `<option>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div><label>درس *</label><select id="bg_subject">${subjectOptions}</select></div>
+      <div><label>ترم</label>
+        <select id="bg_term">${GRADE_TERMS.map(t => `<option>${t}</option>`).join('')}</select>
+      </div>
+      <div><label>نوع آزمون</label>
+        <select id="bg_exam_type">${EXAM_TYPES.map(t => `<option>${t}</option>`).join('')}</select>
+      </div>
+      <div><label>از (حداکثر)</label><input type="number" id="bg_max_score" value="20"></div>
+      <div><label>تاریخ</label><input id="bg_date" value="${today()}"></div>
+    </div>
+    
+    <div style="margin-top:20px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <h4 style="margin:0;color:var(--primary-dark)">👩🏻‍🎓 نمرات دانش‌آموزان</h4>
+        <button class="btn green" type="button" onclick="fillAllGrades()" style="font-size:12px;padding:6px 12px">⚡ پر کردن همه (۲۰)</button>
+      </div>
+      <div id="bulkGradeList" style="max-height:400px;overflow-y:auto">
+        <div class="empty" style="padding:20px">ابتدا کلاس را انتخاب کنید</div>
+      </div>
+    </div>
+  </div>
+  <div class="modalfoot">
+    <button class="btn primary" id="btnSaveBulkGrades">💾 ذخیره همه</button>
+  </div>`);
+  
+  document.getElementById('btnSaveBulkGrades').onclick = saveBulkGrades;
+}
+
+function loadBulkStudents(){
+  const classEl = document.getElementById('bg_class');
+  const listEl = document.getElementById('bulkGradeList');
+  if(!classEl || !listEl) return;
+  
+  const cls = classEl.value;
+  if(!cls){
+    listEl.innerHTML = '<div class="empty" style="padding:20px">ابتدا کلاس را انتخاب کنید</div>';
+    return;
+  }
+  
+  const students = db.students.filter(s => s.grade === cls).sort((a,b) => (a.family||'').localeCompare(b.family||''));
+  
+  if(!students.length){
+    listEl.innerHTML = '<div class="empty" style="padding:20px">دانش‌آموزی در این کلاس نیست</div>';
+    return;
+  }
+  
+  listEl.innerHTML = students.map((s, idx) => `
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--line);background:${idx%2 ? '#f8fafc' : '#fff'}">
+      <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;display:grid;place-items:center;font-weight:800;font-size:14px;flex-shrink:0">${(s.name||'?')[0]}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:13.5px">${s.name} ${s.family}</div>
+        <div style="font-size:11px;color:var(--muted)">${s.code || '-'}</div>
+      </div>
+      <input type="number" class="bulk-score-input" data-student-id="${s.id}" step="0.25" min="0" placeholder="نمره" style="width:90px;padding:8px 10px;border:2px solid var(--line);border-radius:8px;text-align:center;font-weight:700;font-size:14px">
+    </div>
+  `).join('');
+}
+
+function fillAllGrades(){
+  const maxScore = parseFloat(document.getElementById('bg_max_score')?.value) || 20;
+  document.querySelectorAll('.bulk-score-input').forEach(inp => {
+    inp.value = maxScore;
+  });
+}
+
+async function saveBulkGrades(){
+  if(isProcessing) return;
+  const cls = v('bg_class');
+  const subject = v('bg_subject');
+  const term = v('bg_term');
+  const examType = v('bg_exam_type');
+  const maxScore = parseFloat(v('bg_max_score')) || 20;
+  const examDate = v('bg_date');
+  
+  if(!cls) return toast('کلاس را انتخاب کنید', 'error');
+  if(!subject) return toast('درس را انتخاب کنید', 'error');
+  
+  const inputs = document.querySelectorAll('.bulk-score-input');
+  const entries = [];
+  
+  inputs.forEach(inp => {
+    const val = parseFloat(inp.value);
+    if(!isNaN(val) && inp.value !== ''){
+      entries.push({
+        studentId: Number(inp.dataset.studentId),
+        score: val
+      });
+    }
+  });
+  
+  if(!entries.length) return toast('حداقل یک نمره وارد کنید', 'warning');
+  
+  if(!confirm(`ثبت ${entries.length} نمره برای درس «${subject}»؟`)) return;
+  
+  isProcessing = true;
+  const btn = document.getElementById('btnSaveBulkGrades');
+  if(btn){ btn.disabled = true; btn.textContent = 'در حال ذخیره...'; }
+  
+  const teacherFullName = `${currentTeacher.name} ${currentTeacher.family}`;
+  let success = 0, errors = 0;
+  
+  try {
+    for(const e of entries){
+      const data = {
+        student_id: e.studentId,
+        subject: subject,
+        term: term,
+        exam_type: examType,
+        score: e.score,
+        max_score: maxScore,
+        exam_date: examDate,
+        teacher_name: teacherFullName,
+        description: '',
+        created_by: String(currentTeacher.id),
+        updated_at: new Date().toISOString()
+      };
+      
+      const { error } = await sb.from('grades').insert(data);
+      if(error){ errors++; console.error(error); }
+      else success++;
+    }
+    
+    await logAction(`ثبت ${success} نمره گروهی توسط ${teacherFullName}`);
+    closeModal();
+    await loadData();
+    renderTeacherGrades();
+    toast(`✅ ${success} نمره ثبت شد${errors ? ' (' + errors + ' خطا)' : ''}`, success ? 'success' : 'warning');
+  } catch(e){
+    toast('خطا: ' + e.message, 'error');
+  } finally {
+    isProcessing = false;
+  }
 }
 
 function openTeacherGrade(id){
@@ -7274,6 +7440,8 @@ function bindStaticButtons(){
   });
   const tNewGradeBtn = document.getElementById('btnTeacherNewGrade');
   if(tNewGradeBtn) tNewGradeBtn.onclick = () => openTeacherGrade();
+    const tBulkBtn = document.getElementById('btnTeacherBulkGrade');
+  if(tBulkBtn) tBulkBtn.onclick = openBulkGrade;
   const tSendMsgBtn = document.getElementById('btnTeacherSendMessage');
   if(tSendMsgBtn) tSendMsgBtn.onclick = sendTeacherMessage;
 
