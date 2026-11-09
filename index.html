@@ -779,12 +779,14 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
               </div>
     </div>
     <div class="teacher-panel" id="teacher-resume">
+      <div style="background:red;color:white;padding:20px;font-size:20px;font-weight:bold">تست: این بخش باید قرمز باشه</div>
       <div class="card">
         <div class="section-head" style="margin-top:0">
           <h3 style="margin:0">📄 رزومه من</h3>
           <button class="btn primary" id="btnEditResume">✏️ ویرایش رزومه</button>
         </div>
         <div id="teacherResumeContent"></div>
+        <div id="testResume" style="background:blue;color:white;padding:10px;margin-top:10px">تست ۲: اگر آبی دیدی، یعنی تابع اجرا نشده</div>
       </div>
     </div>
       </div>
@@ -7616,16 +7618,16 @@ function bindStaticButtons(){
   const tPhone = document.getElementById('teacherPhone');
   if(tPhone) tPhone.addEventListener('keydown', e => { if(e.key === 'Enter') doTeacherLogin(); });
 
-  // Teacher tabs
+   // Teacher tabs
   document.querySelectorAll('.teacher-tab').forEach(tab => {
     tab.onclick = () => {
       document.querySelectorAll('.teacher-tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       document.querySelectorAll('.teacher-panel').forEach(p => p.classList.remove('active'));
       const target = document.getElementById('teacher-' + tab.dataset.ttab);
-            if(tab.dataset.ttab === 'salary') renderTeacherSalary();
-            if(tab.dataset.ttab === 'resume') renderTeacherResume();
       if(target) target.classList.add('active');
+      if(tab.dataset.ttab === 'salary') renderTeacherSalary();
+      if(tab.dataset.ttab === 'resume') renderTeacherResume();
     };
   });
   const tNewGradeBtn = document.getElementById('btnTeacherNewGrade');
