@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>حسابداری دبیرستان دخترانه الهه مهر</title>
+<title> دبیرستان دخترانه الهه مهر</title>
 <link rel="icon" href="logo.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -2714,82 +2714,82 @@ async function sendTeacherMessage(){
     isProcessing = false;
   }
 }
-  function renderTeacherResume(){
-  if(!currentTeacher) return;
+ function renderTeacherResume(){
   const el = document.getElementById('teacherResumeContent');
-  if(!el) return;
+  if(!el){
+    el.innerHTML = '<div class="empty">خطا: المان رزومه پیدا نشد</div>';
+    return;
+  }
+  
+  if(!currentTeacher){
+    el.innerHTML = '<div class="empty">خطا: اطلاعات استاد لود نشده</div>';
+    return;
+  }
   
   const t = currentTeacher;
   const subjects = String(t.subjects || '').split(',').map(x => x.trim()).filter(Boolean);
   
-  el.innerHTML = `
+  let html = '';
+  
+  // کارت پروفایل
+  html += `
     <div style="background:linear-gradient(135deg,#059669 0%,#10b981 100%);color:#fff;padding:24px;border-radius:16px;margin-bottom:20px;text-align:center">
       <div style="width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,0.25);display:grid;place-items:center;margin:0 auto 14px;font-size:40px;font-weight:900">${(t.name||'?')[0]}</div>
       <h2 style="margin:0 0 6px;font-size:22px">${t.name} ${t.family}</h2>
       <div style="font-size:14px;opacity:0.95">${t.position || 'دبیر'}</div>
-      ${subjects.length ? `<div style="margin-top:10px;font-size:12.5px;opacity:0.9">📚 ${subjects.join(' • ')}</div>` : ''}
+      ${subjects.length ? '<div style="margin-top:10px;font-size:12.5px;opacity:0.9">📚 ' + subjects.join(' • ') + '</div>' : ''}
     </div>
-    
-    <div style="display:grid;gap:16px">
-      ${t.education ? `
-        <div class="card" style="border-right:4px solid var(--primary)">
-          <h4 style="margin:0 0 10px;color:var(--primary-dark);font-size:15px">🎓 مدارک تحصیلی</h4>
-          <p style="margin:0;font-size:13.5px;line-height:1.9;color:var(--text-soft);white-space:pre-wrap">${t.education}</p>
+  `;
+  
+  // بخش‌های رزومه
+  const sections = [
+    { key: 'education', title: '🎓 مدارک تحصیلی', color: 'var(--primary)' },
+    { key: 'certificates', title: '📜 مدارک حرفه‌ای', color: 'var(--warning)' },
+    { key: 'teaching_experience', title: '👨‍🏫 سابقه تدریس', color: 'var(--success)' },
+    { key: 'work_days', title: '📅 روزهای حضور', color: 'var(--info)' },
+    { key: 'bio', title: '📝 درباره من', color: 'var(--primary-light)' }
+  ];
+  
+  let hasAnySection = false;
+  
+  sections.forEach(sec => {
+    if(t[sec.key]){
+      hasAnySection = true;
+      html += `
+        <div class="card" style="border-right:4px solid ${sec.color};margin-bottom:14px">
+          <h4 style="margin:0 0 10px;font-size:15px">${sec.title}</h4>
+          <p style="margin:0;font-size:13.5px;line-height:1.9;color:var(--text-soft);white-space:pre-wrap">${t[sec.key]}</p>
         </div>
-      ` : ''}
-      
-      ${t.certificates ? `
-        <div class="card" style="border-right:4px solid var(--warning)">
-          <h4 style="margin:0 0 10px;color:var(--warning-dark);font-size:15px">📜 مدارک حرفه‌ای</h4>
-          <p style="margin:0;font-size:13.5px;line-height:1.9;color:var(--text-soft);white-space:pre-wrap">${t.certificates}</p>
-        </div>
-      ` : ''}
-      
-      ${t.teaching_experience ? `
-        <div class="card" style="border-right:4px solid var(--success)">
-          <h4 style="margin:0 0 10px;color:var(--success-dark);font-size:15px">👨‍🏫 سابقه تدریس</h4>
-          <p style="margin:0;font-size:13.5px;line-height:1.9;color:var(--text-soft);white-space:pre-wrap">${t.teaching_experience}</p>
-        </div>
-      ` : ''}
-      
-      ${t.work_days ? `
-        <div class="card" style="border-right:4px solid var(--info)">
-          <h4 style="margin:0 0 10px;color:var(--info);font-size:15px">📅 روزهای حضور در مدرسه</h4>
-          <p style="margin:0;font-size:13.5px;line-height:1.9;color:var(--text-soft);white-space:pre-wrap">${t.work_days}</p>
-        </div>
-      ` : ''}
-      
-      ${t.bio ? `
-        <div class="card" style="border-right:4px solid var(--primary-light)">
-          <h4 style="margin:0 0 10px;color:var(--primary-dark);font-size:15px">📝 درباره من</h4>
-          <p style="margin:0;font-size:13.5px;line-height:1.9;color:var(--text-soft);white-space:pre-wrap">${t.bio}</p>
-        </div>
-      ` : ''}
-      
-      <div class="card" style="background:#f8fafc">
-        <h4 style="margin:0 0 12px;color:var(--text-soft);font-size:14px">📞 اطلاعات تماس</h4>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px">
-          ${t.phone ? `<div><span style="color:var(--muted)">همراه:</span> <b>${t.phone}</b></div>` : ''}
-          ${t.nationalCode ? `<div><span style="color:var(--muted)">کد ملی:</span> <b>${t.nationalCode}</b></div>` : ''}
-          ${t.email ? `<div><span style="color:var(--muted)">ایمیل:</span> <b>${t.email}</b></div>` : ''}
-          ${t.birth_date ? `<div><span style="color:var(--muted)">تاریخ تولد:</span> <b>${t.birth_date}</b></div>` : ''}
-          ${t.address ? `<div style="grid-column:1/-1"><span style="color:var(--muted)">آدرس:</span> <b>${t.address}</b></div>` : ''}
-        </div>
+      `;
+    }
+  });
+  
+  // اطلاعات تماس
+  html += `
+    <div class="card" style="background:#f8fafc;margin-bottom:14px">
+      <h4 style="margin:0 0 12px;font-size:14px">📞 اطلاعات تماس</h4>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:13px">
+        ${t.phone ? '<div><span style="color:var(--muted)">همراه:</span> <b>' + t.phone + '</b></div>' : ''}
+        ${t.nationalCode ? '<div><span style="color:var(--muted)">کد ملی:</span> <b>' + t.nationalCode + '</b></div>' : ''}
+        ${t.email ? '<div><span style="color:var(--muted)">ایمیل:</span> <b>' + t.email + '</b></div>' : ''}
+        ${t.birth_date ? '<div><span style="color:var(--muted)">تاریخ تولد:</span> <b>' + t.birth_date + '</b></div>' : ''}
       </div>
     </div>
   `;
   
-  // اگر رزومه خالیه
-  if(!t.education && !t.certificates && !t.teaching_experience && !t.work_days && !t.bio){
-    el.innerHTML = `
+  if(!hasAnySection){
+    html += `
       <div class="empty" style="padding:40px;text-align:center">
         <div style="font-size:60px;margin-bottom:16px">📄</div>
         <div style="font-size:15px;font-weight:700;color:var(--text-soft);margin-bottom:8px">رزومه شما هنوز تکمیل نشده</div>
-        <div style="font-size:13px;color:var(--muted);margin-bottom:20px">برای تکمیل رزومه روی دکمه «✏️ ویرایش رزومه» کلیک کنید</div>
+        <div style="font-size:13px;color:var(--muted)">برای تکمیل روی دکمه «✏️ ویرایش رزومه» کلیک کنید</div>
       </div>
     `;
   }
+  
+  el.innerHTML = html;
 }
+
 
 function openResumeEdit(){
   if(!currentTeacher) return;
