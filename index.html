@@ -706,10 +706,11 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 
     <div class="teacher-tabs">
       <button class="teacher-tab active" data-ttab="grades">📚 ثبت نمرات</button>
+      <button class="teacher-tab" data-ttab="test1" onclick="document.getElementById('teacher-test1').style.display='block';document.querySelectorAll('.teacher-panel').forEach(p=>p.style.display='none');document.getElementById('teacher-test1').style.display='block';">تست ۱</button>
       <button class="teacher-tab" data-ttab="students">👩🏻‍🎓 دانش‌آموزان</button>
       <button class="teacher-tab" data-ttab="messages">💬 پیام به اولیا</button>
        <button class="teacher-tab" data-ttab="salary">💰 فیش حقوقی</button>
-            <button class="teacher-tab" data-ttab="resume">📄 رزومه من</button>
+            <button class="teacher-tab" data-ttab="resume" onclick="document.querySelectorAll('.teacher-tab').forEach(t=>t.classList.remove('active'));this.classList.add('active');document.querySelectorAll('.teacher-panel').forEach(p=>p.classList.remove('active'));document.getElementById('teacher-resume').classList.add('active');renderTeacherResume();">📄 رزومه من</button>
     </div>
 
     <div class="teacher-panel active" id="teacher-grades">
@@ -779,6 +780,9 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
               </div>
     </div>
     <div class="teacher-panel" id="teacher-resume" style="display:block !important">
+      <div style="background:red;color:white;padding:30px;font-size:20px;text-align:center;font-weight:bold">
+  ⚠️ تست
+</div>
       <div style="background:red;color:white;padding:30px;font-size:20px;text-align:center;font-weight:bold">
   ⚠️ این یک تست است. اگر این متن قرمز را می‌بینید، یعنی بخش رزومه باز می‌شود.
 </div>
