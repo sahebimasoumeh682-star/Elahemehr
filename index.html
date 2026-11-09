@@ -7614,31 +7614,30 @@ function bindStaticButtons(){
   if(tPhone) tPhone.addEventListener('keydown', e => { if(e.key === 'Enter') doTeacherLogin(); });
 
     // Teacher tabs
-  document.querySelectorAll('.teacher-tab').forEach(tab => {
+   document.querySelectorAll('.teacher-tab').forEach(tab => {
     tab.onclick = function() {
       const tabName = this.dataset.ttab;
       
-      // حذف active از همه
+      // حذف active از همه تب‌ها و پنل‌ها
       document.querySelectorAll('.teacher-tab').forEach(t => t.classList.remove('active'));
       document.querySelectorAll('.teacher-panel').forEach(p => p.classList.remove('active'));
       
       // اضافه کردن active به تب فعلی
       this.classList.add('active');
       
-      // نمایش پنل مربوطه
-      const panel = document.getElementById('teacher-' + tabName);
-      if(panel) panel.classList.add('active');
-      
-      // صدا زدن تابع مربوطه
-      if(tabName === 'salary'){
-        renderTeacherSalary();
-      } else if(tabName === 'resume'){
-        renderTeacherResume();
-      } else if(tabName === 'grades'){
-        renderTeacherGrades();
-      } else if(tabName === 'students'){
-        renderTeacherStudents();
+      // پیدا کردن و باز کردن پنل
+      const panelId = 'teacher-' + tabName;
+      const panel = document.getElementById(panelId);
+      if(panel){
+        panel.classList.add('active');
+        panel.style.display = 'block';
       }
+      
+      // اجرای تابع مربوطه
+      if(tabName === 'salary'){ renderTeacherSalary(); }
+      else if(tabName === 'resume'){ renderTeacherResume(); }
+      else if(tabName === 'grades'){ renderTeacherGrades(); }
+      else if(tabName === 'students'){ renderTeacherStudents(); }
     };
   });
   const tNewGradeBtn = document.getElementById('btnTeacherNewGrade');
