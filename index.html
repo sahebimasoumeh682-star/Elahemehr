@@ -785,7 +785,14 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
           <h3 style="margin:0">📄 رزومه من</h3>
           <button class="btn primary" id="btnEditResume">✏️ ویرایش رزومه</button>
         </div>
-        <div id="teacherResumeContent"></div>
+        <div id="teacherResumeContent">
+  <div style="padding:30px;text-align:center;background:#f8fafc;border-radius:12px">
+    <div style="font-size:60px;margin-bottom:16px">📄</div>
+    <div style="font-size:16px;font-weight:800;color:var(--text);margin-bottom:10px">رزومه استاد</div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px">برای پر کردن رزومه روی دکمه زیر کلیک کنید</div>
+    <button class="btn primary" onclick="openResumeEdit()" style="font-size:14px;padding:12px 24px">✏️ پر کردن رزومه</button>
+  </div>
+</div>
         <div id="testResume" style="background:blue;color:white;padding:10px;margin-top:10px">تست ۲: اگر آبی دیدی، یعنی تابع اجرا نشده</div>
       </div>
     </div>
