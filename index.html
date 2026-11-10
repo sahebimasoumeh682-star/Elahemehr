@@ -7127,7 +7127,8 @@ function studentDetails(id){
   </div>
   <div class="section-head" style="margin-top:22px">
     <h3 style="margin:0">📋 تراکنش‌ها</h3>
-    <button class="btn primary" data-action="add-payment-for" data-id="${s.id}">ثبت پرداخت</button>
+    <button class="btn purple" onclick="printStudentProfile(${s.id})" style="background:linear-gradient(135deg,#a855f7 0%,#7c3aed 100%);color:#fff">🖨 پرینت پرونده</button>
+<button class="btn primary" data-action="add-payment-for" data-id="${s.id}">ثبت پرداخت</button>
   </div>
   <div class="table-wrap">
     <table class="table">
