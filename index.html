@@ -7042,7 +7042,7 @@ function printStudentProfile(id){
   openModal(`📋 پرونده دانش‌آموز: ${s.name} ${s.family}`, `
     <div id="studentProfileContent">
       <div style="text-align:left;margin-bottom:16px">
-        <button class="btn purple" onclick="printStudentProfile(${s.id})" style="background:linear-gradient(135deg,#a855f7 0%,#7c3aed 100%);color:#fff">🖨 پرینت پرونده</button>
+        <button class="btn purple" onclick="event.preventDefault();event.stopPropagation();window.printProfileTest='${s.id}';alert('تست: دکمه کار می‌کند. id = ${s.id}')" style="background:linear-gradient(135deg,#a855f7 0%,#7c3aed 100%);color:#fff">🖨 تست پرینت</button>
       </div>
       <div class="card" style="background:linear-gradient(135deg,#eef2ff 0%,#f0f9ff 100%);border:2px solid var(--primary-light);margin-bottom:16px">
         <h3 style="margin:0 0 12px;color:var(--primary-dark)">📋 مشخصات</h3>
