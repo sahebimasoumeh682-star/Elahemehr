@@ -2384,10 +2384,6 @@ function loadBulkStudents(){
         <div style="font-weight:700;font-size:13.5px">${s.name} ${s.family}</div>
         <div style="font-size:11px;color:var(--muted)">${s.code || '-'}</div>
       </div>
-      <label style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:#dc2626;cursor:pointer;white-space:nowrap">
-  <input type="checkbox" class="bulk-absent-check" data-student-id="${s.id}" onchange="toggleAbsent(${s.id}, this.checked)" style="width:16px;height:16px;margin:0">
-  <span>غایب</span>
-</label>
       <input type="number" class="bulk-score-input" data-student-id="${s.id}" step="0.25" min="0" placeholder="نمره" style="width:90px;padding:8px 10px;border:2px solid var(--line);border-radius:8px;text-align:center;font-weight:700;font-size:14px">
     </div>
   `).join('');
@@ -2399,20 +2395,7 @@ function fillAllGrades(){
     inp.value = maxScore;
   });
 }
-function toggleAbsent(studentId, isAbsent){
-  const input = document.querySelector(`.bulk-score-input[data-student-id="${studentId}"]`);
-  if(!input) return;
-  if(isAbsent){
-    input.value = '';
-    input.disabled = true;
-    input.style.background = '#fee2e2';
-    input.placeholder = 'غایب';
-  } else {
-    input.disabled = false;
-    input.style.background = '';
-    input.placeholder = 'نمره';
-  }
-}
+
 async function saveBulkGrades(){
   if(isProcessing) return;
   const cls = v('bg_class');
@@ -2429,15 +2412,15 @@ async function saveBulkGrades(){
   const entries = [];
   
   inputs.forEach(inp => {
-    const absentCheck = document.querySelector(`.bulk-absent-check[data-student-id="${inp.dataset.studentId}"]`);
-    if(absentCheck && absentCheck.checked) return;
     const val = parseFloat(inp.value);
     if(!isNaN(val) && inp.value !== ''){
       entries.push({
         studentId: Number(inp.dataset.studentId),
         score: val
       });
- 
+    }
+  });
+  
   if(!entries.length) return toast('حداقل یک نمره وارد کنید', 'warning');
   
   if(!confirm(`ثبت ${entries.length} نمره برای درس «${subject}»؟`)) return;
@@ -6900,213 +6883,7 @@ async function saveStudent(id){
     toast('ذخیره شد ✅', 'success');
   } finally { isProcessing = false; }
 }
-function printStudentProfile(id){
-  const s = studentById(id);
-  if(!s) return toast('دانش‌آموز پیدا نشد', 'error');
-  
-  const grades = db.grades.filter(g => g.student_id == s.id);
-  const attendance = db.attendance.filter(a => a.student_id == s.id);
-  const payments = db.payments.filter(p => p.studentId == s.id);
-  
-  const avg = grades.length > 0 
-    ? (grades.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / grades.length).toFixed(2)
-    : '-';
-  
-  const presentCount = attendance.filter(a => a.status === 'present').length;
-  const absentCount = attendance.filter(a => a.status === 'absent').length;
-  const totalAtt = attendance.length;
-  const attendanceRate = totalAtt > 0 ? Math.round(presentCount / totalAtt * 100) : 0;
-  
-  const bySubject = {};
-  grades.forEach(g => {
-    if(!bySubject[g.subject]) bySubject[g.subject] = [];
-    bySubject[g.subject].push(g);
-  });
-  
-  let subjectRows = '';
-  Object.entries(bySubject).forEach(([subject, grds]) => {
-    const subjAvg = (grds.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / grds.length).toFixed(2);
-    const teacher = grds[0]?.teacher_name || '-';
-    subjectRows += '<tr><td style="font-weight:700">' + subject + '</td><td style="text-align:center">' + grds.length + '</td><td style="text-align:center;font-weight:800">' + subjAvg + '</td><td>' + teacher + '</td></tr>';
-  });
-  
-  const w = window.open('', '_blank');
-  if(!w) return toast('پنجره چاپ مسدود شد. لطفاً پاپ‌آپ را اجازه دهید.', 'error');
-  
-  w.document.write(`
-  <html dir="rtl"><head><meta charset="UTF-8"><title>پرونده ${s.name} ${s.family}</title>
-  <style>
-    @page { size: A4; margin: 15mm; }
-    body { font-family: Tahoma, sans-serif; direction: rtl; color: #1e293b; margin: 0; padding: 20px; background: #fff; }
-    .header { text-align: center; border-bottom: 3px solid #6366f1; padding-bottom: 15px; margin-bottom: 20px; }
-    .header h1 { margin: 0 0 5px 0; color: #6366f1; font-size: 22px; }
-    .header h2 { margin: 0; color: #64748b; font-size: 15px; font-weight: 500; }
-    .section { margin-bottom: 20px; }
-    .section h3 { background: #6366f1; color: #fff; padding: 8px 14px; border-radius: 8px; font-size: 14px; margin: 0 0 12px 0; }
-    .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; font-size: 13px; background: #f8fafc; padding: 14px; border-radius: 10px; border: 1px solid #e2e8f0; }
-    .info-item { padding: 4px 0; }
-    .info-item .label { color: #64748b; font-weight: 600; }
-    .info-item .value { color: #1e293b; font-weight: 800; }
-    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
-    .stat-box { text-align: center; padding: 14px; border-radius: 10px; border: 2px solid; }
-    .stat-box .num { font-size: 22px; font-weight: 900; }
-    .stat-box .lbl { font-size: 11px; font-weight: 700; margin-top: 4px; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    th { background: #eef2ff; color: #4f46e5; padding: 10px; text-align: right; font-weight: 800; }
-    td { padding: 10px; border-bottom: 1px solid #e2e8f0; }
-    .footer { text-align: center; margin-top: 30px; font-size: 11px; color: #94a3b8; border-top: 1px dashed #cbd5e1; padding-top: 15px; }
-    .signature { margin-top: 30px; display: flex; justify-content: space-between; padding: 0 30px; }
-    .signature div { text-align: center; font-size: 12px; }
-    .signature .line { margin-top: 40px; border-top: 1px solid #94a3b8; padding-top: 5px; }
-  </style>
-  </head><body>
-  <div class="header">
-    <h1>${db.settings.school}</h1>
-    <h2>پرونده تحصیلی دانش‌آموز</h2>
-    <div style="font-size: 11px; color: #94a3b8; margin-top: 6px">تاریخ چاپ: ${today()}</div>
-  </div>
-  <div class="section">
-    <h3>📋 مشخصات دانش‌آموز</h3>
-    <div class="info-grid">
-      <div class="info-item"><span class="label">نام:</span> <span class="value">${s.name} ${s.family}</span></div>
-      <div class="info-item"><span class="label">کد دانش‌آموزی:</span> <span class="value">${s.code || '-'}</span></div>
-      <div class="info-item"><span class="label">کد ملی:</span> <span class="value">${s.national || '-'}</span></div>
-      <div class="info-item"><span class="label">کلاس:</span> <span class="value">${s.grade || '-'}</span></div>
-      <div class="info-item"><span class="label">تاریخ تولد:</span> <span class="value">${s.birthDate || '-'}</span></div>
-      <div class="info-item"><span class="label">همراه:</span> <span class="value">${s.phone || '-'}</span></div>
-    </div>
-  </div>
-  <div class="stats">
-    <div class="stat-box" style="background: #dbeafe; border-color: #3b82f6; color: #1e40af">
-      <div class="num">${grades.length}</div>
-      <div class="lbl">📚 نمرات</div>
-    </div>
-    <div class="stat-box" style="background: ${parseFloat(avg) >= 15 ? '#d1fae5' : parseFloat(avg) >= 10 ? '#fef3c7' : '#fee2e2'}; border-color: ${parseFloat(avg) >= 15 ? '#10b981' : parseFloat(avg) >= 10 ? '#f59e0b' : '#ef4444'}; color: ${parseFloat(avg) >= 15 ? '#059669' : parseFloat(avg) >= 10 ? '#92400e' : '#dc2626'}">
-      <div class="num">${avg}</div>
-      <div class="lbl">⭐ معدل</div>
-    </div>
-    <div class="stat-box" style="background: #eef2ff; border-color: #6366f1; color: #4f46e5">
-      <div class="num">${attendanceRate}%</div>
-      <div class="lbl">✅ حضور</div>
-    </div>
-    <div class="stat-box" style="background: ${balance(s) > 0 ? '#fee2e2' : '#d1fae5'}; border-color: ${balance(s) > 0 ? '#ef4444' : '#10b981'}; color: ${balance(s) > 0 ? '#dc2626' : '#059669'}">
-      <div class="num" style="font-size: 16px">${money(balance(s))}</div>
-      <div class="lbl">💰 مانده</div>
-    </div>
-  </div>
-  <div class="section">
-    <h3>📚 نمرات به تفکیک درس</h3>
-    <table>
-      <thead><tr><th>درس</th><th style="text-align:center">تعداد نمره</th><th style="text-align:center">معدل درس</th><th>دبیر</th></tr></thead>
-      <tbody>${subjectRows || '<tr><td colspan="4" style="text-align:center;color:#94a3b8">نمره‌ای ثبت نشده</td></tr>'}</tbody>
-    </table>
-  </div>
-  <div class="section">
-    <h3>📅 حضور و غیاب</h3>
-    <div class="info-grid">
-      <div class="info-item"><span class="label">✅ حاضر:</span> <span class="value">${presentCount} روز</span></div>
-      <div class="info-item"><span class="label">❌ غایب:</span> <span class="value">${absentCount} روز</span></div>
-      <div class="info-item"><span class="label">📊 کل:</span> <span class="value">${totalAtt} روز</span></div>
-    </div>
-  </div>
-  <div class="section">
-    <h3>💰 وضعیت مالی</h3>
-    <div class="info-grid">
-      <div class="info-item"><span class="label">شهریه:</span> <span class="value">${money(finalTuition(s))}</span></div>
-      <div class="info-item"><span class="label">پرداخت‌شده:</span> <span class="value">${money(paid(s))}</span></div>
-      <div class="info-item"><span class="label">مانده:</span> <span class="value">${money(balance(s))}</span></div>
-    </div>
-  </div>
-  <div class="signature">
-    <div><div>مهر و امضای مدیر</div><div class="line">${db.settings.school}</div></div>
-    <div><div>مهر و امضای مشاور</div><div class="line">امور آموزشی</div></div>
-  </div>
-  <div class="footer">${db.settings.footer}</div>
-  </body></html>`);
-  w.document.close();
-  setTimeout(() => w.print(), 500);
-}
-  function showStudentFullProfile(id){
-  const s = studentById(id);
-  if(!s) return toast('دانش‌آموز پیدا نشد', 'error');
-  
-  const grades = db.grades.filter(g => g.student_id == s.id);
-  const attendance = db.attendance.filter(a => a.student_id == s.id);
-  const payments = db.payments.filter(p => p.studentId == s.id);
-  
-  const avg = grades.length > 0 
-    ? (grades.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / grades.length).toFixed(2)
-    : '-';
-  
-  const presentCount = attendance.filter(a => a.status === 'present').length;
-  const absentCount = attendance.filter(a => a.status === 'absent').length;
-  const totalAtt = attendance.length;
-  const attendanceRate = totalAtt > 0 ? Math.round(presentCount / totalAtt * 100) : 0;
-  
-  const bySubject = {};
-  grades.forEach(g => {
-    if(!bySubject[g.subject]) bySubject[g.subject] = [];
-    bySubject[g.subject].push(g);
-  });
-  
-  let subjectRows = '';
-  Object.entries(bySubject).forEach(([subject, grds]) => {
-    const subjAvg = (grds.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / grds.length).toFixed(2);
-    const teacher = grds[0]?.teacher_name || '-';
-    subjectRows += `<tr><td><b>${subject}</b></td><td style="text-align:center">${grds.length}</td><td style="text-align:center;font-weight:800;color:${parseFloat(subjAvg) >= 15 ? 'var(--success-dark)' : parseFloat(subjAvg) >= 10 ? 'var(--warning-dark)' : 'var(--danger)'}">${subjAvg}</td><td style="font-size:12px">${teacher}</td></tr>`;
-  });
-  
-  openModal(`📋 پرونده دانش‌آموز: ${s.name} ${s.family}`, `
-    <div id="studentProfileContent">
-      <div style="text-align:left;margin-bottom:16px">
-        <button class="btn purple" onclick="event.preventDefault();event.stopPropagation();window.printProfileTest='${s.id}';alert('تست: دکمه کار می‌کند. id = ${s.id}')" style="background:linear-gradient(135deg,#a855f7 0%,#7c3aed 100%);color:#fff">🖨 تست پرینت</button>
-      </div>
-      <div class="card" style="background:linear-gradient(135deg,#eef2ff 0%,#f0f9ff 100%);border:2px solid var(--primary-light);margin-bottom:16px">
-        <h3 style="margin:0 0 12px;color:var(--primary-dark)">📋 مشخصات</h3>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;font-size:13px">
-          <div><span style="color:var(--muted)">نام:</span> <b>${s.name} ${s.family}</b></div>
-          <div><span style="color:var(--muted)">کد دانش‌آموزی:</span> <b>${s.code || '-'}</b></div>
-          <div><span style="color:var(--muted)">کد ملی:</span> <b>${s.national || '-'}</b></div>
-          <div><span style="color:var(--muted)">کلاس:</span> <b>${s.grade || '-'}</b></div>
-          <div><span style="color:var(--muted)">تاریخ تولد:</span> <b>${s.birthDate || '-'}</b></div>
-          <div><span style="color:var(--muted)">همراه:</span> <b>${s.phone || '-'}</b></div>
-        </div>
-      </div>
-      <div class="grid stats" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px">
-        <div class="card stat"><div class="ico">📚</div><div class="label">تعداد نمرات</div><div class="num" style="color:var(--primary)">${grades.length}</div></div>
-        <div class="card stat"><div class="ico">⭐</div><div class="label">معدل</div><div class="num" style="color:${parseFloat(avg) >= 15 ? 'var(--success-dark)' : parseFloat(avg) >= 10 ? 'var(--warning-dark)' : 'var(--danger)'}">${avg}</div></div>
-        <div class="card stat"><div class="ico">✅</div><div class="label">درصد حضور</div><div class="num" style="color:${attendanceRate >= 90 ? 'var(--success-dark)' : attendanceRate >= 70 ? 'var(--warning-dark)' : 'var(--danger)'}">${attendanceRate}%</div></div>
-        <div class="card stat"><div class="ico">💰</div><div class="label">مانده</div><div class="num" style="font-size:15px;color:${balance(s) > 0 ? 'var(--danger)' : 'var(--success-dark)'}">${money(balance(s))}</div></div>
-      </div>
-      <div class="card" style="margin-bottom:16px">
-        <h3 style="margin:0 0 12px;color:var(--primary-dark)">📚 نمرات به تفکیک درس</h3>
-        <div class="table-wrap">
-          <table class="table">
-            <thead><tr><th>درس</th><th style="text-align:center">تعداد نمره</th><th style="text-align:center">معدل درس</th><th>دبیر</th></tr></thead>
-            <tbody>${subjectRows || '<tr><td colspan="4" class="empty">نمره‌ای ثبت نشده</td></tr>'}</tbody>
-          </table>
-        </div>
-      </div>
-      <div class="card" style="margin-bottom:16px">
-        <h3 style="margin:0 0 12px;color:var(--primary-dark)">📅 حضور و غیاب</h3>
-        <div style="display:flex;gap:12px;font-size:13px;flex-wrap:wrap">
-          <div style="padding:10px 16px;background:#d1fae5;border-radius:10px"><b>✅ حاضر:</b> ${presentCount}</div>
-          <div style="padding:10px 16px;background:#fee2e2;border-radius:10px"><b>❌ غایب:</b> ${absentCount}</div>
-          <div style="padding:10px 16px;background:var(--primary-bg);border-radius:10px"><b>📊 کل:</b> ${totalAtt} روز</div>
-        </div>
-      </div>
-      <div class="card">
-        <h3 style="margin:0 0 12px;color:var(--primary-dark)">💰 وضعیت مالی</h3>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;font-size:13px">
-          <div><span style="color:var(--muted)">شهریه:</span> <b>${money(finalTuition(s))}</b></div>
-          <div><span style="color:var(--muted)">پرداختی:</span> <b style="color:var(--success-dark)">${money(paid(s))}</b></div>
-          <div><span style="color:var(--muted)">مانده:</span> <b style="color:${balance(s) > 0 ? 'var(--danger)' : 'var(--success-dark)'}">${money(balance(s))}</b></div>
-        </div>
-        <div style="margin-top:10px;font-size:12px;color:var(--muted)">تعداد پرداخت‌ها: ${payments.length}</div>
-      </div>
-    </div>
-  `);
-}
+
 function studentDetails(id){
   const s = studentById(id);
   if(!s) return;
@@ -7144,8 +6921,7 @@ function studentDetails(id){
   </div>
   <div class="section-head" style="margin-top:22px">
     <h3 style="margin:0">📋 تراکنش‌ها</h3>
-    <button class="btn purple" onclick="printStudentProfile(${s.id})" style="background:linear-gradient(135deg,#a855f7 0%,#7c3aed 100%);color:#fff">🖨 پرینت پرونده</button>
-<button class="btn primary" data-action="add-payment-for" data-id="${s.id}">ثبت پرداخت</button>
+    <button class="btn primary" data-action="add-payment-for" data-id="${s.id}">ثبت پرداخت</button>
   </div>
   <div class="table-wrap">
     <table class="table">
