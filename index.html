@@ -2384,6 +2384,10 @@ function loadBulkStudents(){
         <div style="font-weight:700;font-size:13.5px">${s.name} ${s.family}</div>
         <div style="font-size:11px;color:var(--muted)">${s.code || '-'}</div>
       </div>
+      <label style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:#dc2626;cursor:pointer;white-space:nowrap">
+  <input type="checkbox" class="bulk-absent-check" data-student-id="${s.id}" onchange="toggleAbsent(${s.id}, this.checked)" style="width:16px;height:16px;margin:0">
+  <span>غایب</span>
+</label>
       <input type="number" class="bulk-score-input" data-student-id="${s.id}" step="0.25" min="0" placeholder="نمره" style="width:90px;padding:8px 10px;border:2px solid var(--line);border-radius:8px;text-align:center;font-weight:700;font-size:14px">
     </div>
   `).join('');
@@ -2395,7 +2399,20 @@ function fillAllGrades(){
     inp.value = maxScore;
   });
 }
-
+function toggleAbsent(studentId, isAbsent){
+  const input = document.querySelector(`.bulk-score-input[data-student-id="${studentId}"]`);
+  if(!input) return;
+  if(isAbsent){
+    input.value = '';
+    input.disabled = true;
+    input.style.background = '#fee2e2';
+    input.placeholder = 'غایب';
+  } else {
+    input.disabled = false;
+    input.style.background = '';
+    input.placeholder = 'نمره';
+  }
+}
 async function saveBulkGrades(){
   if(isProcessing) return;
   const cls = v('bg_class');
@@ -2412,15 +2429,15 @@ async function saveBulkGrades(){
   const entries = [];
   
   inputs.forEach(inp => {
+    const absentCheck = document.querySelector(`.bulk-absent-check[data-student-id="${inp.dataset.studentId}"]`);
+    if(absentCheck && absentCheck.checked) return;
     const val = parseFloat(inp.value);
     if(!isNaN(val) && inp.value !== ''){
       entries.push({
         studentId: Number(inp.dataset.studentId),
         score: val
       });
-    }
-  });
-  
+ 
   if(!entries.length) return toast('حداقل یک نمره وارد کنید', 'warning');
   
   if(!confirm(`ثبت ${entries.length} نمره برای درس «${subject}»؟`)) return;
