@@ -6902,7 +6902,182 @@ async function saveStudent(id){
     toast('ذخیره شد ✅', 'success');
   } finally { isProcessing = false; }
 }
+function printMonthlyReportCard(studentId){
+  const s = studentById(studentId);
+  if(!s) return toast('دانش‌آموز پیدا نشد', 'error');
+  
+  // گرفتن ماه و سال از کاربر
+  openModal('📅 انتخاب ماه برای کارنامه', `
+    <div class="form">
+      <div style="background:var(--primary-bg);padding:14px;border-radius:12px;margin-bottom:16px;font-size:13px;line-height:1.8">
+        <b style="color:var(--primary-dark)">💡 راهنما:</b> ماه مورد نظر را انتخاب کنید. کارنامه شامل نمرات آن ماه و وضعیت مالی است.
+      </div>
+      <div class="formgrid">
+        <div><label>ماه</label>
+          <select id="rc_month">
+            <option value="1">فروردین</option>
+            <option value="2">اردیبهشت</option>
+            <option value="3">خرداد</option>
+            <option value="4">تیر</option>
+            <option value="5">مرداد</option>
+            <option value="6">شهریور</option>
+            <option value="7">مهر</option>
+            <option value="8">آبان</option>
+            <option value="9">آذر</option>
+            <option value="10">دی</option>
+            <option value="11">بهمن</option>
+            <option value="12">اسفند</option>
+          </select>
+        </div>
+        <div><label>سال</label>
+          <input id="rc_year" value="${new Date().toLocaleDateString('fa-IR').split('/')[0]}" placeholder="1404">
+        </div>
+        <div><label>ترم (اختیاری)</label>
+          <select id="rc_term">
+            <option value="">همه ترم‌ها</option>
+            <option>ترم اول</option>
+            <option>ترم دوم</option>
+            <option>پایان سال</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modalfoot">
+      <button class="btn primary" id="btnGenerateMonthlyReport">📄 تولید کارنامه</button>
+    </div>
+  `);
+  
+  document.getElementById('btnGenerateMonthlyReport').onclick = () => {
+    const month = document.getElementById('rc_month').value;
+    const year = document.getElementById('rc_year').value;
+    const term = document.getElementById('rc_term').value;
+    closeModal();
+    setTimeout(() => generateMonthlyReport(studentId, month, year, term), 200);
+  };
+}
 
+function generateMonthlyReport(studentId, month, year, term){
+  const s = studentById(studentId);
+  if(!s) return;
+  
+  // فیلتر نمرات بر اساس ماه
+  const monthStr = String(month).padStart(2, '0');
+  let grades = db.grades.filter(g => g.student_id == s.id);
+  
+  if(year){
+    grades = grades.filter(g => String(g.exam_date || '').includes(year));
+  }
+  if(month){
+    grades = grades.filter(g => {
+      const parts = String(g.exam_date || '').split('/');
+      return parts.length >= 2 && Number(parts[1]) === Number(month);
+    });
+  }
+  if(term){
+    grades = grades.filter(g => g.term === term);
+  }
+  
+  // گروه‌بندی بر اساس درس
+  const bySubject = {};
+  grades.forEach(g => {
+    if(!bySubject[g.subject]) bySubject[g.subject] = [];
+    bySubject[g.subject].push(g);
+  });
+  
+  // محاسبه معدل
+  const avg = grades.length > 0
+    ? (grades.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / grades.length).toFixed(2)
+    : '-';
+  
+  // گرفتن پرداخت‌های این ماه
+  const payments = db.payments.filter(p => {
+    if(p.studentId != s.id) return false;
+    const parts = String(p.date || '').split('/');
+    return parts.length >= 2 && Number(parts[1]) === Number(month);
+  });
+  const monthPaid = payments.reduce((a,p) => a + (+p.amount||0), 0);
+  
+  const monthNames = ['', 'فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+  const monthName = monthNames[Number(month)] || '';
+  
+  const w = window.open('', '_blank');
+  if(!w) return toast('پنجره چاپ مسدود شد. لطفاً پاپ‌آپ را اجازه دهید.', 'error');
+  
+  let subjectRows = '';
+  Object.entries(bySubject).forEach(([subject, grds]) => {
+    const subjAvg = (grds.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / grds.length).toFixed(2);
+    const teacher = grds[0]?.teacher_name || '-';
+    subjectRows += '<tr><td style="font-weight:700">' + subject + '</td><td style="text-align:center">' + grds.length + '</td><td style="text-align:center;font-weight:800">' + subjAvg + '</td><td>' + teacher + '</td></tr>';
+  });
+  
+  w.document.write('<html dir="rtl"><head><meta charset="UTF-8"><title>کارنامه ' + monthName + ' - ' + s.name + ' ' + s.family + '</title>');
+  w.document.write('<style>');
+  w.document.write('@page { size: A4; margin: 15mm; }');
+  w.document.write('body { font-family: Tahoma, sans-serif; direction: rtl; color: #1e293b; margin: 0; padding: 20px; background: #fff; }');
+  w.document.write('.header { text-align: center; border-bottom: 3px solid #6366f1; padding-bottom: 15px; margin-bottom: 20px; }');
+  w.document.write('.header h1 { margin: 0 0 5px 0; color: #6366f1; font-size: 22px; }');
+  w.document.write('.header h2 { margin: 0; color: #64748b; font-size: 15px; font-weight: 500; }');
+  w.document.write('.section { margin-bottom: 20px; }');
+  w.document.write('.section h3 { background: #6366f1; color: #fff; padding: 8px 14px; border-radius: 8px; font-size: 14px; margin: 0 0 12px 0; }');
+  w.document.write('.info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; font-size: 13px; background: #f8fafc; padding: 14px; border-radius: 10px; border: 1px solid #e2e8f0; }');
+  w.document.write('.info-item { padding: 4px 0; }');
+  w.document.write('.info-item .label { color: #64748b; font-weight: 600; }');
+  w.document.write('.info-item .value { color: #1e293b; font-weight: 800; }');
+  w.document.write('table { width: 100%; border-collapse: collapse; font-size: 13px; }');
+  w.document.write('th { background: #eef2ff; color: #4f46e5; padding: 10px; text-align: right; font-weight: 800; }');
+  w.document.write('td { padding: 10px; border-bottom: 1px solid #e2e8f0; }');
+  w.document.write('.footer { text-align: center; margin-top: 30px; font-size: 11px; color: #94a3b8; border-top: 1px dashed #cbd5e1; padding-top: 15px; }');
+  w.document.write('.signature { margin-top: 30px; display: flex; justify-content: space-between; padding: 0 30px; }');
+  w.document.write('.signature div { text-align: center; font-size: 12px; }');
+  w.document.write('.signature .line { margin-top: 40px; border-top: 1px solid #94a3b8; padding-top: 5px; }');
+  w.document.write('.summary-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }');
+  w.document.write('.summary-card { text-align: center; padding: 14px; border-radius: 10px; border: 2px solid; }');
+  w.document.write('.summary-card .num { font-size: 20px; font-weight: 900; }');
+  w.document.write('.summary-card .lbl { font-size: 11px; font-weight: 700; margin-top: 4px; }');
+  w.document.write('</style></head><body>');
+  
+  w.document.write('<div class="header">');
+  w.document.write('<h1>' + db.settings.school + '</h1>');
+  w.document.write('<h2>کارنامه ماهانه - ' + monthName + ' ' + year + '</h2>');
+  w.document.write('<div style="font-size: 11px; color: #94a3b8; margin-top: 6px">تاریخ چاپ: ' + today() + '</div>');
+  w.document.write('</div>');
+  
+  w.document.write('<div class="section"><h3>📋 مشخصات دانش‌آموز</h3>');
+  w.document.write('<div class="info-grid">');
+  w.document.write('<div class="info-item"><span class="label">نام:</span> <span class="value">' + s.name + ' ' + s.family + '</span></div>');
+  w.document.write('<div class="info-item"><span class="label">کد:</span> <span class="value">' + (s.code || '-') + '</span></div>');
+  w.document.write('<div class="info-item"><span class="label">کلاس:</span> <span class="value">' + (s.grade || '-') + '</span></div>');
+  w.document.write('</div></div>');
+  
+  w.document.write('<div class="summary-row">');
+  w.document.write('<div class="summary-card" style="background: #dbeafe; border-color: #3b82f6; color: #1e40af"><div class="num">' + grades.length + '</div><div class="lbl">📚 تعداد نمرات این ماه</div></div>');
+  w.document.write('<div class="summary-card" style="background: #eef2ff; border-color: #6366f1; color: #4f46e5"><div class="num">' + avg + '</div><div class="lbl">⭐ معدل ماهانه</div></div>');
+  w.document.write('<div class="summary-card" style="background: #d1fae5; border-color: #10b981; color: #059669"><div class="num" style="font-size: 15px">' + money(monthPaid) + '</div><div class="lbl">💰 پرداخت این ماه</div></div>');
+  w.document.write('</div>');
+  
+  w.document.write('<div class="section"><h3>📚 نمرات این ماه</h3>');
+  if(grades.length > 0){
+    w.document.write('<table><thead><tr><th>درس</th><th style="text-align:center">تعداد نمره</th><th style="text-align:center">معدل درس</th><th>دبیر</th></tr></thead>');
+    w.document.write('<tbody>' + subjectRows + '</tbody></table>');
+  } else {
+    w.document.write('<p style="text-align:center;color:#94a3b8;padding:20px">نمره‌ای برای این ماه ثبت نشده</p>');
+  }
+  w.document.write('</div>');
+  
+  w.document.write('<div class="section"><h3>💰 وضعیت مالی کلی</h3>');
+  w.document.write('<div class="info-grid">');
+  w.document.write('<div class="info-item"><span class="label">شهریه:</span> <span class="value">' + money(finalTuition(s)) + '</span></div>');
+  w.document.write('<div class="info-item"><span class="label">پرداخت‌شده کل:</span> <span class="value">' + money(paid(s)) + '</span></div>');
+  w.document.write('<div class="info-item"><span class="label">مانده:</span> <span class="value">' + money(balance(s)) + '</span></div>');
+  w.document.write('</div></div>');
+  
+  w.document.write('<div class="signature"><div><div>مهر و امضای مدیر</div><div class="line">' + db.settings.school + '</div></div><div><div>مهر و امضای مشاور</div><div class="line">امور آموزشی</div></div></div>');
+  w.document.write('<div class="footer">' + db.settings.footer + '</div>');
+  w.document.write('</body></html>');
+  
+  w.document.close();
+  setTimeout(function(){ w.print(); }, 500);
+}
 function studentDetails(id){
   const s = studentById(id);
   if(!s) return;
@@ -6941,6 +7116,7 @@ function studentDetails(id){
   <div class="section-head" style="margin-top:22px">
     <h3 style="margin:0">📋 تراکنش‌ها</h3>
     <button class="btn primary" data-action="add-payment-for" data-id="${s.id}">ثبت پرداخت</button>
+    <button class="btn blue" onclick="printMonthlyReportCard(${s.id})">📅 کارنامه ماهانه</button>
     <button class="btn purple" onclick="printStudentProfile(${s.id})" style="background:linear-gradient(135deg,#a855f7 0%,#7c3aed 100%);color:#fff">🖨 پرینت</button>
   </div>
   <div class="table-wrap">
