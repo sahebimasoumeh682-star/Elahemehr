@@ -846,6 +846,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 
     <div class="nav-section">گزارش‌ها</div>
     <button data-page="reports">📊 <span>گزارش‌ها</span></button>
+    <button data-page="reportCards">📄 <span>کارنامه</span></button>
     <button data-page="invoices">📑 <span>صورتحساب‌ها</span></button>
     <button data-page="bulk">🖨 <span>چاپ دسته‌ای</span></button>
     <button data-page="logs">🕘 <span>فعالیت‌ها</span></button>
@@ -1402,6 +1403,52 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
       <table class="table">
         <thead><tr><th>نام</th><th>دسته</th><th>تعداد</th><th>قیمت واحد</th><th>محل</th><th>سریال</th><th>وضعیت</th><th>عملیات</th></tr></thead>
         <tbody id="assetsTable"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+<section class="page" id="reportCards">
+  <div class="section-head">
+    <h2>📄 کارنامه دانش‌آموزان</h2>
+  </div>
+  <div class="card">
+    <div style="background:linear-gradient(135deg,#eef2ff 0%,#f0f9ff 100%);padding:16px;border-radius:12px;margin-bottom:18px;border:2px solid var(--primary-light)">
+      <h3 style="margin:0 0 10px;color:var(--primary-dark);font-size:15px">💡 راهنما</h3>
+      <p style="margin:0;font-size:13px;line-height:1.9;color:var(--text-soft)">
+        برای چاپ کارنامه، روی دکمه «📄 کارنامه» کنار هر دانش‌آموز کلیک کنید. سپس ماه و سال مورد نظر را انتخاب کنید.
+      </p>
+    </div>
+    <div class="filters">
+      <input id="reportCardSearch" placeholder="🔍 جستجوی دانش‌آموز...">
+      <select id="reportCardClassFilter">
+        <option value="">همه کلاس‌ها</option>
+        <option>هفتم</option>
+        <option>هشتم</option>
+        <option>نهم</option>
+        <option>دهم انسانی</option>
+        <option>دهم تجربی</option>
+        <option>دهم ریاضی</option>
+        <option>یازدهم انسانی</option>
+        <option>یازدهم تجربی</option>
+        <option>یازدهم ریاضی</option>
+        <option>دوازدهم انسانی</option>
+        <option>دوازدهم تجربی</option>
+        <option>دوازدهم ریاضی</option>
+      </select>
+    </div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>کد</th>
+            <th>نام و نام خانوادگی</th>
+            <th>کلاس</th>
+            <th>تعداد نمرات</th>
+            <th>معدل</th>
+            <th>عملیات</th>
+          </tr>
+        </thead>
+        <tbody id="reportCardsTable"></tbody>
       </table>
     </div>
   </div>
@@ -6315,6 +6362,330 @@ function bulkPrintSelected(){
 /* ============================================================
    REPORTS
 ============================================================ */
+  function renderReportCards(){
+  const tbody = document.getElementById('reportCardsTable');
+  if(!tbody) return;
+  
+  const q = v('reportCardSearch');
+  const cls = v('reportCardClassFilter');
+  
+  const arr = db.students.filter(s => {
+    if(q && !`${s.name} ${s.family} ${s.code} ${s.national || ''}`.includes(q)) return false;
+    if(cls && s.grade !== cls) return false;
+    return true;
+  }).sort((a,b) => (a.family || '').localeCompare(b.family || ''));
+  
+  if(!arr.length){
+    tbody.innerHTML = '<tr><td colspan="6" class="empty">دانش‌آموزی یافت نشد</td></tr>';
+    return;
+  }
+  
+  tbody.innerHTML = arr.map(s => {
+    const grades = db.grades.filter(g => g.student_id == s.id);
+    const avg = grades.length > 0
+      ? (grades.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / grades.length).toFixed(2)
+      : '-';
+    const avgColor = avg === '-' ? 'var(--muted)' : parseFloat(avg) >= 15 ? 'var(--success-dark)' : parseFloat(avg) >= 10 ? 'var(--warning-dark)' : 'var(--danger)';
+    
+    return `<tr>
+      <td><b>${s.code || '-'}</b></td>
+      <td><b>${s.name} ${s.family}</b></td>
+      <td>${s.grade || '-'}</td>
+      <td style="text-align:center">${grades.length}</td>
+      <td style="text-align:center;font-weight:800;color:${avgColor}">${avg}</td>
+      <td class="actions">
+        <button class="btn purple" onclick="openReportCardModal(${s.id})" style="background:linear-gradient(135deg,#a855f7 0%,#7c3aed 100%);color:#fff">📄 کارنامه</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openReportCardModal(studentId){
+  const s = studentById(studentId);
+  if(!s) return;
+  
+  const currentYear = new Date().toLocaleDateString('fa-IR').split('/')[0];
+  
+  openModal('📄 تولید کارنامه', `
+    <div style="background:var(--primary-bg);padding:14px;border-radius:12px;margin-bottom:18px;font-size:13px;line-height:1.9">
+      <b style="color:var(--primary-dark)">👩🏻‍🎓 دانش‌آموز:</b> ${s.name} ${s.family} — ${s.grade || '-'}
+    </div>
+    <div class="form">
+      <div class="formgrid">
+        <div><label>ماه *</label>
+          <select id="rcm_month">
+            <option value="1">فروردین</option>
+            <option value="2">اردیبهشت</option>
+            <option value="3">خرداد</option>
+            <option value="4">تیر</option>
+            <option value="5">مرداد</option>
+            <option value="6">شهریور</option>
+            <option value="7">مهر</option>
+            <option value="8">آبان</option>
+            <option value="9">آذر</option>
+            <option value="10">دی</option>
+            <option value="11">بهمن</option>
+            <option value="12">اسفند</option>
+          </select>
+        </div>
+        <div><label>سال *</label>
+          <input id="rcm_year" value="${currentYear}" placeholder="1404">
+        </div>
+        <div><label>ترم (اختیاری)</label>
+          <select id="rcm_term">
+            <option value="">همه ترم‌ها</option>
+            <option>ترم اول</option>
+            <option>ترم دوم</option>
+            <option>پایان سال</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="modalfoot">
+      <button class="btn primary" id="btnGenerateReportCard">🖨 تولید و چاپ کارنامه</button>
+    </div>
+  `);
+  
+  document.getElementById('btnGenerateReportCard').onclick = () => {
+    const month = document.getElementById('rcm_month').value;
+    const year = document.getElementById('rcm_year').value;
+    const term = document.getElementById('rcm_term').value;
+    closeModal();
+    setTimeout(() => generateFullReportCard(studentId, month, year, term), 200);
+  };
+}
+
+function generateFullReportCard(studentId, month, year, term){
+  const s = studentById(studentId);
+  if(!s) return;
+  
+  // فیلتر نمرات بر اساس ماه و سال
+  let grades = db.grades.filter(g => g.student_id == s.id);
+  if(year) grades = grades.filter(g => String(g.exam_date || '').includes(year));
+  if(month) grades = grades.filter(g => {
+    const parts = String(g.exam_date || '').split('/');
+    return parts.length >= 2 && Number(parts[1]) === Number(month);
+  });
+  if(term) grades = grades.filter(g => g.term === term);
+  
+  if(grades.length === 0){
+    return toast('هیچ نمره‌ای برای این ماه ثبت نشده است', 'warning');
+  }
+  
+  // گروه‌بندی بر اساس درس
+  const bySubject = {};
+  grades.forEach(g => {
+    if(!bySubject[g.subject]) bySubject[g.subject] = [];
+    bySubject[g.subject].push(g);
+  });
+  
+  // معدل کل
+  const totalAvg = grades.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / grades.length;
+  
+  // رتبه در کلاس
+  const classmates = db.students.filter(st => st.grade === s.grade);
+  const classAvgs = classmates.map(st => {
+    let grds = db.grades.filter(g => g.student_id == st.id);
+    if(year) grds = grds.filter(g => String(g.exam_date || '').includes(year));
+    if(month) grds = grds.filter(g => {
+      const parts = String(g.exam_date || '').split('/');
+      return parts.length >= 2 && Number(parts[1]) === Number(month);
+    });
+    if(term) grds = grds.filter(g => g.term === term);
+    if(!grds.length) return { id: st.id, avg: 0 };
+    return {
+      id: st.id,
+      avg: grds.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / grds.length
+    };
+  }).sort((a,b) => b.avg - a.avg);
+  const classRank = classAvgs.findIndex(c => c.id == s.id) + 1;
+  const classTotal = classAvgs.filter(c => c.avg > 0).length;
+  
+  // رتبه در مدرسه
+  const allAvgs = db.students.map(st => {
+    let grds = db.grades.filter(g => g.student_id == st.id);
+    if(year) grds = grds.filter(g => String(g.exam_date || '').includes(year));
+    if(month) grds = grds.filter(g => {
+      const parts = String(g.exam_date || '').split('/');
+      return parts.length >= 2 && Number(parts[1]) === Number(month);
+    });
+    if(term) grds = grds.filter(g => g.term === term);
+    if(!grds.length) return { id: st.id, avg: 0 };
+    return {
+      id: st.id,
+      avg: grds.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / grds.length
+    };
+  }).sort((a,b) => b.avg - a.avg);
+  const schoolRank = allAvgs.findIndex(c => c.id == s.id) + 1;
+  const schoolTotal = allAvgs.filter(c => c.avg > 0).length;
+  
+  // بهترین و ضعیف‌ترین درس
+  const subjectAvgs = Object.entries(bySubject).map(([subject, grds]) => {
+    const avg = grds.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / grds.length;
+    return { subject, avg };
+  }).sort((a,b) => b.avg - a.avg);
+  const bestSubject = subjectAvgs[0];
+  const worstSubject = subjectAvgs[subjectAvgs.length - 1];
+  
+  // پرداخت‌های ماه
+  const payments = db.payments.filter(p => {
+    if(p.studentId != s.id) return false;
+    const parts = String(p.date || '').split('/');
+    return parts.length >= 2 && Number(parts[1]) === Number(month) && (!year || String(p.date).includes(year));
+  });
+  const monthPaid = payments.reduce((a,p) => a + (+p.amount||0), 0);
+  
+  const monthNames = ['', 'فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+  const monthName = monthNames[Number(month)] || '';
+  
+  const w = window.open('', '_blank');
+  if(!w) return toast('پنجره چاپ مسدود شد. لطفاً پاپ‌آپ را اجازه دهید.', 'error');
+  
+  // ساخت ریز نمرات هر درس
+  let detailedRows = '';
+  Object.entries(bySubject).forEach(([subject, grds]) => {
+    const subjAvg = (grds.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / grds.length).toFixed(2);
+    const teacher = grds[0]?.teacher_name || '-';
+    const avgNum = parseFloat(subjAvg);
+    const avgBg = avgNum >= 15 ? '#d1fae5' : avgNum >= 10 ? '#fef3c7' : '#fee2e2';
+    const avgColor = avgNum >= 15 ? '#059669' : avgNum >= 10 ? '#92400e' : '#dc2626';
+    
+    grds.forEach((g, idx) => {
+      if(idx === 0){
+        detailedRows += '<tr>'
+          + '<td rowspan="' + grds.length + '" style="font-weight:800;background:#f8fafc;border-left:3px solid #6366f1">' + subject + '</td>'
+          + '<td>' + (g.exam_type || 'مستمر') + '</td>'
+          + '<td style="text-align:center">' + (g.exam_date || '-') + '</td>'
+          + '<td style="text-align:center;font-weight:800">' + g.score + '</td>'
+          + '<td style="text-align:center">' + (g.max_score || 20) + '</td>'
+          + '<td rowspan="' + grds.length + '" style="text-align:center;background:' + avgBg + ';color:' + avgColor + ';font-weight:900">' + subjAvg + '</td>'
+          + '<td rowspan="' + grds.length + '" style="text-align:center;font-size:11px">' + teacher + '</td>'
+          + '</tr>';
+      } else {
+        detailedRows += '<tr>'
+          + '<td>' + (g.exam_type || 'مستمر') + '</td>'
+          + '<td style="text-align:center">' + (g.exam_date || '-') + '</td>'
+          + '<td style="text-align:center;font-weight:800">' + g.score + '</td>'
+          + '<td style="text-align:center">' + (g.max_score || 20) + '</td>'
+          + '</tr>';
+      }
+    });
+  });
+  
+  w.document.write('<html dir="rtl"><head><meta charset="UTF-8"><title>کارنامه ' + monthName + ' - ' + s.name + ' ' + s.family + '</title>');
+  w.document.write('<style>');
+  w.document.write('@page { size: A4; margin: 12mm; }');
+  w.document.write('body { font-family: Tahoma, sans-serif; direction: rtl; color: #1e293b; margin: 0; padding: 15px; background: #fff; font-size: 12.5px; }');
+  w.document.write('.header { text-align: center; border-bottom: 3px solid #6366f1; padding-bottom: 12px; margin-bottom: 16px; }');
+  w.document.write('.header h1 { margin: 0 0 4px 0; color: #6366f1; font-size: 22px; }');
+  w.document.write('.header h2 { margin: 0; color: #64748b; font-size: 14px; font-weight: 500; }');
+  w.document.write('.section { margin-bottom: 14px; }');
+  w.document.write('.section h3 { background: #6366f1; color: #fff; padding: 7px 12px; border-radius: 6px; font-size: 13px; margin: 0 0 10px 0; }');
+  w.document.write('.info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 12px; background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; }');
+  w.document.write('.info-item .label { color: #64748b; font-weight: 600; }');
+  w.document.write('.info-item .value { color: #1e293b; font-weight: 800; }');
+  w.document.write('table { width: 100%; border-collapse: collapse; font-size: 12px; }');
+  w.document.write('th { background: #eef2ff; color: #4f46e5; padding: 8px 6px; text-align: center; font-weight: 800; font-size: 11px; }');
+  w.document.write('td { padding: 7px 6px; border-bottom: 1px solid #e2e8f0; }');
+  w.document.write('.stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }');
+  w.document.write('.stat-card { text-align: center; padding: 12px; border-radius: 8px; border: 2px solid; }');
+  w.document.write('.stat-card .num { font-size: 20px; font-weight: 900; }');
+  w.document.write('.stat-card .lbl { font-size: 10px; font-weight: 700; margin-top: 3px; }');
+  w.document.write('.rank-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }');
+  w.document.write('.rank-card { text-align: center; padding: 12px; border-radius: 10px; }');
+  w.document.write('.rank-card .rank-num { font-size: 22px; font-weight: 900; }');
+  w.document.write('.rank-card .rank-lbl { font-size: 11px; font-weight: 700; margin-top: 3px; }');
+  w.document.write('.bw-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }');
+  w.document.write('.bw-card { padding: 12px; border-radius: 10px; }');
+  w.document.write('.bw-card .bw-title { font-size: 11px; font-weight: 700; margin-bottom: 4px; }');
+  w.document.write('.bw-card .bw-subject { font-size: 15px; font-weight: 900; }');
+  w.document.write('.bw-card .bw-avg { font-size: 12px; font-weight: 700; margin-top: 3px; }');
+  w.document.write('.signature { margin-top: 24px; display: flex; justify-content: space-between; padding: 0 20px; }');
+  w.document.write('.signature div { text-align: center; font-size: 11px; }');
+  w.document.write('.signature .line { margin-top: 35px; border-top: 1px solid #94a3b8; padding-top: 4px; }');
+  w.document.write('.footer { text-align: center; margin-top: 20px; font-size: 10px; color: #94a3b8; border-top: 1px dashed #cbd5e1; padding-top: 10px; }');
+  w.document.write('</style></head><body>');
+  
+  // هدر
+  w.document.write('<div class="header">');
+  w.document.write('<h1>' + db.settings.school + '</h1>');
+  w.document.write('<h2>کارنامه ماهانه — ' + monthName + ' ' + year + '</h2>');
+  w.document.write('<div style="font-size: 10px; color: #94a3b8; margin-top: 4px">تاریخ چاپ: ' + today() + '</div>');
+  w.document.write('</div>');
+  
+  // مشخصات
+  w.document.write('<div class="section"><h3>📋 مشخصات دانش‌آموز</h3>');
+  w.document.write('<div class="info-grid">');
+  w.document.write('<div class="info-item"><span class="label">نام:</span> <span class="value">' + s.name + ' ' + s.family + '</span></div>');
+  w.document.write('<div class="info-item"><span class="label">کد دانش‌آموزی:</span> <span class="value">' + (s.code || '-') + '</span></div>');
+  w.document.write('<div class="info-item"><span class="label">کد ملی:</span> <span class="value">' + (s.national || '-') + '</span></div>');
+  w.document.write('<div class="info-item"><span class="label">کلاس:</span> <span class="value">' + (s.grade || '-') + '</span></div>');
+  w.document.write('<div class="info-item"><span class="label">تاریخ تولد:</span> <span class="value">' + (s.birthDate || '-') + '</span></div>');
+  w.document.write('<div class="info-item"><span class="label">همراه:</span> <span class="value">' + (s.phone || '-') + '</span></div>');
+  w.document.write('</div></div>');
+  
+  // کارت‌های خلاصه
+  w.document.write('<div class="stats-row">');
+  w.document.write('<div class="stat-card" style="background: #dbeafe; border-color: #3b82f6; color: #1e40af"><div class="num">' + grades.length + '</div><div class="lbl">📚 کل نمرات</div></div>');
+  w.document.write('<div class="stat-card" style="background: #eef2ff; border-color: #6366f1; color: #4f46e5"><div class="num">' + totalAvg.toFixed(2) + '</div><div class="lbl">⭐ معدل کل</div></div>');
+  w.document.write('<div class="stat-card" style="background: #d1fae5; border-color: #10b981; color: #059669"><div class="num" style="font-size: 13px">' + money(monthPaid) + '</div><div class="lbl">💰 پرداخت این ماه</div></div>');
+  w.document.write('</div>');
+  
+  // رتبه‌ها
+  w.document.write('<div class="rank-row">');
+  w.document.write('<div class="rank-card" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #92400e">');
+  w.document.write('<div class="rank-num">' + classRank + ' / ' + classTotal + '</div>');
+  w.document.write('<div class="rank-lbl">🏫 رتبه در کلاس</div>');
+  w.document.write('</div>');
+  w.document.write('<div class="rank-card" style="background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); color: #3730a3">');
+  w.document.write('<div class="rank-num">' + schoolRank + ' / ' + schoolTotal + '</div>');
+  w.document.write('<div class="rank-lbl">🏆 رتبه در کل مدرسه</div>');
+  w.document.write('</div>');
+  w.document.write('</div>');
+  
+  // بهترین و ضعیف‌ترین
+  w.document.write('<div class="bw-row">');
+  w.document.write('<div class="bw-card" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #065f46; border: 2px solid #10b981">');
+  w.document.write('<div class="bw-title">🌟 قوی‌ترین درس</div>');
+  w.document.write('<div class="bw-subject">' + bestSubject.subject + '</div>');
+  w.document.write('<div class="bw-avg">معدل: ' + bestSubject.avg.toFixed(2) + '</div>');
+  w.document.write('</div>');
+  w.document.write('<div class="bw-card" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #991b1b; border: 2px solid #ef4444">');
+  w.document.write('<div class="bw-title">📉 ضعیف‌ترین درس</div>');
+  w.document.write('<div class="bw-subject">' + worstSubject.subject + '</div>');
+  w.document.write('<div class="bw-avg">معدل: ' + worstSubject.avg.toFixed(2) + '</div>');
+  w.document.write('</div>');
+  w.document.write('</div>');
+  
+  // ریز نمرات
+  w.document.write('<div class="section"><h3>📚 ریز نمرات همه دروس</h3>');
+  w.document.write('<table><thead><tr>');
+  w.document.write('<th style="width:18%">درس</th>');
+  w.document.write('<th style="width:15%">نوع آزمون</th>');
+  w.document.write('<th style="width:15%">تاریخ</th>');
+  w.document.write('<th style="width:10%">نمره</th>');
+  w.document.write('<th style="width:10%">از</th>');
+  w.document.write('<th style="width:15%">معدل درس</th>');
+  w.document.write('<th style="width:17%">دبیر</th>');
+  w.document.write('</tr></thead>');
+  w.document.write('<tbody>' + detailedRows + '</tbody></table></div>');
+  
+  // وضعیت مالی
+  w.document.write('<div class="section"><h3>💰 وضعیت مالی</h3>');
+  w.document.write('<div class="info-grid">');
+  w.document.write('<div class="info-item"><span class="label">شهریه:</span> <span class="value">' + money(finalTuition(s)) + '</span></div>');
+  w.document.write('<div class="info-item"><span class="label">پرداخت‌شده کل:</span> <span class="value">' + money(paid(s)) + '</span></div>');
+  w.document.write('<div class="info-item"><span class="label">مانده:</span> <span class="value" style="color:' + (balance(s) > 0 ? '#dc2626' : '#059669') + '">' + money(balance(s)) + '</span></div>');
+  w.document.write('</div></div>');
+  
+  // امضا
+  w.document.write('<div class="signature"><div><div>مهر و امضای مدیر</div><div class="line">' + db.settings.school + '</div></div><div><div>مهر و امضای مشاور</div><div class="line">امور آموزشی</div></div></div>');
+  w.document.write('<div class="footer">' + db.settings.footer + '</div>');
+  w.document.write('</body></html>');
+  
+  w.document.close();
+  setTimeout(function(){ w.print(); }, 500);
+}
 function renderReport(){
   const type = v('reportType') || 'all';
   const g = v('reportGrade');
@@ -7623,6 +7994,7 @@ function renderAll(){
   renderLogs();
   renderDashboardLists();
   renderReport();
+  renderReportCards();
   renderSmsLog();
   drawCharts();
 }
@@ -7645,6 +8017,7 @@ function nav(page){
     staff: 'کارکنان', salaries: 'واریز حقوق', teacherRatings: 'امتیازات اساتید',
     incomes: 'درآمدها', expenses: 'هزینه‌ها', installments: 'اقساط', discounts: 'تخفیف‌ها',
     assets: 'اموال', reports: 'گزارش‌ها', invoices: 'صورتحساب‌ها', bulk: 'چاپ دسته‌ای',
+    reportCards: 'کارنامه',
     sms: 'ارسال پیامک', users: 'کاربران', logs: 'فعالیت‌ها',
     settings: 'تنظیمات', backup: 'پشتیبان'
   };
@@ -7652,6 +8025,7 @@ function nav(page){
   renderAll();
   if(page === 'backup') updateBackupStats();
   if(page === 'sms') renderSmsPage();
+  if(page === 'reportCards') renderReportCards();
     if(page === 'teacherRatings') renderTeacherRatings();
 }
 
@@ -7737,6 +8111,10 @@ document.addEventListener('click', function(e){
    BIND STATIC BUTTONS
 ============================================================ */
 function bindStaticButtons(){
+    const rcSearch = document.getElementById('reportCardSearch');
+  if(rcSearch) rcSearch.addEventListener('input', renderReportCards);
+  const rcClass = document.getElementById('reportCardClassFilter');
+  if(rcClass) rcClass.addEventListener('change', renderReportCards);
     const pbSearch = document.getElementById('phonebookSearch');
   if(pbSearch) pbSearch.addEventListener('input', renderPhonebook);
   const pbType = document.getElementById('phonebookTypeFilter');
