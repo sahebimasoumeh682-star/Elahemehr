@@ -7333,6 +7333,7 @@ function generateMonthlyReport(studentId, month, year, term){
   
   // فیلتر نمرات بر اساس ماه
   let grades = db.grades.filter(g => g.student_id == s.id);
+    alert('تعداد کل نمرات: ' + grades.length + '\nنمونه تاریخ‌ها: ' + grades.slice(0, 5).map(g => g.exam_date || 'خالی').join(' | ') + '\nماه انتخابی: ' + month + ' | سال انتخابی: ' + year);
   
   if(year) grades = grades.filter(g => String(g.exam_date || '').includes(year));
   if(month){
