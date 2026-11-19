@@ -6460,16 +6460,17 @@ function generateFullReportCard(studentId, month, year, term){
   if(!s) return;
   
   // فیلتر نمرات بر اساس ماه و سال
-  let grades = db.grades.filter(g => g.student_id == s.id);
+   let grades = db.grades.filter(g => g.student_id == s.id);
+  const totalGradesBeforeFilter = grades.length;
+  const sampleDates = grades.slice(0, 5).map(g => g.exam_date || 'خالی').join(' | ');
+  alert('کل نمرات: ' + totalGradesBeforeFilter + '\nنمونه: ' + sampleDates + '\nماه: ' + month + ' | سال: ' + year);
+  
   if(year) grades = grades.filter(g => String(g.exam_date || '').includes(year));
   if(month) grades = grades.filter(g => {
     const parts = String(g.exam_date || '').split('/');
     return parts.length >= 2 && Number(parts[1]) === Number(month);
   });
   if(term) grades = grades.filter(g => g.term === term);
-  
-  if(grades.length === 0){
-    return toast('هیچ نمره‌ای برای این ماه ثبت نشده است', 'warning');
   }
   
   // گروه‌بندی بر اساس درس
