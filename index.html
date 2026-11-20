@@ -6960,19 +6960,20 @@ function generateMonthlyReport(studentId, month, year, term){
   const s = studentById(studentId);
   if(!s) return;
   
-  // فیلتر نمرات بر اساس ماه
+  // فیلتر نمرات بر اساس ماه و سال
   let grades = db.grades.filter(g => g.student_id == s.id);
-  
   if(year) grades = grades.filter(g => String(g.exam_date || '').includes(year));
-  if(month){
-    grades = grades.filter(g => {
-      const parts = String(g.exam_date || '').split('/');
-      return parts.length >= 2 && Number(parts[1]) === Number(month);
-    });
-  }
+  if(month) grades = grades.filter(g => {
+    const parts = String(g.exam_date || '').split('/');
+    return parts.length >= 2 && Number(parts[1]) === Number(month);
+  });
   if(term) grades = grades.filter(g => g.term === term);
   
-  // ===== آمار کلی این ماه =====
+  if(grades.length === 0){
+    return toast('هیچ نمره‌ای برای این ماه ثبت نشده است', 'warning');
+  }
+  
+  // گروه‌بندی بر اساس درس
   const bySubject = {};
   grades.forEach(g => {
     if(!bySubject[g.subject]) bySubject[g.subject] = [];
@@ -6983,7 +6984,7 @@ function generateMonthlyReport(studentId, month, year, term){
     ? (grades.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / grades.length).toFixed(2)
     : '-';
   
-  // ===== رتبه در کلاس =====
+  // رتبه در کلاس
   const classmates = db.students.filter(st => st.grade === s.grade);
   const classAvgs = classmates.map(st => {
     let grds = db.grades.filter(g => g.student_id == st.id);
@@ -6994,17 +6995,13 @@ function generateMonthlyReport(studentId, month, year, term){
     });
     if(term) grds = grds.filter(g => g.term === term);
     if(!grds.length) return { id: st.id, avg: 0 };
-    return {
-      id: st.id,
-      avg: grds.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / grds.length
-    };
+    return { id: st.id, avg: grds.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / grds.length };
   }).sort((a,b) => b.avg - a.avg);
   const classRank = classAvgs.findIndex(c => c.id == s.id) + 1;
   const classTotal = classAvgs.filter(c => c.avg > 0).length;
   
-  // ===== رتبه در کل مدرسه =====
-  const allStudents = db.students;
-  const allAvgs = allStudents.map(st => {
+  // رتبه در مدرسه
+  const allAvgs = db.students.map(st => {
     let grds = db.grades.filter(g => g.student_id == st.id);
     if(year) grds = grds.filter(g => String(g.exam_date || '').includes(year));
     if(month) grds = grds.filter(g => {
@@ -7013,216 +7010,129 @@ function generateMonthlyReport(studentId, month, year, term){
     });
     if(term) grds = grds.filter(g => g.term === term);
     if(!grds.length) return { id: st.id, avg: 0 };
-    return {
-      id: st.id,
-      avg: grds.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / grds.length
-    };
+    return { id: st.id, avg: grds.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / grds.length };
   }).sort((a,b) => b.avg - a.avg);
   const schoolRank = allAvgs.findIndex(c => c.id == s.id) + 1;
   const schoolTotal = allAvgs.filter(c => c.avg > 0).length;
   
-  // ===== بهترین و ضعیف‌ترین درس =====
-  let bestSubject = null, worstSubject = null;
-  Object.entries(bySubject).forEach(([subject, grds]) => {
-    const subjAvg = grds.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / grds.length;
-    if(!bestSubject || subjAvg > bestSubject.avg) bestSubject = { subject, avg: subjAvg };
-    if(!worstSubject || subjAvg < worstSubject.avg) worstSubject = { subject, avg: subjAvg };
-  });
+  // بهترین و ضعیف‌ترین درس
+  const subjectAvgs = Object.entries(bySubject).map(([subject, grds]) => {
+    const avg = grds.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / grds.length;
+    return { subject, avg };
+  }).sort((a,b) => b.avg - a.avg);
+  const bestSubject = subjectAvgs[0];
+  const worstSubject = subjectAvgs[subjectAvgs.length - 1];
   
-  // ===== نمودار پیشرفت/پسرفت (مقایسه ابتدا و انتهای ماه) =====
-  const sortedGrades = [...grades].sort((a,b) => {
-    const pa = String(a.exam_date || '').split('/').map(Number);
-    const pb = String(b.exam_date || '').split('/').map(Number);
-    if(pa[2] !== pb[2]) return pa[2] - pb[2];
-    return pa[1] - pb[1];
-  });
-  
-  let trend = 'stable', trendDiff = 0;
-  if(sortedGrades.length >= 2){
-    const half = Math.floor(sortedGrades.length / 2);
-    const first = sortedGrades.slice(0, half);
-    const second = sortedGrades.slice(half);
-    const firstAvg = first.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / first.length;
-    const secondAvg = second.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / second.length;
-    trendDiff = secondAvg - firstAvg;
-    if(trendDiff > 1) trend = 'up';
-    else if(trendDiff < -1) trend = 'down';
-  }
-  
-  // ===== ساخت نمودار پیشرفت (میله‌ای) =====
-  let chartBars = '';
-  if(sortedGrades.length > 0){
-    const maxScore = 20;
-    chartBars = sortedGrades.map((g, i) => {
-      const score = (Number(g.score) / Number(g.max_score || 20) * 20);
-      const height = Math.max(5, (score / maxScore) * 100);
-      const color = score >= 15 ? '#10b981' : score >= 10 ? '#f59e0b' : '#ef4444';
-      const day = String(g.exam_date || '').split('/')[2] || (i+1);
-      return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0">'
-        + '<div style="font-size:9px;font-weight:700;color:#64748b">' + Math.round(score) + '</div>'
-        + '<div style="background:' + color + ';width:100%;max-width:30px;height:' + height + 'px;border-radius:4px 4px 0 0" title="' + (g.subject||'') + ' ' + (g.exam_date||'') + '"></div>'
-        + '<div style="font-size:9px;color:#94a3b8">' + day + '</div>'
-        + '</div>';
-    }).join('');
-  }
-  
-  // ===== گرفتن پرداخت‌های این ماه =====
+  // پرداخت‌های ماه
   const payments = db.payments.filter(p => {
     if(p.studentId != s.id) return false;
     const parts = String(p.date || '').split('/');
-    return parts.length >= 2 && Number(parts[1]) === Number(month);
+    return parts.length >= 2 && Number(parts[1]) === Number(month) && (!year || String(p.date).includes(year));
   });
   const monthPaid = payments.reduce((a,p) => a + (+p.amount||0), 0);
   
   const monthNames = ['', 'فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
   const monthName = monthNames[Number(month)] || '';
   
-  // ===== ساخت جدول دروس =====
-  let subjectRows = '';
+  // ریز نمرات
+  let detailedRows = '';
   Object.entries(bySubject).forEach(([subject, grds]) => {
     const subjAvg = (grds.reduce((a,g) => a + (Number(g.score) / Number(g.max_score || 20) * 20), 0) / grds.length).toFixed(2);
     const teacher = grds[0]?.teacher_name || '-';
     const avgNum = parseFloat(subjAvg);
-    const avgColor = avgNum >= 15 ? '#059669' : avgNum >= 10 ? '#92400e' : '#dc2626';
     const avgBg = avgNum >= 15 ? '#d1fae5' : avgNum >= 10 ? '#fef3c7' : '#fee2e2';
-    subjectRows += '<tr><td style="font-weight:700">' + subject + '</td>'
-      + '<td style="text-align:center">' + grds.length + '</td>'
-      + '<td style="text-align:center"><span style="display:inline-block;padding:4px 12px;border-radius:8px;background:' + avgBg + ';color:' + avgColor + ';font-weight:800">' + subjAvg + '</span></td>'
-      + '<td>' + teacher + '</td></tr>';
+    const avgColor = avgNum >= 15 ? '#059669' : avgNum >= 10 ? '#92400e' : '#dc2626';
+    
+    grds.forEach((g, idx) => {
+      if(idx === 0){
+        detailedRows += '<tr>'
+          + '<td rowspan="' + grds.length + '" style="font-weight:800;background:#f8fafc">' + subject + '</td>'
+          + '<td>' + (g.exam_type || 'مستمر') + '</td>'
+          + '<td style="text-align:center">' + (g.exam_date || '-') + '</td>'
+          + '<td style="text-align:center;font-weight:800">' + g.score + '</td>'
+          + '<td style="text-align:center">' + (g.max_score || 20) + '</td>'
+          + '<td rowspan="' + grds.length + '" style="text-align:center;background:' + avgBg + ';color:' + avgColor + ';font-weight:900">' + subjAvg + '</td>'
+          + '<td rowspan="' + grds.length + '" style="text-align:center;font-size:11px">' + teacher + '</td>'
+          + '</tr>';
+      } else {
+        detailedRows += '<tr>'
+          + '<td>' + (g.exam_type || 'مستمر') + '</td>'
+          + '<td style="text-align:center">' + (g.exam_date || '-') + '</td>'
+          + '<td style="text-align:center;font-weight:800">' + g.score + '</td>'
+          + '<td style="text-align:center">' + (g.max_score || 20) + '</td>'
+          + '</tr>';
+      }
+    });
   });
   
   const w = window.open('', '_blank');
-  if(!w) return toast('پنجره چاپ مسدود شد. لطفاً پاپ‌آپ را اجازه دهید.', 'error');
+  if(!w) return toast('پنجره چاپ مسدود شد', 'error');
   
-  w.document.write('<html dir="rtl"><head><meta charset="UTF-8"><title>کارنامه ' + monthName + ' - ' + s.name + ' ' + s.family + '</title>');
+  w.document.write('<html dir="rtl"><head><meta charset="UTF-8"><title>کارنامه</title>');
   w.document.write('<style>');
   w.document.write('@page { size: A4; margin: 12mm; }');
-  w.document.write('body { font-family: Tahoma, sans-serif; direction: rtl; color: #1e293b; margin: 0; padding: 15px; background: #fff; font-size: 13px; }');
+  w.document.write('body { font-family: Tahoma, sans-serif; direction: rtl; padding: 15px; }');
   w.document.write('.header { text-align: center; border-bottom: 3px solid #6366f1; padding-bottom: 12px; margin-bottom: 16px; }');
-  w.document.write('.header h1 { margin: 0 0 4px 0; color: #6366f1; font-size: 21px; }');
-  w.document.write('.header h2 { margin: 0; color: #64748b; font-size: 14px; font-weight: 500; }');
+  w.document.write('.header h1 { margin: 0; color: #6366f1; font-size: 22px; }');
+  w.document.write('.header h2 { margin: 4px 0 0; color: #64748b; font-size: 14px; }');
   w.document.write('.section { margin-bottom: 14px; }');
-  w.document.write('.section h3 { background: #6366f1; color: #fff; padding: 7px 12px; border-radius: 6px; font-size: 13px; margin: 0 0 10px 0; }');
-  w.document.write('.info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 12px; background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; }');
-  w.document.write('.info-item .label { color: #64748b; font-weight: 600; }');
-  w.document.write('.info-item .value { color: #1e293b; font-weight: 800; }');
+  w.document.write('.section h3 { background: #6366f1; color: #fff; padding: 7px 12px; border-radius: 6px; font-size: 13px; margin: 0 0 10px; }');
+  w.document.write('.info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 12px; background: #f8fafc; padding: 10px; border-radius: 8px; }');
+  w.document.write('.label { color: #64748b; font-weight: 600; }');
+  w.document.write('.value { color: #1e293b; font-weight: 800; }');
   w.document.write('table { width: 100%; border-collapse: collapse; font-size: 12px; }');
-  w.document.write('th { background: #eef2ff; color: #4f46e5; padding: 8px; text-align: right; font-weight: 800; }');
-  w.document.write('td { padding: 8px; border-bottom: 1px solid #e2e8f0; }');
-  w.document.write('.summary-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }');
-  w.document.write('.summary-card { text-align: center; padding: 10px; border-radius: 8px; border: 2px solid; }');
-  w.document.write('.summary-card .num { font-size: 18px; font-weight: 900; }');
-  w.document.write('.summary-card .lbl { font-size: 10px; font-weight: 700; margin-top: 3px; }');
-  w.document.write('.rank-box { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }');
+  w.document.write('th { background: #eef2ff; color: #4f46e5; padding: 8px 6px; text-align: center; font-weight: 800; }');
+  w.document.write('td { padding: 7px 6px; border-bottom: 1px solid #e2e8f0; }');
+  w.document.write('.rank-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }');
   w.document.write('.rank-card { text-align: center; padding: 14px; border-radius: 10px; }');
-  w.document.write('.rank-card .rank-num { font-size: 24px; font-weight: 900; }');
-  w.document.write('.rank-card .rank-lbl { font-size: 11px; font-weight: 700; margin-top: 4px; opacity: 0.9; }');
-  w.document.write('.best-worst { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }');
+  w.document.write('.rank-num { font-size: 22px; font-weight: 900; }');
+  w.document.write('.rank-lbl { font-size: 11px; font-weight: 700; margin-top: 4px; }');
+  w.document.write('.bw-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }');
   w.document.write('.bw-card { padding: 12px; border-radius: 10px; }');
-  w.document.write('.bw-card .bw-title { font-size: 11px; font-weight: 700; opacity: 0.9; margin-bottom: 4px; }');
-  w.document.write('.bw-card .bw-subject { font-size: 15px; font-weight: 900; }');
-  w.document.write('.bw-card .bw-avg { font-size: 12px; font-weight: 700; margin-top: 3px; }');
-  w.document.write('.chart-box { padding: 12px; background: #f8fafc; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 14px; }');
-  w.document.write('.chart-title { font-size: 12px; font-weight: 800; color: #4f46e5; margin-bottom: 10px; }');
-  w.document.write('.chart-bars { display: flex; align-items: flex-end; gap: 4px; height: 120px; padding: 6px 0; border-bottom: 2px solid #cbd5e1; }');
-  w.document.write('.trend-badge { display: inline-block; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 800; }');
+  w.document.write('.bw-title { font-size: 11px; font-weight: 700; }');
+  w.document.write('.bw-subject { font-size: 15px; font-weight: 900; margin: 4px 0; }');
   w.document.write('.signature { margin-top: 24px; display: flex; justify-content: space-between; padding: 0 20px; }');
-  w.document.write('.signature div { text-align: center; font-size: 11px; }');
-  w.document.write('.signature .line { margin-top: 35px; border-top: 1px solid #94a3b8; padding-top: 4px; }');
-  w.document.write('.footer { text-align: center; margin-top: 20px; font-size: 10px; color: #94a3b8; border-top: 1px dashed #cbd5e1; padding-top: 10px; }');
+  w.document.write('.line { margin-top: 35px; border-top: 1px solid #94a3b8; padding-top: 4px; }');
+  w.document.write('.footer { text-align: center; margin-top: 20px; font-size: 10px; color: #94a3b8; }');
   w.document.write('</style></head><body>');
   
-  // ===== هدر =====
-  w.document.write('<div class="header">');
-  w.document.write('<h1>' + db.settings.school + '</h1>');
-  w.document.write('<h2>کارنامه ماهانه - ' + monthName + ' ' + year + '</h2>');
-  w.document.write('<div style="font-size: 10px; color: #94a3b8; margin-top: 4px">تاریخ چاپ: ' + today() + '</div>');
-  w.document.write('</div>');
+  w.document.write('<div class="header"><h1>' + db.settings.school + '</h1><h2>کارنامه ماهانه — ' + monthName + ' ' + year + '</h2></div>');
   
-  // ===== مشخصات =====
-  w.document.write('<div class="section"><h3>📋 مشخصات دانش‌آموز</h3>');
-  w.document.write('<div class="info-grid">');
-  w.document.write('<div class="info-item"><span class="label">نام:</span> <span class="value">' + s.name + ' ' + s.family + '</span></div>');
-  w.document.write('<div class="info-item"><span class="label">کد:</span> <span class="value">' + (s.code || '-') + '</span></div>');
-  w.document.write('<div class="info-item"><span class="label">کلاس:</span> <span class="value">' + (s.grade || '-') + '</span></div>');
+  w.document.write('<div class="section"><h3>📋 مشخصات دانش‌آموز</h3><div class="info-grid">');
+  w.document.write('<div><span class="label">نام:</span> <span class="value">' + s.name + ' ' + s.family + '</span></div>');
+  w.document.write('<div><span class="label">کد:</span> <span class="value">' + (s.code || '-') + '</span></div>');
+  w.document.write('<div><span class="label">کلاس:</span> <span class="value">' + (s.grade || '-') + '</span></div>');
   w.document.write('</div></div>');
   
-  // ===== کارت‌های خلاصه =====
-  w.document.write('<div class="summary-row">');
-  w.document.write('<div class="summary-card" style="background: #dbeafe; border-color: #3b82f6; color: #1e40af"><div class="num">' + grades.length + '</div><div class="lbl">📚 نمرات این ماه</div></div>');
-  w.document.write('<div class="summary-card" style="background: #eef2ff; border-color: #6366f1; color: #4f46e5"><div class="num">' + avg + '</div><div class="lbl">⭐ معدل ماهانه</div></div>');
-  w.document.write('<div class="summary-card" style="background: #d1fae5; border-color: #10b981; color: #059669"><div class="num" style="font-size: 13px">' + money(monthPaid) + '</div><div class="lbl">💰 پرداخت این ماه</div></div>');
-  w.document.write('</div>');
-  
-  // ===== رتبه‌ها =====
-  w.document.write('<div class="rank-box">');
+  w.document.write('<div class="rank-row">');
   w.document.write('<div class="rank-card" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #92400e">');
-  w.document.write('<div class="rank-num">' + (classRank > 0 ? classRank : '-') + ' / ' + classTotal + '</div>');
-  w.document.write('<div class="rank-lbl">🏫 رتبه در کلاس</div>');
-  w.document.write('</div>');
+  w.document.write('<div class="rank-num">' + classRank + ' / ' + classTotal + '</div>');
+  w.document.write('<div class="rank-lbl">🏫 رتبه در کلاس</div></div>');
   w.document.write('<div class="rank-card" style="background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); color: #3730a3">');
-  w.document.write('<div class="rank-num">' + (schoolRank > 0 ? schoolRank : '-') + ' / ' + schoolTotal + '</div>');
-  w.document.write('<div class="rank-lbl">🏆 رتبه در کل مدرسه</div>');
-  w.document.write('</div>');
-  w.document.write('</div>');
-  
-  // ===== بهترین و ضعیف‌ترین درس =====
-  if(bestSubject || worstSubject){
-    w.document.write('<div class="best-worst">');
-    if(bestSubject){
-      w.document.write('<div class="bw-card" style="background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #065f46; border: 2px solid #10b981">');
-      w.document.write('<div class="bw-title">🌟 بهترین درس</div>');
-      w.document.write('<div class="bw-subject">' + bestSubject.subject + '</div>');
-      w.document.write('<div class="bw-avg">معدل: ' + bestSubject.avg.toFixed(2) + '</div>');
-      w.document.write('</div>');
-    }
-    if(worstSubject){
-      w.document.write('<div class="bw-card" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #991b1b; border: 2px solid #ef4444">');
-      w.document.write('<div class="bw-title">📉 نیاز به تقویت</div>');
-      w.document.write('<div class="bw-subject">' + worstSubject.subject + '</div>');
-      w.document.write('<div class="bw-avg">معدل: ' + worstSubject.avg.toFixed(2) + '</div>');
-      w.document.write('</div>');
-    }
-    w.document.write('</div>');
-  }
-  
-  // ===== نمودار پیشرفت =====
-  if(sortedGrades.length > 0){
-    w.document.write('<div class="chart-box">');
-    w.document.write('<div class="chart-title">📈 نمودار روند نمرات در این ماه</div>');
-    w.document.write('<div class="chart-bars">' + chartBars + '</div>');
-    
-    // برچسب پیشرفت/پسرفت
-    const trendText = trend === 'up' ? '📈 پیشرفت' : trend === 'down' ? '📉 افت' : '➡️ ثابت';
-    const trendBg = trend === 'up' ? '#d1fae5' : trend === 'down' ? '#fee2e2' : '#e2e8f0';
-    const trendColor = trend === 'up' ? '#059669' : trend === 'down' ? '#dc2626' : '#475569';
-    w.document.write('<div style="text-align:center;margin-top:10px">');
-    w.document.write('<span class="trend-badge" style="background:' + trendBg + ';color:' + trendColor + '">' + trendText);
-    if(trendDiff !== 0) w.document.write(' (' + (trendDiff > 0 ? '+' : '') + trendDiff.toFixed(2) + ' نمره)');
-    w.document.write('</span>');
-    w.document.write('</div>');
-    w.document.write('</div>');
-  }
-  
-  // ===== جدول دروس =====
-  w.document.write('<div class="section"><h3>📚 نمرات این ماه به تفکیک درس</h3>');
-  if(grades.length > 0){
-    w.document.write('<table><thead><tr><th>درس</th><th style="text-align:center">تعداد نمره</th><th style="text-align:center">معدل درس</th><th>دبیر</th></tr></thead>');
-    w.document.write('<tbody>' + subjectRows + '</tbody></table>');
-  } else {
-    w.document.write('<p style="text-align:center;color:#94a3b8;padding:15px">نمره‌ای برای این ماه ثبت نشده</p>');
-  }
+  w.document.write('<div class="rank-num">' + schoolRank + ' / ' + schoolTotal + '</div>');
+  w.document.write('<div class="rank-lbl">🏆 رتبه در مدرسه</div></div>');
   w.document.write('</div>');
   
-  // ===== وضعیت مالی =====
-  w.document.write('<div class="section"><h3>💰 وضعیت مالی</h3>');
-  w.document.write('<div class="info-grid">');
-  w.document.write('<div class="info-item"><span class="label">شهریه:</span> <span class="value">' + money(finalTuition(s)) + '</span></div>');
-  w.document.write('<div class="info-item"><span class="label">پرداخت‌شده کل:</span> <span class="value">' + money(paid(s)) + '</span></div>');
-  w.document.write('<div class="info-item"><span class="label">مانده:</span> <span class="value" style="color:' + (balance(s) > 0 ? '#dc2626' : '#059669') + '">' + money(balance(s)) + '</span></div>');
+  w.document.write('<div class="bw-row">');
+  w.document.write('<div class="bw-card" style="background: #d1fae5; color: #065f46; border: 2px solid #10b981">');
+  w.document.write('<div class="bw-title">🌟 قوی‌ترین درس</div><div class="bw-subject">' + bestSubject.subject + '</div><div>معدل: ' + bestSubject.avg.toFixed(2) + '</div></div>');
+  w.document.write('<div class="bw-card" style="background: #fee2e2; color: #991b1b; border: 2px solid #ef4444">');
+  w.document.write('<div class="bw-title">📉 ضعیف‌ترین درس</div><div class="bw-subject">' + worstSubject.subject + '</div><div>معدل: ' + worstSubject.avg.toFixed(2) + '</div></div>');
+  w.document.write('</div>');
+  
+  w.document.write('<div class="section"><h3>📚 ریز نمرات</h3><table><thead><tr>');
+  w.document.write('<th>درس</th><th>نوع</th><th>تاریخ</th><th>نمره</th><th>از</th><th>معدل درس</th><th>دبیر</th>');
+  w.document.write('</tr></thead><tbody>' + detailedRows + '</tbody></table></div>');
+  
+  w.document.write('<div class="section"><h3>💰 وضعیت مالی</h3><div class="info-grid">');
+  w.document.write('<div><span class="label">شهریه:</span> <span class="value">' + money(finalTuition(s)) + '</span></div>');
+  w.document.write('<div><span class="label">پرداختی:</span> <span class="value">' + money(paid(s)) + '</span></div>');
+  w.document.write('<div><span class="label">مانده:</span> <span class="value">' + money(balance(s)) + '</span></div>');
+  w.document.write('<div><span class="label">پرداخت این ماه:</span> <span class="value">' + money(monthPaid) + '</span></div>');
+  w.document.write('<div><span class="label">معدل کل:</span> <span class="value">' + avg + '</span></div>');
+  w.document.write('<div><span class="label">تعداد نمرات:</span> <span class="value">' + grades.length + '</span></div>');
   w.document.write('</div></div>');
   
-  // ===== امضا =====
   w.document.write('<div class="signature"><div><div>مهر و امضای مدیر</div><div class="line">' + db.settings.school + '</div></div><div><div>مهر و امضای مشاور</div><div class="line">امور آموزشی</div></div></div>');
   w.document.write('<div class="footer">' + db.settings.footer + '</div>');
   w.document.write('</body></html>');
