@@ -223,28 +223,13 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 
 .student-search-box { position: relative; margin-bottom: 12px; }
 #st_subjects_container input[type="checkbox"] {
-  width: 18px !important;
-  height: 18px !important;
-  min-width: 18px !important;
-  max-width: 18px !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  accent-color: var(--primary);
-  cursor: pointer;
-  flex-shrink: 0;
+  width: 18px !important; height: 18px !important;
+  min-width: 18px !important; max-width: 18px !important;
+  margin: 0 !important; padding: 0 !important;
+  accent-color: var(--primary); cursor: pointer; flex-shrink: 0;
 }
-#st_subjects_container label {
-  display: flex !important;
-  align-items: center !important;
-  gap: 10px !important;
-  min-width: 0;
-}
-#st_subjects_container label span {
-  display: inline-block !important;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
+#st_subjects_container label { display: flex !important; align-items: center !important; gap: 10px !important; min-width: 0; }
+#st_subjects_container label span { display: inline-block !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .student-search-box input { width: 100%; padding: 12px 16px 12px 44px; border: 2px solid var(--primary-light); border-radius: 12px; font-size: 14px; font-weight: 600; background: var(--primary-bg); }
 .student-search-box .search-icon { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); font-size: 18px; color: var(--primary); }
 
@@ -441,87 +426,24 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   display: none;
 }
 #checkStudentResults.show { display: block !important; }
-.check-student-result-item {
-  padding: 12px 16px;
-  cursor: pointer;
-  border-bottom: 1px solid #e2e8f0;
-}
+.check-student-result-item { padding: 12px 16px; cursor: pointer; border-bottom: 1px solid #e2e8f0; }
 .check-student-result-item:hover { background: #eef2ff; }
 .check-student-result-item:last-child { border-bottom: 0; }
 
 /* ============================================================
-   ⭐ استایل کارنامه A5 (اضافه‌شده)
+   ⭐ استایل کارنامه A5
 ============================================================ */
-.reportcard-wrapper {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  padding: 20px;
-  margin-bottom: 20px;
-}
-.reportcard-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: center;
-  margin-bottom: 16px;
-  padding: 14px 18px;
-  background: var(--primary-bg);
-  border-radius: 12px;
-  border: 2px solid var(--primary-light);
-}
-.reportcard-controls select,
-.reportcard-controls input {
-  border: 2px solid var(--line);
-  background: #fff;
-  color: var(--text);
-  border-radius: 10px;
-  padding: 10px 14px;
-  font-size: 13.5px;
-  min-width: 160px;
-}
-.reportcard-controls select:focus,
-.reportcard-controls input:focus { border-color: var(--primary); outline: none; }
-.reportcard-controls label {
-  font-weight: 800;
-  font-size: 13px;
-  color: var(--primary-dark);
-}
+.reportcard-wrapper { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 20px; }
+.reportcard-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 16px; padding: 14px 18px; background: var(--primary-bg); border-radius: 12px; border: 2px solid var(--primary-light); }
+.reportcard-controls select, .reportcard-controls input { border: 2px solid var(--line); background: #fff; color: var(--text); border-radius: 10px; padding: 10px 14px; font-size: 13.5px; min-width: 160px; }
+.reportcard-controls select:focus, .reportcard-controls input:focus { border-color: var(--primary); outline: none; }
+.reportcard-controls label { font-weight: 800; font-size: 13px; color: var(--primary-dark); }
 
-.rc-sheet {
-  width: 148mm;
-  min-height: 210mm;
-  margin: 0 auto;
-  background: #fff;
-  color: #1e293b;
-  padding: 6mm;
-  font-family: 'Estedad', Tahoma, sans-serif;
-  font-size: 10px;
-  line-height: 1.5;
-  box-shadow: 0 6px 25px rgba(0,0,0,.12);
-  border: 1px solid #cbd5e1;
-  position: relative;
-  overflow: hidden;
-  direction: rtl;
-}
+.rc-sheet { width: 148mm; min-height: 210mm; margin: 0 auto; background: #fff; color: #1e293b; padding: 6mm; font-family: 'Estedad', Tahoma, sans-serif; font-size: 10px; line-height: 1.5; box-shadow: 0 6px 25px rgba(0,0,0,.12); border: 1px solid #cbd5e1; position: relative; overflow: hidden; direction: rtl; }
 .rc-sheet * { box-sizing: border-box; }
 
-.rc-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border-bottom: 2.5px solid #6366f1;
-  padding-bottom: 5px;
-  margin-bottom: 6px;
-}
-.rc-header .rc-logo {
-  width: 48px; height: 48px; border-radius: 10px;
-  background: #eef2ff;
-  display: grid; place-items: center;
-  font-size: 24px; flex-shrink: 0;
-  border: 1.5px solid #c7d2fe;
-  overflow: hidden;
-}
+.rc-header { display: flex; align-items: center; gap: 10px; border-bottom: 2.5px solid #6366f1; padding-bottom: 5px; margin-bottom: 6px; }
+.rc-header .rc-logo { width: 48px; height: 48px; border-radius: 10px; background: #eef2ff; display: grid; place-items: center; font-size: 24px; flex-shrink: 0; border: 1.5px solid #c7d2fe; overflow: hidden; }
 .rc-header .rc-logo img { width: 100%; height: 100%; object-fit: contain; }
 .rc-header .rc-titles { flex: 1; }
 .rc-header .rc-titles h1 { margin: 0; font-size: 13px; font-weight: 800; color: #4338ca; }
@@ -529,57 +451,18 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .rc-header .rc-meta { text-align: left; font-size: 8.5px; color: #475569; font-weight: 600; line-height: 1.6; }
 .rc-header .rc-meta b { color: #1e293b; }
 
-.rc-title-bar {
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  color: #fff;
-  padding: 5px 10px;
-  border-radius: 8px;
-  text-align: center;
-  font-size: 11.5px;
-  font-weight: 800;
-  letter-spacing: .5px;
-  margin-bottom: 6px;
-}
+.rc-title-bar { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; padding: 5px 10px; border-radius: 8px; text-align: center; font-size: 11.5px; font-weight: 800; letter-spacing: .5px; margin-bottom: 6px; }
 .rc-title-bar small { display: block; font-size: 8.5px; font-weight: 600; opacity: .9; margin-top: 1px; }
 
-.rc-student-info {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 3px 12px;
-  padding: 6px 10px;
-  background: #f8fafc;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 8px;
-  margin-bottom: 6px;
-  font-size: 9.5px;
-}
-.rc-student-info .row {
-  display: flex; justify-content: space-between;
-  padding: 2px 0;
-  border-bottom: 1px dashed #cbd5e1;
-}
+.rc-student-info { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 12px; padding: 6px 10px; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 8px; margin-bottom: 6px; font-size: 9.5px; }
+.rc-student-info .row { display: flex; justify-content: space-between; padding: 2px 0; border-bottom: 1px dashed #cbd5e1; }
 .rc-student-info .row:last-child { border-bottom: 0; }
 .rc-student-info .row span:first-child { color: #64748b; font-weight: 600; }
 .rc-student-info .row span:last-child { color: #1e293b; font-weight: 800; }
 
-.rc-grades-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 6px;
-  font-size: 9.5px;
-}
-.rc-grades-table th,
-.rc-grades-table td {
-  border: 1px solid #cbd5e1;
-  padding: 3px 4px;
-  text-align: center;
-}
-.rc-grades-table th {
-  background: linear-gradient(180deg, #eef2ff, #e0e7ff);
-  color: #3730a3;
-  font-weight: 800;
-  font-size: 9px;
-}
+.rc-grades-table { width: 100%; border-collapse: collapse; margin-bottom: 6px; font-size: 9.5px; }
+.rc-grades-table th, .rc-grades-table td { border: 1px solid #cbd5e1; padding: 3px 4px; text-align: center; }
+.rc-grades-table th { background: linear-gradient(180deg, #eef2ff, #e0e7ff); color: #3730a3; font-weight: 800; font-size: 9px; }
 .rc-grades-table td.subject-name { text-align: right; font-weight: 700; color: #1e293b; }
 .rc-grades-table tr:nth-child(even) td { background: #fafbff; }
 .rc-grades-table td.score { font-weight: 800; }
@@ -589,21 +472,8 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .rc-grades-table td.score.bad { color: #dc2626; }
 .rc-grades-table td.score.fail { color: #7f1d1d; background: #fee2e2 !important; }
 
-.rc-highlights {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 5px;
-  margin-bottom: 6px;
-}
-.rc-highlight {
-  padding: 6px 8px;
-  border-radius: 8px;
-  font-size: 9.5px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  border: 1.5px solid;
-}
+.rc-highlights { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 6px; }
+.rc-highlight { padding: 6px 8px; border-radius: 8px; font-size: 9.5px; display: flex; align-items: center; gap: 5px; border: 1.5px solid; }
 .rc-highlight.best { background: #d1fae5; border-color: #10b981; color: #065f46; }
 .rc-highlight.worst { background: #fee2e2; border-color: #ef4444; color: #991b1b; }
 .rc-highlight .rc-hl-icon { font-size: 16px; }
@@ -611,58 +481,21 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .rc-highlight .rc-hl-info b { display: block; font-size: 10px; font-weight: 800; }
 .rc-highlight .rc-hl-info small { font-size: 8px; opacity: .85; }
 
-.rc-rank-box {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 5px;
-  margin-bottom: 6px;
-}
-.rc-rank-item {
-  padding: 5px 8px;
-  border-radius: 8px;
-  text-align: center;
-  border: 1.5px solid;
-}
-.rc-rank-item.class-rank {
-  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
-  border-color: #3b82f6;
-  color: #1e40af;
-}
-.rc-rank-item.school-rank {
-  background: linear-gradient(135deg, #fef3c7, #fde68a);
-  border-color: #f59e0b;
-  color: #92400e;
-}
+.rc-rank-box { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 6px; }
+.rc-rank-item { padding: 5px 8px; border-radius: 8px; text-align: center; border: 1.5px solid; }
+.rc-rank-item.class-rank { background: linear-gradient(135deg, #dbeafe, #bfdbfe); border-color: #3b82f6; color: #1e40af; }
+.rc-rank-item.school-rank { background: linear-gradient(135deg, #fef3c7, #fde68a); border-color: #f59e0b; color: #92400e; }
 .rc-rank-item .rc-rank-label { font-size: 8.5px; font-weight: 700; opacity: .9; }
 .rc-rank-item .rc-rank-value { font-size: 16px; font-weight: 900; line-height: 1.1; margin: 1px 0; }
 .rc-rank-item .rc-rank-total { font-size: 8px; opacity: .85; font-weight: 600; }
 
-.rc-gpa-box {
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  padding: 6px;
-  border-radius: 8px;
-  background: linear-gradient(135deg, #1e1b4b, #312e81, #4338ca);
-  color: #fff;
-  margin-bottom: 6px;
-  gap: 8px;
-}
+.rc-gpa-box { display: flex; align-items: center; justify-content: space-around; padding: 6px; border-radius: 8px; background: linear-gradient(135deg, #1e1b4b, #312e81, #4338ca); color: #fff; margin-bottom: 6px; gap: 8px; }
 .rc-gpa-box .rc-gpa-item { text-align: center; flex: 1; }
 .rc-gpa-box .rc-gpa-value { font-size: 18px; font-weight: 900; line-height: 1.1; }
 .rc-gpa-box .rc-gpa-label { font-size: 8.5px; opacity: .85; font-weight: 600; margin-top: 1px; }
 .rc-gpa-box .rc-gpa-divider { width: 1px; height: 28px; background: rgba(255,255,255,.3); }
 
-.rc-finance {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 4px;
-  padding: 6px;
-  background: #f8fafc;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 8px;
-  margin-bottom: 6px;
-}
+.rc-finance { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 6px; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 8px; margin-bottom: 6px; }
 .rc-finance-item { text-align: center; padding: 2px; }
 .rc-finance-item .rc-fi-label { font-size: 8px; color: #64748b; font-weight: 700; margin-bottom: 1px; }
 .rc-finance-item .rc-fi-value { font-size: 11px; font-weight: 900; }
@@ -670,94 +503,23 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .rc-finance-item .rc-fi-value.paid { color: #059669; }
 .rc-finance-item .rc-fi-value.debt { color: #dc2626; }
 
-.rc-comment {
-  padding: 6px 8px;
-  background: #fffbeb;
-  border: 1.5px dashed #f59e0b;
-  border-radius: 8px;
-  font-size: 9px;
-  color: #92400e;
-  line-height: 1.6;
-  margin-bottom: 6px;
-}
+.rc-comment { padding: 6px 8px; background: #fffbeb; border: 1.5px dashed #f59e0b; border-radius: 8px; font-size: 9px; color: #92400e; line-height: 1.6; margin-bottom: 6px; }
 .rc-comment b { color: #78350f; }
 
-.rc-signatures {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr 1fr;
-  gap: 5px;
-  padding-top: 6px;
-  border-top: 2px dashed #cbd5e1;
-  margin-top: 6px;
-}
-.rc-signature {
-  text-align: center;
-  font-size: 8.5px;
-  color: #475569;
-  font-weight: 700;
-  min-height: 48px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-.rc-signature .rc-sig-area {
-  height: 30px;
-  border-bottom: 1px solid #94a3b8;
-  margin-bottom: 2px;
-}
-.rc-signature.stamp .rc-sig-area {
-  height: 38px;
-  border: 2px dashed #6366f1;
-  border-radius: 50%;
-  width: 38px;
-  margin: 0 auto 2px;
-  display: grid;
-  place-items: center;
-  color: #c7d2fe;
-  font-size: 7.5px;
-  font-weight: 700;
-  line-height: 1.1;
-}
+.rc-signatures { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 5px; padding-top: 6px; border-top: 2px dashed #cbd5e1; margin-top: 6px; }
+.rc-signature { text-align: center; font-size: 8.5px; color: #475569; font-weight: 700; min-height: 48px; display: flex; flex-direction: column; justify-content: space-between; }
+.rc-signature .rc-sig-area { height: 30px; border-bottom: 1px solid #94a3b8; margin-bottom: 2px; }
+.rc-signature.stamp .rc-sig-area { height: 38px; border: 2px dashed #6366f1; border-radius: 50%; width: 38px; margin: 0 auto 2px; display: grid; place-items: center; color: #c7d2fe; font-size: 7.5px; font-weight: 700; line-height: 1.1; }
 
-.rc-footer-note {
-  text-align: center;
-  font-size: 8px;
-  color: #94a3b8;
-  margin-top: 5px;
-  padding-top: 4px;
-  border-top: 1px solid #e2e8f0;
-  font-weight: 500;
-}
+.rc-footer-note { text-align: center; font-size: 8px; color: #94a3b8; margin-top: 5px; padding-top: 4px; border-top: 1px solid #e2e8f0; font-weight: 500; }
+.rc-empty { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 14px; background: var(--primary-bg); border-radius: 12px; }
 
-.rc-empty {
-  text-align: center;
-  padding: 40px 20px;
-  color: var(--muted);
-  font-size: 14px;
-  background: var(--primary-bg);
-  border-radius: 12px;
-}
-
-/* چاپ A5 */
 @media print {
   @page { size: A5 portrait; margin: 0; }
   body * { visibility: hidden !important; }
   #rcPrintArea, #rcPrintArea * { visibility: visible !important; }
-  #rcPrintArea {
-    position: absolute;
-    left: 0; top: 0;
-    width: 148mm;
-    margin: 0;
-    padding: 0;
-  }
-  .rc-sheet {
-    box-shadow: none !important;
-    border: none !important;
-    margin: 0 !important;
-    width: 148mm !important;
-    min-height: 209mm !important;
-    page-break-after: always;
-  }
+  #rcPrintArea { position: absolute; left: 0; top: 0; width: 148mm; margin: 0; padding: 0; }
+  .rc-sheet { box-shadow: none !important; border: none !important; margin: 0 !important; width: 148mm !important; min-height: 209mm !important; page-break-after: always; }
   .rc-sheet:last-child { page-break-after: auto; }
 }
 
@@ -1228,18 +990,10 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
       <input id="studentSearch" placeholder="🔍 جستجو...">
       <select id="gradeFilter">
         <option value="">همه کلاس‌ها</option>
-        <option>هفتم</option>
-        <option>هشتم</option>
-        <option>نهم</option>
-        <option>دهم انسانی</option>
-        <option>دهم تجربی</option>
-        <option>دهم ریاضی</option>
-        <option>یازدهم انسانی</option>
-        <option>یازدهم تجربی</option>
-        <option>یازدهم ریاضی</option>
-        <option>دوازدهم انسانی</option>
-        <option>دوازدهم تجربی</option>
-        <option>دوازدهم ریاضی</option>
+        <option>هفتم</option><option>هشتم</option><option>نهم</option>
+        <option>دهم انسانی</option><option>دهم تجربی</option><option>دهم ریاضی</option>
+        <option>یازدهم انسانی</option><option>یازدهم تجربی</option><option>یازدهم ریاضی</option>
+        <option>دوازدهم انسانی</option><option>دوازدهم تجربی</option><option>دوازدهم ریاضی</option>
       </select>
       <select id="classFilter">
         <option value="">همه کلاس‌ها</option>
@@ -2087,6 +1841,7 @@ function eventTypeLabel(t){ return EVENT_TYPES[t] || 'عمومی'; }
 
 function toast(msg, type){
   const e = document.getElementById('toast');
+  if (!e) return;
   e.textContent = msg;
   e.className = 'toast show' + (type ? ' ' + type : '');
   clearTimeout(e._t);
@@ -2335,6 +2090,7 @@ async function loadData(){
     payments: db.payments.length
   });
 }
+
 async function logAction(action){
   if(!sb || !currentUser) return;
   try { await sb.from('activity_logs').insert({ user_id: currentUser.id, action }); } catch(e){}
@@ -2359,10 +2115,8 @@ async function refreshApp(){
   renderAll();
 }
   /* ============================================================
-   ⭐ صدور کارنامه A5 — توابع اختصاصی (اضافه‌شده)
+   ⭐ صدور کارنامه A5 — توابع اختصاصی
 ============================================================ */
-
-// پر کردن dropdown دانش‌آموزان
 function populateRcStudentSelect() {
   const sel = document.getElementById('rcStudentSelect');
   if (!sel) return;
@@ -2371,9 +2125,8 @@ function populateRcStudentSelect() {
     sorted.map(s => `<option value="${s.id}">${s.name || ''} ${s.family || ''} — ${s.class || ''} (${s.code || ''})</option>`).join('');
 }
 
-// معدل دانش‌آموز در یک بازه (ترم) مشخص
 function calcStudentAvg(studentId, term) {
-  let gs = db.grades.filter(g => g.student_id == studentId || g.studentId == studentId);
+  let gs = db.grades.filter(g => (g.student_id == studentId || g.studentId == studentId));
   if (term) gs = gs.filter(g => (g.term || '') === term);
   if (!gs.length) return 0;
   const total = gs.reduce((sum, g) => {
@@ -2384,7 +2137,6 @@ function calcStudentAvg(studentId, term) {
   return total / gs.length;
 }
 
-// رتبه در کلاس (بر اساس معدل ترم)
 function calcClassRank(studentId, term) {
   const student = studentById(studentId);
   if (!student) return { rank: 0, total: 0 };
@@ -2396,7 +2148,6 @@ function calcClassRank(studentId, term) {
   return { rank: rank || withAvg.length + 1, total: withAvg.length };
 }
 
-// رتبه در کل مدرسه
 function calcSchoolRank(studentId, term) {
   const withAvg = db.students.map(s => ({ id: s.id, avg: calcStudentAvg(s.id, term) }))
     .filter(x => x.avg > 0)
@@ -2405,9 +2156,8 @@ function calcSchoolRank(studentId, term) {
   return { rank: rank || withAvg.length + 1, total: withAvg.length };
 }
 
-// بهترین و ضعیف‌ترین نمره
 function findBestWorstGrades(studentId, term) {
-  let gs = db.grades.filter(g => g.student_id == studentId || g.studentId == studentId);
+  let gs = db.grades.filter(g => (g.student_id == studentId || g.studentId == studentId));
   if (term) gs = gs.filter(g => (g.term || '') === term);
   if (!gs.length) return { best: null, worst: null };
   const withPct = gs.map(g => {
@@ -2418,7 +2168,6 @@ function findBestWorstGrades(studentId, term) {
   return { best: withPct[0], worst: withPct[withPct.length - 1] };
 }
 
-// بررسی تعلق نمره به ماه انتخابی
 function isGradeInMonth(g, monthName) {
   if (!monthName) return true;
   const dateStr = g.date || g.created_at || '';
@@ -2428,20 +2177,17 @@ function isGradeInMonth(g, monthName) {
   try {
     const d = new Date(dateStr);
     const j = d.toLocaleDateString('fa-IR', { numberingSystem: 'latn' }).split('/').map(Number);
-    const jMonthIdx = j[1] - 1;
-    return jMonthIdx === monthIndex;
+    return (j[1] - 1) === monthIndex;
   } catch { return true; }
 }
 
-// نمرات دانش‌آموز در یک ماه/ترم
 function getStudentGradesForMonth(studentId, monthName, term) {
-  let gs = db.grades.filter(g => g.student_id == studentId || g.studentId == studentId);
+  let gs = db.grades.filter(g => (g.student_id == studentId || g.studentId == studentId));
   if (term) gs = gs.filter(g => (g.term || '') === term);
   if (monthName) gs = gs.filter(g => isGradeInMonth(g, monthName));
   return gs;
 }
 
-// نمایش toast مناسب برای معدل
 function avgComment(avg) {
   if (avg >= 18) return '🌟 عملکرد عالی — تبریک به دانش‌آموز و خانواده محترم';
   if (avg >= 16) return '✅ عملکرد بسیار خوب — ادامه دهید';
@@ -2451,7 +2197,6 @@ function avgComment(avg) {
   return '🚨 عملکرد نامناسب — لطفاً با مشاور مدرسه تماس بگیرید';
 }
 
-// ساخت HTML کارنامه
 function buildReportCardHTML(studentId, monthName, term) {
   const student = studentById(studentId);
   if (!student) return '<div class="rc-empty">دانش‌آموز یافت نشد</div>';
@@ -2462,7 +2207,7 @@ function buildReportCardHTML(studentId, monthName, term) {
   const schoolRank = calcSchoolRank(studentId, term);
   const { best, worst } = findBestWorstGrades(studentId, term);
 
-  // تجمیع نمرات بر اساس درس
+  // گروه‌بندی بر اساس درس
   const subjectMap = {};
   grades.forEach(g => {
     const key = g.subject || '—';
@@ -2470,45 +2215,51 @@ function buildReportCardHTML(studentId, monthName, term) {
     subjectMap[key].push(g);
   });
 
-  // ساخت ردیف‌های جدول
   let gradeRows = '';
   let rowIdx = 0;
   Object.keys(subjectMap).sort((a, b) => a.localeCompare(b, 'fa')).forEach(subject => {
     const items = subjectMap[subject];
-    const scores = items.map(it => {
+    // اگر بیش از یک نمره در این درس باشد، میانگین می‌گیریم
+    const scoresList = items.map(it => {
       const sc = +it.score || 0;
       const mx = +it.max_score || 20;
-      const pct = mx > 0 ? (sc / mx) * 100 : 0;
+      return { sc, mx, type: it.type || 'مستمر' };
+    });
+    const scoresHTML = scoresList.slice(0, 4).map(s => {
+      const pct = s.mx > 0 ? (s.sc / s.mx) * 100 : 0;
       let cls = 'score';
       if (pct >= 90) cls += ' excellent';
       else if (pct >= 75) cls += ' good';
       else if (pct >= 50) cls += ' ok';
       else if (pct >= 30) cls += ' bad';
       else cls += ' fail';
-      const type = it.type || 'مستمر';
-      return `<td class="${cls}">${sc}</td><td style="font-size:8.5px;color:#64748b">${type}</td>`;
+      return `<td class="${cls}">${s.sc}</td><td style="font-size:8.5px;color:#64748b">${s.type}</td>`;
     }).join('');
-    const avgSubj = items.reduce((s, it) => s + ((+it.score || 0) / (+it.max_score || 20)) * 20, 0) / items.length;
+    // تعداد ستون‌های خالی تا 4
+    const emptyCount = Math.max(0, 4 - scoresList.length);
+    let emptyHTML = '';
+    for (let i = 0; i < emptyCount; i++) {
+      emptyHTML += '<td style="color:#cbd5e1">—</td><td></td>';
+    }
+    const avgSubj = scoresList.reduce((s, it) => s + ((it.mx > 0 ? (it.sc / it.mx) : 0) * 20), 0) / scoresList.length;
     const avgCls = avgSubj >= 18 ? 'excellent' : avgSubj >= 15 ? 'good' : avgSubj >= 12 ? 'ok' : avgSubj >= 10 ? 'bad' : 'fail';
     rowIdx++;
     gradeRows += `<tr>
       <td style="font-size:8.5px;color:#94a3b8">${rowIdx}</td>
       <td class="subject-name">${subject}</td>
-      ${scores}
+      ${scoresHTML}${emptyHTML}
       <td class="score ${avgCls}" style="background:#f1f5f9">${avgSubj.toFixed(2)}</td>
     </tr>`;
   });
 
   if (!gradeRows) {
-    gradeRows = '<tr><td colspan="6" style="padding:12px;color:#94a3b8">نمره‌ای برای این بازه ثبت نشده است</td></tr>';
+    gradeRows = '<tr><td colspan="11" style="padding:12px;color:#94a3b8">نمره‌ای برای این بازه ثبت نشده است</td></tr>';
   }
 
-  // تجمیع اطلاعات مالی
   const totalFee = finalTuition(student);
   const paidAmt = paid(student);
   const debtAmt = balance(student);
 
-  // اطلاعات پایه
   const stName = `${student.name || ''} ${student.family || ''}`.trim() || '—';
   const stCode = student.code || '—';
   const stGrade = student.grade || '—';
@@ -2517,13 +2268,12 @@ function buildReportCardHTML(studentId, monthName, term) {
   const termLabel = term || 'همه ترم‌ها';
   const monthLabel = monthName || 'کل سال';
 
-  // ستاره‌های بهترین/ضعیف‌ترین
   const bestHTML = best ? `
     <div class="rc-highlight best">
       <span class="rc-hl-icon">🏆</span>
       <div class="rc-hl-info">
         <b>قوی‌ترین: ${best.subject || '—'} (${best.score}/${best.max_score || 20})</b>
-        <small>${best.type || 'مستمر'} — ترم ${best.term || '—'}</small>
+        <small>${best.type || 'مستمر'} — ${best.term || '—'}</small>
       </div>
     </div>` : '';
 
@@ -2532,11 +2282,10 @@ function buildReportCardHTML(studentId, monthName, term) {
       <span class="rc-hl-icon">📉</span>
       <div class="rc-hl-info">
         <b>ضعیف‌ترین: ${worst.subject || '—'} (${worst.score}/${worst.max_score || 20})</b>
-        <small>${worst.type || 'مستمر'} — ترم ${worst.term || '—'}</small>
+        <small>${worst.type || 'مستمر'} — ${worst.term || '—'}</small>
       </div>
     </div>` : '';
 
-  // رتبه‌ها
   const rankClassHTML = classRank.total ? `
     <div class="rc-rank-item class-rank">
       <div class="rc-rank-label">🏅 رتبه در کلاس</div>
@@ -2623,11 +2372,13 @@ function buildReportCardHTML(studentId, monthName, term) {
     <table class="rc-grades-table">
       <thead>
         <tr>
-          <th style="width:22px">#</th>
+          <th style="width:20px">#</th>
           <th>درس</th>
-          <th colspan="2">نمره</th>
-          <th colspan="2">نمره</th>
-          <th style="width:44px">معدل</th>
+          <th colspan="2">نمره ۱</th>
+          <th colspan="2">نمره ۲</th>
+          <th colspan="2">نمره ۳</th>
+          <th colspan="2">نمره ۴</th>
+          <th style="width:44px">میانگین</th>
         </tr>
       </thead>
       <tbody>${gradeRows}</tbody>
@@ -2654,7 +2405,7 @@ function buildReportCardHTML(studentId, monthName, term) {
         <div>معاون مدرسه</div>
       </div>
       <div class="rc-signature stamp">
-        <div class="rc-sig-area">مهر مدرسه</div>
+        <div class="rc-sig-area">مهر<br>مدرسه</div>
         <div>مهر</div>
       </div>
     </div>
@@ -2665,7 +2416,6 @@ function buildReportCardHTML(studentId, monthName, term) {
   </div>`;
 }
 
-// رندر پیش‌نمایش کارنامه
 function renderReportCardPreview() {
   const studentId = document.getElementById('rcStudentSelect').value;
   const monthName = document.getElementById('rcMonthSelect').value;
@@ -2679,7 +2429,6 @@ function renderReportCardPreview() {
   area.innerHTML = buildReportCardHTML(studentId, monthName, term);
 }
 
-// چاپ یک کارنامه
 function printReportCard() {
   const studentId = document.getElementById('rcStudentSelect').value;
   const monthName = document.getElementById('rcMonthSelect').value;
@@ -2693,7 +2442,6 @@ function printReportCard() {
   setTimeout(() => { window.print(); setTimeout(() => area.remove(), 800); }, 200);
 }
 
-// چاپ همه دانش‌آموزان
 function printAllReportCards() {
   const monthName = document.getElementById('rcMonthSelect').value;
   const term = document.getElementById('rcTermSelect').value;
@@ -2704,43 +2452,9 @@ function printAllReportCards() {
   document.body.appendChild(area);
   setTimeout(() => { window.print(); setTimeout(() => area.remove(), 800); }, 200);
 }
-  /* ============================================================
-   Navigation
-============================================================ */
-const PAGE_TITLES = {
-  dashboard: 'داشبورد مالی', students: 'مدیریت دانش‌آموزان', payments: 'ثبت پرداخت',
-  receipts: 'رسیدها', checks: 'چک‌های دریافتی', reportcard: 'صدور کارنامه A5',
-  grades: 'مدیریت نمرات', attendance: 'حضور و غیاب', homework: 'تکالیف',
-  schedule: 'برنامه هفتگی', calendar: 'تقویم و رویدادها', messages: 'پیام‌ها',
-  announcements: 'اطلاعیه‌ها', sms: 'ارسال پیامک', staff: 'کارکنان و دبیران',
-  teacherRatings: 'امتیازات اساتید', phonebook: 'دفترچه تلفن', salaries: 'واریز حقوق',
-  incomes: 'درآمدها', expenses: 'هزینه‌ها', installments: 'اقساط', discounts: 'تخفیف‌ها',
-  assets: 'اموال مدرسه', reports: 'گزارش‌ها', invoices: 'صورتحساب‌ها',
-  bulk: 'چاپ دسته‌ای', logs: 'فعالیت‌ها', users: 'کاربران', settings: 'تنظیمات', backup: 'پشتیبان‌گیری'
-};
-
-function showPage(pageId) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  const page = document.getElementById(pageId);
-  if (page) page.classList.add('active');
-  document.querySelectorAll('#mainNav button').forEach(b => {
-    b.classList.toggle('active', b.dataset.page === pageId);
-  });
-  document.getElementById('pageTitle').textContent = PAGE_TITLES[pageId] || 'داشبورد';
-  if (pageId === 'reportcard') { populateRcStudentSelect(); }
-  if (pageId === 'dashboard') { renderDashboard(); }
-  if (pageId === 'students') { renderStudents(); }
-  if (pageId === 'payments') { renderPayments(); }
-  if (pageId === 'grades') { renderGrades(); }
-  if (pageId === 'attendance') { renderAttendance(); }
-  if (pageId === 'staff') { renderStaff(); }
-  if (pageId === 'checks') { renderChecks(); }
-  if (pageId === 'phonebook') { renderPhonebook(); }
-  if (pageId === 'teacherRatings') { renderTeacherRatings(); }
-}
 
 /* ============================================================
-   Dashboard
+   ⭐ داشبورد — با تولدها و یادآوری‌ها
 ============================================================ */
 function renderDashboard() {
   const totalStudents = db.students.length;
@@ -2769,20 +2483,169 @@ function renderDashboard() {
       <div class="label">مانده بدهی</div>
       <div class="num" style="color:var(--danger)">${money(totalDebt)}</div>
     </div>`;
-  document.getElementById('stats').innerHTML = statsHTML;
+  const statsEl = document.getElementById('stats');
+  if (statsEl) statsEl.innerHTML = statsHTML;
 
-  // Recent payments
+  renderBirthdaySection();
+  renderReminderSection();
+  renderBirthdayTableDashboard();
+  renderFinancialTableDashboard();
+
   const recent = db.payments.slice(0, 5);
-  document.getElementById('recentPayments').innerHTML = recent.length ? recent.map(p => {
-    const s = studentById(p.studentId);
-    return `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px">
-      <span>${s ? `${s.name} ${s.family}` : '-'}</span>
-      <span style="color:var(--success-dark);font-weight:700">${money(p.amount)}</span>
-    </div>`;
-  }).join('') : '<div class="empty">پرداختی ثبت نشده</div>';
+  const recentEl = document.getElementById('recentPayments');
+  if (recentEl) {
+    recentEl.innerHTML = recent.length ? recent.map(p => {
+      const s = studentById(p.studentId);
+      return `<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px">
+        <span>${s ? `${s.name} ${s.family}` : '-'}</span>
+        <span style="color:var(--success-dark);font-weight:700">${money(p.amount)}</span>
+      </div>`;
+    }).join('') : '<div class="empty">پرداختی ثبت نشده</div>';
+  }
 
-  // Draw charts
+  renderInstallmentsAlerts();
+  renderChecksDueSoon();
+
   setTimeout(() => drawDashboardCharts(), 100);
+}
+
+/* ⭐ کارت تولدها */
+function renderBirthdaySection() {
+  const el = document.getElementById('birthdayContainer');
+  if (!el) return;
+  const todayStudents = db.students.filter(s => isBirthdayToday(s.birthDate));
+  const monthStudents = db.students.filter(s => isBirthdayThisMonth(s.birthDate) && !isBirthdayToday(s.birthDate));
+
+  if (!todayStudents.length && !monthStudents.length) {
+    el.innerHTML = `<div class="birthday-empty">📅 در این ماه تولدی ثبت نشده است</div>`;
+    return;
+  }
+
+  let html = '';
+  if (todayStudents.length) {
+    html += `<div class="birthday-section">
+      <h3 class="birthday-title">🎂 تولد امروز</h3>
+      <div class="birthday-grid">
+        ${todayStudents.map(s => `
+          <div class="birthday-person-card">
+            <div class="student-photo-placeholder" style="width:48px;height:48px">${(s.name || '؟')[0]}</div>
+            <div class="info">
+              <div class="name">${s.name} ${s.family}</div>
+              <div class="detail">${s.grade || ''} — کلاس ${s.class || ''}</div>
+              <div class="age-badge">🎉 ${calcAge(s.birthDate)} ساله شد</div>
+            </div>
+          </div>`).join('')}
+      </div>
+      <div class="birthday-reminder">🎉 امروز روز تولد این عزیزان است — فراموش نکنید تبریک بگویید!</div>
+    </div>`;
+  }
+  if (monthStudents.length) {
+    html += `<div class="birthday-section" style="background:linear-gradient(135deg,#eef2ff 0%,#fce7f3 50%,#dbeafe 100%);border-color:#818cf8">
+      <h3 class="birthday-title" style="color:#4338ca">📅 تولدهای این ماه</h3>
+      <div class="birthday-grid">
+        ${monthStudents.map(s => `
+          <div class="birthday-person-card" style="border-color:#c7d2fe">
+            <div class="student-photo-placeholder" style="width:48px;height:48px">${(s.name || '؟')[0]}</div>
+            <div class="info">
+              <div class="name" style="color:#4338ca">${s.name} ${s.family}</div>
+              <div class="detail" style="color:#6366f1">${s.grade || ''} — کلاس ${s.class || ''}</div>
+              <div class="age-badge" style="background:linear-gradient(135deg,#818cf8,#6366f1)">🎈 ${s.birthDate}</div>
+            </div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }
+  el.innerHTML = html;
+}
+
+function renderReminderSection() {
+  const el = document.getElementById('reminderContainer');
+  if (!el) return;
+  const overdueInstallments = db.installments.filter(i => !i.paid && isPast(i.due));
+  const dueSoonInstallments = db.installments.filter(i => !i.paid && !isPast(i.due) && daysUntil(i.due) <= 7);
+  const overdueChecks = db.checks.filter(c => c.status === 'pending' && isPast(c.dueDate));
+  const dueSoonChecks = db.checks.filter(c => c.status === 'pending' && !isPast(c.dueDate) && daysUntil(c.dueDate) <= 7);
+
+  const totalIssues = overdueInstallments.length + dueSoonInstallments.length + overdueChecks.length + dueSoonChecks.length;
+  if (!totalIssues) {
+    el.innerHTML = '';
+    return;
+  }
+
+  let html = '<div class="reminder-card"><h3>⚠️ یادآوری‌های مهم</h3><div class="reminder-list">';
+  if (overdueInstallments.length) {
+    html += `<div class="reminder-item urgent"><span class="rem-icon">🚨</span><span>${overdueInstallments.length} قسط معوق دارید!</span></div>`;
+  }
+  if (overdueChecks.length) {
+    html += `<div class="reminder-item urgent"><span class="rem-icon">📝</span><span>${overdueChecks.length} چک برگشتی/معوق دارید!</span></div>`;
+  }
+  if (dueSoonInstallments.length) {
+    html += `<div class="reminder-item warning"><span class="rem-icon">⏰</span><span>${dueSoonInstallments.length} قسط تا ۷ روز آینده سررسید می‌شود</span></div>`;
+  }
+  if (dueSoonChecks.length) {
+    html += `<div class="reminder-item info"><span class="rem-icon">📅</span><span>${dueSoonChecks.length} چک تا ۷ روز آینده سررسید می‌شود</span></div>`;
+  }
+  html += '</div></div>';
+  el.innerHTML = html;
+}
+
+function renderBirthdayTableDashboard() {
+  const el = document.getElementById('birthdayTableDashboard');
+  if (!el) return;
+  const monthStudents = db.students.filter(s => isBirthdayThisMonth(s.birthDate));
+  if (!monthStudents.length) {
+    el.innerHTML = '<div class="empty">تولدی در این ماه نیست</div>';
+    return;
+  }
+  el.innerHTML = `<table class="mini-table">
+    <thead><tr><th>نام</th><th>تاریخ</th><th>کلاس</th></tr></thead>
+    <tbody>${monthStudents.map(s => `<tr>
+      <td>${s.name} ${s.family}</td>
+      <td>${s.birthDate}</td>
+      <td>${s.class || '-'}</td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+function renderFinancialTableDashboard() {
+  const el = document.getElementById('financialTableDashboard');
+  if (!el) return;
+  const topDebtors = [...db.students]
+    .map(s => ({ s, debt: balance(s) }))
+    .filter(x => x.debt > 0)
+    .sort((a, b) => b.debt - a.debt)
+    .slice(0, 5);
+  if (!topDebtors.length) {
+    el.innerHTML = '<div class="empty">بدهکاری وجود ندارد</div>';
+    return;
+  }
+  el.innerHTML = `<table class="mini-table">
+    <thead><tr><th>دانش‌آموز</th><th>مانده</th></tr></thead>
+    <tbody>${topDebtors.map(x => `<tr>
+      <td>${x.s.name} ${x.s.family}</td>
+      <td style="color:var(--danger);font-weight:800">${money(x.debt)}</td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+function renderInstallmentsAlerts() {
+  const dueEl = document.getElementById('dueSoon');
+  const overdueEl = document.getElementById('overdueList');
+  if (dueEl) {
+    const list = db.installments.filter(i => !i.paid && !isPast(i.due) && daysUntil(i.due) <= 30);
+    dueEl.innerHTML = list.length ? list.map(i => `<li><span>${studentName(i.studentId)}</span><span style="color:var(--warning-dark);font-weight:700">${money(i.amount)} — ${i.due}</span></li>`).join('') : '<li style="justify-content:center;color:var(--muted)">موردی نیست</li>';
+  }
+  if (overdueEl) {
+    const list = db.installments.filter(i => !i.paid && isPast(i.due));
+    overdueEl.innerHTML = list.length ? list.map(i => `<li><span>${studentName(i.studentId)}</span><span style="color:var(--danger);font-weight:700">${money(i.amount)} — ${i.due}</span></li>`).join('') : '<li style="justify-content:center;color:var(--muted)">موردی نیست</li>';
+  }
+}
+
+function renderChecksDueSoon() {
+  const el = document.getElementById('checksDueSoon');
+  if (!el) return;
+  const list = db.checks.filter(c => c.status === 'pending' && daysUntil(c.dueDate) <= 30);
+  el.innerHTML = list.length ? list.map(c => `<li><span>${c.checkNumber || '-'} — ${c.holderName || '-'}</span><span style="color:var(--warning-dark);font-weight:700">${money(c.amount)} — ${c.dueDate}</span></li>`).join('') : '<li style="justify-content:center;color:var(--muted)">موردی نیست</li>';
 }
 
 function drawDashboardCharts() {
@@ -2831,6 +2694,195 @@ function drawDashboardCharts() {
       options: { responsive: true, maintainAspectRatio: false }
     }));
   }
+}
+
+/* ============================================================
+   ⭐ بکاپ و بازیابی
+============================================================ */
+function bindBackupEvents() {
+  const btnJson = document.getElementById('btnDownloadBackup');
+  if (btnJson) btnJson.addEventListener('click', () => {
+    try {
+      const payload = {
+        version: 'v18',
+        exportedAt: new Date().toISOString(),
+        settings: db.settings,
+        data: {
+          students: db.students, payments: db.payments, incomes: db.incomes,
+          expenses: db.expenses, installments: db.installments, discounts: db.discounts,
+          staff: db.staff, salaries: db.salaries, checks: db.checks, assets: db.assets,
+          users: db.users, smsLog: db.smsLog, smsSettings: db.smsSettings,
+          grades: db.grades, subjects: db.subjects, attendance: db.attendance,
+          messages: db.messages, announcements: db.announcements,
+          homework: db.homework, homeworkSubmissions: db.homeworkSubmissions,
+          events: db.events, classSchedule: db.classSchedule, teacherRatings: db.teacherRatings
+        }
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `haleh-mehr-backup-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast('✅ بکاپ دانلود شد', 'success');
+    } catch(e) {
+      toast('خطا در دانلود: ' + e.message, 'error');
+    }
+  });
+
+  const btnExcel = document.getElementById('btnDownloadExcelFull');
+  if (btnExcel) btnExcel.addEventListener('click', () => {
+    try {
+      if (typeof XLSX === 'undefined') { toast('کتابخانه Excel لود نشده', 'error'); return; }
+      const wb = XLSX.utils.book_new();
+      const sheets = {
+        'دانش‌آموزان': db.students,
+        'پرداخت‌ها': db.payments,
+        'نمرات': db.grades,
+        'حضور و غیاب': db.attendance,
+        'کارکنان': db.staff,
+        'چک‌ها': db.checks,
+        'اقساط': db.installments,
+        'هزینه‌ها': db.expenses,
+        'درآمدها': db.incomes
+      };
+      Object.entries(sheets).forEach(([name, arr]) => {
+        if (!arr || !arr.length) return;
+        const ws = XLSX.utils.json_to_sheet(arr);
+        XLSX.utils.book_append_sheet(wb, ws, name.slice(0, 31));
+      });
+      XLSX.writeFile(wb, `haleh-mehr-${new Date().toISOString().slice(0,10)}.xlsx`);
+      toast('✅ Excel دانلود شد', 'success');
+    } catch(e) {
+      toast('خطا در Excel: ' + e.message, 'error');
+    }
+  });
+
+  const fileInput = document.getElementById('restoreFile');
+  if (fileInput) fileInput.addEventListener('change', async (ev) => {
+    const file = ev.target.files?.[0];
+    if (!file) return;
+    if (!confirm('⚠️ تمام اطلاعات فعلی با فایل بکاپ جایگزین می‌شود. ادامه می‌دهید؟')) {
+      fileInput.value = '';
+      return;
+    }
+    const progress = document.getElementById('restoreProgress');
+    const bar = document.getElementById('restoreBar');
+    const msg = document.getElementById('restoreMsg');
+    if (progress) progress.style.display = 'block';
+    if (bar) bar.style.width = '10%';
+    if (msg) msg.textContent = 'در حال خواندن فایل...';
+
+    try {
+      const text = await file.text();
+      const payload = JSON.parse(text);
+      const data = payload.data || payload;
+
+      const tables = [
+        { name: 'students', key: 'students' },
+        { name: 'payments', key: 'payments' },
+        { name: 'incomes', key: 'incomes' },
+        { name: 'expenses', key: 'expenses' },
+        { name: 'installments', key: 'installments' },
+        { name: 'discounts', key: 'discounts' },
+        { name: 'staff', key: 'staff' },
+        { name: 'salaries', key: 'salaries' },
+        { name: 'checks', key: 'checks' },
+        { name: 'assets', key: 'assets' },
+        { name: 'grades', key: 'grades' },
+        { name: 'subjects', key: 'subjects' },
+        { name: 'attendance', key: 'attendance' },
+        { name: 'messages', key: 'messages' },
+        { name: 'announcements', key: 'announcements' },
+        { name: 'homework', key: 'homework' },
+        { name: 'homework_submissions', key: 'homeworkSubmissions' },
+        { name: 'events', key: 'events' },
+        { name: 'class_schedule', key: 'classSchedule' },
+        { name: 'teacher_ratings', key: 'teacherRatings' },
+        { name: 'sms_log', key: 'smsLog' }
+      ];
+
+      let done = 0;
+      const total = tables.length;
+      for (const t of tables) {
+        const arr = data[t.key];
+        if (!arr || !Array.isArray(arr) || !arr.length) { done++; continue; }
+        try { await sb.from(t.name).delete().neq('id', 0); } catch(e) {}
+        const cleaned = arr.map(row => {
+          const { id, ...rest } = row;
+          return rest;
+        });
+        const { error } = await sb.from(t.name).insert(cleaned);
+        if (error) console.warn(`خطا در ${t.name}:`, error.message);
+        done++;
+        if (bar) bar.style.width = Math.round((done / total) * 100) + '%';
+        if (msg) msg.textContent = `در حال بازیابی ${t.name} (${done}/${total})...`;
+      }
+
+      if (payload.settings) {
+        try {
+          await sb.from('settings').upsert({
+            id: true,
+            school_name: payload.settings.school,
+            academic_year: payload.settings.year,
+            phone: payload.settings.phone,
+            address: payload.settings.address,
+            footer: payload.settings.footer
+          });
+        } catch(e) { console.warn('settings:', e.message); }
+      }
+
+      if (msg) msg.textContent = '✅ بازیابی با موفقیت انجام شد';
+      toast('✅ بازیابی کامل شد', 'success');
+      setTimeout(async () => {
+        await loadData();
+        renderAll();
+        populateRcStudentSelect();
+        if (progress) progress.style.display = 'none';
+      }, 800);
+    } catch(e) {
+      if (msg) msg.textContent = '❌ خطا: ' + e.message;
+      toast('خطا در بازیابی: ' + e.message, 'error');
+    }
+    fileInput.value = '';
+  });
+}
+  /* ============================================================
+   Navigation
+============================================================ */
+const PAGE_TITLES = {
+  dashboard: 'داشبورد مالی', students: 'مدیریت دانش‌آموزان', payments: 'ثبت پرداخت',
+  receipts: 'رسیدها', checks: 'چک‌های دریافتی', reportcard: 'صدور کارنامه A5',
+  grades: 'مدیریت نمرات', attendance: 'حضور و غیاب', homework: 'تکالیف',
+  schedule: 'برنامه هفتگی', calendar: 'تقویم و رویدادها', messages: 'پیام‌ها',
+  announcements: 'اطلاعیه‌ها', sms: 'ارسال پیامک', staff: 'کارکنان و دبیران',
+  teacherRatings: 'امتیازات اساتید', phonebook: 'دفترچه تلفن', salaries: 'واریز حقوق',
+  incomes: 'درآمدها', expenses: 'هزینه‌ها', installments: 'اقساط', discounts: 'تخفیف‌ها',
+  assets: 'اموال مدرسه', reports: 'گزارش‌ها', invoices: 'صورتحساب‌ها',
+  bulk: 'چاپ دسته‌ای', logs: 'فعالیت‌ها', users: 'کاربران', settings: 'تنظیمات', backup: 'پشتیبان‌گیری'
+};
+
+function showPage(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const page = document.getElementById(pageId);
+  if (page) page.classList.add('active');
+  document.querySelectorAll('#mainNav button').forEach(b => {
+    b.classList.toggle('active', b.dataset.page === pageId);
+  });
+  const titleEl = document.getElementById('pageTitle');
+  if (titleEl) titleEl.textContent = PAGE_TITLES[pageId] || 'داشبورد';
+  if (pageId === 'reportcard') populateRcStudentSelect();
+  if (pageId === 'dashboard') renderDashboard();
+  if (pageId === 'students') renderStudents();
+  if (pageId === 'payments') renderPayments();
+  if (pageId === 'grades') renderGrades();
+  if (pageId === 'attendance') renderAttendance();
+  if (pageId === 'staff') renderStaff();
+  if (pageId === 'checks') renderChecks();
+  if (pageId === 'phonebook') renderPhonebook();
+  if (pageId === 'teacherRatings') renderTeacherRatings();
+  if (pageId === 'backup') renderBackupStats();
 }
 
 /* ============================================================
@@ -2960,7 +3012,6 @@ function renderGrades() {
     return true;
   });
 
-  // Summary
   const avgAll = list.length ? list.reduce((sum, g) => sum + ((+g.score || 0) / (+g.max_score || 20)) * 20, 0) / list.length : 0;
   const summaryHTML = `
     <div class="card"><div class="gs-label">تعداد کل نمرات</div><div class="gs-value">${list.length}</div></div>
@@ -3023,7 +3074,6 @@ function renderAttendance() {
     return true;
   });
 
-  // Stats
   const stats = { present: 0, absent: 0, late: 0, excused: 0 };
   list.forEach(a => { if (stats[a.status] !== undefined) stats[a.status]++; });
   const statsEl = document.getElementById('attendanceStats');
@@ -3196,7 +3246,6 @@ function renderTeacherRatings() {
   const tbody = document.getElementById('teacherRatingsTable');
   if (!statsEl || !tbody) return;
 
-  // گروه‌بندی بر اساس teacher_id
   const grouped = {};
   db.teacherRatings.forEach(r => {
     const tid = r.teacher_id || r.teacherId;
@@ -3244,6 +3293,138 @@ function renderTeacherRatings() {
 }
 
 /* ============================================================
+   Backup Stats
+============================================================ */
+function renderBackupStats() {
+  const el = document.getElementById('backupStats');
+  if (!el) return;
+  el.innerHTML = `
+    👩🏻‍🎓 دانش‌آموزان: <b>${db.students.length}</b><br>
+    💳 پرداخت‌ها: <b>${db.payments.length}</b><br>
+    📚 نمرات: <b>${db.grades.length}</b><br>
+    📅 حضور و غیاب: <b>${db.attendance.length}</b><br>
+    👨‍🏫 کارکنان: <b>${db.staff.length}</b><br>
+    📝 چک‌ها: <b>${db.checks.length}</b><br>
+    💰 حقوق: <b>${db.salaries.length}</b><br>
+    🏫 اموال: <b>${db.assets.length}</b>
+  `;
+}
+
+/* ============================================================
+   Parent Panel — توابع نمایش
+============================================================ */
+function renderParentProfileCard() {
+  if (!parentStudent) return;
+  const s = parentStudent;
+  const el = document.getElementById('parentProfileCard');
+  if (!el) return;
+  const photo = s.photoUrl
+    ? `<img src="${s.photoUrl}" class="pp-photo" alt="">`
+    : `<div class="pp-photo-ph">${(s.name || '؟')[0]}</div>`;
+  el.innerHTML = `
+    ${photo}
+    <div class="pp-info">
+      <h2>${s.name} ${s.family}</h2>
+      <div class="pp-meta">
+        کد دانش‌آموزی: ${s.code || '-'} &nbsp; | &nbsp; پایه: ${s.grade || '-'} &nbsp; | &nbsp; کلاس: ${s.class || '-'} <br>
+        تاریخ تولد: ${s.birthDate || '-'} &nbsp; | &nbsp; سال تحصیلی: ${db.settings.year}
+      </div>
+    </div>`;
+}
+
+function renderParentFinance() {
+  if (!parentStudent) return;
+  const s = parentStudent;
+  const el = document.getElementById('parentFinanceStats');
+  if (!el) return;
+  el.innerHTML = `
+    <div class="parent-stat primary"><div class="ps-ico">💰</div><div class="ps-label">شهریه کل</div><div class="ps-value">${money(finalTuition(s))}</div></div>
+    <div class="parent-stat success"><div class="ps-ico">✅</div><div class="ps-label">پرداخت‌شده</div><div class="ps-value">${money(paid(s))}</div></div>
+    <div class="parent-stat danger"><div class="ps-ico">⚠️</div><div class="ps-label">مانده بدهی</div><div class="ps-value">${money(balance(s))}</div></div>
+    <div class="parent-stat warning"><div class="ps-ico">📅</div><div class="ps-label">تعداد اقساط</div><div class="ps-value">${db.installments.filter(i => i.studentId == s.id).length}</div></div>`;
+}
+
+function renderParentGrades() {
+  if (!parentStudent) return;
+  const s = parentStudent;
+  const grades = db.grades.filter(g => (g.student_id || g.studentId) == s.id);
+  const avg = calcStudentAvg(s.id, '');
+  const el = document.getElementById('parentGradeStats');
+  if (el) {
+    el.innerHTML = `
+      <div class="parent-stat primary"><div class="ps-ico">📊</div><div class="ps-label">معدل</div><div class="ps-value">${avg.toFixed(2)}</div></div>
+      <div class="parent-stat success"><div class="ps-ico">📚</div><div class="ps-label">تعداد نمرات</div><div class="ps-value">${grades.length}</div></div>
+      <div class="parent-stat warning"><div class="ps-ico">📖</div><div class="ps-label">تعداد دروس</div><div class="ps-value">${new Set(grades.map(g => g.subject)).size}</div></div>
+      <div class="parent-stat primary"><div class="ps-ico">🏅</div><div class="ps-label">رتبه کلاس</div><div class="ps-value">${calcClassRank(s.id, '').rank || '-'}</div></div>`;
+  }
+  const tableEl = document.getElementById('parentGradesTable');
+  if (tableEl) {
+    if (!grades.length) {
+      tableEl.innerHTML = '<div class="empty">نمره‌ای ثبت نشده است</div>';
+      return;
+    }
+    tableEl.innerHTML = `<div class="table-wrap"><table class="table">
+      <thead><tr><th>درس</th><th>ترم</th><th>نوع</th><th>نمره</th><th>از</th><th>تاریخ</th></tr></thead>
+      <tbody>${grades.map(g => {
+        const cls = gradeClass(+g.score || 0, +g.max_score || 20);
+        return `<tr>
+          <td>${g.subject || '-'}</td>
+          <td>${g.term || '-'}</td>
+          <td>${g.type || '-'}</td>
+          <td><span class="grade-badge ${cls}">${g.score}</span></td>
+          <td>${g.max_score || 20}</td>
+          <td>${g.date || '-'}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table></div>`;
+  }
+}
+
+function renderParentAttendance() {
+  if (!parentStudent) return;
+  const s = parentStudent;
+  const list = db.attendance.filter(a => (a.student_id || a.studentId) == s.id);
+  const el = document.getElementById('parentAttendanceStats');
+  if (el) {
+    const stats = { present: 0, absent: 0, late: 0, excused: 0 };
+    list.forEach(a => { if (stats[a.status] !== undefined) stats[a.status]++; });
+    el.innerHTML = `
+      <div class="parent-stat success"><div class="ps-ico">✅</div><div class="ps-label">حاضر</div><div class="ps-value">${stats.present}</div></div>
+      <div class="parent-stat danger"><div class="ps-ico">❌</div><div class="ps-label">غایب</div><div class="ps-value">${stats.absent}</div></div>
+      <div class="parent-stat warning"><div class="ps-ico">⏰</div><div class="ps-label">تأخیر</div><div class="ps-value">${stats.late}</div></div>
+      <div class="parent-stat primary"><div class="ps-ico">📝</div><div class="ps-label">موجه</div><div class="ps-value">${stats.excused}</div></div>`;
+  }
+  const listEl = document.getElementById('parentAttendanceList');
+  if (listEl) {
+    if (!list.length) { listEl.innerHTML = '<div class="empty">رکوردی یافت نشد</div>'; return; }
+    listEl.innerHTML = `<div class="table-wrap"><table class="table">
+      <thead><tr><th>تاریخ</th><th>وضعیت</th><th>علت</th></tr></thead>
+      <tbody>${list.map(a => {
+        const [label, cls, icon] = attendanceBadge(a.status);
+        return `<tr><td>${a.date || '-'}</td><td><span class="att-badge ${cls}">${icon} ${label}</span></td><td>${a.reason || '-'}</td></tr>`;
+      }).join('')}</tbody></table></div>`;
+  }
+}
+
+function renderParentPayments() {
+  if (!parentStudent) return;
+  const s = parentStudent;
+  const list = db.payments.filter(p => p.studentId == s.id);
+  const el = document.getElementById('parentPaymentList');
+  if (!el) return;
+  if (!list.length) { el.innerHTML = '<div class="empty">پرداختی ثبت نشده</div>'; return; }
+  el.innerHTML = `<div class="table-wrap"><table class="table">
+    <thead><tr><th>رسید</th><th>مبلغ</th><th>تاریخ</th><th>روش</th></tr></thead>
+    <tbody>${list.map(p => `<tr>
+      <td>${p.receipt || '-'}</td>
+      <td style="color:var(--success-dark);font-weight:700">${money(p.amount)}</td>
+      <td>${p.date || '-'}</td>
+      <td>${p.method || '-'}</td>
+    </tr>`).join('')}</tbody>
+  </table></div>`;
+}
+
+/* ============================================================
    Render All
 ============================================================ */
 function renderAll() {
@@ -3257,6 +3438,7 @@ function renderAll() {
   try { renderChecks(); } catch(e) { console.warn('checks:', e); }
   try { renderPhonebook(); } catch(e) { console.warn('phonebook:', e); }
   try { renderTeacherRatings(); } catch(e) { console.warn('teacherRatings:', e); }
+  try { renderBackupStats(); } catch(e) { console.warn('backup:', e); }
 }
   /* ============================================================
    Event Bindings
@@ -3439,123 +3621,6 @@ function bindModals() {
   });
 }
 
-/* ============================================================
-   Parent Panel — توابع نمایش (خلاصه)
-============================================================ */
-function renderParentProfileCard() {
-  if (!parentStudent) return;
-  const s = parentStudent;
-  const el = document.getElementById('parentProfileCard');
-  if (!el) return;
-  const photo = s.photoUrl
-    ? `<img src="${s.photoUrl}" class="pp-photo" alt="">`
-    : `<div class="pp-photo-ph">${(s.name || '؟')[0]}</div>`;
-  el.innerHTML = `
-    ${photo}
-    <div class="pp-info">
-      <h2>${s.name} ${s.family}</h2>
-      <div class="pp-meta">
-        کد دانش‌آموزی: ${s.code || '-'} &nbsp; | &nbsp; پایه: ${s.grade || '-'} &nbsp; | &nbsp; کلاس: ${s.class || '-'} <br>
-        تاریخ تولد: ${s.birthDate || '-'} &nbsp; | &nbsp; سال تحصیلی: ${db.settings.year}
-      </div>
-    </div>`;
-}
-
-function renderParentFinance() {
-  if (!parentStudent) return;
-  const s = parentStudent;
-  const el = document.getElementById('parentFinanceStats');
-  if (!el) return;
-  el.innerHTML = `
-    <div class="parent-stat primary"><div class="ps-ico">💰</div><div class="ps-label">شهریه کل</div><div class="ps-value">${money(finalTuition(s))}</div></div>
-    <div class="parent-stat success"><div class="ps-ico">✅</div><div class="ps-label">پرداخت‌شده</div><div class="ps-value">${money(paid(s))}</div></div>
-    <div class="parent-stat danger"><div class="ps-ico">⚠️</div><div class="ps-label">مانده بدهی</div><div class="ps-value">${money(balance(s))}</div></div>
-    <div class="parent-stat warning"><div class="ps-ico">📅</div><div class="ps-label">تعداد اقساط</div><div class="ps-value">${db.installments.filter(i => i.studentId == s.id).length}</div></div>`;
-}
-
-function renderParentGrades() {
-  if (!parentStudent) return;
-  const s = parentStudent;
-  const grades = db.grades.filter(g => (g.student_id || g.studentId) == s.id);
-  const avg = calcStudentAvg(s.id, '');
-  const el = document.getElementById('parentGradeStats');
-  if (el) {
-    el.innerHTML = `
-      <div class="parent-stat primary"><div class="ps-ico">📊</div><div class="ps-label">معدل</div><div class="ps-value">${avg.toFixed(2)}</div></div>
-      <div class="parent-stat success"><div class="ps-ico">📚</div><div class="ps-label">تعداد نمرات</div><div class="ps-value">${grades.length}</div></div>
-      <div class="parent-stat warning"><div class="ps-ico">📖</div><div class="ps-label">تعداد دروس</div><div class="ps-value">${new Set(grades.map(g => g.subject)).size}</div></div>
-      <div class="parent-stat primary"><div class="ps-ico">🏅</div><div class="ps-label">رتبه کلاس</div><div class="ps-value">${calcClassRank(s.id, '').rank || '-'}</div></div>`;
-  }
-  const tableEl = document.getElementById('parentGradesTable');
-  if (tableEl) {
-    if (!grades.length) {
-      tableEl.innerHTML = '<div class="empty">نمره‌ای ثبت نشده است</div>';
-      return;
-    }
-    tableEl.innerHTML = `<div class="table-wrap"><table class="table">
-      <thead><tr><th>درس</th><th>ترم</th><th>نوع</th><th>نمره</th><th>از</th><th>تاریخ</th></tr></thead>
-      <tbody>${grades.map(g => {
-        const cls = gradeClass(+g.score || 0, +g.max_score || 20);
-        return `<tr>
-          <td>${g.subject || '-'}</td>
-          <td>${g.term || '-'}</td>
-          <td>${g.type || '-'}</td>
-          <td><span class="grade-badge ${cls}">${g.score}</span></td>
-          <td>${g.max_score || 20}</td>
-          <td>${g.date || '-'}</td>
-        </tr>`;
-      }).join('')}</tbody>
-    </table></div>`;
-  }
-}
-
-function renderParentAttendance() {
-  if (!parentStudent) return;
-  const s = parentStudent;
-  const list = db.attendance.filter(a => (a.student_id || a.studentId) == s.id);
-  const el = document.getElementById('parentAttendanceStats');
-  if (el) {
-    const stats = { present: 0, absent: 0, late: 0, excused: 0 };
-    list.forEach(a => { if (stats[a.status] !== undefined) stats[a.status]++; });
-    el.innerHTML = `
-      <div class="parent-stat success"><div class="ps-ico">✅</div><div class="ps-label">حاضر</div><div class="ps-value">${stats.present}</div></div>
-      <div class="parent-stat danger"><div class="ps-ico">❌</div><div class="ps-label">غایب</div><div class="ps-value">${stats.absent}</div></div>
-      <div class="parent-stat warning"><div class="ps-ico">⏰</div><div class="ps-label">تأخیر</div><div class="ps-value">${stats.late}</div></div>
-      <div class="parent-stat primary"><div class="ps-ico">📝</div><div class="ps-label">موجه</div><div class="ps-value">${stats.excused}</div></div>`;
-  }
-  const listEl = document.getElementById('parentAttendanceList');
-  if (listEl) {
-    if (!list.length) { listEl.innerHTML = '<div class="empty">رکوردی یافت نشد</div>'; return; }
-    listEl.innerHTML = `<div class="table-wrap"><table class="table">
-      <thead><tr><th>تاریخ</th><th>وضعیت</th><th>علت</th></tr></thead>
-      <tbody>${list.map(a => {
-        const [label, cls, icon] = attendanceBadge(a.status);
-        return `<tr><td>${a.date || '-'}</td><td><span class="att-badge ${cls}">${icon} ${label}</span></td><td>${a.reason || '-'}</td></tr>`;
-      }).join('')}</tbody></table></div>`;
-  }
-}
-
-function renderParentPayments() {
-  if (!parentStudent) return;
-  const s = parentStudent;
-  const list = db.payments.filter(p => p.studentId == s.id);
-  const el = document.getElementById('parentPaymentList');
-  if (!el) return;
-  if (!list.length) { el.innerHTML = '<div class="empty">پرداختی ثبت نشده</div>'; return; }
-  el.innerHTML = `<div class="table-wrap"><table class="table">
-    <thead><tr><th>رسید</th><th>مبلغ</th><th>تاریخ</th><th>روش</th></tr></thead>
-    <tbody>${list.map(p => `<tr>
-      <td>${p.receipt || '-'}</td>
-      <td style="color:var(--success-dark);font-weight:700">${money(p.amount)}</td>
-      <td>${p.date || '-'}</td>
-      <td>${p.method || '-'}</td>
-    </tr>`).join('')}</tbody>
-  </table></div>`;
-}
-
-/* ============================================================
-   Parent & Teacher Tab Switching
-============================================================ */
 function bindParentTabs() {
   document.querySelectorAll('.parent-tab').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -3582,6 +3647,11 @@ function bindTeacherTabs() {
   });
 }
 
+function closeNotif() {
+  const el = document.getElementById('notifDropdown');
+  if (el) el.style.display = 'none';
+}
+
 /* ============================================================
    Initialize
 ============================================================ */
@@ -3604,6 +3674,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   bindFilterEvents();
   bindThemeToggle();
   bindModals();
+  bindBackupEvents();
   bindParentTabs();
   bindTeacherTabs();
   await checkExistingSession();
