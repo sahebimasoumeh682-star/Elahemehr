@@ -2705,7 +2705,7 @@ function bindBackupEvents() {
   if (btnJson) btnJson.addEventListener('click', () => {
     try {
       const payload = {
-        version: 'v20',
+        version: 'v21',
         exportedAt: new Date().toISOString(),
         settings: db.settings,
         data: {
@@ -2775,24 +2775,12 @@ function bindBackupEvents() {
       const payload = JSON.parse(text);
       const data = payload.data || payload;
 
-      // ⭐ بررسی فایل
       const totalRecords = Object.values(data).reduce((sum, arr) => {
         return sum + (Array.isArray(arr) ? arr.length : 0);
       }, 0);
-      const studentCount = Array.isArray(data.students) ? data.students.length : 0;
-      const firstStudent = studentCount > 0 ? data.students[0] : null;
 
-      if (msg) msg.innerHTML = `📦 فایل: ${totalRecords} رکورد — ${studentCount} دانش‌آموز<br>🔍 بررسی ساختار...`;
+      if (msg) msg.innerHTML = `📦 فایل: ${totalRecords} رکورد — شروع بازیابی...`;
       await new Promise(r => setTimeout(r, 300));
-
-      // ⭐ نشان دادن اولین دانش‌آموز برای دیباگ
-      if (firstStudent) {
-        const keys = Object.keys(firstStudent).slice(0, 15).join(', ');
-        if (msg) msg.innerHTML = `📦 فایل: ${totalRecords} رکورد — ${studentCount} دانش‌آموز<br>
-          <small style="color:#475569">ستون‌های دانش‌آموز: ${keys}</small><br>
-          <small style="color:#6366f1">شروع تست insert...</small>`;
-        await new Promise(r => setTimeout(r, 1000));
-      }
 
       if (totalRecords === 0) {
         if (msg) msg.innerHTML = '❌ فایل بکاپ خالی است!';
@@ -2800,94 +2788,67 @@ function bindBackupEvents() {
         return;
       }
 
-      // ⭐⭐⭐ مرحله تست: فقط یک دانش‌آموز را insert می‌کنیم ⭐⭐⭐
-      if (msg) msg.innerHTML = `🧪 تست: درج فقط ۱ دانش‌آموز...`;
-      await new Promise(r => setTimeout(r, 300));
-      
-      // پاک کردن جدول students
-      try {
-        await sb.from('students').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-      } catch(e) { console.warn('delete:', e.message); }
+      // ⭐ نقشه نگاشت: old_id → new_id برای هر جدول اصلی
+      const idMaps = {
+        students: {},
+        staff: {},
+        subjects: {}
+      };
 
-      // درج فقط یک دانش‌آموز
-     // ⭐ پاک‌سازی فیلدهای محاسباتی قبل از insert
-function cleanRecordForInsert(row) {
-  if (!row || typeof row !== 'object') return row;
-  const cleaned = { ...row };
-  // حذف فیلدهای محاسباتی که در دیتابیس نیستند
-  delete cleaned.birthDate;
-  delete cleaned.photoUrl;
-  delete cleaned.class;   // در دیتابیس class_name هست
-  delete cleaned.year;    // در دیتابیس academic_year هست
-  delete cleaned.nationalCode;
-  delete cleaned.isTeacher;
-  delete cleaned.canLogin;
-  delete cleaned.hourly_rate;
-  delete cleaned.session_duration_minutes;
-  // حذف هر فیلد camelCase (چون دیتابیس snake_case است)
-  Object.keys(cleaned).forEach(k => {
-    if (/[A-Z]/.test(k)) delete cleaned[k];
-  });
-  return cleaned;
-}
+      // ⭐ ترتیب: اول والدها، بعد فرزندان
+      const parentTables = [
+        { name: 'students', key: 'students', idField: 'id', hasAutoId: true },
+        { name: 'staff', key: 'staff', idField: 'id', hasAutoId: true },
+        { name: 'subjects', key: 'subjects', idField: 'id', hasAutoId: true },
+        { name: 'assets', key: 'assets', idField: 'id', hasAutoId: true },
+        { name: 'incomes', key: 'incomes', idField: 'id', hasAutoId: true },
+        { name: 'expenses', key: 'expenses', idField: 'id', hasAutoId: true }
+      ];
 
-const testStudent = cleanRecordForInsert(data.students[0]);
-const { data: insertData, error: insertError } = await sb.from('students').insert([testStudent]).select();
-      if (insertError) {
-        // ⭐⭐⭐ خطا را به طور کامل نشان بده ⭐⭐⭐
-        if (msg) msg.innerHTML = `❌ <b>خطای تست insert:</b><br>
-          <div style="background:#fee2e2;padding:10px;border-radius:8px;margin-top:8px;font-size:12px;line-height:1.8">
-            <b>message:</b> ${insertError.message || '-'}<br>
-            <b>details:</b> ${insertError.details || '-'}<br>
-            <b>hint:</b> ${insertError.hint || '-'}<br>
-            <b>code:</b> ${insertError.code || '-'}
-          </div>
-          <div style="margin-top:8px;font-size:11px">
-            <b>رکورد آزمایشی:</b><br>
-            <code style="display:block;background:#f1f5f9;padding:8px;border-radius:6px;white-space:pre-wrap;font-size:10px;direction:ltr;text-align:left;max-height:150px;overflow:auto">${JSON.stringify(testStudent, null, 2)}</code>
-          </div>`;
-        toast('❌ insert شکست خورد — جزئیات روی صفحه', 'error');
-        return;
-      }
-
-      // ⭐ insert موفق شد!
-      if (msg) msg.innerHTML = `✅ <b>تست موفق!</b><br>یک دانش‌آموز با موفقیت درج شد<br>
-        <small>id: ${insertData[0]?.id || '؟'}</small><br>
-        ادامه بازیابی...`;
-      toast('✅ تست موفق — ادامه بازیابی', 'success');
-      await new Promise(r => setTimeout(r, 1000));
-
-      // ⭐ حالا بقیه را انجام بده
-      const tables = [
-        { name: 'students', key: 'students' },
-        { name: 'staff', key: 'staff' },
-        { name: 'subjects', key: 'subjects' },
-        { name: 'assets', key: 'assets' },
-        { name: 'incomes', key: 'incomes' },
-        { name: 'expenses', key: 'expenses' },
-        { name: 'payments', key: 'payments' },
-        { name: 'installments', key: 'installments' },
-        { name: 'discounts', key: 'discounts' },
-        { name: 'salaries', key: 'salaries' },
-        { name: 'checks', key: 'checks' },
-        { name: 'grades', key: 'grades' },
-        { name: 'attendance', key: 'attendance' },
-        { name: 'messages', key: 'messages' },
-        { name: 'announcements', key: 'announcements' },
-        { name: 'homework', key: 'homework' },
-        { name: 'homework_submissions', key: 'homeworkSubmissions' },
-        { name: 'events', key: 'events' },
-        { name: 'class_schedule', key: 'classSchedule' },
-        { name: 'teacher_ratings', key: 'teacherRatings' },
-        { name: 'sms_log', key: 'smsLog' }
+      const childTables = [
+        { name: 'payments', key: 'payments', remapFields: { student_id: 'students' } },
+        { name: 'installments', key: 'installments', remapFields: { student_id: 'students' } },
+        { name: 'discounts', key: 'discounts', remapFields: { student_id: 'students' } },
+        { name: 'salaries', key: 'salaries', remapFields: { staff_id: 'staff' } },
+        { name: 'checks', key: 'checks', remapFields: { student_id: 'students' } },
+        { name: 'grades', key: 'grades', remapFields: { student_id: 'students', teacher_id: 'staff' } },
+        { name: 'attendance', key: 'attendance', remapFields: { student_id: 'students' } },
+        { name: 'messages', key: 'messages', remapFields: {} },
+        { name: 'announcements', key: 'announcements', remapFields: {} },
+        { name: 'homework', key: 'homework', remapFields: {} },
+        { name: 'homework_submissions', key: 'homeworkSubmissions', remapFields: { student_id: 'students', homework_id: 'homework' } },
+        { name: 'events', key: 'events', remapFields: {} },
+        { name: 'class_schedule', key: 'classSchedule', remapFields: {} },
+        { name: 'teacher_ratings', key: 'teacherRatings', remapFields: { teacher_id: 'staff', student_id: 'students' } },
+        { name: 'sms_log', key: 'smsLog', remapFields: { student_id: 'students' } }
       ];
 
       let done = 0;
       let restored = 0;
-      const total = tables.length;
+      const total = parentTables.length + childTables.length;
       const errors = [];
 
-      for (const t of tables) {
+      // ⭐ تابع پاک‌سازی فیلدهای محاسباتی
+      const cleanRecord = (row) => {
+        if (!row || typeof row !== 'object') return null;
+        const c = { ...row };
+        // حذف فیلدهای محاسباتی
+        ['birthDate','photoUrl','class','year','nationalCode','isTeacher','canLogin',
+         'hourly_rate','session_duration_minutes','studentId','teacherId','due','date',
+         'desc','doc','type','base','month','checkNumber','bankName','issueDate',
+         'dueDate','holderName','paymentId','unitPrice','purchaseDate','serialNumber',
+         'eventDate','eventTime','eventType','targetGrade','isHoliday','dayOfWeek',
+         'startTime','endTime','teacherName','attachmentUrl','className',
+         'parentMessageId','senderId','senderName','senderRole','recipientId',
+         'recipientType','isRead','createdAt','expiresAt','homeworkId','submittedAt',
+         'net_amount_text'].forEach(k => { delete c[k]; });
+        // حذف camelCase
+        Object.keys(c).forEach(k => { if (/[A-Z]/.test(k)) delete c[k]; });
+        return Object.keys(c).length ? c : null;
+      };
+
+      // ⭐⭐⭐ مرحله ۱: درج والدها ⭐⭐⭐
+      for (const t of parentTables) {
         const arr = data[t.key];
         done++;
 
@@ -2896,35 +2857,110 @@ const { data: insertData, error: insertError } = await sb.from('students').inser
           continue;
         }
 
-        if (msg) msg.innerHTML = `🗑 پاک‌سازی ${t.name}... (${done}/${total})`;
+        if (msg) msg.innerHTML = `🗑 پاک‌سازی ${t.name}...`;
         await new Promise(r => setTimeout(r, 100));
-
         try {
           await sb.from(t.name).delete().neq('id', '00000000-0000-0000-0000-000000000000');
+        } catch(e) { console.warn('delete:', t.name, e.message); }
 
-          if (msg) msg.innerHTML = `💾 درج ${t.name} (${arr.length} رکورد)... (${done}/${total})`;
-          await new Promise(r => setTimeout(r, 100));
+        if (msg) msg.innerHTML = `💾 درج ${t.name} (${arr.length} رکورد)...`;
+        await new Promise(r => setTimeout(r, 100));
 
-         const BATCH = 200;
-let insertedCount = 0;
-for (let i = 0; i < arr.length; i += BATCH) {
-  const rawChunk = arr.slice(i, i + BATCH);
-  const chunk = rawChunk.map(r => cleanRecordForInsert(r));
-  const { error: insErr } = await sb.from(t.name).insert(chunk);
-            if (insErr) {
-              errors.push(`${t.name}: ${insErr.message}`);
-            } else {
-              insertedCount += chunk.length;
-              restored += chunk.length;
-            }
+        const BATCH = 100;
+        let insertedCount = 0;
+        for (let i = 0; i < arr.length; i += BATCH) {
+          const rawChunk = arr.slice(i, i + BATCH);
+          // پاک‌سازی
+          const cleaned = rawChunk.map(r => cleanRecord(r)).filter(Boolean);
+          if (!cleaned.length) continue;
+
+          // ذخیره id قدیمی برای نگاشت
+          const oldIds = rawChunk.map(r => r.id);
+
+          // ⭐ insert با .select() تا idهای جدید را بگیریم
+          const { data: inserted, error: insErr } = await sb.from(t.name).insert(cleaned).select();
+
+          if (insErr) {
+            errors.push(`${t.name}: ${insErr.message}`);
+            if (msg) msg.innerHTML = `❌ ${t.name}: ${insErr.message.slice(0, 60)}`;
+            await new Promise(r => setTimeout(r, 500));
+          } else if (inserted) {
+            // ⭐ نگاشت old_id → new_id
+            inserted.forEach((newRow, idx) => {
+              const oldId = oldIds[idx];
+              if (oldId !== undefined && newRow.id !== undefined) {
+                idMaps[t.name][String(oldId)] = newRow.id;
+              }
+            });
+            insertedCount += inserted.length;
+            restored += inserted.length;
           }
-          
-          if (msg) msg.innerHTML = `✅ ${t.name}: ${insertedCount}/${arr.length} (${done}/${total})`;
-          await new Promise(r => setTimeout(r, 200));
-        } catch(e) {
-          errors.push(`${t.name}: ${e.message}`);
         }
 
+        if (msg) msg.innerHTML = `✅ ${t.name}: ${insertedCount}/${arr.length} ذخیره شد`;
+        await new Promise(r => setTimeout(r, 200));
+        if (bar) bar.style.width = Math.round((done / total) * 100) + '%';
+      }
+
+      // ⭐⭐⭐ مرحله ۲: درج فرزندان با نگاشت id ⭐⭐⭐
+      for (const t of childTables) {
+        const arr = data[t.key];
+        done++;
+
+        if (!arr || !Array.isArray(arr) || !arr.length) {
+          if (bar) bar.style.width = Math.round((done / total) * 100) + '%';
+          continue;
+        }
+
+        if (msg) msg.innerHTML = `🗑 پاک‌سازی ${t.name}...`;
+        await new Promise(r => setTimeout(r, 80));
+        try {
+          await sb.from(t.name).delete().neq('id', '00000000-0000-0000-0000-000000000000');
+        } catch(e) { console.warn('delete:', t.name, e.message); }
+
+        if (msg) msg.innerHTML = `💾 درج ${t.name} (${arr.length} رکورد)...`;
+        await new Promise(r => setTimeout(r, 80));
+
+        const BATCH = 100;
+        let insertedCount = 0;
+        for (let i = 0; i < arr.length; i += BATCH) {
+          const rawChunk = arr.slice(i, i + BATCH);
+          // پاک‌سازی + نگاشت idها
+          const cleaned = rawChunk.map(r => {
+            const c = cleanRecord(r);
+            if (!c) return null;
+            // نگاشت فیلدهای وابسته
+            Object.entries(t.remapFields || {}).forEach(([field, parentTable]) => {
+              if (c[field] !== undefined && c[field] !== null) {
+                const newId = idMaps[parentTable]?.[String(c[field])];
+                if (newId !== undefined) {
+                  c[field] = newId;
+                } else {
+                  // اگر نگاشت پیدا نشد، null کن
+                  c[field] = null;
+                }
+              }
+            });
+            // حذف id
+            delete c.id;
+            return c;
+          }).filter(Boolean);
+
+          if (!cleaned.length) continue;
+
+          const { error: insErr } = await sb.from(t.name).insert(cleaned);
+          if (insErr) {
+            errors.push(`${t.name}: ${insErr.message}`);
+            if (msg) msg.innerHTML = `⚠️ ${t.name}: ${insErr.message.slice(0, 60)}`;
+            await new Promise(r => setTimeout(r, 300));
+          } else {
+            insertedCount += cleaned.length;
+            restored += cleaned.length;
+          }
+        }
+
+        if (msg) msg.innerHTML = `✅ ${t.name}: ${insertedCount}/${arr.length}`;
+        await new Promise(r => setTimeout(r, 150));
         if (bar) bar.style.width = Math.round((done / total) * 100) + '%';
       }
 
@@ -2943,14 +2979,13 @@ for (let i = 0; i < arr.length; i += BATCH) {
         } catch(e) { console.warn('settings:', e.message); }
       }
 
-      // ⭐ نتیجه نهایی با جزئیات کامل خطاها
+      // نتیجه نهایی
       if (errors.length) {
         if (msg) msg.innerHTML = `⚠️ <b>${restored} رکورد ذخیره</b><br>
-          <div style="background:#fee2e2;padding:10px;border-radius:8px;margin-top:8px;font-size:12px;max-height:200px;overflow:auto">
-            <b>خطاها (${errors.length}):</b><br>
-            ${errors.map(e => '• ' + e).join('<br>')}
+          <div style="background:#fee2e2;padding:10px;border-radius:8px;margin-top:8px;font-size:11px;max-height:180px;overflow:auto">
+            <b>خطاها (${errors.length}):</b><br>${errors.slice(0, 8).map(e => '• ' + e).join('<br>')}
           </div>`;
-        toast(`⚠️ ${restored} رکورد — خطا دارد`, 'warning');
+        toast(`⚠️ ${restored} رکورد — ${errors.length} خطا`, 'warning');
       } else {
         if (msg) msg.innerHTML = `✅ <b>${restored} رکورد با موفقیت ذخیره شد</b><br>بارگذاری مجدد...`;
         toast(`✅ ${restored} رکورد`, 'success');
@@ -2960,13 +2995,13 @@ for (let i = 0; i < arr.length; i += BATCH) {
       await loadData();
       renderAll();
       populateRcStudentSelect();
-      
+
       if (bar) bar.style.width = '100%';
       if (msg) msg.innerHTML = `✅ <b>بازیابی کامل</b><br>
-        ${db.students.length} دانش‌آموز در دیتابیس`;
+        ${db.students.length} دانش‌آموز — ${db.payments.length} پرداخت — ${db.grades.length} نمره`;
 
     } catch(e) {
-      if (msg) msg.innerHTML = `❌ خطای کلی:<br><div style="background:#fee2e2;padding:10px;border-radius:8px;margin-top:8px;font-size:12px">${e.message}<br><small>${e.stack || ''}</small></div>`;
+      if (msg) msg.innerHTML = `❌ خطای کلی:<br><div style="background:#fee2e2;padding:10px;border-radius:8px;margin-top:8px;font-size:12px">${e.message}</div>`;
       toast('خطا: ' + e.message, 'error');
     }
     fileInput.value = '';
