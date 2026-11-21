@@ -1640,6 +1640,15 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
         📂 انتخاب فایل
         <input type="file" accept=".json" id="restoreFile" hidden>
       </label>
+      <div style="margin-top:18px;padding-top:18px;border-top:2px dashed var(--line)">
+  <div style="font-size:13px;font-weight:700;color:var(--primary-dark);margin-bottom:10px">
+    👨‍🏫 بازیابی فقط کارکنان و اساتید
+  </div>
+  <label class="btn green" style="width:100%;text-align:center;display:block;padding:14px;border-radius:12px;cursor:pointer">
+    📂 انتخاب فایل بکاپ برای staff
+    <input type="file" accept=".json" id="restoreFileStaff" hidden>
+  </label>
+</div>
       <button class="btn green" id="btnRestoreStaffOnly" style="width:100%;margin-top:10px">
   👨‍🏫 بازیابی فقط کارکنان
 </button>
@@ -2723,6 +2732,97 @@ function drawDashboardCharts() {
    ⭐ بکاپ و بازیابی
 ============================================================ */
 function bindBackupEvents() {
+  // ⭐ تابع اختصاصی بازیابی staff از فایل بکاپ
+async function restoreStaffFromBackup(file) {
+  const msg = document.getElementById('restoreMsg');
+  const progress = document.getElementById('restoreProgress');
+  const bar = document.getElementById('restoreBar');
+  if (progress) progress.style.display = 'block';
+  if (bar) bar.style.width = '5%';
+  if (msg) msg.innerHTML = '📂 خواندن فایل...';
+
+  try {
+    const text = await file.text();
+    const payload = JSON.parse(text);
+    const data = payload.data || payload;
+    const staffArr = data.staff || [];
+
+    if (!staffArr.length) {
+      if (msg) msg.innerHTML = '❌ در فایل بکاپ، staff وجود ندارد!';
+      return;
+    }
+
+    if (msg) msg.innerHTML = `👨‍🏫 ${staffArr.length} کارمند یافت شد<br>در حال ذخیره...`;
+    await new Promise(r => setTimeout(r, 300));
+
+    // ۱. پاک کردن staff قبلی
+    if (msg) msg.innerHTML = '🗑 پاک‌سازی staff قبلی...';
+    try {
+      await sb.from('staff').delete().not('id', 'is', null);
+    } catch(e) { console.warn('delete staff:', e.message); }
+    await new Promise(r => setTimeout(r, 300));
+
+    // ۲. پاک‌سازی رکوردها — فقط ستون‌های واقعی staff
+    const STAFF_COLUMNS = [
+      'staff_code', 'name', 'family', 'position', 'phone',
+      'base_salary', 'bonus', 'notes', 'hourly_rate',
+      'session_duration_minutes', 'national_code', 'is_teacher',
+      'can_login', 'subjects', 'education', 'certificates',
+      'teaching_experience', 'work_days', 'bio', 'birth_date',
+      'email', 'address'
+    ];
+
+    const cleaned = staffArr.map(r => {
+      const c = {};
+      STAFF_COLUMNS.forEach(k => {
+        if (r[k] !== undefined && r[k] !== null) {
+          c[k] = r[k];
+        }
+      });
+      // ⭐ اگر is_teacher یا can_login undefined بود، پیش‌فرض true
+      if (c.is_teacher === undefined) c.is_teacher = true;
+      if (c.can_login === undefined) c.can_login = true;
+      // ⭐ اگر position خالی بود، از role قدیمی بردار
+      if (!c.position && r.role) c.position = r.role;
+      // ⭐ اگر staff_code خالی بود، از code قدیمی بردار
+      if (!c.staff_code && r.code) c.staff_code = String(r.code);
+      return Object.keys(c).length > 0 ? c : null;
+    }).filter(Boolean);
+
+    if (!cleaned.length) {
+      if (msg) msg.innerHTML = '❌ هیچ کارمند معتبری نبود';
+      return;
+    }
+
+    if (bar) bar.style.width = '30%';
+    if (msg) msg.innerHTML = `💾 درج ${cleaned.length} کارمند...`;
+    await new Promise(r => setTimeout(r, 200));
+
+    // ۳. درج
+    const { data: inserted, error } = await sb.from('staff').insert(cleaned).select();
+
+    if (bar) bar.style.width = '70%';
+
+    if (error) {
+      if (msg) msg.innerHTML = `❌ خطا:<br><div style="background:#fee2e2;padding:10px;border-radius:8px;margin-top:8px;font-size:12px">${error.message}</div>`;
+      return;
+    }
+
+    if (bar) bar.style.width = '100%';
+    if (msg) msg.innerHTML = `✅ <b>${inserted.length} کارمند با موفقیت ذخیره شد</b><br>بارگذاری مجدد...`;
+
+    await new Promise(r => setTimeout(r, 800));
+    await loadData();
+    renderAll();
+
+    if (msg) msg.innerHTML = `✅ <b>بازیابی کامل</b><br>${db.staff.length} کارمند فعال`;
+    toast(`✅ ${inserted.length} کارمند بازیابی شد`, 'success');
+
+  } catch(e) {
+    if (msg) msg.innerHTML = `❌ خطا: <small style="color:red">${e.message}</small>`;
+    toast('خطا: ' + e.message, 'error');
+  }
+}
   // ⭐ تابع جداگانه برای بازیابی فقط staff
 async function restoreStaffOnly(file) {
   try {
@@ -3195,6 +3295,18 @@ async function restoreStaffOnly(file) {
     }
     await restoreStaffOnly(f);
     fileStaffOnly.value = '';
+  });
+    // ⭐ اتصال دکمه بازیابی staff
+  const staffFileInput = document.getElementById('restoreFileStaff');
+  if (staffFileInput) staffFileInput.addEventListener('change', async (ev) => {
+    const f = ev.target.files?.[0];
+    if (!f) return;
+    if (!confirm('⚠️ همه کارکنان فعلی پاک و با فایل بکاپ جایگزین می‌شوند. ادامه؟')) {
+      staffFileInput.value = '';
+      return;
+    }
+    await restoreStaffFromBackup(f);
+    staffFileInput.value = '';
   });
 }
   /* ============================================================
