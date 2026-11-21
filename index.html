@@ -2066,6 +2066,21 @@ async function loadData(){
     time: new Date(x.created_at).toLocaleTimeString('fa-IR')
   }));
   db.staff = (loaded[7] || []).map(mapStaff);
+  // ⭐ دیباگ: نمایش اطلاعات staff
+setTimeout(() => {
+  console.log('🔍 تعداد staff:', db.staff.length);
+  if (db.staff.length > 0) {
+    console.log('👤 نمونه staff:', db.staff[0]);
+    const teachers = db.staff.filter(s => s.isTeacher);
+    console.log('👨‍🏫 تعداد اساتید (isTeacher):', teachers.length);
+    const withLogin = db.staff.filter(s => s.canLogin);
+    console.log('🔑 تعداد با canLogin:', withLogin.length);
+    const withNC = db.staff.filter(s => s.nationalCode);
+    console.log('🆔 تعداد با کد ملی:', withNC.length);
+    const withPhone = db.staff.filter(s => s.phone);
+    console.log('📱 تعداد با تلفن:', withPhone.length);
+  }
+}, 500);
   db.salaries = (loaded[8] || []).map(mapSalary);
   db.checks = (loaded[9] || []).map(mapCheck);
   db.assets = (loaded[10] || []).map(mapAsset);
@@ -3782,7 +3797,6 @@ function bindAuthButtons() {
     await loadData();
     const t = db.staff.find(s => s.nationalCode === nc && s.phone === phone);
     if (!t) { teacherAuthMsg('کد ملی یا شماره تلفن یافت نشد'); return; }
-    if (!t.isTeacher) { teacherAuthMsg('این کاربر دسترسی استاد ندارد'); return; }
     currentTeacher = t;
     teacherAuthMsg('');
     document.getElementById('authScreen').style.display = 'none';
