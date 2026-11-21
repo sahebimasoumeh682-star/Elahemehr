@@ -2775,20 +2775,69 @@ function bindBackupEvents() {
       const payload = JSON.parse(text);
       const data = payload.data || payload;
 
-      // ⭐ خلاصه فایل روی صفحه
+      // ⭐ بررسی فایل
       const totalRecords = Object.values(data).reduce((sum, arr) => {
         return sum + (Array.isArray(arr) ? arr.length : 0);
       }, 0);
       const studentCount = Array.isArray(data.students) ? data.students.length : 0;
-      
-      if (msg) msg.innerHTML = `📦 فایل: ${totalRecords} رکورد — ${studentCount} دانش‌آموز<br>شروع بازیابی...`;
-      
+      const firstStudent = studentCount > 0 ? data.students[0] : null;
+
+      if (msg) msg.innerHTML = `📦 فایل: ${totalRecords} رکورد — ${studentCount} دانش‌آموز<br>🔍 بررسی ساختار...`;
+      await new Promise(r => setTimeout(r, 300));
+
+      // ⭐ نشان دادن اولین دانش‌آموز برای دیباگ
+      if (firstStudent) {
+        const keys = Object.keys(firstStudent).slice(0, 15).join(', ');
+        if (msg) msg.innerHTML = `📦 فایل: ${totalRecords} رکورد — ${studentCount} دانش‌آموز<br>
+          <small style="color:#475569">ستون‌های دانش‌آموز: ${keys}</small><br>
+          <small style="color:#6366f1">شروع تست insert...</small>`;
+        await new Promise(r => setTimeout(r, 1000));
+      }
+
       if (totalRecords === 0) {
-        if (msg) msg.innerHTML = '❌ فایل بکاپ خالی است! هیچ رکوردی ندارد.';
-        toast('فایل بکاپ خالی است', 'error');
+        if (msg) msg.innerHTML = '❌ فایل بکاپ خالی است!';
+        toast('فایل خالی است', 'error');
         return;
       }
 
+      // ⭐⭐⭐ مرحله تست: فقط یک دانش‌آموز را insert می‌کنیم ⭐⭐⭐
+      if (msg) msg.innerHTML = `🧪 تست: درج فقط ۱ دانش‌آموز...`;
+      await new Promise(r => setTimeout(r, 300));
+      
+      // پاک کردن جدول students
+      try {
+        await sb.from('students').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      } catch(e) { console.warn('delete:', e.message); }
+
+      // درج فقط یک دانش‌آموز
+      const testStudent = data.students[0];
+      const { data: insertData, error: insertError } = await sb.from('students').insert([testStudent]).select();
+
+      if (insertError) {
+        // ⭐⭐⭐ خطا را به طور کامل نشان بده ⭐⭐⭐
+        if (msg) msg.innerHTML = `❌ <b>خطای تست insert:</b><br>
+          <div style="background:#fee2e2;padding:10px;border-radius:8px;margin-top:8px;font-size:12px;line-height:1.8">
+            <b>message:</b> ${insertError.message || '-'}<br>
+            <b>details:</b> ${insertError.details || '-'}<br>
+            <b>hint:</b> ${insertError.hint || '-'}<br>
+            <b>code:</b> ${insertError.code || '-'}
+          </div>
+          <div style="margin-top:8px;font-size:11px">
+            <b>رکورد آزمایشی:</b><br>
+            <code style="display:block;background:#f1f5f9;padding:8px;border-radius:6px;white-space:pre-wrap;font-size:10px;direction:ltr;text-align:left;max-height:150px;overflow:auto">${JSON.stringify(testStudent, null, 2)}</code>
+          </div>`;
+        toast('❌ insert شکست خورد — جزئیات روی صفحه', 'error');
+        return;
+      }
+
+      // ⭐ insert موفق شد!
+      if (msg) msg.innerHTML = `✅ <b>تست موفق!</b><br>یک دانش‌آموز با موفقیت درج شد<br>
+        <small>id: ${insertData[0]?.id || '؟'}</small><br>
+        ادامه بازیابی...`;
+      toast('✅ تست موفق — ادامه بازیابی', 'success');
+      await new Promise(r => setTimeout(r, 1000));
+
+      // ⭐ حالا بقیه را انجام بده
       const tables = [
         { name: 'students', key: 'students' },
         { name: 'staff', key: 'staff' },
@@ -2827,23 +2876,14 @@ function bindBackupEvents() {
           continue;
         }
 
-        // ⭐ نمایش روی صفحه: در حال پاک‌سازی
         if (msg) msg.innerHTML = `🗑 پاک‌سازی ${t.name}... (${done}/${total})`;
-        await new Promise(r => setTimeout(r, 50));
+        await new Promise(r => setTimeout(r, 100));
 
         try {
-          const delResult = await sb.from(t.name).delete().neq('id', '00000000-0000-0000-0000-000000000000');
-          if (delResult.error) {
-            errors.push(`${t.name} (delete): ${delResult.error.message}`);
-            if (msg) msg.innerHTML = `❌ خطا در پاک‌سازی ${t.name}<br><small style="color:red">${delResult.error.message}</small>`;
-            await new Promise(r => setTimeout(r, 800));
-            if (bar) bar.style.width = Math.round((done / total) * 100) + '%';
-            continue;
-          }
+          await sb.from(t.name).delete().neq('id', '00000000-0000-0000-0000-000000000000');
 
-          // ⭐ نمایش روی صفحه: در حال درج
           if (msg) msg.innerHTML = `💾 درج ${t.name} (${arr.length} رکورد)... (${done}/${total})`;
-          await new Promise(r => setTimeout(r, 50));
+          await new Promise(r => setTimeout(r, 100));
 
           const BATCH = 200;
           let insertedCount = 0;
@@ -2851,21 +2891,17 @@ function bindBackupEvents() {
             const chunk = arr.slice(i, i + BATCH);
             const { error: insErr } = await sb.from(t.name).insert(chunk);
             if (insErr) {
-              errors.push(`${t.name} (insert): ${insErr.message}`);
-              console.error(`❌ insert ${t.name}:`, insErr.message);
-              console.log(`نمونه رکورد ${t.name}:`, JSON.stringify(chunk[0]));
+              errors.push(`${t.name}: ${insErr.message}`);
             } else {
               insertedCount += chunk.length;
               restored += chunk.length;
             }
           }
           
-          if (msg) msg.innerHTML = `✅ ${t.name}: ${insertedCount}/${arr.length} ذخیره شد (${done}/${total})`;
+          if (msg) msg.innerHTML = `✅ ${t.name}: ${insertedCount}/${arr.length} (${done}/${total})`;
           await new Promise(r => setTimeout(r, 200));
         } catch(e) {
           errors.push(`${t.name}: ${e.message}`);
-          if (msg) msg.innerHTML = `❌ خطا در ${t.name}<br><small style="color:red">${e.message}</small>`;
-          await new Promise(r => setTimeout(r, 800));
         }
 
         if (bar) bar.style.width = Math.round((done / total) * 100) + '%';
@@ -2874,7 +2910,6 @@ function bindBackupEvents() {
       // تنظیمات
       if (payload.settings || data.settings) {
         const s = payload.settings || data.settings;
-        if (msg) msg.innerHTML = '⚙️ ذخیره تنظیمات...';
         try {
           await sb.from('settings').upsert({
             id: true,
@@ -2887,32 +2922,30 @@ function bindBackupEvents() {
         } catch(e) { console.warn('settings:', e.message); }
       }
 
-      // ⭐ نتیجه نهایی
+      // ⭐ نتیجه نهایی با جزئیات کامل خطاها
       if (errors.length) {
-        if (msg) msg.innerHTML = `⚠️ <b>${restored} رکورد ذخیره شد</b><br>
-          <small style="color:red">${errors.length} خطا: ${errors.slice(0,2).join(' | ')}</small><br>
-          <small>${errors.slice(0,5).map(e => '• ' + e).join('<br>')}</small>`;
-        toast(`⚠️ ${restored} رکورد — ${errors.length} خطا`, 'warning');
+        if (msg) msg.innerHTML = `⚠️ <b>${restored} رکورد ذخیره</b><br>
+          <div style="background:#fee2e2;padding:10px;border-radius:8px;margin-top:8px;font-size:12px;max-height:200px;overflow:auto">
+            <b>خطاها (${errors.length}):</b><br>
+            ${errors.map(e => '• ' + e).join('<br>')}
+          </div>`;
+        toast(`⚠️ ${restored} رکورد — خطا دارد`, 'warning');
       } else {
-        if (msg) msg.innerHTML = `✅ <b>${restored} رکورد با موفقیت بازیابی شد</b><br>بارگذاری مجدد...`;
-        toast(`✅ ${restored} رکورد ذخیره شد`, 'success');
+        if (msg) msg.innerHTML = `✅ <b>${restored} رکورد با موفقیت ذخیره شد</b><br>بارگذاری مجدد...`;
+        toast(`✅ ${restored} رکورد`, 'success');
       }
 
-      await new Promise(r => setTimeout(r, 800));
+      await new Promise(r => setTimeout(r, 1000));
       await loadData();
       renderAll();
       populateRcStudentSelect();
+      
       if (bar) bar.style.width = '100%';
-      
-      if (msg) msg.innerHTML = `✅ <b>بازیابی کامل</b><br>${db.students.length} دانش‌آموز — ${db.payments.length} پرداخت — ${db.grades.length} نمره`;
-      
-      // ⭐ هشدار اگر تعداد دانش‌آموزان صفر شد
-      if (db.students.length === 0 && studentCount > 0) {
-        if (msg) msg.innerHTML += `<br><small style="color:red">⚠️ فایل ${studentCount} دانش‌آموز داشت اما الان صفر نشان می‌دهد!</small>`;
-      }
+      if (msg) msg.innerHTML = `✅ <b>بازیابی کامل</b><br>
+        ${db.students.length} دانش‌آموز در دیتابیس`;
 
     } catch(e) {
-      if (msg) msg.innerHTML = `❌ خطای کلی: <small style="color:red">${e.message}</small>`;
+      if (msg) msg.innerHTML = `❌ خطای کلی:<br><div style="background:#fee2e2;padding:10px;border-radius:8px;margin-top:8px;font-size:12px">${e.message}<br><small>${e.stack || ''}</small></div>`;
       toast('خطا: ' + e.message, 'error');
     }
     fileInput.value = '';
