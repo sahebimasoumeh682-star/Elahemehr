@@ -1640,6 +1640,13 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
         📂 انتخاب فایل
         <input type="file" accept=".json" id="restoreFile" hidden>
       </label>
+      <button class="btn green" id="btnRestoreStaffOnly" style="width:100%;margin-top:10px">
+  👨‍🏫 بازیابی فقط کارکنان
+</button>
+<label class="btn blue" style="width:100%;text-align:center;display:block;padding:10px;border-radius:12px;cursor:pointer;margin-top:8px;font-size:13px">
+  📂 انتخاب فایل بکاپ
+  <input type="file" accept=".json" id="restoreFileStaffOnly" hidden>
+</label>
       <div id="restoreProgress" style="margin-top:18px;display:none">
         <div style="background:#e2e8f0;border-radius:10px;height:24px;overflow:hidden">
           <div id="restoreBar" style="background:linear-gradient(90deg,#6366f1,#8b5cf6);height:100%;width:0%;transition:width .3s;border-radius:10px"></div>
@@ -1933,11 +1940,12 @@ function mapStaff(r){
   return {
     ...r,
     code: r.staff_code,
+    role: r.position,
     hourly_rate: r.hourly_rate || 0,
     session_duration_minutes: r.session_duration_minutes || 90,
     nationalCode: r.national_code || '',
-    isTeacher: r.is_teacher || false,
-    canLogin: r.can_login || false
+    isTeacher: r.is_teacher || (r.position === 'دبیر' || r.position === 'مدیر' || r.position === 'معاون'),
+    canLogin: r.can_login !== false
   };
 }
 function mapSalary(r){
@@ -2715,6 +2723,87 @@ function drawDashboardCharts() {
    ⭐ بکاپ و بازیابی
 ============================================================ */
 function bindBackupEvents() {
+  // ⭐ تابع جداگانه برای بازیابی فقط staff
+async function restoreStaffOnly(file) {
+  try {
+    const text = await file.text();
+    const payload = JSON.parse(text);
+    const data = payload.data || payload;
+    const staffArr = data.staff || [];
+
+    if (!staffArr.length) {
+      alert('❌ در فایل بکاپ، staff وجود ندارد یا خالی است!\n\nلطفاً یک فایل بکاپ دیگر انتخاب کن.');
+      return;
+    }
+
+    const msg = document.getElementById('restoreMsg');
+    const progress = document.getElementById('restoreProgress');
+    if (progress) progress.style.display = 'block';
+    if (msg) msg.innerHTML = `👨‍🏫 پیدا شد: ${staffArr.length} کارمند<br>در حال ذخیره...`;
+
+    // ۱. پاک کردن staff قبلی
+    await sb.from('staff').delete().not('id', 'is', null);
+    await new Promise(r => setTimeout(r, 300));
+
+    if (msg) msg.innerHTML = `💾 درج ${staffArr.length} کارمند...`;
+
+    // ۲. پاک‌سازی
+    const cleaned = staffArr.map(r => {
+      const c = { ...r };
+      delete c.id;
+      delete c.created_at;
+      delete c.code;
+      delete c.role;
+      delete c.nationalCode;
+      delete c.isTeacher;
+      delete c.canLogin;
+      delete c.hourly_rate_old;
+      // حذف camelCase
+      Object.keys(c).forEach(k => { if (/[A-Z]/.test(k)) delete c[k]; });
+      // ⭐ حذف ستون‌های ناشناخته
+      ['email','address','birth_date','subjects','education','certificates','teaching_experience','work_days','bio'].forEach(k => {
+        // اینها در دیتابیس هستند، نگه‌دار
+      });
+      return c;
+    }).filter(c => c.name || c.family);
+
+    if (!cleaned.length) {
+      if (msg) msg.innerHTML = '❌ هیچ کارمند معتبری نبود';
+      return;
+    }
+
+    // ۳. درج
+    const BATCH = 50;
+    let inserted = 0;
+    const errors = [];
+    for (let i = 0; i < cleaned.length; i += BATCH) {
+      const chunk = cleaned.slice(i, i + BATCH);
+      const { error } = await sb.from('staff').insert(chunk);
+      if (error) errors.push(error.message);
+      else inserted += chunk.length;
+    }
+
+    // ۴. نتیجه
+    if (msg) {
+      if (errors.length) {
+        msg.innerHTML = `⚠️ ${inserted}/${staffArr.length} ذخیره شد<br>
+          <div style="color:red;font-size:11px">${errors.slice(0,3).join('<br>')}</div>`;
+      } else {
+        msg.innerHTML = `✅ ${inserted} کارمند با موفقیت ذخیره شد!<br>به‌روزرسانی...`;
+      }
+    }
+
+    // ۵. بارگذاری مجدد
+    await new Promise(r => setTimeout(r, 800));
+    await loadData();
+    renderAll();
+    if (msg) msg.innerHTML = `✅ ${db.staff.length} کارمند فعال`;
+    toast(`✅ ${inserted} کارمند بازیابی شد`, 'success');
+
+  } catch(e) {
+    alert('خطا: ' + e.message);
+  }
+}
   // ---- دانلود JSON ----
   const btnJson = document.getElementById('btnDownloadBackup');
   if (btnJson) btnJson.addEventListener('click', () => {
@@ -3094,6 +3183,18 @@ function bindBackupEvents() {
       toast('خطا: ' + e.message, 'error');
     }
     fileInput.value = '';
+  });
+    // ⭐ دکمه بازیابی فقط staff
+  const fileStaffOnly = document.getElementById('restoreFileStaffOnly');
+  if (fileStaffOnly) fileStaffOnly.addEventListener('change', async (ev) => {
+    const f = ev.target.files?.[0];
+    if (!f) return;
+    if (!confirm('⚠️ فقط جدول کارکنان بازیابی می‌شود. ادامه؟')) {
+      fileStaffOnly.value = '';
+      return;
+    }
+    await restoreStaffOnly(f);
+    fileStaffOnly.value = '';
   });
 }
   /* ============================================================
