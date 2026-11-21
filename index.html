@@ -2810,9 +2810,29 @@ function bindBackupEvents() {
       } catch(e) { console.warn('delete:', e.message); }
 
       // درج فقط یک دانش‌آموز
-      const testStudent = data.students[0];
-      const { data: insertData, error: insertError } = await sb.from('students').insert([testStudent]).select();
+     // ⭐ پاک‌سازی فیلدهای محاسباتی قبل از insert
+function cleanRecordForInsert(row) {
+  if (!row || typeof row !== 'object') return row;
+  const cleaned = { ...row };
+  // حذف فیلدهای محاسباتی که در دیتابیس نیستند
+  delete cleaned.birthDate;
+  delete cleaned.photoUrl;
+  delete cleaned.class;   // در دیتابیس class_name هست
+  delete cleaned.year;    // در دیتابیس academic_year هست
+  delete cleaned.nationalCode;
+  delete cleaned.isTeacher;
+  delete cleaned.canLogin;
+  delete cleaned.hourly_rate;
+  delete cleaned.session_duration_minutes;
+  // حذف هر فیلد camelCase (چون دیتابیس snake_case است)
+  Object.keys(cleaned).forEach(k => {
+    if (/[A-Z]/.test(k)) delete cleaned[k];
+  });
+  return cleaned;
+}
 
+const testStudent = cleanRecordForInsert(data.students[0]);
+const { data: insertData, error: insertError } = await sb.from('students').insert([testStudent]).select();
       if (insertError) {
         // ⭐⭐⭐ خطا را به طور کامل نشان بده ⭐⭐⭐
         if (msg) msg.innerHTML = `❌ <b>خطای تست insert:</b><br>
@@ -2885,11 +2905,12 @@ function bindBackupEvents() {
           if (msg) msg.innerHTML = `💾 درج ${t.name} (${arr.length} رکورد)... (${done}/${total})`;
           await new Promise(r => setTimeout(r, 100));
 
-          const BATCH = 200;
-          let insertedCount = 0;
-          for (let i = 0; i < arr.length; i += BATCH) {
-            const chunk = arr.slice(i, i + BATCH);
-            const { error: insErr } = await sb.from(t.name).insert(chunk);
+         const BATCH = 200;
+let insertedCount = 0;
+for (let i = 0; i < arr.length; i += BATCH) {
+  const rawChunk = arr.slice(i, i + BATCH);
+  const chunk = rawChunk.map(r => cleanRecordForInsert(r));
+  const { error: insErr } = await sb.from(t.name).insert(chunk);
             if (insErr) {
               errors.push(`${t.name}: ${insErr.message}`);
             } else {
