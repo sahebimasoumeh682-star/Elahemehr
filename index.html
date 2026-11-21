@@ -2705,7 +2705,7 @@ function bindBackupEvents() {
   if (btnJson) btnJson.addEventListener('click', () => {
     try {
       const payload = {
-        version: 'v21',
+        version: 'v22',
         exportedAt: new Date().toISOString(),
         settings: db.settings,
         data: {
@@ -2788,51 +2788,19 @@ function bindBackupEvents() {
         return;
       }
 
-      // ⭐ نقشه نگاشت: old_id → new_id برای هر جدول اصلی
-      const idMaps = {
-        students: {},
-        staff: {},
-        subjects: {}
-      };
+      // ⭐ نقشه نگاشت: old_id → new_id
+      const idMaps = { students: {}, staff: {}, subjects: {} };
 
-      // ⭐ ترتیب: اول والدها، بعد فرزندان
-      const parentTables = [
-        { name: 'students', key: 'students', idField: 'id', hasAutoId: true },
-        { name: 'staff', key: 'staff', idField: 'id', hasAutoId: true },
-        { name: 'subjects', key: 'subjects', idField: 'id', hasAutoId: true },
-        { name: 'assets', key: 'assets', idField: 'id', hasAutoId: true },
-        { name: 'incomes', key: 'incomes', idField: 'id', hasAutoId: true },
-        { name: 'expenses', key: 'expenses', idField: 'id', hasAutoId: true }
-      ];
-
-      const childTables = [
-        { name: 'payments', key: 'payments', remapFields: { student_id: 'students' } },
-        { name: 'installments', key: 'installments', remapFields: { student_id: 'students' } },
-        { name: 'discounts', key: 'discounts', remapFields: { student_id: 'students' } },
-        { name: 'salaries', key: 'salaries', remapFields: { staff_id: 'staff' } },
-        { name: 'checks', key: 'checks', remapFields: { student_id: 'students' } },
-        { name: 'grades', key: 'grades', remapFields: { student_id: 'students', teacher_id: 'staff' } },
-        { name: 'attendance', key: 'attendance', remapFields: { student_id: 'students' } },
-        { name: 'messages', key: 'messages', remapFields: {} },
-        { name: 'announcements', key: 'announcements', remapFields: {} },
-        { name: 'homework', key: 'homework', remapFields: {} },
-        { name: 'homework_submissions', key: 'homeworkSubmissions', remapFields: { student_id: 'students', homework_id: 'homework' } },
-        { name: 'events', key: 'events', remapFields: {} },
-        { name: 'class_schedule', key: 'classSchedule', remapFields: {} },
-        { name: 'teacher_ratings', key: 'teacherRatings', remapFields: { teacher_id: 'staff', student_id: 'students' } },
-        { name: 'sms_log', key: 'smsLog', remapFields: { student_id: 'students' } }
-      ];
-
-      let done = 0;
-      let restored = 0;
-      const total = parentTables.length + childTables.length;
-      const errors = [];
-
-      // ⭐ تابع پاک‌سازی فیلدهای محاسباتی
-      const cleanRecord = (row) => {
+      // ⭐ تابع پاک‌سازی رکورد — فیلدهای محاسباتی + نگاشت نام ستون‌ها
+      const cleanRecord = (row, tableName) => {
         if (!row || typeof row !== 'object') return null;
         const c = { ...row };
-        // حذف فیلدهای محاسباتی
+        
+        // ⭐ حذف کامل id (چون auto-increment است)
+        delete c.id;
+        delete c.created_at;
+        
+        // ⭐ حذف فیلدهای محاسباتی
         ['birthDate','photoUrl','class','year','nationalCode','isTeacher','canLogin',
          'hourly_rate','session_duration_minutes','studentId','teacherId','due','date',
          'desc','doc','type','base','month','checkNumber','bankName','issueDate',
@@ -2841,137 +2809,242 @@ function bindBackupEvents() {
          'startTime','endTime','teacherName','attachmentUrl','className',
          'parentMessageId','senderId','senderName','senderRole','recipientId',
          'recipientType','isRead','createdAt','expiresAt','homeworkId','submittedAt',
-         'net_amount_text'].forEach(k => { delete c[k]; });
+         'net_amount_text','amount_text'].forEach(k => { delete c[k]; });
+        
+        // ⭐ نگاشت نام ستون‌ها برای جدول‌های مختلف
+        if (tableName === 'staff') {
+          // code → staff_code
+          if (c.code !== undefined && c.staff_code === undefined) {
+            c.staff_code = c.code;
+            delete c.code;
+          }
+        }
+        
         // حذف camelCase
         Object.keys(c).forEach(k => { if (/[A-Z]/.test(k)) delete c[k]; });
+        
         return Object.keys(c).length ? c : null;
       };
 
-      // ⭐⭐⭐ مرحله ۱: درج والدها ⭐⭐⭐
-      for (const t of parentTables) {
-        const arr = data[t.key];
-        done++;
-
-        if (!arr || !Array.isArray(arr) || !arr.length) {
-          if (bar) bar.style.width = Math.round((done / total) * 100) + '%';
-          continue;
-        }
-
-        if (msg) msg.innerHTML = `🗑 پاک‌سازی ${t.name}...`;
-        await new Promise(r => setTimeout(r, 100));
+      // ⭐ حذف تمام رکوردهای یک جدول
+      const clearTable = async (tableName) => {
         try {
-          await sb.from(t.name).delete().neq('id', '00000000-0000-0000-0000-000000000000');
-        } catch(e) { console.warn('delete:', t.name, e.message); }
+          // روش امن‌تر: حذف همه با شرط id not null
+          const { error } = await sb.from(tableName).delete().not('id', 'is', null);
+          if (error) console.warn(`clear ${tableName}:`, error.message);
+        } catch(e) {
+          console.warn(`clear ${tableName}:`, e.message);
+        }
+      };
 
-        if (msg) msg.innerHTML = `💾 درج ${t.name} (${arr.length} رکورد)...`;
-        await new Promise(r => setTimeout(r, 100));
+      let done = 0;
+      let restored = 0;
+      const errors = [];
 
+      // ============ مرحله ۱: دانش‌آموزان ============
+      if (msg) msg.innerHTML = `🗑 پاک‌سازی students...`;
+      await clearTable('students');
+      await new Promise(r => setTimeout(r, 200));
+
+      if (data.students && Array.isArray(data.students) && data.students.length > 0) {
+        if (msg) msg.innerHTML = `💾 درج students (${data.students.length} رکورد)...`;
         const BATCH = 100;
-        let insertedCount = 0;
-        for (let i = 0; i < arr.length; i += BATCH) {
-          const rawChunk = arr.slice(i, i + BATCH);
-          // پاک‌سازی
-          const cleaned = rawChunk.map(r => cleanRecord(r)).filter(Boolean);
+        for (let i = 0; i < data.students.length; i += BATCH) {
+          const rawChunk = data.students.slice(i, i + BATCH);
+          const cleaned = rawChunk.map(r => cleanRecord(r, 'students')).filter(Boolean);
           if (!cleaned.length) continue;
-
-          // ذخیره id قدیمی برای نگاشت
           const oldIds = rawChunk.map(r => r.id);
 
-          // ⭐ insert با .select() تا idهای جدید را بگیریم
-          const { data: inserted, error: insErr } = await sb.from(t.name).insert(cleaned).select();
-
+          const { data: inserted, error: insErr } = await sb.from('students').insert(cleaned).select();
           if (insErr) {
-            errors.push(`${t.name}: ${insErr.message}`);
-            if (msg) msg.innerHTML = `❌ ${t.name}: ${insErr.message.slice(0, 60)}`;
-            await new Promise(r => setTimeout(r, 500));
+            errors.push(`students: ${insErr.message}`);
           } else if (inserted) {
-            // ⭐ نگاشت old_id → new_id
             inserted.forEach((newRow, idx) => {
               const oldId = oldIds[idx];
               if (oldId !== undefined && newRow.id !== undefined) {
-                idMaps[t.name][String(oldId)] = newRow.id;
+                idMaps.students[String(oldId)] = newRow.id;
               }
             });
-            insertedCount += inserted.length;
             restored += inserted.length;
           }
         }
-
-        if (msg) msg.innerHTML = `✅ ${t.name}: ${insertedCount}/${arr.length} ذخیره شد`;
+        if (msg) msg.innerHTML = `✅ students: ${Object.keys(idMaps.students).length} ذخیره شد`;
         await new Promise(r => setTimeout(r, 200));
-        if (bar) bar.style.width = Math.round((done / total) * 100) + '%';
+      }
+      done++;
+
+      // ============ مرحله ۲: کارکنان ============
+      if (msg) msg.innerHTML = `🗑 پاک‌سازی staff...`;
+      await clearTable('staff');
+      await new Promise(r => setTimeout(r, 200));
+
+      if (data.staff && Array.isArray(data.staff) && data.staff.length > 0) {
+        if (msg) msg.innerHTML = `💾 درج staff (${data.staff.length} رکورد)...`;
+        const BATCH = 100;
+        for (let i = 0; i < data.staff.length; i += BATCH) {
+          const rawChunk = data.staff.slice(i, i + BATCH);
+          const cleaned = rawChunk.map(r => cleanRecord(r, 'staff')).filter(Boolean);
+          if (!cleaned.length) continue;
+          const oldIds = rawChunk.map(r => r.id);
+
+          const { data: inserted, error: insErr } = await sb.from('staff').insert(cleaned).select();
+          if (insErr) {
+            errors.push(`staff: ${insErr.message}`);
+          } else if (inserted) {
+            inserted.forEach((newRow, idx) => {
+              const oldId = oldIds[idx];
+              if (oldId !== undefined && newRow.id !== undefined) {
+                idMaps.staff[String(oldId)] = newRow.id;
+              }
+            });
+            restored += inserted.length;
+          }
+        }
+        if (msg) msg.innerHTML = `✅ staff: ${Object.keys(idMaps.staff).length} ذخیره شد`;
+        await new Promise(r => setTimeout(r, 200));
+      }
+      done++;
+
+      // ============ مرحله ۳: دروس (با upsert) ============
+      if (msg) msg.innerHTML = `🗑 پاک‌سازی subjects...`;
+      await clearTable('subjects');
+      await new Promise(r => setTimeout(r, 200));
+
+      if (data.subjects && Array.isArray(data.subjects) && data.subjects.length > 0) {
+        if (msg) msg.innerHTML = `💾 درج subjects (${data.subjects.length} رکورد)...`;
+        // ⭐ حذف تکراری‌ها بر اساس name
+        const seen = new Set();
+        const uniqueSubjects = [];
+        data.subjects.forEach(s => {
+          if (s.name && !seen.has(s.name)) {
+            seen.add(s.name);
+            uniqueSubjects.push({ name: s.name });
+          }
+        });
+
+        if (uniqueSubjects.length > 0) {
+          const { data: inserted, error: insErr } = await sb.from('subjects').insert(uniqueSubjects).select();
+          if (insErr) {
+            errors.push(`subjects: ${insErr.message}`);
+          } else if (inserted) {
+            inserted.forEach((newRow, idx) => {
+              const old = data.subjects[idx];
+              if (old && old.id !== undefined && newRow.id !== undefined) {
+                idMaps.subjects[String(old.id)] = newRow.id;
+              }
+            });
+            restored += inserted.length;
+          }
+        }
+        if (msg) msg.innerHTML = `✅ subjects: ${uniqueSubjects.length} ذخیره شد`;
+        await new Promise(r => setTimeout(r, 200));
+      }
+      done++;
+
+      // ============ مرحله ۴: بقیه والدها (assets, incomes, expenses) ============
+      const simpleParents = [
+        { name: 'assets', key: 'assets' },
+        { name: 'incomes', key: 'incomes' },
+        { name: 'expenses', key: 'expenses' }
+      ];
+      for (const t of simpleParents) {
+        await clearTable(t.name);
+        const arr = data[t.key];
+        if (arr && Array.isArray(arr) && arr.length > 0) {
+          const cleaned = arr.map(r => cleanRecord(r, t.name)).filter(Boolean);
+          if (cleaned.length > 0) {
+            const { error: insErr } = await sb.from(t.name).insert(cleaned);
+            if (insErr) errors.push(`${t.name}: ${insErr.message}`);
+            else restored += cleaned.length;
+          }
+        }
+        if (msg) msg.innerHTML = `✅ ${t.name} انجام شد`;
+        await new Promise(r => setTimeout(r, 100));
+        done++;
       }
 
-      // ⭐⭐⭐ مرحله ۲: درج فرزندان با نگاشت id ⭐⭐⭐
-      for (const t of childTables) {
-        const arr = data[t.key];
-        done++;
+      // ============ مرحله ۵: فرزندان (با نگاشت id) ============
+      const childTables = [
+        { name: 'payments', key: 'payments', remap: { student_id: 'students' }, uniqueField: 'receipt' },
+        { name: 'installments', key: 'installments', remap: { student_id: 'students' } },
+        { name: 'discounts', key: 'discounts', remap: { student_id: 'students' } },
+        { name: 'salaries', key: 'salaries', remap: { staff_id: 'staff' } },
+        { name: 'checks', key: 'checks', remap: { student_id: 'students' }, uniqueField: 'check_number' },
+        { name: 'grades', key: 'grades', remap: { student_id: 'students', teacher_id: 'staff' } },
+        { name: 'attendance', key: 'attendance', remap: { student_id: 'students' } },
+        { name: 'messages', key: 'messages', remap: {} },
+        { name: 'announcements', key: 'announcements', remap: {} },
+        { name: 'homework', key: 'homework', remap: {} },
+        { name: 'homework_submissions', key: 'homeworkSubmissions', remap: { student_id: 'students', homework_id: 'homework' } },
+        { name: 'events', key: 'events', remap: {} },
+        { name: 'class_schedule', key: 'classSchedule', remap: {} },
+        { name: 'teacher_ratings', key: 'teacherRatings', remap: { teacher_id: 'staff', student_id: 'students' }, requiredFields: ['teacher_id', 'student_id'] },
+        { name: 'sms_log', key: 'smsLog', remap: { student_id: 'students' } }
+      ];
 
+      for (const t of childTables) {
+        await clearTable(t.name);
+        const arr = data[t.key];
         if (!arr || !Array.isArray(arr) || !arr.length) {
-          if (bar) bar.style.width = Math.round((done / total) * 100) + '%';
+          done++;
+          if (bar) bar.style.width = Math.round((done / (childTables.length + 8)) * 100) + '%';
           continue;
         }
 
-        if (msg) msg.innerHTML = `🗑 پاک‌سازی ${t.name}...`;
-        await new Promise(r => setTimeout(r, 80));
-        try {
-          await sb.from(t.name).delete().neq('id', '00000000-0000-0000-0000-000000000000');
-        } catch(e) { console.warn('delete:', t.name, e.message); }
-
         if (msg) msg.innerHTML = `💾 درج ${t.name} (${arr.length} رکورد)...`;
-        await new Promise(r => setTimeout(r, 80));
+        await new Promise(r => setTimeout(r, 100));
 
         const BATCH = 100;
-        let insertedCount = 0;
         for (let i = 0; i < arr.length; i += BATCH) {
           const rawChunk = arr.slice(i, i + BATCH);
-          // پاک‌سازی + نگاشت idها
-          const cleaned = rawChunk.map(r => {
-            const c = cleanRecord(r);
-            if (!c) return null;
-            // نگاشت فیلدهای وابسته
-            Object.entries(t.remapFields || {}).forEach(([field, parentTable]) => {
+          const cleaned = [];
+          
+          for (const r of rawChunk) {
+            const c = cleanRecord(r, t.name);
+            if (!c) continue;
+            
+            // نگاشت id
+            Object.entries(t.remap || {}).forEach(([field, parentTable]) => {
               if (c[field] !== undefined && c[field] !== null) {
                 const newId = idMaps[parentTable]?.[String(c[field])];
                 if (newId !== undefined) {
                   c[field] = newId;
                 } else {
-                  // اگر نگاشت پیدا نشد، null کن
                   c[field] = null;
                 }
               }
             });
-            // حذف id
-            delete c.id;
-            return c;
-          }).filter(Boolean);
+
+            // ⭐ بررسی فیلدهای اجباری (اگر null بود، skip کن)
+            const hasRequiredNull = (t.requiredFields || []).some(f => c[f] === null || c[f] === undefined);
+            if (hasRequiredNull) continue;
+
+            cleaned.push(c);
+          }
 
           if (!cleaned.length) continue;
 
           const { error: insErr } = await sb.from(t.name).insert(cleaned);
           if (insErr) {
             errors.push(`${t.name}: ${insErr.message}`);
-            if (msg) msg.innerHTML = `⚠️ ${t.name}: ${insErr.message.slice(0, 60)}`;
-            await new Promise(r => setTimeout(r, 300));
           } else {
-            insertedCount += cleaned.length;
             restored += cleaned.length;
           }
         }
-
-        if (msg) msg.innerHTML = `✅ ${t.name}: ${insertedCount}/${arr.length}`;
-        await new Promise(r => setTimeout(r, 150));
-        if (bar) bar.style.width = Math.round((done / total) * 100) + '%';
+        if (msg) msg.innerHTML = `✅ ${t.name} انجام شد`;
+        await new Promise(r => setTimeout(r, 100));
+        done++;
+        if (bar) bar.style.width = Math.round((done / (childTables.length + 8)) * 100) + '%';
       }
 
-      // تنظیمات
+      // ============ مرحله ۶: تنظیمات ============
       if (payload.settings || data.settings) {
         const s = payload.settings || data.settings;
         try {
           await sb.from('settings').upsert({
             id: true,
-            school_name: s.school || s.school_name,
-            academic_year: s.year || s.academic_year,
+            school_name: s.school || s.school_name || 'دبیرستان الهه مهر',
+            academic_year: s.year || s.academic_year || '۱۴۰۵-۱۴۰۶',
             phone: s.phone || '',
             address: s.address || '',
             footer: s.footer || ''
@@ -2979,11 +3052,12 @@ function bindBackupEvents() {
         } catch(e) { console.warn('settings:', e.message); }
       }
 
-      // نتیجه نهایی
+      // ============ نتیجه نهایی ============
       if (errors.length) {
-        if (msg) msg.innerHTML = `⚠️ <b>${restored} رکورد ذخیره</b><br>
+        if (msg) msg.innerHTML = `⚠️ <b>${restored} رکورد ذخیره شد</b><br>
           <div style="background:#fee2e2;padding:10px;border-radius:8px;margin-top:8px;font-size:11px;max-height:180px;overflow:auto">
-            <b>خطاها (${errors.length}):</b><br>${errors.slice(0, 8).map(e => '• ' + e).join('<br>')}
+            <b>${errors.length} خطا (اکثراً به دلیل تکراری بودن):</b><br>
+            ${errors.slice(0, 5).map(e => '• ' + e.slice(0, 100)).join('<br>')}
           </div>`;
         toast(`⚠️ ${restored} رکورد — ${errors.length} خطا`, 'warning');
       } else {
