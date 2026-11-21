@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>حسابداری دبیرستان دخترانه الهه مهر</title>
+<title> دبیرستان دخترانه الهه مهر</title>
 <link rel="icon" href="logo.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,6 +11,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 <style>
 :root {
   --primary: #6366f1; --primary-dark: #4f46e5; --primary-light: #818cf8; --primary-bg: #eef2ff;
@@ -1081,6 +1082,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
     <h2>🎓 صدور کارنامه A5</h2>
     <div class="actions">
       <button class="btn blue" id="btnRcPrint">🖨 چاپ کارنامه</button>
+      <button class="btn gold" id="btnRcPdf" style="background:linear-gradient(135deg,#dc2626 0%,#b91c1c 100%);color:#fff">📥 دانلود PDF</button>
       <button class="btn purple" id="btnRcPrintAll" style="background:linear-gradient(135deg,#a855f7 0%,#7c3aed 100%);color:#fff">🖨 چاپ همه دانش‌آموزان</button>
     </div>
   </div>
@@ -2460,7 +2462,105 @@ function renderReportCardPreview() {
   }
   area.innerHTML = buildReportCardHTML(studentId, monthName, term);
 }
+// ⭐ دانلود کارنامه به صورت PDF
+async function downloadReportCardPDF() {
+  const studentId = document.getElementById('rcStudentSelect').value;
+  const monthName = document.getElementById('rcMonthSelect').value;
+  const term = document.getElementById('rcTermSelect').value;
+  
+  if (!studentId) {
+    toast('لطفاً یک دانش‌آموز انتخاب کنید', 'warning');
+    return;
+  }
+  
+  if (typeof html2pdf === 'undefined') {
+    toast('کتابخانه PDF لود نشده — صفحه را Refresh کنید', 'error');
+    return;
+  }
 
+  const student = studentById(studentId);
+  if (!student) {
+    toast('دانش‌آموز یافت نشد', 'error');
+    return;
+  }
+
+  // نمایش پیغام در حال ساخت
+  toast('📄 در حال ساخت PDF...', 'warning');
+
+  try {
+    // ساخت HTML کارنامه
+    const html = buildReportCardHTML(studentId, monthName, term);
+    
+    // ایجاد یک div موقت برای رندر
+    const container = document.createElement('div');
+    container.innerHTML = html;
+    container.style.position = 'absolute';
+    container.style.left = '-9999px';
+    container.style.top = '0';
+    container.style.width = '148mm'; // A5 عرض
+    container.style.background = '#fff';
+    document.body.appendChild(container);
+
+    // پیدا کردن sheet داخل container
+    const sheet = container.querySelector('.rc-sheet');
+    if (!sheet) {
+      container.remove();
+      toast('خطا در ساخت کارنامه', 'error');
+      return;
+    }
+
+    // تنظیمات PDF
+    const opt = {
+      margin: 0,
+      filename: `کارنامه-${student.name}-${student.family}-${monthName || 'سال'}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { 
+        scale: 2,
+        useCORS: true,
+        letterRendering: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      },
+      jsPDF: { 
+        unit: 'mm', 
+        format: 'a5', 
+        orientation: 'portrait' 
+      },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+    };
+
+    // ساخت PDF
+    await html2pdf().set(opt).from(sheet).save();
+
+    // پاک‌سازی
+    container.remove();
+
+    toast(`✅ PDF کارنامه ${student.name} ${student.family} دانلود شد`, 'success');
+
+    // ⭐ نمایش راهنمای ارسال در روبیکا
+    setTimeout(() => {
+      const guide = confirm(
+        `📄 فایل PDF کارنامه دانلود شد!\n\n` +
+        `📱 برای ارسال در روبیکا:\n\n` +
+        `۱. فایل را در گالری یا File Manager گوشی پیدا کنید\n` +
+        `۲. در روبیکا، چت اولیا را باز کنید\n` +
+        `۳. روی آیکون 📎 (پیوست) بزنید\n` +
+        `۴. فایل PDF را انتخاب کنید\n` +
+        `۵. ارسال کنید\n\n` +
+        `آیا مایلید فایل به اشتراک گذاشته شود؟`
+      );
+      
+      if (guide && navigator.share) {
+        // اگر مرورگر پشتیبانی کند، فایل را برای اشتراک آماده کن
+        // (نیاز به فایل Blob دارد)
+      }
+    }, 1000);
+
+  } catch(e) {
+    console.error('PDF error:', e);
+    toast('خطا در ساخت PDF: ' + e.message, 'error');
+  }
+}
 function printReportCard() {
   const studentId = document.getElementById('rcStudentSelect').value;
   const monthName = document.getElementById('rcMonthSelect').value;
@@ -3928,6 +4028,8 @@ function bindReportCardEvents() {
   if (btnGen) btnGen.addEventListener('click', renderReportCardPreview);
   const btnPrint = document.getElementById('btnRcPrint');
   if (btnPrint) btnPrint.addEventListener('click', printReportCard);
+  const btnPdf = document.getElementById('btnRcPdf');
+if (btnPdf) btnPdf.addEventListener('click', downloadReportCardPDF);
   const btnPrintAll = document.getElementById('btnRcPrintAll');
   if (btnPrintAll) btnPrintAll.addEventListener('click', printAllReportCards);
   const selStudent = document.getElementById('rcStudentSelect');
