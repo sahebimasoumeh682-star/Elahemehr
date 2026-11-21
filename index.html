@@ -2700,20 +2700,20 @@ function drawDashboardCharts() {
    ⭐ بکاپ و بازیابی
 ============================================================ */
 function bindBackupEvents() {
+  // ---- دانلود JSON ----
   const btnJson = document.getElementById('btnDownloadBackup');
   if (btnJson) btnJson.addEventListener('click', () => {
     try {
       const payload = {
-        version: 'v18',
+        version: 'v20',
         exportedAt: new Date().toISOString(),
         settings: db.settings,
         data: {
           students: db.students, payments: db.payments, incomes: db.incomes,
           expenses: db.expenses, installments: db.installments, discounts: db.discounts,
           staff: db.staff, salaries: db.salaries, checks: db.checks, assets: db.assets,
-          users: db.users, smsLog: db.smsLog, smsSettings: db.smsSettings,
-          grades: db.grades, subjects: db.subjects, attendance: db.attendance,
-          messages: db.messages, announcements: db.announcements,
+          smsLog: db.smsLog, grades: db.grades, subjects: db.subjects,
+          attendance: db.attendance, messages: db.messages, announcements: db.announcements,
           homework: db.homework, homeworkSubmissions: db.homeworkSubmissions,
           events: db.events, classSchedule: db.classSchedule, teacherRatings: db.teacherRatings
         }
@@ -2725,27 +2725,22 @@ function bindBackupEvents() {
       a.download = `haleh-mehr-backup-${new Date().toISOString().slice(0,10)}.json`;
       a.click();
       URL.revokeObjectURL(url);
-      toast('✅ بکاپ دانلود شد', 'success');
+      toast('✅ بکاپ دانلود شد — ' + db.students.length + ' دانش‌آموز', 'success');
     } catch(e) {
       toast('خطا در دانلود: ' + e.message, 'error');
     }
   });
 
+  // ---- دانلود Excel ----
   const btnExcel = document.getElementById('btnDownloadExcelFull');
   if (btnExcel) btnExcel.addEventListener('click', () => {
     try {
       if (typeof XLSX === 'undefined') { toast('کتابخانه Excel لود نشده', 'error'); return; }
       const wb = XLSX.utils.book_new();
       const sheets = {
-        'دانش‌آموزان': db.students,
-        'پرداخت‌ها': db.payments,
-        'نمرات': db.grades,
-        'حضور و غیاب': db.attendance,
-        'کارکنان': db.staff,
-        'چک‌ها': db.checks,
-        'اقساط': db.installments,
-        'هزینه‌ها': db.expenses,
-        'درآمدها': db.incomes
+        'دانش‌آموزان': db.students, 'پرداخت‌ها': db.payments, 'نمرات': db.grades,
+        'حضور و غیاب': db.attendance, 'کارکنان': db.staff, 'چک‌ها': db.checks,
+        'اقساط': db.installments, 'هزینه‌ها': db.expenses, 'درآمدها': db.incomes
       };
       Object.entries(sheets).forEach(([name, arr]) => {
         if (!arr || !arr.length) return;
@@ -2759,6 +2754,7 @@ function bindBackupEvents() {
     }
   });
 
+  // ---- بازیابی فایل ----
   const fileInput = document.getElementById('restoreFile');
   if (fileInput) fileInput.addEventListener('change', async (ev) => {
     const file = ev.target.files?.[0];
@@ -2771,27 +2767,41 @@ function bindBackupEvents() {
     const bar = document.getElementById('restoreBar');
     const msg = document.getElementById('restoreMsg');
     if (progress) progress.style.display = 'block';
-    if (bar) bar.style.width = '10%';
-    if (msg) msg.textContent = 'در حال خواندن فایل...';
+    if (bar) bar.style.width = '5%';
+    if (msg) msg.innerHTML = '📂 خواندن فایل...';
 
     try {
       const text = await file.text();
       const payload = JSON.parse(text);
       const data = payload.data || payload;
 
+      // ⭐ خلاصه فایل روی صفحه
+      const totalRecords = Object.values(data).reduce((sum, arr) => {
+        return sum + (Array.isArray(arr) ? arr.length : 0);
+      }, 0);
+      const studentCount = Array.isArray(data.students) ? data.students.length : 0;
+      
+      if (msg) msg.innerHTML = `📦 فایل: ${totalRecords} رکورد — ${studentCount} دانش‌آموز<br>شروع بازیابی...`;
+      
+      if (totalRecords === 0) {
+        if (msg) msg.innerHTML = '❌ فایل بکاپ خالی است! هیچ رکوردی ندارد.';
+        toast('فایل بکاپ خالی است', 'error');
+        return;
+      }
+
       const tables = [
         { name: 'students', key: 'students' },
-        { name: 'payments', key: 'payments' },
+        { name: 'staff', key: 'staff' },
+        { name: 'subjects', key: 'subjects' },
+        { name: 'assets', key: 'assets' },
         { name: 'incomes', key: 'incomes' },
         { name: 'expenses', key: 'expenses' },
+        { name: 'payments', key: 'payments' },
         { name: 'installments', key: 'installments' },
         { name: 'discounts', key: 'discounts' },
-        { name: 'staff', key: 'staff' },
         { name: 'salaries', key: 'salaries' },
         { name: 'checks', key: 'checks' },
-        { name: 'assets', key: 'assets' },
         { name: 'grades', key: 'grades' },
-        { name: 'subjects', key: 'subjects' },
         { name: 'attendance', key: 'attendance' },
         { name: 'messages', key: 'messages' },
         { name: 'announcements', key: 'announcements' },
@@ -2804,46 +2814,106 @@ function bindBackupEvents() {
       ];
 
       let done = 0;
+      let restored = 0;
       const total = tables.length;
+      const errors = [];
+
       for (const t of tables) {
         const arr = data[t.key];
-        if (!arr || !Array.isArray(arr) || !arr.length) { done++; continue; }
-        try { await sb.from(t.name).delete().neq('id', 0); } catch(e) {}
-        const cleaned = arr.map(row => {
-          const { id, ...rest } = row;
-          return rest;
-        });
-        const { error } = await sb.from(t.name).insert(cleaned);
-        if (error) console.warn(`خطا در ${t.name}:`, error.message);
         done++;
+
+        if (!arr || !Array.isArray(arr) || !arr.length) {
+          if (bar) bar.style.width = Math.round((done / total) * 100) + '%';
+          continue;
+        }
+
+        // ⭐ نمایش روی صفحه: در حال پاک‌سازی
+        if (msg) msg.innerHTML = `🗑 پاک‌سازی ${t.name}... (${done}/${total})`;
+        await new Promise(r => setTimeout(r, 50));
+
+        try {
+          const delResult = await sb.from(t.name).delete().neq('id', '00000000-0000-0000-0000-000000000000');
+          if (delResult.error) {
+            errors.push(`${t.name} (delete): ${delResult.error.message}`);
+            if (msg) msg.innerHTML = `❌ خطا در پاک‌سازی ${t.name}<br><small style="color:red">${delResult.error.message}</small>`;
+            await new Promise(r => setTimeout(r, 800));
+            if (bar) bar.style.width = Math.round((done / total) * 100) + '%';
+            continue;
+          }
+
+          // ⭐ نمایش روی صفحه: در حال درج
+          if (msg) msg.innerHTML = `💾 درج ${t.name} (${arr.length} رکورد)... (${done}/${total})`;
+          await new Promise(r => setTimeout(r, 50));
+
+          const BATCH = 200;
+          let insertedCount = 0;
+          for (let i = 0; i < arr.length; i += BATCH) {
+            const chunk = arr.slice(i, i + BATCH);
+            const { error: insErr } = await sb.from(t.name).insert(chunk);
+            if (insErr) {
+              errors.push(`${t.name} (insert): ${insErr.message}`);
+              console.error(`❌ insert ${t.name}:`, insErr.message);
+              console.log(`نمونه رکورد ${t.name}:`, JSON.stringify(chunk[0]));
+            } else {
+              insertedCount += chunk.length;
+              restored += chunk.length;
+            }
+          }
+          
+          if (msg) msg.innerHTML = `✅ ${t.name}: ${insertedCount}/${arr.length} ذخیره شد (${done}/${total})`;
+          await new Promise(r => setTimeout(r, 200));
+        } catch(e) {
+          errors.push(`${t.name}: ${e.message}`);
+          if (msg) msg.innerHTML = `❌ خطا در ${t.name}<br><small style="color:red">${e.message}</small>`;
+          await new Promise(r => setTimeout(r, 800));
+        }
+
         if (bar) bar.style.width = Math.round((done / total) * 100) + '%';
-        if (msg) msg.textContent = `در حال بازیابی ${t.name} (${done}/${total})...`;
       }
 
-      if (payload.settings) {
+      // تنظیمات
+      if (payload.settings || data.settings) {
+        const s = payload.settings || data.settings;
+        if (msg) msg.innerHTML = '⚙️ ذخیره تنظیمات...';
         try {
           await sb.from('settings').upsert({
             id: true,
-            school_name: payload.settings.school,
-            academic_year: payload.settings.year,
-            phone: payload.settings.phone,
-            address: payload.settings.address,
-            footer: payload.settings.footer
+            school_name: s.school || s.school_name,
+            academic_year: s.year || s.academic_year,
+            phone: s.phone || '',
+            address: s.address || '',
+            footer: s.footer || ''
           });
         } catch(e) { console.warn('settings:', e.message); }
       }
 
-      if (msg) msg.textContent = '✅ بازیابی با موفقیت انجام شد';
-      toast('✅ بازیابی کامل شد', 'success');
-      setTimeout(async () => {
-        await loadData();
-        renderAll();
-        populateRcStudentSelect();
-        if (progress) progress.style.display = 'none';
-      }, 800);
+      // ⭐ نتیجه نهایی
+      if (errors.length) {
+        if (msg) msg.innerHTML = `⚠️ <b>${restored} رکورد ذخیره شد</b><br>
+          <small style="color:red">${errors.length} خطا: ${errors.slice(0,2).join(' | ')}</small><br>
+          <small>${errors.slice(0,5).map(e => '• ' + e).join('<br>')}</small>`;
+        toast(`⚠️ ${restored} رکورد — ${errors.length} خطا`, 'warning');
+      } else {
+        if (msg) msg.innerHTML = `✅ <b>${restored} رکورد با موفقیت بازیابی شد</b><br>بارگذاری مجدد...`;
+        toast(`✅ ${restored} رکورد ذخیره شد`, 'success');
+      }
+
+      await new Promise(r => setTimeout(r, 800));
+      await loadData();
+      renderAll();
+      populateRcStudentSelect();
+      if (bar) bar.style.width = '100%';
+      
+      if (msg) msg.innerHTML = `✅ <b>بازیابی کامل</b><br>${db.students.length} دانش‌آموز — ${db.payments.length} پرداخت — ${db.grades.length} نمره`;
+      
+      // ⭐ هشدار اگر تعداد دانش‌آموزان صفر شد
+      if (db.students.length === 0 && studentCount > 0) {
+        if (msg) msg.innerHTML += `<br><small style="color:red">⚠️ فایل ${studentCount} دانش‌آموز داشت اما الان صفر نشان می‌دهد!</small>`;
+      }
+
     } catch(e) {
-      if (msg) msg.textContent = '❌ خطا: ' + e.message;
-      toast('خطا در بازیابی: ' + e.message, 'error');
+      if (msg) msg.innerHTML = `❌ خطای کلی: <small style="color:red">${e.message}</small>`;
+      toast('خطا: ' + e.message, 'error');
     }
     fileInput.value = '';
   });
