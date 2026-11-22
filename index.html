@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>حسابداری دبیرستان دخترانه الهه مهر</title>
+<title>دبیرستان دخترانه الهه مهر</title>
 <link rel="icon" href="logo.png" type="image/png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,6 +11,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 <style>
 :root {
   --primary: #6366f1; --primary-dark: #4f46e5; --primary-light: #818cf8; --primary-bg: #eef2ff;
@@ -268,12 +269,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .auth-msg.ok { color: var(--success-dark); }
 
 #parentApp { display: none; min-height: 100vh; background: var(--bg-gradient); }
-.parent-header {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-  color: #fff; padding: 20px 28px;
-  display: flex; justify-content: space-between; align-items: center;
-  flex-wrap: wrap; gap: 14px;
-}
+.parent-header { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); color: #fff; padding: 20px 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; }
 .parent-header .ph-brand { display: flex; align-items: center; gap: 14px; }
 .parent-header .ph-brand img { width: 62px; height: 62px; border-radius: 14px; background: #fff; padding: 4px; object-fit: contain; }
 .parent-header .ph-brand h1 { margin: 0; font-size: 19px; font-weight: 800; }
@@ -304,12 +300,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .parent-stat.primary .ps-value { color: var(--primary-dark); }
 
 #teacherApp { display: none; min-height: 100vh; background: var(--bg-gradient); }
-.teacher-header {
-  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
-  color: #fff; padding: 20px 28px;
-  display: flex; justify-content: space-between; align-items: center;
-  flex-wrap: wrap; gap: 14px;
-}
+.teacher-header { background: linear-gradient(135deg, #059669 0%, #10b981 100%); color: #fff; padding: 20px 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px; }
 .teacher-header .th-brand { display: flex; align-items: center; gap: 14px; }
 .teacher-header .th-brand img { width: 62px; height: 62px; border-radius: 14px; background: #fff; padding: 4px; object-fit: contain; }
 .teacher-header .th-brand h1 { margin: 0; font-size: 19px; font-weight: 800; }
@@ -430,9 +421,6 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .check-student-result-item:hover { background: #eef2ff; }
 .check-student-result-item:last-child { border-bottom: 0; }
 
-/* ============================================================
-   ⭐ استایل کارنامه A5
-============================================================ */
 .reportcard-wrapper { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 20px; }
 .reportcard-controls { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: 16px; padding: 14px 18px; background: var(--primary-bg); border-radius: 12px; border: 2px solid var(--primary-light); }
 .reportcard-controls select, .reportcard-controls input { border: 2px solid var(--line); background: #fff; color: var(--text); border-radius: 10px; padding: 10px 14px; font-size: 13.5px; min-width: 160px; }
@@ -441,7 +429,6 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 
 .rc-sheet { width: 148mm; min-height: 210mm; margin: 0 auto; background: #fff; color: #1e293b; padding: 6mm; font-family: 'Estedad', Tahoma, sans-serif; font-size: 10px; line-height: 1.5; box-shadow: 0 6px 25px rgba(0,0,0,.12); border: 1px solid #cbd5e1; position: relative; overflow: hidden; direction: rtl; }
 .rc-sheet * { box-sizing: border-box; }
-
 .rc-header { display: flex; align-items: center; gap: 10px; border-bottom: 2.5px solid #6366f1; padding-bottom: 5px; margin-bottom: 6px; }
 .rc-header .rc-logo { width: 48px; height: 48px; border-radius: 10px; background: #eef2ff; display: grid; place-items: center; font-size: 24px; flex-shrink: 0; border: 1.5px solid #c7d2fe; overflow: hidden; }
 .rc-header .rc-logo img { width: 100%; height: 100%; object-fit: contain; }
@@ -450,16 +437,13 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .rc-header .rc-titles p { margin: 1px 0 0; font-size: 9px; color: #64748b; font-weight: 600; }
 .rc-header .rc-meta { text-align: left; font-size: 8.5px; color: #475569; font-weight: 600; line-height: 1.6; }
 .rc-header .rc-meta b { color: #1e293b; }
-
 .rc-title-bar { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; padding: 5px 10px; border-radius: 8px; text-align: center; font-size: 11.5px; font-weight: 800; letter-spacing: .5px; margin-bottom: 6px; }
 .rc-title-bar small { display: block; font-size: 8.5px; font-weight: 600; opacity: .9; margin-top: 1px; }
-
 .rc-student-info { display: grid; grid-template-columns: 1fr 1fr; gap: 3px 12px; padding: 6px 10px; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 8px; margin-bottom: 6px; font-size: 9.5px; }
 .rc-student-info .row { display: flex; justify-content: space-between; padding: 2px 0; border-bottom: 1px dashed #cbd5e1; }
 .rc-student-info .row:last-child { border-bottom: 0; }
 .rc-student-info .row span:first-child { color: #64748b; font-weight: 600; }
 .rc-student-info .row span:last-child { color: #1e293b; font-weight: 800; }
-
 .rc-grades-table { width: 100%; border-collapse: collapse; margin-bottom: 6px; font-size: 9.5px; }
 .rc-grades-table th, .rc-grades-table td { border: 1px solid #cbd5e1; padding: 3px 4px; text-align: center; }
 .rc-grades-table th { background: linear-gradient(180deg, #eef2ff, #e0e7ff); color: #3730a3; font-weight: 800; font-size: 9px; }
@@ -471,7 +455,6 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .rc-grades-table td.score.ok { color: #d97706; }
 .rc-grades-table td.score.bad { color: #dc2626; }
 .rc-grades-table td.score.fail { color: #7f1d1d; background: #fee2e2 !important; }
-
 .rc-highlights { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 6px; }
 .rc-highlight { padding: 6px 8px; border-radius: 8px; font-size: 9.5px; display: flex; align-items: center; gap: 5px; border: 1.5px solid; }
 .rc-highlight.best { background: #d1fae5; border-color: #10b981; color: #065f46; }
@@ -480,7 +463,6 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .rc-highlight .rc-hl-info { flex: 1; }
 .rc-highlight .rc-hl-info b { display: block; font-size: 10px; font-weight: 800; }
 .rc-highlight .rc-hl-info small { font-size: 8px; opacity: .85; }
-
 .rc-rank-box { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 6px; }
 .rc-rank-item { padding: 5px 8px; border-radius: 8px; text-align: center; border: 1.5px solid; }
 .rc-rank-item.class-rank { background: linear-gradient(135deg, #dbeafe, #bfdbfe); border-color: #3b82f6; color: #1e40af; }
@@ -488,13 +470,11 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .rc-rank-item .rc-rank-label { font-size: 8.5px; font-weight: 700; opacity: .9; }
 .rc-rank-item .rc-rank-value { font-size: 16px; font-weight: 900; line-height: 1.1; margin: 1px 0; }
 .rc-rank-item .rc-rank-total { font-size: 8px; opacity: .85; font-weight: 600; }
-
 .rc-gpa-box { display: flex; align-items: center; justify-content: space-around; padding: 6px; border-radius: 8px; background: linear-gradient(135deg, #1e1b4b, #312e81, #4338ca); color: #fff; margin-bottom: 6px; gap: 8px; }
 .rc-gpa-box .rc-gpa-item { text-align: center; flex: 1; }
 .rc-gpa-box .rc-gpa-value { font-size: 18px; font-weight: 900; line-height: 1.1; }
 .rc-gpa-box .rc-gpa-label { font-size: 8.5px; opacity: .85; font-weight: 600; margin-top: 1px; }
 .rc-gpa-box .rc-gpa-divider { width: 1px; height: 28px; background: rgba(255,255,255,.3); }
-
 .rc-finance { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; padding: 6px; background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 8px; margin-bottom: 6px; }
 .rc-finance-item { text-align: center; padding: 2px; }
 .rc-finance-item .rc-fi-label { font-size: 8px; color: #64748b; font-weight: 700; margin-bottom: 1px; }
@@ -502,15 +482,12 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 .rc-finance-item .rc-fi-value.total { color: #3730a3; }
 .rc-finance-item .rc-fi-value.paid { color: #059669; }
 .rc-finance-item .rc-fi-value.debt { color: #dc2626; }
-
 .rc-comment { padding: 6px 8px; background: #fffbeb; border: 1.5px dashed #f59e0b; border-radius: 8px; font-size: 9px; color: #92400e; line-height: 1.6; margin-bottom: 6px; }
 .rc-comment b { color: #78350f; }
-
 .rc-signatures { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 5px; padding-top: 6px; border-top: 2px dashed #cbd5e1; margin-top: 6px; }
 .rc-signature { text-align: center; font-size: 8.5px; color: #475569; font-weight: 700; min-height: 48px; display: flex; flex-direction: column; justify-content: space-between; }
 .rc-signature .rc-sig-area { height: 30px; border-bottom: 1px solid #94a3b8; margin-bottom: 2px; }
 .rc-signature.stamp .rc-sig-area { height: 38px; border: 2px dashed #6366f1; border-radius: 50%; width: 38px; margin: 0 auto 2px; display: grid; place-items: center; color: #c7d2fe; font-size: 7.5px; font-weight: 700; line-height: 1.1; }
-
 .rc-footer-note { text-align: center; font-size: 8px; color: #94a3b8; margin-top: 5px; padding-top: 4px; border-top: 1px solid #e2e8f0; font-weight: 500; }
 .rc-empty { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 14px; background: var(--primary-bg); border-radius: 12px; }
 
@@ -715,9 +692,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
     <div class="parent-panel" id="parent-progress">
       <div class="card" style="margin-bottom:20px">
         <h3 style="margin-top:0">📈 گزارش پیشرفت</h3>
-        <p style="color:var(--muted);font-size:13px;margin:0 0 16px">
-          💡 نمودار پیشرفت نمرات فرزند شما در طول زمان
-        </p>
+        <p style="color:var(--muted);font-size:13px;margin:0 0 16px">💡 نمودار پیشرفت نمرات فرزند شما در طول زمان</p>
         <div id="parentProgressContent"></div>
       </div>
     </div>
@@ -725,9 +700,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
     <div class="parent-panel" id="parent-forecast">
       <div class="card" style="margin-bottom:20px">
         <h3 style="margin-top:0">🎓 پیش‌بینی معدل</h3>
-        <p style="color:var(--muted);font-size:13px;line-height:1.9;margin:0 0 18px">
-          💡 این پیش‌بینی بر اساس نمرات فعلی فرزند شما محاسبه می‌شود. معدل نهایی ممکن است متفاوت باشد.
-        </p>
+        <p style="color:var(--muted);font-size:13px;line-height:1.9;margin:0 0 18px">💡 این پیش‌بینی بر اساس نمرات فعلی فرزند شما محاسبه می‌شود. معدل نهایی ممکن است متفاوت باشد.</p>
         <div id="parentForecastResult"></div>
       </div>
     </div>
@@ -784,6 +757,8 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
           <h3 style="margin:0">📚 ثبت نمرات</h3>
           <button class="btn green" id="btnTeacherNewGrade">ثبت نمره +</button>
           <button class="btn purple" id="btnTeacherBulkGrade" style="background:linear-gradient(135deg,#a855f7 0%,#7c3aed 100%);color:#fff">📋 ثبت نمره گروهی</button>
+          <button class="btn red" id="btnTeacherAttendance" style="background:linear-gradient(135deg,#ef4444 0%,#dc2626 100%);color:#fff">📅 حضور و غیاب</button>
+          <button class="btn blue" id="btnTeacherViewAttendance" style="background:linear-gradient(135deg,#3b82f6 0%,#2563eb 100%);color:#fff">📊 مشاهده حضور و غیاب</button>
         </div>
         <div class="filters">
           <input id="teacherGradeSearch" placeholder="🔍 جستجوی دانش‌آموز...">
@@ -1075,12 +1050,12 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   </div>
 </section>
 
-<!-- ⭐ صفحه جدید: صدور کارنامه A5 -->
 <section class="page" id="reportcard">
   <div class="section-head">
     <h2>🎓 صدور کارنامه A5</h2>
     <div class="actions">
       <button class="btn blue" id="btnRcPrint">🖨 چاپ کارنامه</button>
+      <button class="btn gold" id="btnRcPdf" style="background:linear-gradient(135deg,#dc2626 0%,#b91c1c 100%);color:#fff">📥 دانلود PDF</button>
       <button class="btn purple" id="btnRcPrintAll" style="background:linear-gradient(135deg,#a855f7 0%,#7c3aed 100%);color:#fff">🖨 چاپ همه دانش‌آموزان</button>
     </div>
   </div>
@@ -1641,21 +1616,14 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
         <input type="file" accept=".json" id="restoreFile" hidden>
       </label>
       <div style="margin-top:18px;padding-top:18px;border-top:2px dashed var(--line)">
-  <div style="font-size:13px;font-weight:700;color:var(--primary-dark);margin-bottom:10px">
-    👨‍🏫 بازیابی فقط کارکنان و اساتید
-  </div>
-  <label class="btn green" style="width:100%;text-align:center;display:block;padding:14px;border-radius:12px;cursor:pointer">
-    📂 انتخاب فایل بکاپ برای staff
-    <input type="file" accept=".json" id="restoreFileStaff" hidden>
-  </label>
-</div>
-      <button class="btn green" id="btnRestoreStaffOnly" style="width:100%;margin-top:10px">
-  👨‍🏫 بازیابی فقط کارکنان
-</button>
-<label class="btn blue" style="width:100%;text-align:center;display:block;padding:10px;border-radius:12px;cursor:pointer;margin-top:8px;font-size:13px">
-  📂 انتخاب فایل بکاپ
-  <input type="file" accept=".json" id="restoreFileStaffOnly" hidden>
-</label>
+        <div style="font-size:13px;font-weight:700;color:var(--primary-dark);margin-bottom:10px">
+          👨‍🏫 بازیابی فقط کارکنان و اساتید
+        </div>
+        <label class="btn green" style="width:100%;text-align:center;display:block;padding:14px;border-radius:12px;cursor:pointer">
+          📂 انتخاب فایل بکاپ برای staff
+          <input type="file" accept=".json" id="restoreFileStaff" hidden>
+        </label>
+      </div>
       <div id="restoreProgress" style="margin-top:18px;display:none">
         <div style="background:#e2e8f0;border-radius:10px;height:24px;overflow:hidden">
           <div id="restoreBar" style="background:linear-gradient(90deg,#6366f1,#8b5cf6);height:100%;width:0%;transition:width .3s;border-radius:10px"></div>
@@ -1691,7 +1659,6 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   </div>
 </div>
 
-<!-- ⭐ dropdown سراسری برای جستجوی چک -->
 <div id="checkStudentResults"></div>
 
 <div class="toast" id="toast"></div>
@@ -1917,7 +1884,7 @@ function initSupabase(){
   }
   try {
     sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storageKey: 'haleh-mehr-auth-v18' }
+      auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false, storageKey: 'haleh-mehr-auth-v20' }
     });
     return true;
   } catch(e){
@@ -1930,12 +1897,12 @@ function initSupabase(){
    Mapping
 ============================================================ */
 function mapStudent(r){
-  return { 
-    ...r, 
-    class: r.class_name, 
+  return {
+    ...r,
+    class: r.class_name,
     year: r.academic_year,
-    phone: r.phone || r.father_phone, 
-    birthDate: r.birth_date || '', 
+    phone: r.phone || r.father_phone,
+    birthDate: r.birth_date || '',
     photoUrl: r.photo_url || '',
     national: r.national || ''
   };
@@ -2016,7 +1983,7 @@ function normalizeSettings(s){
 ============================================================ */
 async function loadData(){
   if(!sb) throw new Error('Supabase init نشده');
-  
+
   const loadTable = async (tableName, orderBy, ascending) => {
     try {
       let query = sb.from(tableName).select('*');
@@ -2032,19 +1999,19 @@ async function loadData(){
       return [];
     }
   };
-  
+
   let settingsData = null;
   try {
     const { data } = await sb.from('settings').select('*').eq('id', true).maybeSingle();
     settingsData = data;
   } catch(e){ console.warn('settings:', e.message); }
-  
+
   let smsSettingsData = null;
   try {
     const { data } = await sb.from('sms_settings').select('*').eq('id', true).maybeSingle();
     smsSettingsData = data;
   } catch(e){ console.warn('sms_settings:', e.message); }
-  
+
   const loaded = await Promise.all([
     loadTable('students', 'created_at', false),
     loadTable('payments', 'created_at', false),
@@ -2069,7 +2036,7 @@ async function loadData(){
     loadTable('class_schedule', 'period', true),
     loadTable('teacher_ratings', 'created_at', false)
   ]);
-  
+
   db.settings = normalizeSettings(settingsData);
   db.students = (loaded[0] || []).map(mapStudent);
   db.payments = (loaded[1] || []).map(mapPayment);
@@ -2083,21 +2050,6 @@ async function loadData(){
     time: new Date(x.created_at).toLocaleTimeString('fa-IR')
   }));
   db.staff = (loaded[7] || []).map(mapStaff);
-  // ⭐ دیباگ: نمایش اطلاعات staff
-setTimeout(() => {
-  console.log('🔍 تعداد staff:', db.staff.length);
-  if (db.staff.length > 0) {
-    console.log('👤 نمونه staff:', db.staff[0]);
-    const teachers = db.staff.filter(s => s.isTeacher);
-    console.log('👨‍🏫 تعداد اساتید (isTeacher):', teachers.length);
-    const withLogin = db.staff.filter(s => s.canLogin);
-    console.log('🔑 تعداد با canLogin:', withLogin.length);
-    const withNC = db.staff.filter(s => s.nationalCode);
-    console.log('🆔 تعداد با کد ملی:', withNC.length);
-    const withPhone = db.staff.filter(s => s.phone);
-    console.log('📱 تعداد با تلفن:', withPhone.length);
-  }
-}, 500);
   db.salaries = (loaded[8] || []).map(mapSalary);
   db.checks = (loaded[9] || []).map(mapCheck);
   db.assets = (loaded[10] || []).map(mapAsset);
@@ -2142,7 +2094,7 @@ async function refreshApp(){
   document.getElementById('userAvatar').textContent = (name[0] || 'م').toUpperCase();
   document.getElementById('userRole').textContent = meta.role || 'مدیر';
   document.getElementById('yearLabel').textContent = db.settings.year;
-  
+
   populateRcStudentSelect();
   renderAll();
 }
@@ -2239,7 +2191,6 @@ function buildReportCardHTML(studentId, monthName, term) {
   const schoolRank = calcSchoolRank(studentId, term);
   const { best, worst } = findBestWorstGrades(studentId, term);
 
-  // گروه‌بندی بر اساس درس
   const subjectMap = {};
   grades.forEach(g => {
     const key = g.subject || '—';
@@ -2251,7 +2202,6 @@ function buildReportCardHTML(studentId, monthName, term) {
   let rowIdx = 0;
   Object.keys(subjectMap).sort((a, b) => a.localeCompare(b, 'fa')).forEach(subject => {
     const items = subjectMap[subject];
-    // اگر بیش از یک نمره در این درس باشد، میانگین می‌گیریم
     const scoresList = items.map(it => {
       const sc = +it.score || 0;
       const mx = +it.max_score || 20;
@@ -2267,7 +2217,6 @@ function buildReportCardHTML(studentId, monthName, term) {
       else cls += ' fail';
       return `<td class="${cls}">${s.sc}</td><td style="font-size:8.5px;color:#64748b">${s.type}</td>`;
     }).join('');
-    // تعداد ستون‌های خالی تا 4
     const emptyCount = Math.max(0, 4 - scoresList.length);
     let emptyHTML = '';
     for (let i = 0; i < emptyCount; i++) {
@@ -2485,6 +2434,77 @@ function printAllReportCards() {
   setTimeout(() => { window.print(); setTimeout(() => area.remove(), 800); }, 200);
 }
 
+async function downloadReportCardPDF() {
+  const studentId = document.getElementById('rcStudentSelect').value;
+  const monthName = document.getElementById('rcMonthSelect').value;
+  const term = document.getElementById('rcTermSelect').value;
+
+  if (!studentId) {
+    toast('لطفاً یک دانش‌آموز انتخاب کنید', 'warning');
+    return;
+  }
+
+  if (typeof html2pdf === 'undefined') {
+    toast('کتابخانه PDF لود نشده — صفحه را Refresh کنید', 'error');
+    return;
+  }
+
+  const student = studentById(studentId);
+  if (!student) {
+    toast('دانش‌آموز یافت نشد', 'error');
+    return;
+  }
+
+  toast('📄 در حال ساخت PDF...', 'warning');
+
+  try {
+    const html = buildReportCardHTML(studentId, monthName, term);
+
+    const container = document.createElement('div');
+    container.innerHTML = html;
+    container.style.position = 'absolute';
+    container.style.left = '-9999px';
+    container.style.top = '0';
+    container.style.width = '148mm';
+    container.style.background = '#fff';
+    document.body.appendChild(container);
+
+    const sheet = container.querySelector('.rc-sheet');
+    if (!sheet) {
+      container.remove();
+      toast('خطا در ساخت کارنامه', 'error');
+      return;
+    }
+
+    const opt = {
+      margin: 0,
+      filename: `کارنامه-${student.name}-${student.family}-${monthName || 'سال'}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: {
+        scale: 2,
+        useCORS: true,
+        letterRendering: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      },
+      jsPDF: { unit: 'mm', format: 'a5', orientation: 'portrait' },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+    };
+
+    await html2pdf().set(opt).from(sheet).save();
+    container.remove();
+    toast(`✅ PDF کارنامه ${student.name} ${student.family} دانلود شد`, 'success');
+
+    setTimeout(() => {
+      confirm(`📄 فایل PDF کارنامه دانلود شد!\n\n📱 برای ارسال در روبیکا:\n\n۱. فایل را در گالری یا File Manager گوشی پیدا کنید\n۲. در روبیکا، چت اولیا را باز کنید\n۳. روی آیکون 📎 (پیوست) بزنید\n۴. فایل PDF را انتخاب کنید\n۵. ارسال کنید`);
+    }, 1000);
+
+  } catch(e) {
+    console.error('PDF error:', e);
+    toast('خطا در ساخت PDF: ' + e.message, 'error');
+  }
+}
+
 /* ============================================================
    ⭐ داشبورد — با تولدها و یادآوری‌ها
 ============================================================ */
@@ -2541,7 +2561,6 @@ function renderDashboard() {
   setTimeout(() => drawDashboardCharts(), 100);
 }
 
-/* ⭐ کارت تولدها */
 function renderBirthdaySection() {
   const el = document.getElementById('birthdayContainer');
   if (!el) return;
@@ -2729,187 +2748,14 @@ function drawDashboardCharts() {
 }
 
 /* ============================================================
-   ⭐ بکاپ و بازیابی
+   ⭐ بکاپ و بازیابی (نسخه نهایی)
 ============================================================ */
 function bindBackupEvents() {
-  // ⭐ تابع اختصاصی بازیابی staff از فایل بکاپ
-async function restoreStaffFromBackup(file) {
-  const msg = document.getElementById('restoreMsg');
-  const progress = document.getElementById('restoreProgress');
-  const bar = document.getElementById('restoreBar');
-  if (progress) progress.style.display = 'block';
-  if (bar) bar.style.width = '5%';
-  if (msg) msg.innerHTML = '📂 خواندن فایل...';
-
-  try {
-    const text = await file.text();
-    const payload = JSON.parse(text);
-    const data = payload.data || payload;
-    const staffArr = data.staff || [];
-
-    if (!staffArr.length) {
-      if (msg) msg.innerHTML = '❌ در فایل بکاپ، staff وجود ندارد!';
-      return;
-    }
-
-    if (msg) msg.innerHTML = `👨‍🏫 ${staffArr.length} کارمند یافت شد<br>در حال ذخیره...`;
-    await new Promise(r => setTimeout(r, 300));
-
-    // ۱. پاک کردن staff قبلی
-    if (msg) msg.innerHTML = '🗑 پاک‌سازی staff قبلی...';
-    try {
-      await sb.from('staff').delete().not('id', 'is', null);
-    } catch(e) { console.warn('delete staff:', e.message); }
-    await new Promise(r => setTimeout(r, 300));
-
-    // ۲. پاک‌سازی رکوردها — فقط ستون‌های واقعی staff
-    const STAFF_COLUMNS = [
-      'staff_code', 'name', 'family', 'position', 'phone',
-      'base_salary', 'bonus', 'notes', 'hourly_rate',
-      'session_duration_minutes', 'national_code', 'is_teacher',
-      'can_login', 'subjects', 'education', 'certificates',
-      'teaching_experience', 'work_days', 'bio', 'birth_date',
-      'email', 'address'
-    ];
-
-    const cleaned = staffArr.map(r => {
-      const c = {};
-      STAFF_COLUMNS.forEach(k => {
-        if (r[k] !== undefined && r[k] !== null) {
-          c[k] = r[k];
-        }
-      });
-      // ⭐ اگر is_teacher یا can_login undefined بود، پیش‌فرض true
-      if (c.is_teacher === undefined) c.is_teacher = true;
-      if (c.can_login === undefined) c.can_login = true;
-      // ⭐ اگر position خالی بود، از role قدیمی بردار
-      if (!c.position && r.role) c.position = r.role;
-      // ⭐ اگر staff_code خالی بود، از code قدیمی بردار
-      if (!c.staff_code && r.code) c.staff_code = String(r.code);
-      return Object.keys(c).length > 0 ? c : null;
-    }).filter(Boolean);
-
-    if (!cleaned.length) {
-      if (msg) msg.innerHTML = '❌ هیچ کارمند معتبری نبود';
-      return;
-    }
-
-    if (bar) bar.style.width = '30%';
-    if (msg) msg.innerHTML = `💾 درج ${cleaned.length} کارمند...`;
-    await new Promise(r => setTimeout(r, 200));
-
-    // ۳. درج
-    const { data: inserted, error } = await sb.from('staff').insert(cleaned).select();
-
-    if (bar) bar.style.width = '70%';
-
-    if (error) {
-      if (msg) msg.innerHTML = `❌ خطا:<br><div style="background:#fee2e2;padding:10px;border-radius:8px;margin-top:8px;font-size:12px">${error.message}</div>`;
-      return;
-    }
-
-    if (bar) bar.style.width = '100%';
-    if (msg) msg.innerHTML = `✅ <b>${inserted.length} کارمند با موفقیت ذخیره شد</b><br>بارگذاری مجدد...`;
-
-    await new Promise(r => setTimeout(r, 800));
-    await loadData();
-    renderAll();
-
-    if (msg) msg.innerHTML = `✅ <b>بازیابی کامل</b><br>${db.staff.length} کارمند فعال`;
-    toast(`✅ ${inserted.length} کارمند بازیابی شد`, 'success');
-
-  } catch(e) {
-    if (msg) msg.innerHTML = `❌ خطا: <small style="color:red">${e.message}</small>`;
-    toast('خطا: ' + e.message, 'error');
-  }
-}
-  // ⭐ تابع جداگانه برای بازیابی فقط staff
-async function restoreStaffOnly(file) {
-  try {
-    const text = await file.text();
-    const payload = JSON.parse(text);
-    const data = payload.data || payload;
-    const staffArr = data.staff || [];
-
-    if (!staffArr.length) {
-      alert('❌ در فایل بکاپ، staff وجود ندارد یا خالی است!\n\nلطفاً یک فایل بکاپ دیگر انتخاب کن.');
-      return;
-    }
-
-    const msg = document.getElementById('restoreMsg');
-    const progress = document.getElementById('restoreProgress');
-    if (progress) progress.style.display = 'block';
-    if (msg) msg.innerHTML = `👨‍🏫 پیدا شد: ${staffArr.length} کارمند<br>در حال ذخیره...`;
-
-    // ۱. پاک کردن staff قبلی
-    await sb.from('staff').delete().not('id', 'is', null);
-    await new Promise(r => setTimeout(r, 300));
-
-    if (msg) msg.innerHTML = `💾 درج ${staffArr.length} کارمند...`;
-
-    // ۲. پاک‌سازی
-    const cleaned = staffArr.map(r => {
-      const c = { ...r };
-      delete c.id;
-      delete c.created_at;
-      delete c.code;
-      delete c.role;
-      delete c.nationalCode;
-      delete c.isTeacher;
-      delete c.canLogin;
-      delete c.hourly_rate_old;
-      // حذف camelCase
-      Object.keys(c).forEach(k => { if (/[A-Z]/.test(k)) delete c[k]; });
-      // ⭐ حذف ستون‌های ناشناخته
-      ['email','address','birth_date','subjects','education','certificates','teaching_experience','work_days','bio'].forEach(k => {
-        // اینها در دیتابیس هستند، نگه‌دار
-      });
-      return c;
-    }).filter(c => c.name || c.family);
-
-    if (!cleaned.length) {
-      if (msg) msg.innerHTML = '❌ هیچ کارمند معتبری نبود';
-      return;
-    }
-
-    // ۳. درج
-    const BATCH = 50;
-    let inserted = 0;
-    const errors = [];
-    for (let i = 0; i < cleaned.length; i += BATCH) {
-      const chunk = cleaned.slice(i, i + BATCH);
-      const { error } = await sb.from('staff').insert(chunk);
-      if (error) errors.push(error.message);
-      else inserted += chunk.length;
-    }
-
-    // ۴. نتیجه
-    if (msg) {
-      if (errors.length) {
-        msg.innerHTML = `⚠️ ${inserted}/${staffArr.length} ذخیره شد<br>
-          <div style="color:red;font-size:11px">${errors.slice(0,3).join('<br>')}</div>`;
-      } else {
-        msg.innerHTML = `✅ ${inserted} کارمند با موفقیت ذخیره شد!<br>به‌روزرسانی...`;
-      }
-    }
-
-    // ۵. بارگذاری مجدد
-    await new Promise(r => setTimeout(r, 800));
-    await loadData();
-    renderAll();
-    if (msg) msg.innerHTML = `✅ ${db.staff.length} کارمند فعال`;
-    toast(`✅ ${inserted} کارمند بازیابی شد`, 'success');
-
-  } catch(e) {
-    alert('خطا: ' + e.message);
-  }
-}
-  // ---- دانلود JSON ----
   const btnJson = document.getElementById('btnDownloadBackup');
   if (btnJson) btnJson.addEventListener('click', () => {
     try {
       const payload = {
-        version: 'v22',
+        version: 'v21',
         exportedAt: new Date().toISOString(),
         settings: db.settings,
         data: {
@@ -2935,7 +2781,6 @@ async function restoreStaffOnly(file) {
     }
   });
 
-  // ---- دانلود Excel ----
   const btnExcel = document.getElementById('btnDownloadExcelFull');
   if (btnExcel) btnExcel.addEventListener('click', () => {
     try {
@@ -2958,7 +2803,99 @@ async function restoreStaffOnly(file) {
     }
   });
 
-  // ---- بازیابی فایل ----
+  // ⭐ تابع بازیابی staff جداگانه
+  async function restoreStaffOnly(file) {
+    const msg = document.getElementById('restoreMsg');
+    const progress = document.getElementById('restoreProgress');
+    const bar = document.getElementById('restoreBar');
+    if (progress) progress.style.display = 'block';
+    if (bar) bar.style.width = '5%';
+    if (msg) msg.innerHTML = '📂 خواندن فایل...';
+
+    try {
+      const text = await file.text();
+      const payload = JSON.parse(text);
+      const data = payload.data || payload;
+      const staffArr = data.staff || [];
+
+      if (!staffArr.length) {
+        if (msg) msg.innerHTML = '❌ در فایل بکاپ، staff وجود ندارد!';
+        return;
+      }
+
+      if (msg) msg.innerHTML = `👨‍🏫 ${staffArr.length} کارمند یافت شد<br>در حال ذخیره...`;
+      await new Promise(r => setTimeout(r, 300));
+
+      try { await sb.from('staff').delete().not('id', 'is', null); } catch(e) { console.warn('delete staff:', e.message); }
+      await new Promise(r => setTimeout(r, 300));
+
+      const STAFF_COLUMNS = [
+        'staff_code', 'name', 'family', 'position', 'phone',
+        'base_salary', 'bonus', 'notes', 'hourly_rate',
+        'session_duration_minutes', 'national_code', 'is_teacher',
+        'can_login', 'subjects', 'education', 'certificates',
+        'teaching_experience', 'work_days', 'bio', 'birth_date',
+        'email', 'address'
+      ];
+
+      const cleaned = staffArr.map(r => {
+        const c = {};
+        STAFF_COLUMNS.forEach(k => {
+          if (r[k] !== undefined && r[k] !== null) c[k] = r[k];
+        });
+        if (c.is_teacher === undefined) c.is_teacher = true;
+        if (c.can_login === undefined) c.can_login = true;
+        if (!c.position && r.role) c.position = r.role;
+        if (!c.staff_code && r.code) c.staff_code = String(r.code);
+        return Object.keys(c).length > 0 ? c : null;
+      }).filter(Boolean);
+
+      if (!cleaned.length) {
+        if (msg) msg.innerHTML = '❌ هیچ کارمند معتبری نبود';
+        return;
+      }
+
+      if (bar) bar.style.width = '30%';
+      if (msg) msg.innerHTML = `💾 درج ${cleaned.length} کارمند...`;
+      await new Promise(r => setTimeout(r, 200));
+
+      const { data: inserted, error } = await sb.from('staff').insert(cleaned).select();
+      if (bar) bar.style.width = '70%';
+
+      if (error) {
+        if (msg) msg.innerHTML = `❌ خطا:<br><div style="background:#fee2e2;padding:10px;border-radius:8px;margin-top:8px;font-size:12px">${error.message}</div>`;
+        return;
+      }
+
+      if (bar) bar.style.width = '100%';
+      if (msg) msg.innerHTML = `✅ <b>${inserted.length} کارمند با موفقیت ذخیره شد</b><br>بارگذاری مجدد...`;
+
+      await new Promise(r => setTimeout(r, 800));
+      await loadData();
+      renderAll();
+
+      if (msg) msg.innerHTML = `✅ <b>بازیابی کامل</b><br>${db.staff.length} کارمند فعال`;
+      toast(`✅ ${inserted.length} کارمند بازیابی شد`, 'success');
+    } catch(e) {
+      if (msg) msg.innerHTML = `❌ خطا: <small style="color:red">${e.message}</small>`;
+      toast('خطا: ' + e.message, 'error');
+    }
+  }
+
+  // اتصال دکمه staff
+  const staffFileInput = document.getElementById('restoreFileStaff');
+  if (staffFileInput) staffFileInput.addEventListener('change', async (ev) => {
+    const f = ev.target.files?.[0];
+    if (!f) return;
+    if (!confirm('⚠️ همه کارکنان فعلی پاک و با فایل بکاپ جایگزین می‌شوند. ادامه؟')) {
+      staffFileInput.value = '';
+      return;
+    }
+    await restoreStaffOnly(f);
+    staffFileInput.value = '';
+  });
+
+  // ⭐ بازیابی کامل
   const fileInput = document.getElementById('restoreFile');
   if (fileInput) fileInput.addEventListener('change', async (ev) => {
     const file = ev.target.files?.[0];
@@ -2983,7 +2920,7 @@ async function restoreStaffOnly(file) {
         return sum + (Array.isArray(arr) ? arr.length : 0);
       }, 0);
 
-      if (msg) msg.innerHTML = `📦 فایل: ${totalRecords} رکورد — شروع بازیابی...`;
+      if (msg) msg.innerHTML = `📦 فایل: ${totalRecords} رکورد — شروع...`;
       await new Promise(r => setTimeout(r, 300));
 
       if (totalRecords === 0) {
@@ -2992,19 +2929,14 @@ async function restoreStaffOnly(file) {
         return;
       }
 
-      // ⭐ نقشه نگاشت: old_id → new_id
       const idMaps = { students: {}, staff: {}, subjects: {} };
 
-      // ⭐ تابع پاک‌سازی رکورد — فیلدهای محاسباتی + نگاشت نام ستون‌ها
       const cleanRecord = (row, tableName) => {
         if (!row || typeof row !== 'object') return null;
         const c = { ...row };
-        
-        // ⭐ حذف کامل id (چون auto-increment است)
         delete c.id;
         delete c.created_at;
-        
-        // ⭐ حذف فیلدهای محاسباتی
+
         ['birthDate','photoUrl','class','year','nationalCode','isTeacher','canLogin',
          'hourly_rate','session_duration_minutes','studentId','teacherId','due','date',
          'desc','doc','type','base','month','checkNumber','bankName','issueDate',
@@ -3014,38 +2946,29 @@ async function restoreStaffOnly(file) {
          'parentMessageId','senderId','senderName','senderRole','recipientId',
          'recipientType','isRead','createdAt','expiresAt','homeworkId','submittedAt',
          'net_amount_text','amount_text'].forEach(k => { delete c[k]; });
-        
-        // ⭐ نگاشت نام ستون‌ها برای جدول‌های مختلف
+
         if (tableName === 'staff') {
-          // code → staff_code
           if (c.code !== undefined && c.staff_code === undefined) {
             c.staff_code = c.code;
             delete c.code;
           }
+          if (c.role !== undefined && c.position === undefined) {
+            c.position = c.role;
+            delete c.role;
+          }
         }
-        
-        // حذف camelCase
+
         Object.keys(c).forEach(k => { if (/[A-Z]/.test(k)) delete c[k]; });
-        
         return Object.keys(c).length ? c : null;
       };
 
-      // ⭐ حذف تمام رکوردهای یک جدول
       const clearTable = async (tableName) => {
         try {
-          // روش امن‌تر: حذف همه با شرط id not null
-          const { error } = await sb.from(tableName).delete().not('id', 'is', null);
-          if (error) console.warn(`clear ${tableName}:`, error.message);
-        } catch(e) {
-          console.warn(`clear ${tableName}:`, e.message);
-        }
+          await sb.from(tableName).delete().not('id', 'is', null);
+        } catch(e) { console.warn(`clear ${tableName}:`, e.message); }
       };
 
-      let done = 0;
-      let restored = 0;
-      const errors = [];
-
-      // ============ مرحله ۱: دانش‌آموزان ============
+      // ============ ۱. دانش‌آموزان ============
       if (msg) msg.innerHTML = `🗑 پاک‌سازی students...`;
       await clearTable('students');
       await new Promise(r => setTimeout(r, 200));
@@ -3061,7 +2984,8 @@ async function restoreStaffOnly(file) {
 
           const { data: inserted, error: insErr } = await sb.from('students').insert(cleaned).select();
           if (insErr) {
-            errors.push(`students: ${insErr.message}`);
+            if (msg) msg.innerHTML = `❌ خطای students:<br><small style="color:red">${insErr.message}</small>`;
+            await new Promise(r => setTimeout(r, 800));
           } else if (inserted) {
             inserted.forEach((newRow, idx) => {
               const oldId = oldIds[idx];
@@ -3069,54 +2993,39 @@ async function restoreStaffOnly(file) {
                 idMaps.students[String(oldId)] = newRow.id;
               }
             });
-            restored += inserted.length;
           }
         }
-        if (msg) msg.innerHTML = `✅ students: ${Object.keys(idMaps.students).length} ذخیره شد`;
-        await new Promise(r => setTimeout(r, 200));
       }
-      done++;
 
-      // ============ مرحله ۲: کارکنان ============
+      // ============ ۲. کارکنان ============
       if (msg) msg.innerHTML = `🗑 پاک‌سازی staff...`;
       await clearTable('staff');
       await new Promise(r => setTimeout(r, 200));
 
       if (data.staff && Array.isArray(data.staff) && data.staff.length > 0) {
         if (msg) msg.innerHTML = `💾 درج staff (${data.staff.length} رکورد)...`;
-        const BATCH = 100;
-        for (let i = 0; i < data.staff.length; i += BATCH) {
-          const rawChunk = data.staff.slice(i, i + BATCH);
-          const cleaned = rawChunk.map(r => cleanRecord(r, 'staff')).filter(Boolean);
-          if (!cleaned.length) continue;
-          const oldIds = rawChunk.map(r => r.id);
+        const cleaned = data.staff.map(r => cleanRecord(r, 'staff')).filter(Boolean);
+        const oldIds = data.staff.map(r => r.id);
 
-          const { data: inserted, error: insErr } = await sb.from('staff').insert(cleaned).select();
-          if (insErr) {
-            errors.push(`staff: ${insErr.message}`);
-          } else if (inserted) {
-            inserted.forEach((newRow, idx) => {
-              const oldId = oldIds[idx];
-              if (oldId !== undefined && newRow.id !== undefined) {
-                idMaps.staff[String(oldId)] = newRow.id;
-              }
-            });
-            restored += inserted.length;
-          }
+        const { data: inserted, error: insErr } = await sb.from('staff').insert(cleaned).select();
+        if (insErr) {
+          if (msg) msg.innerHTML = `❌ خطای staff:<br><small style="color:red">${insErr.message}</small>`;
+          await new Promise(r => setTimeout(r, 800));
+        } else if (inserted) {
+          inserted.forEach((newRow, idx) => {
+            const oldId = oldIds[idx];
+            if (oldId !== undefined && newRow.id !== undefined) {
+              idMaps.staff[String(oldId)] = newRow.id;
+            }
+          });
         }
-        if (msg) msg.innerHTML = `✅ staff: ${Object.keys(idMaps.staff).length} ذخیره شد`;
-        await new Promise(r => setTimeout(r, 200));
       }
-      done++;
 
-      // ============ مرحله ۳: دروس (با upsert) ============
-      if (msg) msg.innerHTML = `🗑 پاک‌سازی subjects...`;
+      // ============ ۳. دروس ============
       await clearTable('subjects');
-      await new Promise(r => setTimeout(r, 200));
+      await new Promise(r => setTimeout(r, 100));
 
       if (data.subjects && Array.isArray(data.subjects) && data.subjects.length > 0) {
-        if (msg) msg.innerHTML = `💾 درج subjects (${data.subjects.length} رکورد)...`;
-        // ⭐ حذف تکراری‌ها بر اساس name
         const seen = new Set();
         const uniqueSubjects = [];
         data.subjects.forEach(s => {
@@ -3125,27 +3034,12 @@ async function restoreStaffOnly(file) {
             uniqueSubjects.push({ name: s.name });
           }
         });
-
         if (uniqueSubjects.length > 0) {
-          const { data: inserted, error: insErr } = await sb.from('subjects').insert(uniqueSubjects).select();
-          if (insErr) {
-            errors.push(`subjects: ${insErr.message}`);
-          } else if (inserted) {
-            inserted.forEach((newRow, idx) => {
-              const old = data.subjects[idx];
-              if (old && old.id !== undefined && newRow.id !== undefined) {
-                idMaps.subjects[String(old.id)] = newRow.id;
-              }
-            });
-            restored += inserted.length;
-          }
+          await sb.from('subjects').insert(uniqueSubjects).select();
         }
-        if (msg) msg.innerHTML = `✅ subjects: ${uniqueSubjects.length} ذخیره شد`;
-        await new Promise(r => setTimeout(r, 200));
       }
-      done++;
 
-      // ============ مرحله ۴: بقیه والدها (assets, incomes, expenses) ============
+      // ============ ۴. بقیه والدها ============
       const simpleParents = [
         { name: 'assets', key: 'assets' },
         { name: 'incomes', key: 'incomes' },
@@ -3157,23 +3051,20 @@ async function restoreStaffOnly(file) {
         if (arr && Array.isArray(arr) && arr.length > 0) {
           const cleaned = arr.map(r => cleanRecord(r, t.name)).filter(Boolean);
           if (cleaned.length > 0) {
-            const { error: insErr } = await sb.from(t.name).insert(cleaned);
-            if (insErr) errors.push(`${t.name}: ${insErr.message}`);
-            else restored += cleaned.length;
+            await sb.from(t.name).insert(cleaned);
           }
         }
-        if (msg) msg.innerHTML = `✅ ${t.name} انجام شد`;
+        if (msg) msg.innerHTML = `✅ ${t.name}`;
         await new Promise(r => setTimeout(r, 100));
-        done++;
       }
 
-      // ============ مرحله ۵: فرزندان (با نگاشت id) ============
+      // ============ ۵. فرزندان ============
       const childTables = [
-        { name: 'payments', key: 'payments', remap: { student_id: 'students' }, uniqueField: 'receipt' },
+        { name: 'payments', key: 'payments', remap: { student_id: 'students' } },
         { name: 'installments', key: 'installments', remap: { student_id: 'students' } },
         { name: 'discounts', key: 'discounts', remap: { student_id: 'students' } },
         { name: 'salaries', key: 'salaries', remap: { staff_id: 'staff' } },
-        { name: 'checks', key: 'checks', remap: { student_id: 'students' }, uniqueField: 'check_number' },
+        { name: 'checks', key: 'checks', remap: { student_id: 'students' } },
         { name: 'grades', key: 'grades', remap: { student_id: 'students', teacher_id: 'staff' } },
         { name: 'attendance', key: 'attendance', remap: { student_id: 'students' } },
         { name: 'messages', key: 'messages', remap: {} },
@@ -3186,28 +3077,30 @@ async function restoreStaffOnly(file) {
         { name: 'sms_log', key: 'smsLog', remap: { student_id: 'students' } }
       ];
 
+      let done = 0;
+      const totalChild = childTables.length;
+
       for (const t of childTables) {
         await clearTable(t.name);
         const arr = data[t.key];
         if (!arr || !Array.isArray(arr) || !arr.length) {
           done++;
-          if (bar) bar.style.width = Math.round((done / (childTables.length + 8)) * 100) + '%';
+          if (bar) bar.style.width = Math.round(50 + (done / totalChild) * 50) + '%';
           continue;
         }
 
         if (msg) msg.innerHTML = `💾 درج ${t.name} (${arr.length} رکورد)...`;
-        await new Promise(r => setTimeout(r, 100));
+        await new Promise(r => setTimeout(r, 80));
 
         const BATCH = 100;
         for (let i = 0; i < arr.length; i += BATCH) {
           const rawChunk = arr.slice(i, i + BATCH);
           const cleaned = [];
-          
+
           for (const r of rawChunk) {
             const c = cleanRecord(r, t.name);
             if (!c) continue;
-            
-            // نگاشت id
+
             Object.entries(t.remap || {}).forEach(([field, parentTable]) => {
               if (c[field] !== undefined && c[field] !== null) {
                 const newId = idMaps[parentTable]?.[String(c[field])];
@@ -3219,7 +3112,6 @@ async function restoreStaffOnly(file) {
               }
             });
 
-            // ⭐ بررسی فیلدهای اجباری (اگر null بود، skip کن)
             const hasRequiredNull = (t.requiredFields || []).some(f => c[f] === null || c[f] === undefined);
             if (hasRequiredNull) continue;
 
@@ -3230,25 +3122,21 @@ async function restoreStaffOnly(file) {
 
           const { error: insErr } = await sb.from(t.name).insert(cleaned);
           if (insErr) {
-            errors.push(`${t.name}: ${insErr.message}`);
-          } else {
-            restored += cleaned.length;
+            console.warn(`${t.name}:`, insErr.message);
           }
         }
-        if (msg) msg.innerHTML = `✅ ${t.name} انجام شد`;
-        await new Promise(r => setTimeout(r, 100));
         done++;
-        if (bar) bar.style.width = Math.round((done / (childTables.length + 8)) * 100) + '%';
+        if (bar) bar.style.width = Math.round(50 + (done / totalChild) * 50) + '%';
       }
 
-      // ============ مرحله ۶: تنظیمات ============
+      // تنظیمات
       if (payload.settings || data.settings) {
         const s = payload.settings || data.settings;
         try {
           await sb.from('settings').upsert({
             id: true,
-            school_name: s.school || s.school_name || 'دبیرستان الهه مهر',
-            academic_year: s.year || s.academic_year || '۱۴۰۵-۱۴۰۶',
+            school_name: s.school || s.school_name,
+            academic_year: s.year || s.academic_year,
             phone: s.phone || '',
             address: s.address || '',
             footer: s.footer || ''
@@ -3256,57 +3144,22 @@ async function restoreStaffOnly(file) {
         } catch(e) { console.warn('settings:', e.message); }
       }
 
-      // ============ نتیجه نهایی ============
-      if (errors.length) {
-        if (msg) msg.innerHTML = `⚠️ <b>${restored} رکورد ذخیره شد</b><br>
-          <div style="background:#fee2e2;padding:10px;border-radius:8px;margin-top:8px;font-size:11px;max-height:180px;overflow:auto">
-            <b>${errors.length} خطا (اکثراً به دلیل تکراری بودن):</b><br>
-            ${errors.slice(0, 5).map(e => '• ' + e.slice(0, 100)).join('<br>')}
-          </div>`;
-        toast(`⚠️ ${restored} رکورد — ${errors.length} خطا`, 'warning');
-      } else {
-        if (msg) msg.innerHTML = `✅ <b>${restored} رکورد با موفقیت ذخیره شد</b><br>بارگذاری مجدد...`;
-        toast(`✅ ${restored} رکورد`, 'success');
-      }
+      if (bar) bar.style.width = '100%';
+      if (msg) msg.innerHTML = `✅ <b>بازیابی کامل</b><br>بارگذاری مجدد...`;
 
       await new Promise(r => setTimeout(r, 1000));
       await loadData();
       renderAll();
       populateRcStudentSelect();
 
-      if (bar) bar.style.width = '100%';
-      if (msg) msg.innerHTML = `✅ <b>بازیابی کامل</b><br>
-        ${db.students.length} دانش‌آموز — ${db.payments.length} پرداخت — ${db.grades.length} نمره`;
+      if (msg) msg.innerHTML = `✅ <b>بازیابی کامل</b><br>${db.students.length} دانش‌آموز — ${db.payments.length} پرداخت — ${db.grades.length} نمره`;
+      toast(`✅ بازیابی کامل — ${db.students.length} دانش‌آموز`, 'success');
 
     } catch(e) {
       if (msg) msg.innerHTML = `❌ خطای کلی:<br><div style="background:#fee2e2;padding:10px;border-radius:8px;margin-top:8px;font-size:12px">${e.message}</div>`;
       toast('خطا: ' + e.message, 'error');
     }
     fileInput.value = '';
-  });
-    // ⭐ دکمه بازیابی فقط staff
-  const fileStaffOnly = document.getElementById('restoreFileStaffOnly');
-  if (fileStaffOnly) fileStaffOnly.addEventListener('change', async (ev) => {
-    const f = ev.target.files?.[0];
-    if (!f) return;
-    if (!confirm('⚠️ فقط جدول کارکنان بازیابی می‌شود. ادامه؟')) {
-      fileStaffOnly.value = '';
-      return;
-    }
-    await restoreStaffOnly(f);
-    fileStaffOnly.value = '';
-  });
-    // ⭐ اتصال دکمه بازیابی staff
-  const staffFileInput = document.getElementById('restoreFileStaff');
-  if (staffFileInput) staffFileInput.addEventListener('change', async (ev) => {
-    const f = ev.target.files?.[0];
-    if (!f) return;
-    if (!confirm('⚠️ همه کارکنان فعلی پاک و با فایل بکاپ جایگزین می‌شوند. ادامه؟')) {
-      staffFileInput.value = '';
-      return;
-    }
-    await restoreStaffFromBackup(f);
-    staffFileInput.value = '';
   });
 }
   /* ============================================================
@@ -3436,7 +3289,6 @@ function renderPayments() {
       <td>${p.tracking || '-'}</td>
       <td>
         <div class="actions">
-          <button class="btn blue" style="padding:6px 10px;font-size:12px" onclick="printReceipt(${p.id})">🖨</button>
           <button class="btn red" style="padding:6px 10px;font-size:12px" onclick="deletePayment(${p.id})">🗑</button>
         </div>
       </td>
@@ -3453,10 +3305,8 @@ async function deletePayment(id) {
   renderPayments();
 }
 
-function printReceipt(id) { toast('چاپ رسید (به زودی)'); }
-
 /* ============================================================
-   Grades
+   Grades (Admin)
 ============================================================ */
 function renderGrades() {
   const search = (v('gradeStudentSearch') || '').toLowerCase();
@@ -3520,7 +3370,7 @@ async function deleteGrade(id) {
 }
 
 /* ============================================================
-   Attendance
+   Attendance (Admin)
 ============================================================ */
 function renderAttendance() {
   const dateF = v('attendanceDate');
@@ -3593,7 +3443,6 @@ function renderStaff() {
     <td>${s.canLogin ? '✅' : '❌'}</td>
     <td>
       <div class="actions">
-        <button class="btn blue" style="padding:6px 10px;font-size:12px" onclick="editStaff(${s.id})">✏️</button>
         <button class="btn red" style="padding:6px 10px;font-size:12px" onclick="deleteStaff(${s.id})">🗑</button>
       </div>
     </td>
@@ -3608,8 +3457,6 @@ async function deleteStaff(id) {
   await loadData();
   renderStaff();
 }
-
-function editStaff(id) { toast('ویرایش کارمند (به زودی)'); }
 
 /* ============================================================
    Checks
@@ -3761,10 +3608,10 @@ function renderBackupStats() {
   if (!el) return;
   el.innerHTML = `
     👩🏻‍🎓 دانش‌آموزان: <b>${db.students.length}</b><br>
+    👨‍🏫 کارکنان: <b>${db.staff.length}</b><br>
     💳 پرداخت‌ها: <b>${db.payments.length}</b><br>
     📚 نمرات: <b>${db.grades.length}</b><br>
     📅 حضور و غیاب: <b>${db.attendance.length}</b><br>
-    👨‍🏫 کارکنان: <b>${db.staff.length}</b><br>
     📝 چک‌ها: <b>${db.checks.length}</b><br>
     💰 حقوق: <b>${db.salaries.length}</b><br>
     🏫 اموال: <b>${db.assets.length}</b>
@@ -3772,7 +3619,7 @@ function renderBackupStats() {
 }
 
 /* ============================================================
-   Parent Panel — توابع نمایش
+   Parent Panel
 ============================================================ */
 function renderParentProfileCard() {
   if (!parentStudent) return;
@@ -3886,6 +3733,91 @@ function renderParentPayments() {
 }
 
 /* ============================================================
+   Teacher Panel
+============================================================ */
+function renderTeacherGrades() {
+  if (!currentTeacher) return;
+  const search = (v('teacherGradeSearch') || '').toLowerCase();
+  const classF = v('teacherGradeClassFilter');
+  const subjF = v('teacherGradeSubjectFilter');
+
+  let list = db.grades.filter(g => {
+    const s = studentById(g.student_id || g.studentId);
+    if (search && !(`${s?.name || ''} ${s?.family || ''}`).toLowerCase().includes(search)) return false;
+    if (classF && s?.grade !== classF) return false;
+    if (subjF && g.subject !== subjF) return false;
+    return true;
+  }).slice(0, 200);
+
+  const sumEl = document.getElementById('teacherGradesSummary');
+  if (sumEl) {
+    const avg = list.length ? list.reduce((sum, g) => sum + ((+g.score || 0) / (+g.max_score || 20)) * 20, 0) / list.length : 0;
+    sumEl.innerHTML = `
+      <div class="card"><div class="gs-label">تعداد نمرات</div><div class="gs-value">${list.length}</div></div>
+      <div class="card"><div class="gs-label">میانگین</div><div class="gs-value" style="color:var(--primary-dark)">${avg.toFixed(2)}</div></div>
+      <div class="card"><div class="gs-label">دروس</div><div class="gs-value">${new Set(list.map(g => g.subject)).size}</div></div>
+      <div class="card"><div class="gs-label">دانش‌آموزان</div><div class="gs-value">${new Set(list.map(g => g.student_id || g.studentId)).size}</div></div>`;
+  }
+
+  const tbody = document.getElementById('teacherGradesTable');
+  if (!tbody) return;
+  if (!list.length) {
+    tbody.innerHTML = '<tr><td colspan="9" class="empty">نمره‌ای ثبت نشده</td></tr>';
+    return;
+  }
+  tbody.innerHTML = list.map(g => {
+    const s = studentById(g.student_id || g.studentId);
+    const cls = gradeClass(+g.score || 0, +g.max_score || 20);
+    return `<tr>
+      <td>${s ? `${s.name} ${s.family}` : '-'}</td>
+      <td>${s?.grade || '-'}</td>
+      <td>${g.subject || '-'}</td>
+      <td>${g.term || '-'}</td>
+      <td>${g.type || '-'}</td>
+      <td><span class="grade-badge ${cls}">${g.score}</span></td>
+      <td>${g.max_score || 20}</td>
+      <td>${g.date || '-'}</td>
+      <td>
+        <div class="actions">
+          <button class="btn red" style="padding:6px 10px;font-size:12px" onclick="deleteTeacherGrade(${g.id})">🗑</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function deleteTeacherGrade(id) {
+  if (!confirm('حذف این نمره؟')) return;
+  const { error } = await sb.from('grades').delete().eq('id', id);
+  if (error) { toast(translateError(error), 'error'); return; }
+  toast('حذف شد', 'success');
+  await loadData();
+  renderTeacherGrades();
+}
+
+function renderTeacherSentMessages() {
+  if (!currentTeacher) return;
+  const el = document.getElementById('teacherSentMessages');
+  if (!el) return;
+  const msgs = db.messages.filter(m => (m.senderId == currentTeacher.id) && m.senderRole === 'teacher').slice(0, 30);
+  if (!msgs.length) {
+    el.innerHTML = '<div class="empty">پیامی ارسال نکرده‌اید</div>';
+    return;
+  }
+  el.innerHTML = `<div class="table-wrap"><table class="table">
+    <thead><tr><th>دانش‌آموز</th><th>متن</th><th>تاریخ</th></tr></thead>
+    <tbody>${msgs.map(m => {
+      const s = studentById(m.recipientId);
+      return `<tr>
+        <td>${s ? `${s.name} ${s.family}` : '-'}</td>
+        <td>${(m.body || '').substring(0, 60)}${(m.body || '').length > 60 ? '...' : ''}</td>
+        <td>${m.createdAt ? new Date(m.createdAt).toLocaleDateString('fa-IR') : '-'}</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table></div>`;
+}
+
+/* ============================================================
    Render All
 ============================================================ */
 function renderAll() {
@@ -3900,6 +3832,564 @@ function renderAll() {
   try { renderPhonebook(); } catch(e) { console.warn('phonebook:', e); }
   try { renderTeacherRatings(); } catch(e) { console.warn('teacherRatings:', e); }
   try { renderBackupStats(); } catch(e) { console.warn('backup:', e); }
+  try { renderTeacherGrades(); } catch(e) { console.warn('teacherGrades:', e); }
+  try { renderTeacherSentMessages(); } catch(e) { console.warn('teacherMessages:', e); }
+}
+
+/* ============================================================
+   Modal
+============================================================ */
+function openModal(title, bodyHTML) {
+  const modal = document.getElementById('modal');
+  if (!modal) return;
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').innerHTML = bodyHTML;
+  modal.classList.add('show');
+}
+
+function closeNotif() {
+  const el = document.getElementById('notifDropdown');
+  if (el) el.style.display = 'none';
+}
+
+/* ============================================================
+   Teacher Modals — New Grade + Bulk Grade + Attendance
+============================================================ */
+function openTeacherNewGradeModal() {
+  if (!currentTeacher) { toast('ابتدا وارد شوید', 'error'); return; }
+
+  const subjectOptions = db.subjects.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+
+  const html = `
+    <div class="form">
+      <div class="formgrid">
+        <div class="full">
+          <label>دانش‌آموز</label>
+          <div class="student-search-box">
+            <input type="text" id="tng_studentSearch" placeholder="🔍 جستجوی نام، کد یا کلاس..." autocomplete="off">
+            <span class="search-icon">🔍</span>
+          </div>
+          <div id="tng_studentResults" style="max-height:200px;overflow-y:auto;border:2px solid var(--line);border-radius:10px;margin-top:6px;display:none;background:#fff"></div>
+          <div id="tng_selectedStudent" style="display:none" class="student-selected">
+            <span id="tng_selectedName"></span>
+            <button class="clear-btn" id="tng_clearStudent">✕</button>
+          </div>
+        </div>
+        <div>
+          <label>درس</label>
+          <select id="tng_subject">${subjectOptions || '<option value="">— درسی ثبت نشده —</option>'}</select>
+        </div>
+        <div>
+          <label>ترم</label>
+          <select id="tng_term">${GRADE_TERMS.map(t => `<option>${t}</option>`).join('')}</select>
+        </div>
+        <div>
+          <label>نوع نمره</label>
+          <select id="tng_type">${EXAM_TYPES.map(t => `<option>${t}</option>`).join('')}</select>
+        </div>
+        <div>
+          <label>نمره</label>
+          <input type="number" id="tng_score" min="0" max="20" step="0.25" placeholder="مثلاً 18.5">
+        </div>
+        <div>
+          <label>از (حداکثر)</label>
+          <input type="number" id="tng_max" value="20" min="1" max="100">
+        </div>
+        <div>
+          <label>تاریخ</label>
+          <input type="text" id="tng_date" value="${today()}" placeholder="1404/01/01">
+        </div>
+      </div>
+    </div>
+    <div class="modalfoot">
+      <button class="btn green" id="tng_save">💾 ذخیره نمره</button>
+      <button class="btn" onclick="document.getElementById('modal').classList.remove('show')">انصراف</button>
+    </div>
+  `;
+
+  openModal('📚 ثبت نمره جدید', html);
+
+  let selectedStudentId = null;
+  const searchEl = document.getElementById('tng_studentSearch');
+  const resultsEl = document.getElementById('tng_studentResults');
+  const selectedEl = document.getElementById('tng_selectedStudent');
+  const selectedNameEl = document.getElementById('tng_selectedName');
+  const clearBtn = document.getElementById('tng_clearStudent');
+
+  function showResults(query) {
+    const q = (query || '').toLowerCase().trim();
+    const list = db.students.filter(s => {
+      if (!q) return true;
+      return `${s.name} ${s.family} ${s.code || ''} ${s.grade || ''} ${s.class || ''}`.toLowerCase().includes(q);
+    }).slice(0, 15);
+
+    if (!list.length) {
+      resultsEl.innerHTML = '<div style="padding:12px;color:#94a3b8;text-align:center">دانش‌آموزی یافت نشد</div>';
+    } else {
+      resultsEl.innerHTML = list.map(s => `
+        <div class="check-student-result-item" data-id="${s.id}" data-name="${s.name} ${s.family} — ${s.grade || ''} ${s.class || ''}">
+          <div style="font-weight:700;font-size:13px">${s.name} ${s.family}</div>
+          <div style="font-size:11px;color:#64748b">${s.grade || ''} ${s.class || ''} — کد: ${s.code || '-'}</div>
+        </div>
+      `).join('');
+    }
+    resultsEl.style.display = 'block';
+  }
+
+  searchEl.addEventListener('focus', () => showResults(searchEl.value));
+  searchEl.addEventListener('input', () => showResults(searchEl.value));
+
+  resultsEl.addEventListener('click', (e) => {
+    const item = e.target.closest('.check-student-result-item');
+    if (!item) return;
+    selectedStudentId = item.dataset.id;
+    selectedNameEl.textContent = '✅ ' + item.dataset.name;
+    selectedEl.style.display = 'flex';
+    resultsEl.style.display = 'none';
+    searchEl.value = '';
+    searchEl.style.display = 'none';
+  });
+
+  clearBtn.addEventListener('click', () => {
+    selectedStudentId = null;
+    selectedEl.style.display = 'none';
+    searchEl.style.display = 'block';
+    searchEl.focus();
+  });
+
+  document.getElementById('tng_save').addEventListener('click', async () => {
+    if (!selectedStudentId) { toast('دانش‌آموز را انتخاب کنید', 'warning'); return; }
+    const subject = document.getElementById('tng_subject').value;
+    if (!subject) { toast('درس را انتخاب کنید', 'warning'); return; }
+    const score = parseFloat(document.getElementById('tng_score').value);
+    if (isNaN(score)) { toast('نمره را وارد کنید', 'warning'); return; }
+    const maxScore = parseFloat(document.getElementById('tng_max').value) || 20;
+    if (score < 0 || score > maxScore) { toast(`نمره بین ۰ تا ${maxScore}`, 'warning'); return; }
+
+    try {
+      const { error } = await sb.from('grades').insert({
+        student_id: parseInt(selectedStudentId),
+        subject,
+        term: document.getElementById('tng_term').value,
+        type: document.getElementById('tng_type').value,
+        score,
+        max_score: maxScore,
+        date: document.getElementById('tng_date').value || today(),
+        teacher_name: `${currentTeacher?.name || ''} ${currentTeacher?.family || ''}`.trim(),
+        teacher_id: currentTeacher?.id || null
+      });
+      if (error) throw error;
+      toast('✅ نمره ثبت شد', 'success');
+      document.getElementById('modal').classList.remove('show');
+      await loadData();
+      renderTeacherGrades();
+    } catch(e) {
+      toast('خطا: ' + e.message, 'error');
+    }
+  });
+}
+
+function openTeacherBulkGradeModal() {
+  if (!currentTeacher) { toast('ابتدا وارد شوید', 'error'); return; }
+
+  const subjectOptions = db.subjects.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+  const gradeOptions = ['هفتم','هشتم','نهم','دهم انسانی','دهم تجربی','دهم ریاضی','یازدهم انسانی','یازدهم تجربی','یازدهم ریاضی','دوازدهم انسانی','دوازدهم تجربی','دوازدهم ریاضی'].map(g => `<option>${g}</option>`).join('');
+
+  const html = `
+    <div class="form">
+      <div class="formgrid">
+        <div>
+          <label>پایه / کلاس</label>
+          <select id="tbg_class">${gradeOptions}</select>
+        </div>
+        <div>
+          <label>درس</label>
+          <select id="tbg_subject">${subjectOptions || '<option value="">— درسی ثبت نشده —</option>'}</select>
+        </div>
+        <div>
+          <label>ترم</label>
+          <select id="tbg_term">${GRADE_TERMS.map(t => `<option>${t}</option>`).join('')}</select>
+        </div>
+        <div>
+          <label>نوع نمره</label>
+          <select id="tbg_type">${EXAM_TYPES.map(t => `<option>${t}</option>`).join('')}</select>
+        </div>
+        <div>
+          <label>از (حداکثر)</label>
+          <input type="number" id="tbg_max" value="20" min="1" max="100">
+        </div>
+        <div>
+          <label>تاریخ</label>
+          <input type="text" id="tbg_date" value="${today()}">
+        </div>
+      </div>
+
+      <div class="filters" style="margin-top:12px;background:#eef2ff;padding:12px;border-radius:10px">
+        <button class="btn" id="tbg_markAllPresent" style="background:#d1fae5;color:#065f46">✅ همه حاضر</button>
+        <button class="btn" id="tbg_markAllAbsent" style="background:#fee2e2;color:#991b1b">❌ همه غایب</button>
+        <button class="btn" id="tbg_clearAll" style="background:#f1f5f9;color:#475569">🗑️ پاک کردن همه</button>
+      </div>
+
+      <div id="tbg_studentList" style="margin-top:16px;max-height:420px;overflow-y:auto"></div>
+
+      <div id="tbg_debugMsg" style="margin-top:12px;padding:10px;background:#fef3c7;border-radius:8px;font-size:12px;display:none"></div>
+    </div>
+    <div class="modalfoot">
+      <button class="btn green" id="tbg_save">💾 ذخیره همه</button>
+      <button class="btn" onclick="document.getElementById('modal').classList.remove('show')">انصراف</button>
+    </div>
+  `;
+
+  openModal('📋 ثبت نمره گروهی — نمره یا غایب', html);
+
+  function renderStudentRows() {
+    const cls = document.getElementById('tbg_class').value;
+    const students = db.students.filter(s => s.grade === cls).sort((a,b) => (a.family||'').localeCompare(b.family||'', 'fa'));
+    const listEl = document.getElementById('tbg_studentList');
+    if (!students.length) {
+      listEl.innerHTML = '<div class="empty">دانش‌آموزی در این کلاس نیست</div>';
+      return;
+    }
+    listEl.innerHTML = `<div class="table-wrap"><table class="table" style="min-width:auto">
+      <thead><tr>
+        <th style="width:40px">ردیف</th>
+        <th>دانش‌آموز</th>
+        <th style="width:120px">نمره</th>
+        <th style="width:80px">غایب</th>
+        <th style="width:140px">وضعیت</th>
+      </tr></thead>
+      <tbody>${students.map((s, i) => `<tr data-student-id="${s.id}">
+        <td>${i+1}</td>
+        <td>${s.name} ${s.family} <span style="font-size:11px;color:#64748b">(کد: ${s.code || '-'})</span></td>
+        <td>
+          <input type="number" class="tbg-score-input" data-student-id="${s.id}"
+            min="0" max="100" step="0.25"
+            style="width:90px;padding:6px 10px;border:2px solid var(--line);border-radius:8px;text-align:center"
+            placeholder="نمره">
+        </td>
+        <td style="text-align:center">
+          <input type="checkbox" class="tbg-absent-checkbox" data-student-id="${s.id}"
+            style="width:22px;height:22px;cursor:pointer;accent-color:#dc2626">
+        </td>
+        <td class="tbg-status-cell" data-student-id="${s.id}" style="font-size:12px;color:#64748b">—</td>
+      </tr>`).join('')}</tbody>
+    </table></div>`;
+
+    listEl.querySelectorAll('.tbg-score-input').forEach(inp => {
+      inp.addEventListener('input', () => updateRowStatus(inp.dataset.studentId));
+    });
+    listEl.querySelectorAll('.tbg-absent-checkbox').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const sid = cb.dataset.studentId;
+        const scoreInput = listEl.querySelector(`.tbg-score-input[data-student-id="${sid}"]`);
+        if (cb.checked) {
+          scoreInput.value = '';
+          scoreInput.disabled = true;
+          scoreInput.style.background = '#f1f5f9';
+          scoreInput.style.opacity = '0.5';
+        } else {
+          scoreInput.disabled = false;
+          scoreInput.style.background = '#fff';
+          scoreInput.style.opacity = '1';
+        }
+        updateRowStatus(sid);
+      });
+    });
+  }
+
+  function updateRowStatus(sid) {
+    const listEl = document.getElementById('tbg_studentList');
+    const scoreInp = listEl.querySelector(`.tbg-score-input[data-student-id="${sid}"]`);
+    const absentCb = listEl.querySelector(`.tbg-absent-checkbox[data-student-id="${sid}"]`);
+    const statusCell = listEl.querySelector(`.tbg-status-cell[data-student-id="${sid}"]`);
+    if (!statusCell) return;
+    if (absentCb && absentCb.checked) {
+      statusCell.innerHTML = '<span style="color:#dc2626;font-weight:700">❌ غایب</span>';
+    } else if (scoreInp && scoreInp.value !== '') {
+      statusCell.innerHTML = `<span style="color:#059669;font-weight:700">✅ ${scoreInp.value}</span>`;
+    } else {
+      statusCell.innerHTML = '<span style="color:#94a3b8">—</span>';
+    }
+  }
+
+  document.getElementById('tbg_class').addEventListener('change', renderStudentRows);
+  renderStudentRows();
+
+  document.getElementById('tbg_markAllPresent').addEventListener('click', () => {
+    document.querySelectorAll('.tbg-absent-checkbox').forEach(cb => {
+      if (cb.checked) {
+        cb.checked = false;
+        cb.dispatchEvent(new Event('change'));
+      }
+    });
+  });
+
+  document.getElementById('tbg_markAllAbsent').addEventListener('click', () => {
+    document.querySelectorAll('.tbg-absent-checkbox').forEach(cb => {
+      if (!cb.checked) {
+        cb.checked = true;
+        cb.dispatchEvent(new Event('change'));
+      }
+    });
+  });
+
+  document.getElementById('tbg_clearAll').addEventListener('click', () => {
+    document.querySelectorAll('.tbg-score-input').forEach(inp => {
+      inp.value = '';
+      inp.disabled = false;
+      inp.style.background = '#fff';
+      inp.style.opacity = '1';
+    });
+    document.querySelectorAll('.tbg-absent-checkbox').forEach(cb => cb.checked = false);
+    document.querySelectorAll('.tbg-status-cell').forEach(c => c.innerHTML = '<span style="color:#94a3b8">—</span>');
+  });
+
+  document.getElementById('tbg_save').addEventListener('click', async () => {
+    const debugEl = document.getElementById('tbg_debugMsg');
+    debugEl.style.display = 'block';
+    debugEl.innerHTML = '🔍 بررسی...';
+
+    const subject = document.getElementById('tbg_subject').value;
+    if (!subject) {
+      debugEl.innerHTML = '❌ <b>درس انتخاب نشده!</b>';
+      debugEl.style.background = '#fee2e2';
+      return;
+    }
+    const maxScore = parseFloat(document.getElementById('tbg_max').value) || 20;
+    const term = document.getElementById('tbg_term').value;
+    const type = document.getElementById('tbg_type').value;
+    const date = document.getElementById('tbg_date').value || today();
+
+    const records = [];
+    let absentCount = 0;
+    let scoredCount = 0;
+
+    document.querySelectorAll('.tbg-absent-checkbox').forEach(cb => {
+      const sid = parseInt(cb.dataset.studentId);
+      const isAbsent = cb.checked;
+      const scoreInput = document.querySelector(`.tbg-score-input[data-student-id="${sid}"]`);
+      const scoreVal = scoreInput?.value;
+
+      if (isAbsent) {
+        records.push({
+          student_id: sid, subject, term, type, score: 0, max_score: maxScore, date,
+          teacher_name: `${currentTeacher?.name || ''} ${currentTeacher?.family || ''}`.trim(),
+          teacher_id: currentTeacher?.id || null
+        });
+        absentCount++;
+      } else if (scoreVal !== '' && scoreVal !== null && scoreVal !== undefined) {
+        const score = parseFloat(scoreVal);
+        if (isNaN(score)) return;
+        if (score < 0 || score > maxScore) return;
+        records.push({
+          student_id: sid, subject, term, type, score, max_score: maxScore, date,
+          teacher_name: `${currentTeacher?.name || ''} ${currentTeacher?.family || ''}`.trim(),
+          teacher_id: currentTeacher?.id || null
+        });
+        scoredCount++;
+      }
+    });
+
+    if (!records.length) {
+      debugEl.innerHTML = '❌ هیچ رکوردی برای ذخیره نیست!';
+      debugEl.style.background = '#fee2e2';
+      return;
+    }
+
+    debugEl.innerHTML = `⏳ در حال ذخیره ${records.length} رکورد...`;
+
+    try {
+      const { error } = await sb.from('grades').insert(records);
+      if (error) {
+        debugEl.innerHTML = `❌ خطا: ${error.message}`;
+        debugEl.style.background = '#fee2e2';
+        return;
+      }
+      debugEl.innerHTML = `✅ ${records.length} رکورد ذخیره شد`;
+      debugEl.style.background = '#d1fae5';
+      toast(`✅ ${records.length} رکورد ذخیره شد (${scoredCount} نمره، ${absentCount} غایب)`, 'success');
+      setTimeout(async () => {
+        document.getElementById('modal').classList.remove('show');
+        await loadData();
+        renderTeacherGrades();
+      }, 1200);
+    } catch(e) {
+      debugEl.innerHTML = `❌ خطا: ${e.message}`;
+      debugEl.style.background = '#fee2e2';
+    }
+  });
+}
+
+function openTeacherAttendanceModal() {
+  if (!currentTeacher) { toast('ابتدا وارد شوید', 'error'); return; }
+
+  const gradeOptions = ['هفتم','هشتم','نهم','دهم انسانی','دهم تجربی','دهم ریاضی','یازدهم انسانی','یازدهم تجربی','یازدهم ریاضی','دوازدهم انسانی','دوازدهم تجربی','دوازدهم ریاضی']
+    .map(g => `<option>${g}</option>`).join('');
+
+  const html = `
+    <div class="form">
+      <div class="formgrid">
+        <div>
+          <label>پایه / کلاس</label>
+          <select id="tta_class">${gradeOptions}</select>
+        </div>
+        <div>
+          <label>تاریخ</label>
+          <input type="text" id="tta_date" value="${today()}" placeholder="1404/01/01">
+        </div>
+        <div>
+          <label>&nbsp;</label>
+          <button class="btn blue" id="tta_markAllPresent" style="width:100%">✅ همه حاضر</button>
+        </div>
+        <div>
+          <label>&nbsp;</label>
+          <button class="btn red" id="tta_markAllAbsent" style="width:100%">❌ همه غایب</button>
+        </div>
+      </div>
+      <div id="tta_studentList" style="margin-top:16px;max-height:450px;overflow-y:auto"></div>
+    </div>
+    <div class="modalfoot">
+      <button class="btn green" id="tta_save">💾 ذخیره حضور و غیاب</button>
+      <button class="btn" onclick="document.getElementById('modal').classList.remove('show')">انصراف</button>
+    </div>
+  `;
+
+  openModal('📅 ثبت حضور و غیاب', html);
+
+  function renderAttendanceRows() {
+    const cls = document.getElementById('tta_class').value;
+    const students = db.students.filter(s => s.grade === cls).sort((a,b) => (a.family||'').localeCompare(b.family||'', 'fa'));
+    const listEl = document.getElementById('tta_studentList');
+
+    if (!students.length) {
+      listEl.innerHTML = '<div class="empty">دانش‌آموزی در این کلاس نیست</div>';
+      return;
+    }
+
+    const dateVal = document.getElementById('tta_date').value;
+    const todayAtt = db.attendance.filter(a => a.date === dateVal);
+
+    listEl.innerHTML = `<div class="table-wrap"><table class="table" style="min-width:auto">
+      <thead><tr><th>ردیف</th><th>دانش‌آموز</th><th>وضعیت</th><th>ساعت ورود</th><th>علت</th></tr></thead>
+      <tbody>${students.map((s, i) => {
+        const existing = todayAtt.find(a => (a.student_id || a.studentId) == s.id);
+        const existingStatus = existing?.status || 'present';
+        return `<tr>
+          <td>${i+1}</td>
+          <td>${s.name} ${s.family} <span style="font-size:11px;color:#64748b">(کد: ${s.code || '-'})</span></td>
+          <td>
+            <select class="tta-status-select" data-student-id="${s.id}" style="padding:6px 10px;border:2px solid var(--line);border-radius:8px;font-size:12px">
+              <option value="present" ${existingStatus === 'present' ? 'selected' : ''}>✅ حاضر</option>
+              <option value="absent" ${existingStatus === 'absent' ? 'selected' : ''}>❌ غایب</option>
+              <option value="late" ${existingStatus === 'late' ? 'selected' : ''}>⏰ تأخیر</option>
+              <option value="excused" ${existingStatus === 'excused' ? 'selected' : ''}>📝 موجه</option>
+            </select>
+          </td>
+          <td><input type="text" class="tta-checkin-input" data-student-id="${s.id}" value="${existing?.check_in || ''}" placeholder="07:30" style="width:80px;padding:6px 8px;border:2px solid var(--line);border-radius:8px;font-size:12px"></td>
+          <td><input type="text" class="tta-reason-input" data-student-id="${s.id}" value="${existing?.reason || ''}" placeholder="علت..." style="width:120px;padding:6px 8px;border:2px solid var(--line);border-radius:8px;font-size:12px"></td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table></div>`;
+  }
+
+  document.getElementById('tta_class').addEventListener('change', renderAttendanceRows);
+  document.getElementById('tta_date').addEventListener('change', renderAttendanceRows);
+  renderAttendanceRows();
+
+  document.getElementById('tta_markAllPresent').addEventListener('click', () => {
+    document.querySelectorAll('.tta-status-select').forEach(sel => sel.value = 'present');
+  });
+  document.getElementById('tta_markAllAbsent').addEventListener('click', () => {
+    document.querySelectorAll('.tta-status-select').forEach(sel => sel.value = 'absent');
+  });
+
+  document.getElementById('tta_save').addEventListener('click', async () => {
+    const date = document.getElementById('tta_date').value || today();
+    const statusSelects = document.querySelectorAll('.tta-status-select');
+    const records = [];
+
+    statusSelects.forEach((sel) => {
+      const sid = sel.dataset.studentId;
+      const checkin = document.querySelector(`.tta-checkin-input[data-student-id="${sid}"]`)?.value || '';
+      const reason = document.querySelector(`.tta-reason-input[data-student-id="${sid}"]`)?.value || '';
+      records.push({
+        student_id: parseInt(sid), date, status: sel.value,
+        check_in: checkin || null, reason: reason || null, note: null
+      });
+    });
+
+    if (!records.length) { toast('هیچ دانش‌آموزی نیست', 'warning'); return; }
+
+    try {
+      const studentIds = records.map(r => r.student_id);
+      await sb.from('attendance').delete().in('student_id', studentIds).eq('date', date);
+      const { error } = await sb.from('attendance').insert(records);
+      if (error) throw error;
+      const absentCount = records.filter(r => r.status === 'absent').length;
+      toast(`✅ ${records.length} رکورد ذخیره شد — ${absentCount} غایب`, 'success');
+      document.getElementById('modal').classList.remove('show');
+      await loadData();
+    } catch(e) {
+      toast('خطا: ' + e.message, 'error');
+    }
+  });
+}
+
+function openTeacherViewAttendanceModal() {
+  const html = `
+    <div class="form">
+      <div class="filters">
+        <select id="tva_class">
+          <option value="">همه کلاس‌ها</option>
+          <option>هفتم</option><option>هشتم</option><option>نهم</option>
+          <option>دهم انسانی</option><option>دهم تجربی</option><option>دهم ریاضی</option>
+          <option>یازدهم انسانی</option><option>یازدهم تجربی</option><option>یازدهم ریاضی</option>
+          <option>دوازدهم انسانی</option><option>دوازدهم تجربی</option><option>دوازدهم ریاضی</option>
+        </select>
+        <select id="tva_status">
+          <option value="">همه وضعیت‌ها</option>
+          <option value="present">حاضر</option>
+          <option value="absent">غایب</option>
+          <option value="late">تأخیر</option>
+          <option value="excused">موجه</option>
+        </select>
+      </div>
+      <div id="tva_result"></div>
+    </div>
+  `;
+
+  openModal('📊 مشاهده حضور و غیاب', html);
+
+  function render() {
+    const clsF = document.getElementById('tva_class').value;
+    const stF = document.getElementById('tva_status').value;
+    let list = db.attendance.filter(a => {
+      const s = studentById(a.student_id || a.studentId);
+      if (clsF && s?.grade !== clsF) return false;
+      if (stF && a.status !== stF) return false;
+      return true;
+    }).slice(0, 100);
+
+    const el = document.getElementById('tva_result');
+    if (!list.length) { el.innerHTML = '<div class="empty">رکوردی نیست</div>'; return; }
+    el.innerHTML = `<div class="table-wrap"><table class="table" style="min-width:auto">
+      <thead><tr><th>تاریخ</th><th>دانش‌آموز</th><th>وضعیت</th><th>ساعت</th></tr></thead>
+      <tbody>${list.map(a => {
+        const s = studentById(a.student_id || a.studentId);
+        const [label, cls, icon] = attendanceBadge(a.status);
+        return `<tr>
+          <td>${a.date || '-'}</td>
+          <td>${s ? `${s.name} ${s.family}` : '-'}</td>
+          <td><span class="att-badge ${cls}">${icon} ${label}</span></td>
+          <td>${a.check_in || '-'}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table></div>`;
+  }
+
+  document.getElementById('tva_class').addEventListener('change', render);
+  document.getElementById('tva_status').addEventListener('change', render);
+  render();
 }
   /* ============================================================
    Event Bindings
@@ -3928,6 +4418,8 @@ function bindReportCardEvents() {
   if (btnGen) btnGen.addEventListener('click', renderReportCardPreview);
   const btnPrint = document.getElementById('btnRcPrint');
   if (btnPrint) btnPrint.addEventListener('click', printReportCard);
+  const btnPdf = document.getElementById('btnRcPdf');
+  if (btnPdf) btnPdf.addEventListener('click', downloadReportCardPDF);
   const btnPrintAll = document.getElementById('btnRcPrintAll');
   if (btnPrintAll) btnPrintAll.addEventListener('click', printAllReportCards);
   const selStudent = document.getElementById('rcStudentSelect');
@@ -3965,10 +4457,58 @@ function bindFilterEvents() {
     const el = document.getElementById(id);
     if (el) el.addEventListener('input', renderPhonebook);
   });
+  ['teacherGradeSearch', 'teacherGradeClassFilter', 'teacherGradeSubjectFilter'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('input', renderTeacherGrades);
+  });
+}
+
+function bindTeacherEvents() {
+  const btnNewGrade = document.getElementById('btnTeacherNewGrade');
+  if (btnNewGrade) btnNewGrade.addEventListener('click', openTeacherNewGradeModal);
+
+  const btnBulkGrade = document.getElementById('btnTeacherBulkGrade');
+  if (btnBulkGrade) btnBulkGrade.addEventListener('click', openTeacherBulkGradeModal);
+
+  const btnAtt = document.getElementById('btnTeacherAttendance');
+  if (btnAtt) btnAtt.addEventListener('click', openTeacherAttendanceModal);
+
+  const btnViewAtt = document.getElementById('btnTeacherViewAttendance');
+  if (btnViewAtt) btnViewAtt.addEventListener('click', openTeacherViewAttendanceModal);
+
+  const btnSendMsg = document.getElementById('btnTeacherSendMessage');
+  if (btnSendMsg) btnSendMsg.addEventListener('click', async () => {
+    const studentId = document.getElementById('teacherMessageStudent').value;
+    const body = document.getElementById('teacherMessageBody').value.trim();
+    if (!studentId) { toast('دانش‌آموز را انتخاب کنید', 'warning'); return; }
+    if (!body) { toast('متن پیام را بنویسید', 'warning'); return; }
+
+    const student = studentById(studentId);
+    if (!student) { toast('دانش‌آموز یافت نشد', 'error'); return; }
+
+    try {
+      const { error } = await sb.from('messages').insert({
+        sender_id: currentTeacher?.id || null,
+        sender_name: `${currentTeacher?.name || ''} ${currentTeacher?.family || ''}`.trim() || 'استاد',
+        sender_role: 'teacher',
+        recipient_id: studentId,
+        recipient_type: 'student',
+        body: body,
+        is_read: false
+      });
+      if (error) throw error;
+      toast('✅ پیام ارسال شد', 'success');
+      document.getElementById('teacherMessageBody').value = '';
+      document.getElementById('teacherMessageStudent').value = '';
+      renderTeacherSentMessages();
+    } catch(e) {
+      toast('خطا: ' + e.message, 'error');
+    }
+  });
 }
 
 function bindAuthButtons() {
-  // ورود مدیر
+  // ---- ورود مدیر ----
   const btnSignIn = document.getElementById('btnSignIn');
   if (btnSignIn) btnSignIn.addEventListener('click', async () => {
     if (!initSupabase()) return;
@@ -3985,7 +4525,7 @@ function bindAuthButtons() {
     await refreshApp();
   });
 
-  // ساخت حساب
+  // ---- ساخت حساب مدیر ----
   const btnSignUp = document.getElementById('btnSignUp');
   if (btnSignUp) btnSignUp.addEventListener('click', async () => {
     if (!initSupabase()) return;
@@ -3999,7 +4539,7 @@ function bindAuthButtons() {
     authMsg('✅ حساب ساخته شد. حالا وارد شوید.', true);
   });
 
-  // ورود استاد
+  // ---- ورود استاد ----
   const btnTeacher = document.getElementById('btnTeacherLogin');
   if (btnTeacher) btnTeacher.addEventListener('click', async () => {
     if (!initSupabase()) return;
@@ -4014,6 +4554,8 @@ function bindAuthButtons() {
     teacherAuthMsg('');
     document.getElementById('authScreen').style.display = 'none';
     document.getElementById('teacherApp').style.display = 'block';
+    document.getElementById('mainApp').style.display = 'none';
+    document.getElementById('parentApp').style.display = 'none';
     document.getElementById('teacherName').textContent = `${t.name} ${t.family}`;
     document.getElementById('teacherProfileName').textContent = `${t.name} ${t.family}`;
     document.getElementById('teacherProfileAvatar').textContent = (t.name || 'ا')[0];
@@ -4023,9 +4565,25 @@ function bindAuthButtons() {
       همراه: ${t.phone || '-'}
     `;
     document.getElementById('teacherYear').textContent = db.settings.year;
+
+    // پر کردن انتخاب‌گرها
+    const tSubjFilter = document.getElementById('teacherGradeSubjectFilter');
+    if (tSubjFilter) {
+      tSubjFilter.innerHTML = '<option value="">همه دروس</option>' +
+        db.subjects.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
+    }
+
+    const msgStudentSelect = document.getElementById('teacherMessageStudent');
+    if (msgStudentSelect) {
+      msgStudentSelect.innerHTML = '<option value="">انتخاب دانش‌آموز</option>' +
+        db.students.map(s => `<option value="${s.id}">${s.name} ${s.family} — ${s.grade || ''} ${s.class || ''}</option>`).join('');
+    }
+
+    renderTeacherGrades();
+    renderTeacherSentMessages();
   });
 
-  // ورود اولیا
+  // ---- ورود اولیا ----
   const btnParent = document.getElementById('btnParentLogin');
   if (btnParent) btnParent.addEventListener('click', async () => {
     if (!initSupabase()) return;
@@ -4040,6 +4598,8 @@ function bindAuthButtons() {
     parentAuthMsg('');
     document.getElementById('authScreen').style.display = 'none';
     document.getElementById('parentApp').style.display = 'block';
+    document.getElementById('mainApp').style.display = 'none';
+    document.getElementById('teacherApp').style.display = 'none';
     document.getElementById('parentName').textContent = `${s.name} ${s.family}`;
     document.getElementById('parentCode').textContent = `کد: ${s.code || '-'}`;
     document.getElementById('parentAvatar').textContent = (s.name || '؟')[0];
@@ -4051,7 +4611,7 @@ function bindAuthButtons() {
     renderParentPayments();
   });
 
-  // خروج‌ها
+  // ---- خروج‌ها ----
   const btnSignOut = document.getElementById('btnSignOut');
   if (btnSignOut) btnSignOut.addEventListener('click', async () => {
     if (sb) await sb.auth.signOut();
@@ -4107,11 +4667,6 @@ function bindTeacherTabs() {
   });
 }
 
-function closeNotif() {
-  const el = document.getElementById('notifDropdown');
-  if (el) el.style.display = 'none';
-}
-
 /* ============================================================
    Initialize
 ============================================================ */
@@ -4137,6 +4692,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   bindBackupEvents();
   bindParentTabs();
   bindTeacherTabs();
+  bindTeacherEvents();
   await checkExistingSession();
 });
 </script>
