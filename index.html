@@ -631,6 +631,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
       <button class="parent-tab active" data-ptab="finance">💰 وضعیت مالی</button>
       <button class="parent-tab" data-ptab="grades">📚 نمرات</button>
       <button class="parent-tab" data-ptab="attendance">📅 حضور و غیاب</button>
+      <button class="btn blue" id="btnTeacherViewAttendance" style="background:linear-gradient(135deg,#3b82f6 0%,#2563eb 100%);color:#fff">📊 مشاهده حضور و غیاب</button>
       <button class="parent-tab" data-ptab="messages">💬 پیام‌ها <span id="parentUnreadBadge" class="badge overdue" style="display:none;margin-right:4px">0</span></button>
       <button class="parent-tab" data-ptab="forecast">🎓 پیش‌بینی معدل</button>
       <button class="parent-tab" data-ptab="progress">📈 گزارش پیشرفت</button>
@@ -785,6 +786,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
           <h3 style="margin:0">📚 ثبت نمرات</h3>
           <button class="btn green" id="btnTeacherNewGrade">ثبت نمره +</button>
           <button class="btn purple" id="btnTeacherBulkGrade" style="background:linear-gradient(135deg,#a855f7 0%,#7c3aed 100%);color:#fff">📋 ثبت نمره گروهی</button>
+          <button class="btn red" id="btnTeacherAttendance" style="background:linear-gradient(135deg,#ef4444 0%,#dc2626 100%);color:#fff">📅 حضور و غیاب</button>
         </div>
         <div class="filters">
           <input id="teacherGradeSearch" placeholder="🔍 جستجوی دانش‌آموز...">
@@ -4241,6 +4243,10 @@ function bindTeacherEvents() {
 
   // دکمه ثبت نمره گروهی
   const btnBulkGrade = document.getElementById('btnTeacherBulkGrade');
+  const btnAttendance = document.getElementById('btnTeacherAttendance');
+  const btnViewAtt = document.getElementById('btnTeacherViewAttendance');
+if (btnViewAtt) btnViewAtt.addEventListener('click', () => openTeacherViewAttendanceModal());
+if (btnAttendance) btnAttendance.addEventListener('click', () => openTeacherAttendanceModal());
   if (btnBulkGrade) {
     btnBulkGrade.addEventListener('click', () => openTeacherBulkGradeModal());
   }
@@ -4280,6 +4286,204 @@ function bindTeacherEvents() {
 }
 
 /* ⭐ مودال ثبت نمره جدید — پنل استاد */
+  /* ⭐ مودال حضور و غیاب — پنل استاد */
+  function openTeacherViewAttendanceModal() {
+  const html = `
+    <div class="form">
+      <div class="filters">
+        <select id="tva_class">
+          <option value="">همه کلاس‌ها</option>
+          <option>هفتم</option><option>هشتم</option><option>نهم</option>
+          <option>دهم انسانی</option><option>دهم تجربی</option><option>دهم ریاضی</option>
+          <option>یازدهم انسانی</option><option>یازدهم تجربی</option><option>یازدهم ریاضی</option>
+          <option>دوازدهم انسانی</option><option>دوازدهم تجربی</option><option>دوازدهم ریاضی</option>
+        </select>
+        <select id="tva_status">
+          <option value="">همه وضعیت‌ها</option>
+          <option value="present">حاضر</option>
+          <option value="absent">غایب</option>
+          <option value="late">تأخیر</option>
+          <option value="excused">موجه</option>
+        </select>
+      </div>
+      <div id="tva_result"></div>
+    </div>
+  `;
+
+  openModal('📊 مشاهده حضور و غیاب', html);
+
+  function render() {
+    const clsF = document.getElementById('tva_class').value;
+    const stF = document.getElementById('tva_status').value;
+    let list = db.attendance.filter(a => {
+      const s = studentById(a.student_id || a.studentId);
+      if (clsF && s?.grade !== clsF) return false;
+      if (stF && a.status !== stF) return false;
+      return true;
+    }).slice(0, 100);
+
+    const el = document.getElementById('tva_result');
+    if (!list.length) { el.innerHTML = '<div class="empty">رکوردی نیست</div>'; return; }
+    el.innerHTML = `<div class="table-wrap"><table class="table" style="min-width:auto">
+      <thead><tr><th>تاریخ</th><th>دانش‌آموز</th><th>وضعیت</th><th>ساعت</th></tr></thead>
+      <tbody>${list.map(a => {
+        const s = studentById(a.student_id || a.studentId);
+        const [label, cls, icon] = attendanceBadge(a.status);
+        return `<tr>
+          <td>${a.date || '-'}</td>
+          <td>${s ? `${s.name} ${s.family}` : '-'}</td>
+          <td><span class="att-badge ${cls}">${icon} ${label}</span></td>
+          <td>${a.check_in || '-'}</td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table></div>`;
+  }
+
+  document.getElementById('tva_class').addEventListener('change', render);
+  document.getElementById('tva_status').addEventListener('change', render);
+  render();
+}
+function openTeacherAttendanceModal() {
+  if (!currentTeacher) { toast('ابتدا وارد شوید', 'error'); return; }
+
+  const gradeOptions = ['هفتم','هشتم','نهم','دهم انسانی','دهم تجربی','دهم ریاضی','یازدهم انسانی','یازدهم تجربی','یازدهم ریاضی','دوازدهم انسانی','دوازدهم تجربی','دوازدهم ریاضی']
+    .map(g => `<option>${g}</option>`).join('');
+
+  const html = `
+    <div class="form">
+      <div class="formgrid">
+        <div>
+          <label>پایه / کلاس</label>
+          <select id="tta_class">${gradeOptions}</select>
+        </div>
+        <div>
+          <label>تاریخ</label>
+          <input type="text" id="tta_date" value="${today()}" placeholder="1404/01/01">
+        </div>
+        <div>
+          <label>&nbsp;</label>
+          <button class="btn blue" id="tta_markAllPresent" style="width:100%">✅ همه حاضر</button>
+        </div>
+        <div>
+          <label>&nbsp;</label>
+          <button class="btn red" id="tta_markAllAbsent" style="width:100%">❌ همه غایب</button>
+        </div>
+      </div>
+      <div id="tta_studentList" style="margin-top:16px;max-height:450px;overflow-y:auto"></div>
+    </div>
+    <div class="modalfoot">
+      <button class="btn green" id="tta_save">💾 ذخیره حضور و غیاب</button>
+      <button class="btn" onclick="document.getElementById('modal').classList.remove('show')">انصراف</button>
+    </div>
+  `;
+
+  openModal('📅 ثبت حضور و غیاب', html);
+
+  function renderAttendanceRows() {
+    const cls = document.getElementById('tta_class').value;
+    const students = db.students.filter(s => s.grade === cls).sort((a,b) => (a.family||'').localeCompare(b.family||'', 'fa'));
+    const listEl = document.getElementById('tta_studentList');
+    
+    if (!students.length) {
+      listEl.innerHTML = '<div class="empty">دانش‌آموزی در این کلاس نیست</div>';
+      return;
+    }
+
+    // بررسی حضور و غیاب امروز
+    const dateVal = document.getElementById('tta_date').value;
+    const todayAtt = db.attendance.filter(a => a.date === dateVal);
+
+    listEl.innerHTML = `<div class="table-wrap"><table class="table" style="min-width:auto">
+      <thead><tr>
+        <th>ردیف</th><th>دانش‌آموز</th><th>وضعیت</th><th>ساعت ورود</th><th>علت</th>
+      </tr></thead>
+      <tbody>${students.map((s, i) => {
+        const existing = todayAtt.find(a => (a.student_id || a.studentId) == s.id);
+        const existingStatus = existing?.status || 'present';
+        return `<tr>
+          <td>${i+1}</td>
+          <td>${s.name} ${s.family} <span style="font-size:11px;color:#64748b">(کد: ${s.code || '-'})</span></td>
+          <td>
+            <select class="tta-status-select" data-student-id="${s.id}" style="padding:6px 10px;border:2px solid var(--line);border-radius:8px;font-size:12px">
+              <option value="present" ${existingStatus === 'present' ? 'selected' : ''}>✅ حاضر</option>
+              <option value="absent" ${existingStatus === 'absent' ? 'selected' : ''}>❌ غایب</option>
+              <option value="late" ${existingStatus === 'late' ? 'selected' : ''}>⏰ تأخیر</option>
+              <option value="excused" ${existingStatus === 'excused' ? 'selected' : ''}>📝 موجه</option>
+            </select>
+          </td>
+          <td>
+            <input type="text" class="tta-checkin-input" data-student-id="${s.id}" 
+              value="${existing?.check_in || ''}" placeholder="07:30" 
+              style="width:80px;padding:6px 8px;border:2px solid var(--line);border-radius:8px;font-size:12px">
+          </td>
+          <td>
+            <input type="text" class="tta-reason-input" data-student-id="${s.id}" 
+              value="${existing?.reason || ''}" placeholder="علت..." 
+              style="width:120px;padding:6px 8px;border:2px solid var(--line);border-radius:8px;font-size:12px">
+          </td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table></div>`;
+  }
+
+  document.getElementById('tta_class').addEventListener('change', renderAttendanceRows);
+  document.getElementById('tta_date').addEventListener('change', renderAttendanceRows);
+  renderAttendanceRows();
+
+  // دکمه همه حاضر
+  document.getElementById('tta_markAllPresent').addEventListener('click', () => {
+    document.querySelectorAll('.tta-status-select').forEach(sel => sel.value = 'present');
+  });
+
+  // دکمه همه غایب
+  document.getElementById('tta_markAllAbsent').addEventListener('click', () => {
+    document.querySelectorAll('.tta-status-select').forEach(sel => sel.value = 'absent');
+  });
+
+  // ذخیره
+  document.getElementById('tta_save').addEventListener('click', async () => {
+    const date = document.getElementById('tta_date').value || today();
+    const statusSelects = document.querySelectorAll('.tta-status-select');
+    const checkinInputs = document.querySelectorAll('.tta-checkin-input');
+    const reasonInputs = document.querySelectorAll('.tta-reason-input');
+
+    const records = [];
+    statusSelects.forEach((sel) => {
+      const sid = sel.dataset.studentId;
+      const checkin = document.querySelector(`.tta-checkin-input[data-student-id="${sid}"]`)?.value || '';
+      const reason = document.querySelector(`.tta-reason-input[data-student-id="${sid}"]`)?.value || '';
+      records.push({
+        student_id: parseInt(sid),
+        date: date,
+        status: sel.value,
+        check_in: checkin || null,
+        reason: reason || null,
+        note: null
+      });
+    });
+
+    if (!records.length) { toast('هیچ دانش‌آموزی نیست', 'warning'); return; }
+
+    try {
+      // پاک کردن رکوردهای امروز این کلاس
+      const studentIds = records.map(r => r.student_id);
+      await sb.from('attendance').delete().in('student_id', studentIds).eq('date', date);
+
+      // درج جدید
+      const { error } = await sb.from('attendance').insert(records);
+      if (error) throw error;
+
+      const absentCount = records.filter(r => r.status === 'absent').length;
+      const lateCount = records.filter(r => r.status === 'late').length;
+      toast(`✅ ${records.length} رکورد ذخیره شد — ${absentCount} غایب، ${lateCount} تأخیر`, 'success');
+      
+      document.getElementById('modal').classList.remove('show');
+      await loadData();
+    } catch(e) {
+      toast('خطا: ' + e.message, 'error');
+    }
+  });
+}
 function openTeacherNewGradeModal() {
   if (!currentTeacher) { toast('ابتدا وارد شوید', 'error'); return; }
 
