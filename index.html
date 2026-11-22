@@ -4657,7 +4657,14 @@ function openTeacherBulkGradeModal() {
           <input type="text" id="tbg_date" value="${today()}">
         </div>
       </div>
-      <div id="tbg_studentList" style="margin-top:16px;max-height:400px;overflow-y:auto"></div>
+
+      <div class="filters" style="margin-top:12px;background:#eef2ff;padding:12px;border-radius:10px">
+        <button class="btn" id="tbg_markAllPresent" style="background:#d1fae5;color:#065f46">✅ همه حاضر</button>
+        <button class="btn" id="tbg_markAllAbsent" style="background:#fee2e2;color:#991b1b">❌ همه غایب</button>
+        <button class="btn" id="tbg_clearAll" style="background:#f1f5f9;color:#475569">🗑️ پاک کردن همه</button>
+      </div>
+
+      <div id="tbg_studentList" style="margin-top:16px;max-height:420px;overflow-y:auto"></div>
     </div>
     <div class="modalfoot">
       <button class="btn green" id="tbg_save">💾 ذخیره همه</button>
@@ -4665,7 +4672,7 @@ function openTeacherBulkGradeModal() {
     </div>
   `;
 
-  openModal('📋 ثبت نمره گروهی', html);
+  openModal('📋 ثبت نمره گروهی — نمره یا غایب', html);
 
   function renderStudentRows() {
     const cls = document.getElementById('tbg_class').value;
@@ -4676,18 +4683,107 @@ function openTeacherBulkGradeModal() {
       return;
     }
     listEl.innerHTML = `<div class="table-wrap"><table class="table" style="min-width:auto">
-      <thead><tr><th>ردیف</th><th>دانش‌آموز</th><th>نمره</th></tr></thead>
-      <tbody>${students.map((s, i) => `<tr>
+      <thead><tr>
+        <th style="width:40px">ردیف</th>
+        <th>دانش‌آموز</th>
+        <th style="width:120px">نمره</th>
+        <th style="width:80px">غایب</th>
+        <th style="width:140px">وضعیت</th>
+      </tr></thead>
+      <tbody>${students.map((s, i) => `<tr data-student-id="${s.id}">
         <td>${i+1}</td>
         <td>${s.name} ${s.family} <span style="font-size:11px;color:#64748b">(کد: ${s.code || '-'})</span></td>
-        <td><input type="number" class="tbg-score-input" data-student-id="${s.id}" min="0" max="20" step="0.25" style="width:100px;padding:6px 10px;border:2px solid var(--line);border-radius:8px" placeholder="نمره"></td>
+        <td>
+          <input type="number" class="tbg-score-input" data-student-id="${s.id}" 
+            min="0" max="100" step="0.25" 
+            style="width:90px;padding:6px 10px;border:2px solid var(--line);border-radius:8px;text-align:center" 
+            placeholder="نمره">
+        </td>
+        <td style="text-align:center">
+          <input type="checkbox" class="tbg-absent-checkbox" data-student-id="${s.id}" 
+            style="width:22px;height:22px;cursor:pointer;accent-color:#dc2626">
+        </td>
+        <td class="tbg-status-cell" data-student-id="${s.id}" style="font-size:12px;color:#64748b">—</td>
       </tr>`).join('')}</tbody>
     </table></div>`;
+
+    // اتصال رویدادها
+    listEl.querySelectorAll('.tbg-score-input').forEach(inp => {
+      inp.addEventListener('input', () => updateRowStatus(inp.dataset.studentId));
+    });
+    listEl.querySelectorAll('.tbg-absent-checkbox').forEach(cb => {
+      cb.addEventListener('change', () => {
+        const sid = cb.dataset.studentId;
+        const scoreInput = listEl.querySelector(`.tbg-score-input[data-student-id="${sid}"]`);
+        if (cb.checked) {
+          // اگر غایب تیک خورد، نمره را غیرفعال و خالی کن
+          scoreInput.value = '';
+          scoreInput.disabled = true;
+          scoreInput.style.background = '#f1f5f9';
+          scoreInput.style.opacity = '0.5';
+        } else {
+          // اگر تیک برداشته شد، نمره را فعال کن
+          scoreInput.disabled = false;
+          scoreInput.style.background = '#fff';
+          scoreInput.style.opacity = '1';
+        }
+        updateRowStatus(sid);
+      });
+    });
+  }
+
+  function updateRowStatus(sid) {
+    const listEl = document.getElementById('tbg_studentList');
+    const scoreInp = listEl.querySelector(`.tbg-score-input[data-student-id="${sid}"]`);
+    const absentCb = listEl.querySelector(`.tbg-absent-checkbox[data-student-id="${sid}"]`);
+    const statusCell = listEl.querySelector(`.tbg-status-cell[data-student-id="${sid}"]`);
+    if (!statusCell) return;
+
+    if (absentCb && absentCb.checked) {
+      statusCell.innerHTML = '<span style="color:#dc2626;font-weight:700">❌ غایب</span>';
+    } else if (scoreInp && scoreInp.value !== '') {
+      statusCell.innerHTML = `<span style="color:#059669;font-weight:700">✅ ${scoreInp.value}</span>`;
+    } else {
+      statusCell.innerHTML = '<span style="color:#94a3b8">—</span>';
+    }
   }
 
   document.getElementById('tbg_class').addEventListener('change', renderStudentRows);
   renderStudentRows();
 
+  // دکمه همه حاضر
+  document.getElementById('tbg_markAllPresent').addEventListener('click', () => {
+    document.querySelectorAll('.tbg-absent-checkbox').forEach(cb => {
+      if (cb.checked) {
+        cb.checked = false;
+        cb.dispatchEvent(new Event('change'));
+      }
+    });
+  });
+
+  // دکمه همه غایب
+  document.getElementById('tbg_markAllAbsent').addEventListener('click', () => {
+    document.querySelectorAll('.tbg-absent-checkbox').forEach(cb => {
+      if (!cb.checked) {
+        cb.checked = true;
+        cb.dispatchEvent(new Event('change'));
+      }
+    });
+  });
+
+  // دکمه پاک کردن همه
+  document.getElementById('tbg_clearAll').addEventListener('click', () => {
+    document.querySelectorAll('.tbg-score-input').forEach(inp => {
+      inp.value = '';
+      inp.disabled = false;
+      inp.style.background = '#fff';
+      inp.style.opacity = '1';
+    });
+    document.querySelectorAll('.tbg-absent-checkbox').forEach(cb => cb.checked = false);
+    document.querySelectorAll('.tbg-status-cell').forEach(c => c.innerHTML = '<span style="color:#94a3b8">—</span>');
+  });
+
+  // ذخیره
   document.getElementById('tbg_save').addEventListener('click', async () => {
     const subject = document.getElementById('tbg_subject').value;
     if (!subject) { toast('درس را انتخاب کنید', 'warning'); return; }
@@ -4696,31 +4792,58 @@ function openTeacherBulkGradeModal() {
     const type = document.getElementById('tbg_type').value;
     const date = document.getElementById('tbg_date').value || today();
 
-    const inputs = document.querySelectorAll('.tbg-score-input');
     const records = [];
-    inputs.forEach(inp => {
-      const score = parseFloat(inp.value);
-      if (isNaN(score)) return;
-      if (score < 0 || score > maxScore) return;
-      records.push({
-        student_id: parseInt(inp.dataset.studentId),
-        subject,
-        term,
-        type,
-        score,
-        max_score: maxScore,
-        date,
-        teacher_name: `${currentTeacher?.name || ''} ${currentTeacher?.family || ''}`.trim(),
-        teacher_id: currentTeacher?.id || null
-      });
+    let absentCount = 0;
+    let scoredCount = 0;
+
+    document.querySelectorAll('.tbg-absent-checkbox').forEach(cb => {
+      const sid = parseInt(cb.dataset.studentId);
+      const isAbsent = cb.checked;
+      const scoreInput = document.querySelector(`.tbg-score-input[data-student-id="${sid}"]`);
+      const scoreVal = scoreInput?.value;
+
+      if (isAbsent) {
+        // غایب → نمره صفر با یادداشت غایب
+        records.push({
+          student_id: sid,
+          subject,
+          term,
+          type,
+          score: 0,
+          max_score: maxScore,
+          date,
+          teacher_name: `${currentTeacher?.name || ''} ${currentTeacher?.family || ''}`.trim(),
+          teacher_id: currentTeacher?.id || null
+        });
+        absentCount++;
+      } else if (scoreVal !== '' && scoreVal !== null) {
+        const score = parseFloat(scoreVal);
+        if (isNaN(score)) return;
+        if (score < 0 || score > maxScore) return;
+        records.push({
+          student_id: sid,
+          subject,
+          term,
+          type,
+          score,
+          max_score: maxScore,
+          date,
+          teacher_name: `${currentTeacher?.name || ''} ${currentTeacher?.family || ''}`.trim(),
+          teacher_id: currentTeacher?.id || null
+        });
+        scoredCount++;
+      }
     });
 
-    if (!records.length) { toast('هیچ نمره‌ای وارد نشده', 'warning'); return; }
+    if (!records.length) { 
+      toast('هیچ نمره یا غیبتی وارد نشده', 'warning'); 
+      return; 
+    }
 
     try {
       const { error } = await sb.from('grades').insert(records);
       if (error) throw error;
-      toast(`✅ ${records.length} نمره ثبت شد`, 'success');
+      toast(`✅ ${records.length} رکورد ذخیره شد — ${scoredCount} نمره، ${absentCount} غایب`, 'success');
       document.getElementById('modal').classList.remove('show');
       await loadData();
       if (typeof renderTeacherGrades === 'function') renderTeacherGrades();
@@ -4729,7 +4852,6 @@ function openTeacherBulkGradeModal() {
     }
   });
 }
-
 /* ⭐ رندر نمرات پنل استاد */
 function renderTeacherGrades() {
   if (!currentTeacher) return;
