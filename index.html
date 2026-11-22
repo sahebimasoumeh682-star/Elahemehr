@@ -4810,47 +4810,21 @@ function bindFilterEvents() {
 }
 
 function bindTeacherEvents() {
-  const btnNewGrade = document.getElementById('btnTeacherNewGrade');
-  if (btnNewGrade) btnNewGrade.addEventListener('click', openTeacherNewGradeModal);
+  try {
+    const btnNewGrade = document.getElementById('btnTeacherNewGrade');
+    if (btnNewGrade) btnNewGrade.addEventListener('click', () => openTeacherNewGradeModal());
 
-  const btnBulkGrade = document.getElementById('btnTeacherBulkGrade');
-  if (btnBulkGrade) btnBulkGrade.addEventListener('click', openTeacherBulkGradeModal);
+    const btnBulkGrade = document.getElementById('btnTeacherBulkGrade');
+    if (btnBulkGrade) btnBulkGrade.addEventListener('click', () => openTeacherBulkGradeModal());
 
-  const btnAtt = document.getElementById('btnTeacherAttendance');
-  if (btnAtt) btnAtt.addEventListener('click', openTeacherAttendanceModal);
+    const btnAtt = document.getElementById('btnTeacherAttendance');
+    if (btnAtt) btnAtt.addEventListener('click', () => openTeacherAttendanceModal());
 
-  const btnViewAtt = document.getElementById('btnTeacherViewAttendance');
-  if (btnViewAtt) btnViewAtt.addEventListener('click', openTeacherViewAttendanceModal);
-
-  const btnSendMsg = document.getElementById('btnTeacherSendMessage');
-  if (btnSendMsg) btnSendMsg.addEventListener('click', async () => {
-    const studentId = document.getElementById('teacherMessageStudent').value;
-    const body = document.getElementById('teacherMessageBody').value.trim();
-    if (!studentId) { toast('دانش‌آموز را انتخاب کنید', 'warning'); return; }
-    if (!body) { toast('متن پیام را بنویسید', 'warning'); return; }
-
-    const student = studentById(studentId);
-    if (!student) { toast('دانش‌آموز یافت نشد', 'error'); return; }
-
-    try {
-      const { error } = await sb.from('messages').insert({
-        sender_id: currentTeacher?.id || null,
-        sender_name: `${currentTeacher?.name || ''} ${currentTeacher?.family || ''}`.trim() || 'استاد',
-        sender_role: 'teacher',
-        recipient_id: studentId,
-        recipient_type: 'student',
-        body: body,
-        is_read: false
-      });
-      if (error) throw error;
-      toast('✅ پیام ارسال شد', 'success');
-      document.getElementById('teacherMessageBody').value = '';
-      document.getElementById('teacherMessageStudent').value = '';
-      renderTeacherSentMessages();
-    } catch(e) {
-      toast('خطا: ' + e.message, 'error');
-    }
-  });
+    const btnViewAtt = document.getElementById('btnTeacherViewAttendance');
+    if (btnViewAtt) btnViewAtt.addEventListener('click', () => openTeacherViewAttendanceModal());
+  } catch(e) {
+    console.warn('bindTeacherEvents:', e.message);
+  }
 }
 
 function bindAuthButtons() {
