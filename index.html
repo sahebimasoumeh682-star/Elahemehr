@@ -3346,7 +3346,7 @@ function renderGrades() {
       <td>${s?.grade || '-'}</td>
       <td>${g.subject || '-'}</td>
       <td>${g.term || '-'}</td>
-      <td>${g.type || '-'}</td>
+      <td>${g.exam_type || g.type || '-'}</td>
       <td><span class="grade-badge ${cls}">${g.score}</span></td>
       <td>${g.max_score || 20}</td>
       <td>${g.date || '-'}</td>
@@ -3966,17 +3966,21 @@ function openTeacherNewGradeModal() {
     const maxScore = parseFloat(document.getElementById('tng_max').value) || 20;
     if (score < 0 || score > maxScore) { toast(`نمره بین ۰ تا ${maxScore}`, 'warning'); return; }
 
+    const examType = document.getElementById('tng_type').value;
+    const examDate = document.getElementById('tng_date').value || today();
+
     try {
       const { error } = await sb.from('grades').insert({
         student_id: parseInt(selectedStudentId),
         subject,
         term: document.getElementById('tng_term').value,
-        type: document.getElementById('tng_type').value,
+        exam_type: examType,          // ⭐ به جای type
         score,
         max_score: maxScore,
-        date: document.getElementById('tng_date').value || today(),
-        teacher_name: `${currentTeacher?.name || ''} ${currentTeacher?.family || ''}`.trim(),
-        teacher_id: currentTeacher?.id || null
+        date: examDate,                // ⭐
+        exam_date: examDate,           // ⭐
+        teacher_name: `${currentTeacher.name || ''} ${currentTeacher.family || ''}`.trim(),
+        teacher_id: currentTeacher.id || null
       });
       if (error) throw error;
       toast('✅ نمره ثبت شد', 'success');
@@ -4031,7 +4035,6 @@ function openTeacherBulkGradeModal() {
       </div>
 
       <div id="tbg_studentList" style="margin-top:16px;max-height:420px;overflow-y:auto"></div>
-
       <div id="tbg_debugMsg" style="margin-top:12px;padding:10px;background:#fef3c7;border-radius:8px;font-size:12px;display:none"></div>
     </div>
     <div class="modalfoot">
@@ -4096,6 +4099,192 @@ function openTeacherBulkGradeModal() {
       });
     });
   }
+
+  function updateRowStatus(sid) {
+    const listEl = document.getElementById('tbg_studentList');
+    const scoreInp = listEl.querySelector(`.tbg-score-input[data-student-id="${sid}"]`);
+    const absentCb = listEl.querySelector(`.tbg-absent-checkbox[data-student-id="${sid}"]`);
+    const statusCell = listEl.querySelector(`.tbg-status-cell[data-student-id="${sid}"]`);
+    if (!statusCell) return;
+    if (absentCb && absentCb.checked) {
+      statusCell.innerHTML = '<span style="color:#dc2626;font-weight:700">❌ غایب</span>';
+    } else if (scoreInp && scoreInp.value !== '') {
+      statusCell.innerHTML = `<span style="color:#059669;font-weight:700">✅ ${scoreInp.value}</span>`;
+    } else {
+      statusCell.innerHTML = '<span style="color:#94a3b8">—</span>';
+    }
+  }
+
+  document.getElementById('tbg_class').addEventListener('change', renderStudentRows);
+  renderStudentRows();
+
+  document.getElementById('tbg_markAllPresent').addEventListener('click', () => {
+    document.querySelectorAll('.tbg-absent-checkbox').forEach(cb => {
+      if (cb.checked) {
+        cb.checked = false;
+        cb.dispatchEvent(new Event('change'));
+      }
+    });
+  });
+
+  document.getElementById('tbg_markAllAbsent').addEventListener('click', () => {
+    document.querySelectorAll('.tbg-absent-checkbox').forEach(cb => {
+      if (!cb.checked) {
+        cb.checked = true;
+        cb.dispatchEvent(new Event('change'));
+      }
+    });
+  });
+
+  document.getElementById('tbg_clearAll').addEventListener('click', () => {
+    document.querySelectorAll('.tbg-score-input').forEach(inp => {
+      inp.value = '';
+      inp.disabled = false;
+      inp.style.background = '#fff';
+      inp.style.opacity = '1';
+    });
+    document.querySelectorAll('.tbg-absent-checkbox').forEach(cb => cb.checked = false);
+    document.querySelectorAll('.tbg-status-cell').forEach(c => c.innerHTML = '<span style="color:#94a3b8">—</span>');
+  });
+
+  // ⭐ ذخیره با ستون‌های واقعی دیتابیس
+  document.getElementById('tbg_save').addEventListener('click', async () => {
+    const debugEl = document.getElementById('tbg_debugMsg');
+    debugEl.style.display = 'block';
+    debugEl.style.background = '#fef3c7';
+    debugEl.innerHTML = '🔍 بررسی اولیه...';
+
+    if (!sb) {
+      debugEl.innerHTML = '❌ <b>Supabase متصل نیست!</b>';
+      debugEl.style.background = '#fee2e2';
+      return;
+    }
+    if (!currentTeacher) {
+      debugEl.innerHTML = '❌ <b>اطلاعات استاد لود نشده!</b>';
+      debugEl.style.background = '#fee2e2';
+      return;
+    }
+
+    const subject = document.getElementById('tbg_subject').value;
+    if (!subject) {
+      debugEl.innerHTML = '❌ <b>درس انتخاب نشده!</b>';
+      debugEl.style.background = '#fee2e2';
+      return;
+    }
+
+    const maxScore = parseFloat(document.getElementById('tbg_max').value) || 20;
+    const term = document.getElementById('tbg_term').value;
+    const examType = document.getElementById('tbg_type').value;  // ⭐ exam_type
+    const examDate = document.getElementById('tbg_date').value || today();
+
+    debugEl.innerHTML = `🔍 اطلاعات:<br>
+      • درس: ${subject}<br>
+      • ترم: ${term}<br>
+      • نوع: ${examType}<br>
+      • تاریخ: ${examDate}<br>
+      • استاد: ${currentTeacher.name} ${currentTeacher.family}<br>
+      در حال خواندن ردیف‌ها...`;
+
+    const records = [];
+    let absentCount = 0;
+    let scoredCount = 0;
+    let emptyCount = 0;
+
+    document.querySelectorAll('.tbg-absent-checkbox').forEach(cb => {
+      const sid = parseInt(cb.dataset.studentId);
+      const isAbsent = cb.checked;
+      const scoreInput = document.querySelector(`.tbg-score-input[data-student-id="${sid}"]`);
+      const scoreVal = scoreInput?.value;
+
+      if (isAbsent) {
+        // ⭐ ستون‌های واقعی دیتابیس
+        records.push({
+          student_id: sid,
+          subject: subject,
+          term: term,
+          exam_type: examType,        // ⭐ به جای type
+          score: 0,
+          max_score: maxScore,
+          date: examDate,              // ⭐ به جای date (در دیتابیس هست)
+          exam_date: examDate,         // ⭐ اضافه (اختیاری)
+          teacher_name: `${currentTeacher.name || ''} ${currentTeacher.family || ''}`.trim(),
+          teacher_id: currentTeacher.id || null
+        });
+        absentCount++;
+      } else if (scoreVal !== '' && scoreVal !== null && scoreVal !== undefined) {
+        const score = parseFloat(scoreVal);
+        if (isNaN(score)) return;
+        if (score < 0 || score > maxScore) return;
+        records.push({
+          student_id: sid,
+          subject: subject,
+          term: term,
+          exam_type: examType,        // ⭐ به جای type
+          score: score,
+          max_score: maxScore,
+          date: examDate,              // ⭐
+          exam_date: examDate,         // ⭐
+          teacher_name: `${currentTeacher.name || ''} ${currentTeacher.family || ''}`.trim(),
+          teacher_id: currentTeacher.id || null
+        });
+        scoredCount++;
+      } else {
+        emptyCount++;
+      }
+    });
+
+    debugEl.innerHTML += `<br><br>
+      📊 <b>آمار:</b><br>
+      • نمره وارد شده: ${scoredCount}<br>
+      • غایب: ${absentCount}<br>
+      • خالی: ${emptyCount}<br>
+      • کل رکورد: ${records.length}`;
+
+    if (!records.length) {
+      debugEl.innerHTML += '<br><br>❌ <b>هیچ رکوردی برای ذخیره نیست!</b>';
+      debugEl.style.background = '#fee2e2';
+      return;
+    }
+
+    debugEl.innerHTML += `<br><br>🔍 <b>نمونه رکورد اول:</b><br>
+      <code style="display:block;background:#fff;padding:8px;border-radius:6px;font-size:10px;direction:ltr;text-align:left;margin-top:6px">${JSON.stringify(records[0], null, 2)}</code>`;
+
+    debugEl.innerHTML += '<br>⏳ در حال ارسال به Supabase...';
+
+    try {
+      const { data, error } = await sb.from('grades').insert(records).select();
+
+      if (error) {
+        debugEl.innerHTML = `❌ <b>خطای Supabase:</b><br>
+          <div style="background:#fff;padding:10px;border-radius:6px;margin-top:8px;font-size:11px;line-height:1.8">
+            <b>message:</b> ${error.message || '-'}<br>
+            <b>details:</b> ${error.details || '-'}<br>
+            <b>hint:</b> ${error.hint || '-'}<br>
+            <b>code:</b> ${error.code || '-'}
+          </div>`;
+        debugEl.style.background = '#fee2e2';
+        return;
+      }
+
+      debugEl.innerHTML = `✅ <b>${data?.length || records.length} رکورد ذخیره شد!</b><br>
+        ${scoredCount} نمره + ${absentCount} غایب<br>
+        <small>در حال بارگذاری مجدد...</small>`;
+      debugEl.style.background = '#d1fae5';
+      toast(`✅ ${data?.length || records.length} رکورد ذخیره شد`, 'success');
+
+      setTimeout(async () => {
+        document.getElementById('modal').classList.remove('show');
+        await loadData();
+        renderTeacherGrades();
+      }, 1200);
+
+    } catch(e) {
+      debugEl.innerHTML = `❌ <b>خطای کلی:</b><br>
+        <div style="background:#fff;padding:10px;border-radius:6px;margin-top:8px;font-size:11px">${e.message}</div>`;
+      debugEl.style.background = '#fee2e2';
+    }
+  });
+}
 
   function updateRowStatus(sid) {
     const listEl = document.getElementById('tbg_studentList');
