@@ -4002,30 +4002,12 @@ function openTeacherBulkGradeModal() {
   const html = `
     <div class="form">
       <div class="formgrid">
-        <div>
-          <label>پایه / کلاس</label>
-          <select id="tbg_class">${gradeOptions}</select>
-        </div>
-        <div>
-          <label>درس</label>
-          <select id="tbg_subject">${subjectOptions || '<option value="">— درسی ثبت نشده —</option>'}</select>
-        </div>
-        <div>
-          <label>ترم</label>
-          <select id="tbg_term">${GRADE_TERMS.map(t => `<option>${t}</option>`).join('')}</select>
-        </div>
-        <div>
-          <label>نوع نمره</label>
-          <select id="tbg_type">${EXAM_TYPES.map(t => `<option>${t}</option>`).join('')}</select>
-        </div>
-        <div>
-          <label>از (حداکثر)</label>
-          <input type="number" id="tbg_max" value="20" min="1" max="100">
-        </div>
-        <div>
-          <label>تاریخ</label>
-          <input type="text" id="tbg_date" value="${today()}">
-        </div>
+        <div><label>پایه / کلاس</label><select id="tbg_class">${gradeOptions}</select></div>
+        <div><label>درس</label><select id="tbg_subject">${subjectOptions || '<option value="">— درسی ثبت نشده —</option>'}</select></div>
+        <div><label>ترم</label><select id="tbg_term">${GRADE_TERMS.map(t => `<option>${t}</option>`).join('')}</select></div>
+        <div><label>نوع نمره</label><select id="tbg_type">${EXAM_TYPES.map(t => `<option>${t}</option>`).join('')}</select></div>
+        <div><label>از (حداکثر)</label><input type="number" id="tbg_max" value="20" min="1" max="100"></div>
+        <div><label>تاریخ</label><input type="text" id="tbg_date" value="${today()}"></div>
       </div>
       <div class="filters" style="margin-top:12px;background:#eef2ff;padding:12px;border-radius:10px">
         <button class="btn" id="tbg_markAllPresent" style="background:#d1fae5;color:#065f46">✅ همه حاضر</button>
@@ -4087,11 +4069,11 @@ function openTeacherBulkGradeModal() {
     const statusCell = listEl.querySelector(`.tbg-status-cell[data-student-id="${sid}"]`);
     if (!statusCell) return;
     if (absentCb && absentCb.checked) {
-      statusCell.innerHTML = '<span style="color:#dc2626">❌ غایب</span>';
+      statusCell.innerHTML = '<span style="color:#dc2626;font-weight:700">❌ غایب</span>';
     } else if (scoreInp && scoreInp.value !== '') {
-      statusCell.innerHTML = `<span style="color:#059669">✅ ${scoreInp.value}</span>`;
+      statusCell.innerHTML = `<span style="color:#059669;font-weight:700">✅ ${scoreInp.value}</span>`;
     } else {
-      statusCell.innerHTML = '—';
+      statusCell.innerHTML = '<span style="color:#94a3b8">—</span>';
     }
   }
 
@@ -4099,38 +4081,46 @@ function openTeacherBulkGradeModal() {
   renderStudentRows();
 
   document.getElementById('tbg_markAllPresent').addEventListener('click', () => {
-    document.querySelectorAll('.tbg-absent-checkbox').forEach(cb => { cb.checked = false; cb.dispatchEvent(new Event('change')); });
-  });
-  document.getElementById('tbg_markAllAbsent').addEventListener('click', () => {
-    document.querySelectorAll('.tbg-absent-checkbox').forEach(cb => { cb.checked = true; cb.dispatchEvent(new Event('change')); });
-  });
-  document.getElementById('tbg_clearAll').addEventListener('click', () => {
-    document.querySelectorAll('.tbg-score-input').forEach(inp => { inp.value = ''; inp.disabled = false; });
-    document.querySelectorAll('.tbg-absent-checkbox').forEach(cb => cb.checked = false);
-    document.querySelectorAll('.tbg-status-cell').forEach(c => c.innerHTML = '—');
+    document.querySelectorAll('.tbg-absent-checkbox').forEach(cb => {
+      if (cb.checked) { cb.checked = false; cb.dispatchEvent(new Event('change')); }
+    });
   });
 
-  // ⭐ ذخیره با ستون‌های واقعی
+  document.getElementById('tbg_markAllAbsent').addEventListener('click', () => {
+    document.querySelectorAll('.tbg-absent-checkbox').forEach(cb => {
+      if (!cb.checked) { cb.checked = true; cb.dispatchEvent(new Event('change')); }
+    });
+  });
+
+  document.getElementById('tbg_clearAll').addEventListener('click', () => {
+    document.querySelectorAll('.tbg-score-input').forEach(inp => {
+      inp.value = '';
+      inp.disabled = false;
+    });
+    document.querySelectorAll('.tbg-absent-checkbox').forEach(cb => cb.checked = false);
+    document.querySelectorAll('.tbg-status-cell').forEach(c => c.innerHTML = '<span style="color:#94a3b8">—</span>');
+  });
+
   document.getElementById('tbg_save').addEventListener('click', async () => {
     const debugEl = document.getElementById('tbg_debugMsg');
     debugEl.style.display = 'block';
     debugEl.style.background = '#fef3c7';
-    debugEl.innerHTML = '🔍 بررسی...';
+    debugEl.innerHTML = '🔍 بررسی اولیه...';
 
     if (!sb) {
-      debugEl.innerHTML = '❌ Supabase متصل نیست';
+      debugEl.innerHTML = '❌ <b>Supabase متصل نیست!</b>';
       debugEl.style.background = '#fee2e2';
       return;
     }
     if (!currentTeacher) {
-      debugEl.innerHTML = '❌ اطلاعات استاد لود نشده';
+      debugEl.innerHTML = '❌ <b>اطلاعات استاد لود نشده!</b>';
       debugEl.style.background = '#fee2e2';
       return;
     }
 
     const subject = document.getElementById('tbg_subject').value;
     if (!subject) {
-      debugEl.innerHTML = '❌ درس انتخاب نشده';
+      debugEl.innerHTML = '❌ <b>درس انتخاب نشده!</b>';
       debugEl.style.background = '#fee2e2';
       return;
     }
@@ -4201,371 +4191,6 @@ function openTeacherBulkGradeModal() {
     }
   });
 }
-
-  function updateRowStatus(sid) {
-    const listEl = document.getElementById('tbg_studentList');
-    const scoreInp = listEl.querySelector(`.tbg-score-input[data-student-id="${sid}"]`);
-    const absentCb = listEl.querySelector(`.tbg-absent-checkbox[data-student-id="${sid}"]`);
-    const statusCell = listEl.querySelector(`.tbg-status-cell[data-student-id="${sid}"]`);
-    if (!statusCell) return;
-    if (absentCb && absentCb.checked) {
-      statusCell.innerHTML = '<span style="color:#dc2626;font-weight:700">❌ غایب</span>';
-    } else if (scoreInp && scoreInp.value !== '') {
-      statusCell.innerHTML = `<span style="color:#059669;font-weight:700">✅ ${scoreInp.value}</span>`;
-    } else {
-      statusCell.innerHTML = '<span style="color:#94a3b8">—</span>';
-    }
-  }
-
-  document.getElementById('tbg_class').addEventListener('change', renderStudentRows);
-  renderStudentRows();
-
-  document.getElementById('tbg_markAllPresent').addEventListener('click', () => {
-    document.querySelectorAll('.tbg-absent-checkbox').forEach(cb => {
-      if (cb.checked) {
-        cb.checked = false;
-        cb.dispatchEvent(new Event('change'));
-      }
-    });
-  });
-
-  document.getElementById('tbg_markAllAbsent').addEventListener('click', () => {
-    document.querySelectorAll('.tbg-absent-checkbox').forEach(cb => {
-      if (!cb.checked) {
-        cb.checked = true;
-        cb.dispatchEvent(new Event('change'));
-      }
-    });
-  });
-
-  document.getElementById('tbg_clearAll').addEventListener('click', () => {
-    document.querySelectorAll('.tbg-score-input').forEach(inp => {
-      inp.value = '';
-      inp.disabled = false;
-      inp.style.background = '#fff';
-      inp.style.opacity = '1';
-    });
-    document.querySelectorAll('.tbg-absent-checkbox').forEach(cb => cb.checked = false);
-    document.querySelectorAll('.tbg-status-cell').forEach(c => c.innerHTML = '<span style="color:#94a3b8">—</span>');
-  });
-
-  // ⭐ ذخیره با ستون‌های واقعی دیتابیس
-  document.getElementById('tbg_save').addEventListener('click', async () => {
-    const debugEl = document.getElementById('tbg_debugMsg');
-    debugEl.style.display = 'block';
-    debugEl.style.background = '#fef3c7';
-    debugEl.innerHTML = '🔍 بررسی اولیه...';
-
-    if (!sb) {
-      debugEl.innerHTML = '❌ <b>Supabase متصل نیست!</b>';
-      debugEl.style.background = '#fee2e2';
-      return;
-    }
-    if (!currentTeacher) {
-      debugEl.innerHTML = '❌ <b>اطلاعات استاد لود نشده!</b>';
-      debugEl.style.background = '#fee2e2';
-      return;
-    }
-
-    const subject = document.getElementById('tbg_subject').value;
-    if (!subject) {
-      debugEl.innerHTML = '❌ <b>درس انتخاب نشده!</b>';
-      debugEl.style.background = '#fee2e2';
-      return;
-    }
-
-    const maxScore = parseFloat(document.getElementById('tbg_max').value) || 20;
-    const term = document.getElementById('tbg_term').value;
-    const examType = document.getElementById('tbg_type').value;  // ⭐ exam_type
-    const examDate = document.getElementById('tbg_date').value || today();
-
-    debugEl.innerHTML = `🔍 اطلاعات:<br>
-      • درس: ${subject}<br>
-      • ترم: ${term}<br>
-      • نوع: ${examType}<br>
-      • تاریخ: ${examDate}<br>
-      • استاد: ${currentTeacher.name} ${currentTeacher.family}<br>
-      در حال خواندن ردیف‌ها...`;
-
-    const records = [];
-    let absentCount = 0;
-    let scoredCount = 0;
-    let emptyCount = 0;
-
-    document.querySelectorAll('.tbg-absent-checkbox').forEach(cb => {
-      const sid = parseInt(cb.dataset.studentId);
-      const isAbsent = cb.checked;
-      const scoreInput = document.querySelector(`.tbg-score-input[data-student-id="${sid}"]`);
-      const scoreVal = scoreInput?.value;
-
-      if (isAbsent) {
-        // ⭐ ستون‌های واقعی دیتابیس
-        records.push({
-          student_id: sid,
-          subject: subject,
-          term: term,
-          exam_type: examType,        // ⭐ به جای type
-          score: 0,
-          max_score: maxScore,
-          date: examDate,              // ⭐ به جای date (در دیتابیس هست)
-          exam_date: examDate,         // ⭐ اضافه (اختیاری)
-          teacher_name: `${currentTeacher.name || ''} ${currentTeacher.family || ''}`.trim(),
-          teacher_id: currentTeacher.id || null
-        });
-        absentCount++;
-      } else if (scoreVal !== '' && scoreVal !== null && scoreVal !== undefined) {
-        const score = parseFloat(scoreVal);
-        if (isNaN(score)) return;
-        if (score < 0 || score > maxScore) return;
-        records.push({
-          student_id: sid,
-          subject: subject,
-          term: term,
-          exam_type: examType,        // ⭐ به جای type
-          score: score,
-          max_score: maxScore,
-          date: examDate,              // ⭐
-          exam_date: examDate,         // ⭐
-          teacher_name: `${currentTeacher.name || ''} ${currentTeacher.family || ''}`.trim(),
-          teacher_id: currentTeacher.id || null
-        });
-        scoredCount++;
-      } else {
-        emptyCount++;
-      }
-    });
-
-    debugEl.innerHTML += `<br><br>
-      📊 <b>آمار:</b><br>
-      • نمره وارد شده: ${scoredCount}<br>
-      • غایب: ${absentCount}<br>
-      • خالی: ${emptyCount}<br>
-      • کل رکورد: ${records.length}`;
-
-    if (!records.length) {
-      debugEl.innerHTML += '<br><br>❌ <b>هیچ رکوردی برای ذخیره نیست!</b>';
-      debugEl.style.background = '#fee2e2';
-      return;
-    }
-
-    debugEl.innerHTML += `<br><br>🔍 <b>نمونه رکورد اول:</b><br>
-      <code style="display:block;background:#fff;padding:8px;border-radius:6px;font-size:10px;direction:ltr;text-align:left;margin-top:6px">${JSON.stringify(records[0], null, 2)}</code>`;
-
-    debugEl.innerHTML += '<br>⏳ در حال ارسال به Supabase...';
-
-    try {
-      const { data, error } = await sb.from('grades').insert(records).select();
-
-      if (error) {
-        debugEl.innerHTML = `❌ <b>خطای Supabase:</b><br>
-          <div style="background:#fff;padding:10px;border-radius:6px;margin-top:8px;font-size:11px;line-height:1.8">
-            <b>message:</b> ${error.message || '-'}<br>
-            <b>details:</b> ${error.details || '-'}<br>
-            <b>hint:</b> ${error.hint || '-'}<br>
-            <b>code:</b> ${error.code || '-'}
-          </div>`;
-        debugEl.style.background = '#fee2e2';
-        return;
-      }
-
-      debugEl.innerHTML = `✅ <b>${data?.length || records.length} رکورد ذخیره شد!</b><br>
-        ${scoredCount} نمره + ${absentCount} غایب<br>
-        <small>در حال بارگذاری مجدد...</small>`;
-      debugEl.style.background = '#d1fae5';
-      toast(`✅ ${data?.length || records.length} رکورد ذخیره شد`, 'success');
-
-      setTimeout(async () => {
-        document.getElementById('modal').classList.remove('show');
-        await loadData();
-        renderTeacherGrades();
-      }, 1200);
-
-    } catch(e) {
-      debugEl.innerHTML = `❌ <b>خطای کلی:</b><br>
-        <div style="background:#fff;padding:10px;border-radius:6px;margin-top:8px;font-size:11px">${e.message}</div>`;
-      debugEl.style.background = '#fee2e2';
-    }
-  });
-}
-
-  function updateRowStatus(sid) {
-    const listEl = document.getElementById('tbg_studentList');
-    const scoreInp = listEl.querySelector(`.tbg-score-input[data-student-id="${sid}"]`);
-    const absentCb = listEl.querySelector(`.tbg-absent-checkbox[data-student-id="${sid}"]`);
-    const statusCell = listEl.querySelector(`.tbg-status-cell[data-student-id="${sid}"]`);
-    if (!statusCell) return;
-    if (absentCb && absentCb.checked) {
-      statusCell.innerHTML = '<span style="color:#dc2626;font-weight:700">❌ غایب</span>';
-    } else if (scoreInp && scoreInp.value !== '') {
-      statusCell.innerHTML = `<span style="color:#059669;font-weight:700">✅ ${scoreInp.value}</span>`;
-    } else {
-      statusCell.innerHTML = '<span style="color:#94a3b8">—</span>';
-    }
-  }
-
-  document.getElementById('tbg_class').addEventListener('change', renderStudentRows);
-  renderStudentRows();
-
-  document.getElementById('tbg_markAllPresent').addEventListener('click', () => {
-    document.querySelectorAll('.tbg-absent-checkbox').forEach(cb => {
-      if (cb.checked) {
-        cb.checked = false;
-        cb.dispatchEvent(new Event('change'));
-      }
-    });
-  });
-
-  document.getElementById('tbg_markAllAbsent').addEventListener('click', () => {
-    document.querySelectorAll('.tbg-absent-checkbox').forEach(cb => {
-      if (!cb.checked) {
-        cb.checked = true;
-        cb.dispatchEvent(new Event('change'));
-      }
-    });
-  });
-
-  document.getElementById('tbg_clearAll').addEventListener('click', () => {
-    document.querySelectorAll('.tbg-score-input').forEach(inp => {
-      inp.value = '';
-      inp.disabled = false;
-      inp.style.background = '#fff';
-      inp.style.opacity = '1';
-    });
-    document.querySelectorAll('.tbg-absent-checkbox').forEach(cb => cb.checked = false);
-    document.querySelectorAll('.tbg-status-cell').forEach(c => c.innerHTML = '<span style="color:#94a3b8">—</span>');
-  });
-
-    document.getElementById('tbg_save').addEventListener('click', async () => {
-    const debugEl = document.getElementById('tbg_debugMsg');
-    debugEl.style.display = 'block';
-    debugEl.style.background = '#fef3c7';
-    debugEl.innerHTML = '🔍 بررسی اولیه...';
-
-    // ۱. بررسی اتصال به Supabase
-    if (!sb) {
-      debugEl.innerHTML = '❌ <b>Supabase متصل نیست!</b><br>صفحه را Refresh کنید و دوباره لاگین کنید.';
-      debugEl.style.background = '#fee2e2';
-      return;
-    }
-
-    // ۲. بررسی currentTeacher
-    if (!currentTeacher) {
-      debugEl.innerHTML = '❌ <b>اطلاعات استاد لود نشده!</b><br>دوباره لاگین کنید.';
-      debugEl.style.background = '#fee2e2';
-      return;
-    }
-
-    // ۳. بررسی درس
-    const subject = document.getElementById('tbg_subject').value;
-    if (!subject) {
-      debugEl.innerHTML = '❌ <b>درس انتخاب نشده!</b><br>از dropdown «درس» یک درس انتخاب کنید.';
-      debugEl.style.background = '#fee2e2';
-      return;
-    }
-
-    const maxScore = parseFloat(document.getElementById('tbg_max').value) || 20;
-    const term = document.getElementById('tbg_term').value;
-    const type = document.getElementById('tbg_type').value;
-    const date = document.getElementById('tbg_date').value || today();
-
-    debugEl.innerHTML = `🔍 اطلاعات:<br>
-      • درس: ${subject}<br>
-      • ترم: ${term}<br>
-      • نوع: ${type}<br>
-      • تاریخ: ${date}<br>
-      • استاد: ${currentTeacher.name} ${currentTeacher.family} (ID: ${currentTeacher.id})<br>
-      در حال خواندن ردیف‌ها...`;
-
-    // ۴. خواندن ردیف‌ها
-    const records = [];
-    let absentCount = 0;
-    let scoredCount = 0;
-    let emptyCount = 0;
-
-    document.querySelectorAll('.tbg-absent-checkbox').forEach(cb => {
-      const sid = parseInt(cb.dataset.studentId);
-      const isAbsent = cb.checked;
-      const scoreInput = document.querySelector(`.tbg-score-input[data-student-id="${sid}"]`);
-      const scoreVal = scoreInput?.value;
-
-      if (isAbsent) {
-        records.push({
-          student_id: sid, subject, term, type, score: 0, max_score: maxScore, date,
-          teacher_name: `${currentTeacher.name || ''} ${currentTeacher.family || ''}`.trim(),
-          teacher_id: currentTeacher.id || null
-        });
-        absentCount++;
-      } else if (scoreVal !== '' && scoreVal !== null && scoreVal !== undefined) {
-        const score = parseFloat(scoreVal);
-        if (isNaN(score)) return;
-        if (score < 0 || score > maxScore) return;
-        records.push({
-          student_id: sid, subject, term, type, score, max_score: maxScore, date,
-          teacher_name: `${currentTeacher.name || ''} ${currentTeacher.family || ''}`.trim(),
-          teacher_id: currentTeacher.id || null
-        });
-        scoredCount++;
-      } else {
-        emptyCount++;
-      }
-    });
-
-    debugEl.innerHTML += `<br><br>
-      📊 <b>آمار:</b><br>
-      • نمره وارد شده: ${scoredCount}<br>
-      • غایب: ${absentCount}<br>
-      • خالی: ${emptyCount}<br>
-      • کل رکورد: ${records.length}`;
-
-    if (!records.length) {
-      debugEl.innerHTML += '<br><br>❌ <b>هیچ رکوردی برای ذخیره نیست!</b><br>حداقل یک نمره وارد کنید یا تیک غایب بزنید.';
-      debugEl.style.background = '#fee2e2';
-      return;
-    }
-
-    // ۵. نمایش اولین رکورد
-    debugEl.innerHTML += `<br><br>🔍 <b>نمونه رکورد اول:</b><br>
-      <code style="display:block;background:#fff;padding:8px;border-radius:6px;font-size:10px;direction:ltr;text-align:left;margin-top:6px">${JSON.stringify(records[0], null, 2)}</code>`;
-
-    debugEl.innerHTML += '<br>⏳ در حال ارسال به Supabase...';
-
-    // ۶. درج در Supabase
-    try {
-      const { data, error } = await sb.from('grades').insert(records).select();
-      
-      if (error) {
-        debugEl.innerHTML = `❌ <b>خطای Supabase:</b><br>
-          <div style="background:#fff;padding:10px;border-radius:6px;margin-top:8px;font-size:11px;line-height:1.8">
-            <b>message:</b> ${error.message || '-'}<br>
-            <b>details:</b> ${error.details || '-'}<br>
-            <b>hint:</b> ${error.hint || '-'}<br>
-            <b>code:</b> ${error.code || '-'}
-          </div>`;
-        debugEl.style.background = '#fee2e2';
-        return;
-      }
-
-      // ۷. موفق
-      debugEl.innerHTML = `✅ <b>${data?.length || records.length} رکورد ذخیره شد!</b><br>
-        ${scoredCount} نمره + ${absentCount} غایب<br>
-        <small>در حال بارگذاری مجدد...</small>`;
-      debugEl.style.background = '#d1fae5';
-      toast(`✅ ${data?.length || records.length} رکورد ذخیره شد`, 'success');
-
-      setTimeout(async () => {
-        document.getElementById('modal').classList.remove('show');
-        await loadData();
-        renderTeacherGrades();
-      }, 1200);
-
-    } catch(e) {
-      debugEl.innerHTML = `❌ <b>خطای شبکه/کلی:</b><br>
-        <div style="background:#fff;padding:10px;border-radius:6px;margin-top:8px;font-size:11px">${e.message}</div>`;
-      debugEl.style.background = '#fee2e2';
-    }
-  });
-}
-
 function openTeacherAttendanceModal() {
   if (!currentTeacher) { toast('ابتدا وارد شوید', 'error'); return; }
 
