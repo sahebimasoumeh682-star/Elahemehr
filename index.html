@@ -3441,161 +3441,23 @@ function renderStaff() {
   const tbody = document.getElementById('staffTable');
   if (!tbody) return;
   if (!list.length) {
-    tbody.innerHTML = '<tr><td colspan="9" class="empty">کارمندی یافت نشد</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" class="empty">کارمندی یافت نشد</td></tr>';
     return;
   }
-  tbody.innerHTML = list.map(s => {
-    const subjects = s.subjects || '';
-    return `<tr>
-      <td>${s.code || '-'}</td>
-      <td>${s.name || ''} ${s.family || ''}</td>
-      <td>${s.role || '-'}</td>
-      <td>${s.nationalCode || '-'}</td>
-      <td>${s.phone || '-'}</td>
-      <td>${money(s.hourly_rate || 0)}</td>
-      <td style="font-size:11px;max-width:140px;white-space:normal;line-height:1.4">${subjects || '—'}</td>
-      <td>${s.canLogin ? '✅' : '❌'}</td>
-      <td>
-        <div class="actions">
-          <button class="btn blue" style="padding:6px 10px;font-size:12px" onclick="editStaff(${s.id})">✏️ ویرایش</button>
-          <button class="btn red" style="padding:6px 10px;font-size:12px" onclick="deleteStaff(${s.id})">🗑</button>
-        </div>
-      </td>
-    </tr>`;
-  }).join('');
-}
-  function openStaffForm(staffId) {
-  const isEdit = !!staffId;
-  const staff = isEdit ? db.staff.find(x => x.id == staffId) : null;
-  if (isEdit && !staff) { toast('کارمند یافت نشد', 'error'); return; }
-
-  const roleOptions = STAFF_ROLES.map(r =>
-    `<option ${staff && staff.role === r ? 'selected' : ''}>${r}</option>`
-  ).join('');
-
-    // ⭐ لیست درس‌ها: اول از دیتابیس، اگه خالی بود از لیست کامل پیش‌فرض
-  const DEFAULT_SUBJECTS = [
-    'ریاضی', 'فارسی', 'انگلیسی', 'علوم تجربی', 'قرآن', 'اجتماعی',
-    'ورزش', 'حرفه‌وفن', 'عربی', 'دینی', 'فیزیک', 'شیمی', 'زیست‌شناسی',
-    'ادبیات', 'هندسه', 'آمار', 'تاریخ', 'جغرافیا', 'اقتصاد', 'روان‌شناسی'
-  ];
-
-  let subjectList = [];
-  if (db.subjects && db.subjects.length) {
-    subjectList = db.subjects.map(s => s.name).filter(Boolean);
-  }
-  // اگه از دیتابیس چیزی نیومد یا خالی بود، از لیست پیش‌فرض استفاده کن
-  if (!subjectList.length) {
-    subjectList = DEFAULT_SUBJECTS;
-  }
-  // حذف تکراری‌ها
-  subjectList = [...new Set(subjectList)];
-    ? db.subjects.map(s => s.name)
-    : ['ریاضی','فارسی','انگلیسی','علوم','قرآن','اجتماعی','ورزش','حرفه‌وفن','عربی','دینی','فیزیک','شیمی','زیست','ادبیات'];
-
-  const currentSubjects = (staff?.subjects || '').split(',').map(x => x.trim()).filter(Boolean);
-
-   const subjectCheckboxes = subjectList.map(name => {
-    const checked = currentSubjects.includes(name) ? 'checked' : '';
-    return `<label style="display:flex !important;align-items:center !important;gap:8px !important;padding:8px 12px;background:#f8fafc;border:2px solid var(--line);border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text)">
-      <input type="checkbox" class="stf-subject-chk" value="${name}" ${checked} style="width:18px !important;height:18px !important;min-width:18px !important;max-width:18px !important;margin:0 !important;padding:0 !important;accent-color:#6366f1;cursor:pointer;flex-shrink:0">
-      <span style="display:inline-block !important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}</span>
-    </label>`;
-  }).join('');
-
-  const html = `
-    <div class="form">
-      <div class="formgrid">
-        <div><label>کد پرسنلی *</label><input id="stf_code" value="${staff?.code || ''}" placeholder="مثلاً 1001"></div>
-        <div><label>نام *</label><input id="stf_name" value="${staff?.name || ''}"></div>
-        <div><label>نام خانوادگی *</label><input id="stf_family" value="${staff?.family || ''}"></div>
-        <div><label>سمت *</label><select id="stf_role">${roleOptions}</select></div>
-        <div><label>کد ملی</label><input id="stf_nationalCode" value="${staff?.nationalCode || ''}" placeholder="۱۰ رقم"></div>
-        <div><label>شماره همراه *</label><input id="stf_phone" value="${staff?.phone || ''}" placeholder="0912..."></div>
-        <div><label>حقوق ساعتی (ریال)</label><input type="number" id="stf_hourly_rate" value="${staff?.hourly_rate || 0}"></div>
-        <div><label>مدت هر جلسه (دقیقه)</label><input type="number" id="stf_session_duration" value="${staff?.session_duration_minutes || 90}"></div>
-        <div><label>امکان ورود</label>
-          <select id="stf_canLogin">
-            <option value="true" ${staff?.canLogin !== false ? 'selected' : ''}>✅ فعال</option>
-            <option value="false" ${staff?.canLogin === false ? 'selected' : ''}>❌ غیرفعال</option>
-          </select>
-        </div>
-        <div class="full">
-          <label>📚 درس‌هایی که تدریس می‌کند</label>
-          <div id="stf_subjects_container" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:6px">
-            ${subjectCheckboxes}
-          </div>
-          <small style="color:var(--muted);font-size:11.5px;margin-top:8px;display:block">💡 استاد فقط می‌تواند برای این دروس نمره ثبت کند.</small>
-        </div>
+  tbody.innerHTML = list.map(s => `<tr>
+    <td>${s.code || '-'}</td>
+    <td>${s.name || ''} ${s.family || ''}</td>
+    <td>${s.role || '-'}</td>
+    <td>${s.nationalCode || '-'}</td>
+    <td>${s.phone || '-'}</td>
+    <td>${money(s.hourly_rate || 0)}</td>
+    <td>${s.canLogin ? '✅' : '❌'}</td>
+    <td>
+      <div class="actions">
+        <button class="btn red" style="padding:6px 10px;font-size:12px" onclick="deleteStaff(${s.id})">🗑</button>
       </div>
-    </div>
-    <div class="modalfoot">
-      <button class="btn green" id="stf_save">💾 ${isEdit ? 'ذخیره تغییرات' : 'ثبت کارمند'}</button>
-      <button class="btn" onclick="document.getElementById('modal').classList.remove('show')">انصراف</button>
-    </div>
-  `;
-
-  openModal(isEdit ? '✏️ ویرایش کارمند' : '👨‍🏫 ثبت کارمند جدید', html);
-
-  document.getElementById('stf_save').addEventListener('click', async () => {
-    const code = v('stf_code').trim();
-    const name = v('stf_name').trim();
-    const family = v('stf_family').trim();
-    const role = v('stf_role');
-    const nationalCode = v('stf_nationalCode').trim();
-    const phone = v('stf_phone').trim();
-    const hourlyRate = parseFloat(v('stf_hourly_rate')) || 0;
-    const sessionDuration = parseInt(v('stf_session_duration')) || 90;
-    const canLogin = v('stf_canLogin') === 'true';
-
-    const selectedSubjects = [];
-    document.querySelectorAll('.stf-subject-chk:checked').forEach(chk => {
-      selectedSubjects.push(chk.value);
-    });
-
-    if (!code) { toast('کد پرسنلی الزامی است', 'warning'); return; }
-    if (!name) { toast('نام الزامی است', 'warning'); return; }
-    if (!family) { toast('نام خانوادگی الزامی است', 'warning'); return; }
-    if (!phone) { toast('شماره همراه الزامی است', 'warning'); return; }
-
-    const payload = {
-      staff_code: code,
-      name,
-      family,
-      position: role,
-      national_code: nationalCode || null,
-      phone,
-      hourly_rate: hourlyRate,
-      session_duration_minutes: sessionDuration,
-      can_login: canLogin,
-      is_teacher: role === 'دبیر',
-      subjects: selectedSubjects.join(', ')
-    };
-
-    try {
-      let error;
-      if (isEdit) {
-        const res = await sb.from('staff').update(payload).eq('id', staffId);
-        error = res.error;
-      } else {
-        const res = await sb.from('staff').insert(payload);
-        error = res.error;
-      }
-      if (error) throw error;
-
-      toast(isEdit ? '✅ تغییرات ذخیره شد' : '✅ کارمند ثبت شد', 'success');
-      document.getElementById('modal').classList.remove('show');
-      await loadData();
-      renderStaff();
-    } catch(e) {
-      toast('خطا: ' + (e.message || e), 'error');
-      console.error('staff save error:', e);
-    }
-  });
-}
-
-function editStaff(id) {
-  openStaffForm(id);
+    </td>
+  </tr>`).join('');
 }
 
 async function deleteStaff(id) {
@@ -3905,9 +3767,6 @@ function renderTeacherGrades() {
     const s = studentById(g.student_id || g.studentId);
     if (!s) return false;
     if (!String(s.grade || '').startsWith(activeGrade)) return false;
-        // ⭐ فقط درس‌های خود استاد
-    const mySubjects = (currentTeacher.subjects || '').split(',').map(x => x.trim()).filter(Boolean);
-    if (mySubjects.length && !mySubjects.includes(g.subject)) return false;
     if (search && !(`${s.name || ''} ${s.family || ''}`).toLowerCase().includes(search)) return false;
     if (subjF && g.subject !== subjF) return false;
     if (termF && g.term !== termF) return false;
@@ -4097,17 +3956,7 @@ function closeNotif() {
 function openTeacherNewGradeModal() {
   if (!currentTeacher) { toast('ابتدا وارد شوید', 'error'); return; }
 
-   // ⭐ فقط درس‌های خود استاد
-  const teacherSubjects = (currentTeacher.subjects || '').split(',').map(x => x.trim()).filter(Boolean);
-  let availableSubjects = teacherSubjects.length
-    ? teacherSubjects
-    : db.subjects.map(s => s.name);
-
-  if (!availableSubjects.length) {
-    availableSubjects = ['ریاضی','فارسی','انگلیسی','علوم','قرآن'];
-  }
-
-  const subjectOptions = availableSubjects.map(name => `<option value="${name}">${name}</option>`).join('');
+  const subjectOptions = db.subjects.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
 
   const html = `
     <div class="form">
@@ -4245,17 +4094,7 @@ function openTeacherNewGradeModal() {
 function openTeacherBulkGradeModal() {
   if (!currentTeacher) { toast('ابتدا وارد شوید', 'error'); return; }
 
-    // ⭐ فقط درس‌های خود استاد
-  const teacherSubjects = (currentTeacher.subjects || '').split(',').map(x => x.trim()).filter(Boolean);
-  let availableSubjects = teacherSubjects.length
-    ? teacherSubjects
-    : db.subjects.map(s => s.name);
-
-  if (!availableSubjects.length) {
-    availableSubjects = ['ریاضی','فارسی','انگلیسی','علوم','قرآن'];
-  }
-
-  const subjectOptions = availableSubjects.map(name => `<option value="${name}">${name}</option>`).join('');
+  const subjectOptions = db.subjects.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
   const gradeOptions = ['هفتم','هشتم','نهم','دهم انسانی','دهم تجربی','دهم ریاضی','یازدهم انسانی','یازدهم تجربی','یازدهم ریاضی','دوازدهم انسانی','دوازدهم تجربی','دوازدهم ریاضی'].map(g => `<option>${g}</option>`).join('');
 
   const html = `
@@ -4692,12 +4531,6 @@ function bindFilterEvents() {
     if (el) el.addEventListener('input', renderTeacherGrades);
   });
 }
-function bindStaffEvents() {
-  const btnNew = document.getElementById('btnNewStaff');
-  if (btnNew) {
-    btnNew.addEventListener('click', () => openStaffForm(null));
-  }
-}
 
 function bindTeacherEvents() {
       // ⭐ تب‌های پایه نمرات
@@ -4781,12 +4614,10 @@ function bindAuthButtons() {
     document.getElementById('teacherYear').textContent = db.settings.year;
 
     // پر کردن انتخاب‌گرها
-        const tSubjFilter = document.getElementById('teacherGradeSubjectFilter');
+    const tSubjFilter = document.getElementById('teacherGradeSubjectFilter');
     if (tSubjFilter) {
-      const mySubs = (t.subjects || '').split(',').map(x => x.trim()).filter(Boolean);
-      const subjList = mySubs.length ? mySubs : db.subjects.map(s => s.name);
-      tSubjFilter.innerHTML = '<option value="">همه دروس من</option>' +
-        subjList.map(n => `<option value="${n}">${n}</option>`).join('');
+      tSubjFilter.innerHTML = '<option value="">همه دروس</option>' +
+        db.subjects.map(s => `<option value="${s.name}">${s.name}</option>`).join('');
     }
 
     const msgStudentSelect = document.getElementById('teacherMessageStudent');
@@ -4910,7 +4741,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   bindParentTabs();
   bindTeacherTabs();
   bindTeacherEvents();
-    bindStaffEvents();
   await checkExistingSession();
 });
 </script>
