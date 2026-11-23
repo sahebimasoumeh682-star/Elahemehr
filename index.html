@@ -3473,17 +3473,33 @@ function renderStaff() {
     `<option ${staff && staff.role === r ? 'selected' : ''}>${r}</option>`
   ).join('');
 
-  const subjectList = db.subjects.length
+    // ⭐ لیست درس‌ها: اول از دیتابیس، اگه خالی بود از لیست کامل پیش‌فرض
+  const DEFAULT_SUBJECTS = [
+    'ریاضی', 'فارسی', 'انگلیسی', 'علوم تجربی', 'قرآن', 'اجتماعی',
+    'ورزش', 'حرفه‌وفن', 'عربی', 'دینی', 'فیزیک', 'شیمی', 'زیست‌شناسی',
+    'ادبیات', 'هندسه', 'آمار', 'تاریخ', 'جغرافیا', 'اقتصاد', 'روان‌شناسی'
+  ];
+
+  let subjectList = [];
+  if (db.subjects && db.subjects.length) {
+    subjectList = db.subjects.map(s => s.name).filter(Boolean);
+  }
+  // اگه از دیتابیس چیزی نیومد یا خالی بود، از لیست پیش‌فرض استفاده کن
+  if (!subjectList.length) {
+    subjectList = DEFAULT_SUBJECTS;
+  }
+  // حذف تکراری‌ها
+  subjectList = [...new Set(subjectList)];
     ? db.subjects.map(s => s.name)
     : ['ریاضی','فارسی','انگلیسی','علوم','قرآن','اجتماعی','ورزش','حرفه‌وفن','عربی','دینی','فیزیک','شیمی','زیست','ادبیات'];
 
   const currentSubjects = (staff?.subjects || '').split(',').map(x => x.trim()).filter(Boolean);
 
-  const subjectCheckboxes = subjectList.map(name => {
+   const subjectCheckboxes = subjectList.map(name => {
     const checked = currentSubjects.includes(name) ? 'checked' : '';
-    return `<label style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:#f8fafc;border:2px solid var(--line);border-radius:10px;cursor:pointer;font-size:13px">
-      <input type="checkbox" class="stf-subject-chk" value="${name}" ${checked} style="width:18px;height:18px;accent-color:var(--primary)">
-      <span>${name}</span>
+    return `<label style="display:flex !important;align-items:center !important;gap:8px !important;padding:8px 12px;background:#f8fafc;border:2px solid var(--line);border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text)">
+      <input type="checkbox" class="stf-subject-chk" value="${name}" ${checked} style="width:18px !important;height:18px !important;min-width:18px !important;max-width:18px !important;margin:0 !important;padding:0 !important;accent-color:#6366f1;cursor:pointer;flex-shrink:0">
+      <span style="display:inline-block !important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${name}</span>
     </label>`;
   }).join('');
 
