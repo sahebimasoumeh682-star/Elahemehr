@@ -2187,152 +2187,7 @@ function getStudentGradesForMonth(studentId, monthName, term) {
 ============================================================ */
 
 // ⭐ ستاره‌های عملکرد
-/* ============================================================
-   ⭐ توابع جدید کارنامه v2 — DNA، دماسنج، شانس، پالت، کارت بانکی
-============================================================ */
-
-// 🧬 DNA علمی
-function getAcademicDNA(studentId, term) {
-  let gs = db.grades.filter(g => (g.student_id == studentId || g.studentId == studentId));
-  if (term) gs = gs.filter(g => (g.term || '') === term);
-  
-  const atts = db.attendance.filter(a => (a.student_id == studentId || a.studentId == studentId));
-  const termAtts = term ? atts : atts;
-  
-  // تلاش: میانگین درصد نمرات
-  let effort = 0;
-  if (gs.length) {
-    const totalPct = gs.reduce((s, g) => {
-      const sc = +g.score || 0;
-      const mx = +g.max_score || 20;
-      return s + (mx > 0 ? (sc / mx) * 100 : 0);
-    }, 0);
-    effort = Math.round(totalPct / gs.length);
-  }
-
-  // تمرکز: درصد نمرات بالای ۱۵
-  let focus = 0;
-  if (gs.length) {
-    const highCount = gs.filter(g => {
-      const sc = +g.score || 0;
-      const mx = +g.max_score || 20;
-      return mx > 0 && (sc / mx) >= 0.75;
-    }).length;
-    focus = Math.round((highCount / gs.length) * 100);
-  }
-
-  // خلاقیت: تنوع دروس
-  const uniqueSubjects = new Set(gs.map(g => g.subject)).size;
-  const creativity = Math.min(100, Math.round((uniqueSubjects / 10) * 100));
-
-  // پایداری: درصد حضور
-  let stability = 0;
-  if (termAtts.length) {
-    const presentCount = termAtts.filter(a => a.status === 'present').length;
-    stability = Math.round((presentCount / termAtts.length) * 100);
-  } else {
-    stability = 75; // پیش‌فرض
-  }
-
-  // همکاری: ترکیب حضور + نمرات عملی/پروژه
-  const practicalGrades = gs.filter(g => ['عملی', 'پروژه', 'شفاهی'].includes(g.type || g.exam_type));
-  const cooperation = Math.min(100, Math.round((stability + (practicalGrades.length > 0 ? 80 : 50)) / 2));
-
-  return [
-    { label: 'تلاش', value: effort, icon: '💪', color: '#6366f1' },
-    { label: 'تمرکز', value: focus, icon: '🎯', color: '#8b5cf6' },
-    { label: 'خلاقیت', value: creativity, icon: '✨', color: '#f59e0b' },
-    { label: 'پایداری', value: stability, icon: '🔥', color: '#10b981' },
-    { label: 'همکاری', value: cooperation, icon: '🤝', color: '#3b82f6' }
-  ];
-}
-
-// 🌡️ دماسنج پیشرفت
-function getProgressThermometer(avg) {
-  if (avg <= 0) return '';
-  const pct = Math.min(100, Math.max(0, (avg / 20) * 100));
-  const level = avg >= 18 ? { label: 'عالی', color: '#10b981' }
-    : avg >= 15 ? { label: 'خوب', color: '#3b82f6' }
-    : avg >= 12 ? { label: 'متوسط', color: '#f59e0b' }
-    : avg >= 10 ? { label: 'ضعیف', color: '#ef4444' }
-    : { label: 'نیاز به تلاش', color: '#dc2626' };
-  
-  return { pct, level };
-}
-
-// 🎰 شانس رسیدن به معدل هدف
-function getTargetChance(avg, term) {
-  if (avg <= 0) return { chance: 0, target: 18, extraHours: 0 };
-  const target = avg >= 17 ? 20 : avg >= 14 ? 18 : 16;
-  const diff = target - avg;
-  let chance = 0;
-  if (diff <= 0) chance = 95;
-  else if (diff <= 1) chance = 80;
-  else if (diff <= 2) chance = 65;
-  else if (diff <= 3) chance = 45;
-  else if (diff <= 4) chance = 30;
-  else chance = 15;
-  const extraHours = Math.max(0, Math.round(diff * 2));
-  return { chance, target, extraHours, diff };
-}
-
-// 🎨 پالت رنگ ماه (بر اساس هفته‌ها)
-function getMonthPalette(studentId, term) {
-  let gs = db.grades.filter(g => (g.student_id == studentId || g.studentId == studentId));
-  if (term) gs = gs.filter(g => (g.term || '') === term);
-  if (!gs.length) return [];
-
-  // گروه‌بندی بر اساس هفته (۱-۷، ۸-۱۴، ۱۵-۲۱، ۲۲-۳۱)
-  const weeks = [[], [], [], []];
-  gs.forEach(g => {
-    const dateStr = g.date || g.exam_date || g.created_at || '';
-    let day = 1;
-    try {
-      const parts = String(dateStr).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).split(/[\/\-]/).map(Number);
-      if (parts.length >= 3) day = parts[2];
-    } catch {}
-    const weekIdx = day <= 7 ? 0 : day <= 14 ? 1 : day <= 21 ? 2 : 3;
-    weeks[weekIdx].push(g);
-  });
-
-  return weeks.map((weekGs, i) => {
-    if (!weekGs.length) return { label: `هفته ${i+1}`, color: '#e2e8f0', avg: 0, count: 0 };
-    const avg = weekGs.reduce((s, g) => {
-      const sc = +g.score || 0;
-      const mx = +g.max_score || 20;
-      return s + (mx > 0 ? (sc / mx) * 20 : 0);
-    }, 0) / weekGs.length;
-    let color = '#e2e8f0';
-    if (avg >= 17) color = '#10b981';
-    else if (avg >= 14) color = '#3b82f6';
-    else if (avg >= 12) color = '#f59e0b';
-    else if (avg > 0) color = '#ef4444';
-    return { label: `هفته ${i+1}`, color, avg, count: weekGs.length };
-  });
-}
-
-// 💳 محاسبه درصد پرداخت
-function getPaymentPercent(student) {
-  const total = finalTuition(student);
-  if (total <= 0) return 100;
-  const paidAmt = paid(student);
-  return Math.min(100, Math.round((paidAmt / total) * 100));
-}
-
-// 🎯 هدف مالی ماه
-function getFinanceGoal(student) {
-  const debt = balance(student);
-  if (debt <= 0) return null;
-  const monthlyGoal = Math.ceil(debt / 3 / 100000) * 100000;
-  return {
-    debt,
-    monthlyGoal,
-    months: 3,
-    nextDue: '۱ ماه آینده'
-  };
-}
-
-  function getStars(score, maxScore) {
+function getStars(score, maxScore) {
   const pct = maxScore > 0 ? (score / maxScore) * 20 : 0;
   if (pct >= 18) return '⭐⭐⭐⭐⭐';
   if (pct >= 15) return '⭐⭐⭐⭐';
@@ -2717,62 +2572,19 @@ function buildReportCardHTML(studentId, monthName, term) {
       </div>
     </div>` : '';
 
-    const payPct = getPaymentPercent(student);
-  const financeGoal = getFinanceGoal(student);
-  const chartDataBank = JSON.stringify({ payPct, paid: paidAmt, total: totalFee }).replace(/'/g, '&#39;');
-  const bankCanvasId = `rcBank_${studentId}_${Date.now()}`;
-  const bankCardNo = String(student.code || '0000').padStart(16, '0').replace(/(\d{4})(?=\d)/g, '$1 ');
-
   const financeHTML = `
-    <div style="background:linear-gradient(135deg,#1e1b4b 0%,#312e81 50%,#4338ca 100%);border-radius:10px;padding:8px 10px;margin-bottom:6px;color:#fff;position:relative;overflow:hidden">
-      <div style="position:absolute;top:-10px;left:-10px;width:60px;height:60px;border-radius:50%;background:rgba(255,255,255,0.05)"></div>
-      <div style="position:absolute;bottom:-15px;right:-15px;width:70px;height:70px;border-radius:50%;background:rgba(255,255,255,0.05)"></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;position:relative;z-index:1">
-        <div style="font-size:10px;font-weight:900;letter-spacing:.5px">💳 کارت مالی — ${stName}</div>
-        <div style="font-size:7.5px;opacity:.8">${db.settings.year}</div>
+    <div class="rc-finance">
+      <div class="rc-finance-item">
+        <div class="rc-fi-label">شهریه کل</div>
+        <div class="rc-fi-value total">${money(totalFee)}</div>
       </div>
-      <div style="font-size:7px;opacity:.7;letter-spacing:1px;margin-bottom:6px;position:relative;z-index:1;direction:ltr;text-align:right">${bankCardNo}</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin-bottom:6px;position:relative;z-index:1">
-        <div>
-          <div style="font-size:7px;opacity:.75;font-weight:700">شهریه کل</div>
-          <div style="font-size:10px;font-weight:900">${money(totalFee)}</div>
-        </div>
-        <div>
-          <div style="font-size:7px;opacity:.75;font-weight:700">پرداخت‌شده ✅</div>
-          <div style="font-size:10px;font-weight:900;color:#6ee7b7">${money(paidAmt)}</div>
-        </div>
-        <div>
-          <div style="font-size:7px;opacity:.75;font-weight:700">مانده ${debtAmt > 0 ? '⚠️' : '🎉'}</div>
-          <div style="font-size:10px;font-weight:900;color:${debtAmt > 0 ? '#fca5a5' : '#6ee7b7'}">${money(debtAmt)}</div>
-        </div>
+      <div class="rc-finance-item">
+        <div class="rc-fi-label">پرداخت‌شده</div>
+        <div class="rc-fi-value paid">${money(paidAmt)}</div>
       </div>
-      <div style="background:rgba(255,255,255,0.15);border-radius:6px;height:12px;overflow:hidden;position:relative;z-index:1;margin-bottom:3px">
-        <div style="width:${payPct}%;height:100%;background:linear-gradient(90deg,#6ee7b7,#10b981);border-radius:6px;display:flex;align-items:center;justify-content:flex-end;padding-left:4px;font-size:7px;font-weight:900;color:#064e3b">${payPct}%</div>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:7px;opacity:.8;position:relative;z-index:1">
-        <span>✅ ${payPct}% پرداخت شده</span>
-        <span>${payPct >= 100 ? '🎉 تسویه کامل' : `⚠️ ${100 - payPct}% باقیمانده`}</span>
-      </div>
-    </div>
-
-    ${financeGoal ? `
-    <div style="display:flex;align-items:center;gap:5px;padding:5px 8px;border-radius:8px;background:#fffbeb;border:1.5px dashed #f59e0b;margin-bottom:6px">
-      <span style="font-size:16px">🎯</span>
-      <div style="flex:1">
-        <div style="font-size:8.5px;font-weight:800;color:#92400e">هدف مالی ماه: کاهش بدهی به ${money(financeGoal.monthlyGoal)}</div>
-        <div style="font-size:7px;color:#a16207;margin-top:1px">در ${financeGoal.months} ماه — ماهی ${money(financeGoal.monthlyGoal)}</div>
-      </div>
-    </div>` : ''}
-
-    <div style="display:grid;grid-template-columns:90px 1fr;gap:6px;align-items:center;padding:6px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;margin-bottom:6px">
-      <div style="position:relative;height:80px">
-        <canvas id="${bankCanvasId}" data-bank='${chartDataBank}' style="max-height:80px"></canvas>
-      </div>
-      <div style="font-size:8px;line-height:1.8">
-        <div style="font-weight:900;color:#3730a3;font-size:9px;margin-bottom:3px">📊 نمودار پرداخت</div>
-        <div style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;background:#10b981;border-radius:2px;display:inline-block"></span> پرداخت‌شده: <b style="color:#059669">${payPct}%</b></div>
-        <div style="display:flex;align-items:center;gap:4px"><span style="width:8px;height:8px;background:#ef4444;border-radius:2px;display:inline-block"></span> باقیمانده: <b style="color:#dc2626">${100 - payPct}%</b></div>
-        <div style="font-size:7px;color:#64748b;margin-top:3px">${debtAmt > 0 ? '💡 با پرداخت منظم، زودتر تسویه کنید' : '🎉 تبریک! تسویه کامل است'}</div>
+      <div class="rc-finance-item">
+        <div class="rc-fi-label">مانده بدهی</div>
+        <div class="rc-fi-value debt">${money(debtAmt)}</div>
       </div>
     </div>`;
 
@@ -2837,83 +2649,12 @@ function buildReportCardHTML(studentId, monthName, term) {
       <tbody>${gradeRows}</tbody>
     </table>
 
-       <div class="rc-highlights">${bestHTML}${worstHTML}</div>
+    <div class="rc-highlights">${bestHTML}${worstHTML}</div>
     <div class="rc-rank-box">${rankClassHTML}${rankSchoolHTML}</div>
     ${gpaHTML}
-    ${dnaHTML}
-    ${thermoHTML}
     ${classCompareHTML}
     ${forecastHTML}
-    ${chanceHTML}
     ${personalMsgHTML}
-    ${radarHTML}
-    ${progressHTML}
-    ${paletteHTML}
-    ${commentHTML}
-      const dnaData = getAcademicDNA(studentId, term);
-  const dnaHTML = dnaData.length ? `
-    <div style="padding:6px 8px;background:linear-gradient(135deg,#f5f3ff,#ede9fe);border:1.5px solid #c4b5fd;border-radius:8px;margin-bottom:6px">
-      <div style="font-size:8.5px;font-weight:800;color:#5b21b6;margin-bottom:4px">🧬 DNA علمی</div>
-      ${dnaData.map(d => `
-        <div style="display:flex;align-items:center;gap:4px;font-size:7.5px;margin-bottom:3px">
-          <span style="width:50px;font-weight:700;color:#4c1d95">${d.icon} ${d.label}</span>
-          <div style="flex:1;background:#e2e8f0;border-radius:4px;height:8px;overflow:hidden">
-            <div style="width:${d.value}%;height:100%;background:linear-gradient(90deg,${d.color},${d.color}cc);border-radius:4px"></div>
-          </div>
-          <span style="width:24px;text-align:left;font-weight:900;color:${d.color};font-size:8px">${d.value}%</span>
-        </div>
-      `).join('')}
-    </div>` : '';
-
-  const thermoData = getProgressThermometer(avg);
-  const thermoHTML = thermoData ? `
-    <div style="padding:6px 8px;background:#fff;border:1.5px solid #e2e8f0;border-radius:8px;margin-bottom:6px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px">
-        <div style="font-size:8.5px;font-weight:800;color:#3730a3">🌡️ دماسنج پیشرفت</div>
-        <div style="font-size:9px;font-weight:900;color:${thermoData.level.color}">${avg.toFixed(2)} / 20 — ${thermoData.level.label}</div>
-      </div>
-      <div style="position:relative;height:10px;background:linear-gradient(90deg,#dc2626,#ef4444,#f59e0b,#3b82f6,#10b981);border-radius:5px;overflow:hidden">
-        <div style="position:absolute;left:${thermoData.pct}%;top:-4px;transform:translateX(-50%);width:0;height:0;border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid #1e293b"></div>
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:6.5px;color:#64748b;margin-top:2px">
-        <span>۱۰ (قبولی)</span><span>۱۵</span><span>۲۰ (عالی)</span>
-      </div>
-    </div>` : '';
-
-  const chanceData = getTargetChance(avg, term);
-  const chanceHTML = avg > 0 ? `
-    <div style="padding:6px 8px;background:linear-gradient(135deg,#eff6ff,#dbeafe);border:1.5px solid #93c5fd;border-radius:8px;margin-bottom:6px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <div style="font-size:8.5px;font-weight:800;color:#1e40af">🎰 شانس رسیدن به معدل ${chanceData.target}</div>
-        <div style="font-size:10px;font-weight:900;color:${chanceData.chance >= 65 ? '#059669' : chanceData.chance >= 45 ? '#d97706' : '#dc2626'}">${chanceData.chance}%</div>
-      </div>
-      <div style="background:#e0e7ff;border-radius:5px;height:9px;overflow:hidden;margin-bottom:4px">
-        <div style="width:${chanceData.chance}%;height:100%;background:linear-gradient(90deg,${chanceData.chance >= 65 ? '#10b981,#059669' : chanceData.chance >= 45 ? '#f59e0b,#d97706' : '#ef4444,#dc2626'});border-radius:5px"></div>
-      </div>
-      <div style="font-size:7.5px;color:#1e40af;font-weight:700">
-        ${chanceData.chance >= 90 
-          ? '🎉 تقریباً حتمی! با همین روند ادامه بده' 
-          : chanceData.extraHours > 0 
-            ? `💡 با ${chanceData.extraHours} ساعت مطالعه‌ی بیشتر در هفته، شانس به ${Math.min(95, chanceData.chance + 20)}% می‌رسه` 
-            : '✨ مسیر درسته، فقط ادامه بده'}
-      </div>
-    </div>` : '';
-
-  const paletteData = getMonthPalette(studentId, term);
-  const paletteHTML = paletteData.some(p => p.count > 0) ? `
-    <div style="padding:6px 8px;background:#fff;border:1.5px solid #e2e8f0;border-radius:8px;margin-bottom:6px">
-      <div style="font-size:8.5px;font-weight:800;color:#3730a3;margin-bottom:4px">🎨 پالت رنگ ماه</div>
-      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px">
-        ${paletteData.map(p => `
-          <div style="text-align:center">
-            <div style="height:20px;background:${p.color};border-radius:5px;margin-bottom:2px;border:1px solid rgba(0,0,0,0.1)"></div>
-            <div style="font-size:7px;font-weight:800;color:#475569">${p.label}</div>
-            <div style="font-size:6.5px;color:#94a3b8">${p.count ? p.avg.toFixed(1) : '—'}</div>
-          </div>
-        `).join('')}
-      </div>
-    </div>` : '';
-
     ${radarHTML}
     ${progressHTML}
     ${commentHTML}
@@ -2990,35 +2731,6 @@ function renderReportCardCharts(container) {
           }
         });
       }
-    }
-    // نمودار دایره‌ای پرداخت مالی
-    const bankCanvas = sheet.querySelector('canvas[data-bank]');
-    if (bankCanvas) {
-      const bankDataStr = bankCanvas.getAttribute('data-bank');
-      try {
-        const bankData = JSON.parse(bankDataStr);
-        new Chart(bankCanvas, {
-          type: 'doughnut',
-          data: {
-            labels: ['پرداخت‌شده', 'باقیمانده'],
-            datasets: [{
-              data: [bankData.payPct, 100 - bankData.payPct],
-              backgroundColor: ['#10b981', '#ef4444'],
-              borderWidth: 1,
-              borderColor: '#fff'
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '65%',
-            plugins: {
-              legend: { display: false },
-              tooltip: { enabled: false }
-            }
-          }
-        });
-      } catch(e) { console.warn('bank chart:', e); }
     }
 
     // نمودار پیشرفت
