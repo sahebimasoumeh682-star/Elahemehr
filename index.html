@@ -936,6 +936,15 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 </div>
 
 <section class="page active" id="dashboard">
+    <!-- 🚨 دکمه‌ی بحران -->
+  <div style="margin-bottom:18px">
+    <button id="btnCrisis" style="width:100%;padding:18px 24px;background:linear-gradient(135deg,#dc2626 0%,#991b1b 100%);color:#fff;border:0;border-radius:16px;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:12px;box-shadow:0 8px 24px rgba(220,38,38,0.35);transition:all 0.3s" onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 12px 32px rgba(220,38,38,0.45)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 8px 24px rgba(220,38,38,0.35)'">
+      <span style="font-size:26px">🚨</span>
+      <span>گزارش بحران — دانش‌آموزان با نمره زیر ۱۰</span>
+      <span id="crisisBadge" style="background:#fff;color:#dc2626;border-radius:999px;padding:4px 12px;font-size:13px;font-weight:900">0</span>
+    </button>
+  </div>
+
   <div id="birthdayContainer"></div>
   <div id="reminderContainer"></div>
   <div class="grid stats" id="stats"></div>
@@ -2951,6 +2960,200 @@ async function downloadReportCardPDF() {
 /* ============================================================
    ⭐ داشبورد — با تولدها و یادآوری‌ها
 ============================================================ */
+  /* ============================================================
+   🚨 گزارش بحران — دانش‌آموزان با نمره زیر ۱۰
+============================================================ */
+
+function getCrisisStudents() {
+  // پیدا کردن دانش‌آموزانی که حداقل یک نمره زیر ۱۰ دارن
+  const crisisMap = {};
+  
+  db.grades.forEach(g => {
+    const sc = +g.score || 0;
+    const mx = +g.max_score || 20;
+    const norm = mx > 0 ? (sc / mx) * 20 : 0;
+    
+    if (norm < 10) {
+      const sid = g.student_id || g.studentId;
+      if (!sid) return;
+      if (!crisisMap[sid]) {
+        crisisMap[sid] = {
+          studentId: sid,
+          failedGrades: [],
+          totalFailed: 0,
+          avgFailed: 0
+        };
+      }
+      crisisMap[sid].failedGrades.push({
+        subject: g.subject || '-',
+        score: sc,
+        max: mx,
+        norm: norm,
+        term: g.term || '-',
+        type: g.exam_type || g.type || '-',
+        date: g.date || g.exam_date || '-'
+      });
+      crisisMap[sid].totalFailed++;
+    }
+  });
+  
+  // تبدیل به آرایه و اضافه کردن اطلاعات دانش‌آموز
+  const result = Object.values(crisisMap).map(item => {
+    const student = studentById(item.studentId);
+    const avg = item.failedGrades.reduce((s, g) => s + g.norm, 0) / item.failedGrades.length;
+    return {
+      ...item,
+      student,
+      avgFailed: avg
+    };
+  }).filter(x => x.student); // فقط دانش‌آموزانی که پیدا شدن
+  
+  // مرتب‌سازی بر اساس تعداد نمرات زیر ۱۰ (بیشترین اول)
+  result.sort((a, b) => b.totalFailed - a.totalFailed);
+  
+  return result;
+}
+
+function updateCrisisBadge() {
+  const badge = document.getElementById('crisisBadge');
+  if (!badge) return;
+  const crisis = getCrisisStudents();
+  badge.textContent = crisis.length;
+  if (crisis.length === 0) {
+    badge.style.background = '#d1fae5';
+    badge.style.color = '#059669';
+  } else {
+    badge.style.background = '#fff';
+    badge.style.color = '#dc2626';
+  }
+}
+
+function openCrisisModal() {
+  const crisis = getCrisisStudents();
+  
+  if (!crisis.length) {
+    openModal('🚨 گزارش بحران', `
+      <div style="text-align:center;padding:40px 20px">
+        <div style="font-size:72px;margin-bottom:16px">🎉</div>
+        <h3 style="color:#059669;font-size:22px;margin:0 0 12px;font-weight:900">هیچ بحرانی وجود ندارد!</h3>
+        <p style="color:#64748b;font-size:14px;line-height:1.8;margin:0">
+          همه‌ی دانش‌آموزان نمرات بالای ۱۰ دارند.<br>
+          آفرین به تلاش همه! 🌟
+        </p>
+      </div>
+    `);
+    return;
+  }
+  
+  const rowsHTML = crisis.map((item, idx) => {
+    const s = item.student;
+    const fullName = `${s.name || ''} ${s.family || ''}`.trim();
+    const grade = s.grade || '-';
+    const cls = s.class || '-';
+    const photo = s.photoUrl 
+      ? `<img src="${s.photoUrl}" style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid #fecaca">`
+      : `<div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#dc2626,#991b1b);color:#fff;display:grid;place-items:center;font-weight:900;font-size:16px">${(s.name || '؟')[0]}</div>`;
+    
+    const failedList = item.failedGrades.map(g => 
+      `<span style="display:inline-block;padding:3px 8px;background:#fee2e2;color:#991b1b;border-radius:6px;font-size:11px;font-weight:700;margin:2px">${g.subject}: ${g.score}/${g.max}</span>`
+    ).join('');
+    
+    return `
+      <div style="padding:14px;background:${idx % 2 === 0 ? '#fff' : '#fef2f2'};border:2px solid #fecaca;border-radius:12px;margin-bottom:10px">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px">
+          ${photo}
+          <div style="flex:1">
+            <div style="font-weight:900;font-size:15px;color:#991b1b">${fullName}</div>
+            <div style="font-size:12px;color:#64748b;margin-top:2px">${grade} — کلاس ${cls} — کد: ${s.code || '-'}</div>
+          </div>
+          <div style="text-align:center;padding:8px 14px;background:#dc2626;color:#fff;border-radius:10px">
+            <div style="font-size:22px;font-weight:900;line-height:1">${item.totalFailed}</div>
+            <div style="font-size:10px;font-weight:700;opacity:.9">نمره زیر ۱۰</div>
+          </div>
+        </div>
+        <div style="margin-bottom:8px">
+          <div style="font-size:11.5px;font-weight:800;color:#7f1d1d;margin-bottom:4px">📉 نمرات زیر ۱۰:</div>
+          <div>${failedList}</div>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <button onclick="showCrisisStudentDetail(${s.id})" style="padding:6px 12px;background:#fee2e2;color:#991b1b;border:1.5px solid #fecaca;border-radius:8px;font-size:11.5px;font-weight:700;cursor:pointer">👁 مشاهده جزئیات</button>
+          <button onclick="callParentForCrisis(${s.id})" style="padding:6px 12px;background:#fef3c7;color:#92400e;border:1.5px solid #fcd34d;border-radius:8px;font-size:11.5px;font-weight:700;cursor:pointer">📞 تماس با اولیا</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  openModal(`🚨 گزارش بحران — ${crisis.length} دانش‌آموز در خطر`, `
+    <div style="margin-bottom:14px;padding:12px 16px;background:linear-gradient(135deg,#fee2e2,#fecaca);border:2px dashed #dc2626;border-radius:12px">
+      <div style="font-size:13px;font-weight:800;color:#991b1b;line-height:1.8">
+        ⚠️ این دانش‌آموزان حداقل یک نمره زیر ۱۰ دارند و نیاز به توجه فوری دارند.
+      </div>
+    </div>
+    <div style="max-height:60vh;overflow-y:auto;padding-left:4px">
+      ${rowsHTML}
+    </div>
+    <div class="modalfoot">
+      <button class="btn red" onclick="document.getElementById('modal').classList.remove('show')">بستن</button>
+    </div>
+  `);
+}
+
+function showCrisisStudentDetail(studentId) {
+  const student = studentById(studentId);
+  if (!student) return;
+  
+  const allGrades = db.grades.filter(g => (g.student_id || g.studentId) == studentId);
+  const failed = allGrades.filter(g => {
+    const sc = +g.score || 0;
+    const mx = +g.max_score || 20;
+    return mx > 0 && (sc / mx) * 20 < 10;
+  });
+  
+  const rowsHTML = failed.map(g => {
+    const sc = +g.score || 0;
+    const mx = +g.max_score || 20;
+    const norm = mx > 0 ? (sc / mx) * 20 : 0;
+    return `<tr>
+      <td>${g.subject || '-'}</td>
+      <td>${g.term || '-'}</td>
+      <td>${g.exam_type || g.type || '-'}</td>
+      <td style="text-align:center"><span style="padding:4px 10px;background:#fee2e2;color:#991b1b;border-radius:6px;font-weight:900">${sc} / ${mx}</span></td>
+      <td style="text-align:center;color:#dc2626;font-weight:900">${norm.toFixed(1)}</td>
+      <td>${g.date || g.exam_date || '-'}</td>
+    </tr>`;
+  }).join('');
+  
+  openModal(`👁 جزئیات بحران — ${student.name} ${student.family}`, `
+    <div style="padding:12px 16px;background:#fef2f2;border:2px solid #fecaca;border-radius:12px;margin-bottom:14px">
+      <div style="font-size:13px;font-weight:800;color:#991b1b">
+        👩🏻‍🎓 ${student.name} ${student.family} — ${student.grade || '-'} / ${student.class || '-'} — کد: ${student.code || '-'}
+      </div>
+    </div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>درس</th><th>ترم</th><th>نوع</th><th>نمره</th><th>معادل ۲۰</th><th>تاریخ</th></tr></thead>
+        <tbody>${rowsHTML}</tbody>
+      </table>
+    </div>
+    <div class="modalfoot">
+      <button class="btn red" onclick="document.getElementById('modal').classList.remove('show')">بستن</button>
+    </div>
+  `);
+}
+
+function callParentForCrisis(studentId) {
+  const s = studentById(studentId);
+  if (!s) return;
+  const phone = s.phone || '-';
+  if (phone && phone !== '-') {
+    if (confirm(`📞 تماس با ${s.name} ${s.family}؟\nشماره: ${phone}`)) {
+      window.location.href = `tel:${phone}`;
+    }
+  } else {
+    toast('شماره تلفنی برای این دانش‌آموز ثبت نشده', 'warning');
+  }
+}
+
 function renderDashboard() {
   const totalStudents = db.students.length;
   const totalTuition = db.students.reduce((s, x) => s + finalTuition(x), 0);
@@ -3000,7 +3203,7 @@ function renderDashboard() {
 
   renderInstallmentsAlerts();
   renderChecksDueSoon();
-
+  updateCrisisBadge();
   setTimeout(() => drawDashboardCharts(), 100);
 }
 
@@ -5272,6 +5475,12 @@ function bindThemeToggle() {
     btn.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
   });
 }
+function bindCrisisButton() {
+  const btn = document.getElementById('btnCrisis');
+  if (btn) {
+    btn.addEventListener('click', openCrisisModal);
+  }
+}
 
 function bindModals() {
   const btnClose = document.getElementById('btnCloseModal');
@@ -5333,6 +5542,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   bindTeacherTabs();
   bindTeacherEvents();
     bindStaffEvents();
+    bindCrisisButton();
   await checkExistingSession();
 });
 </script>
