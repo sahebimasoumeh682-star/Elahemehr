@@ -2795,8 +2795,8 @@ function buildReportCardHTML(studentId, monthName, term) {
   return `
   <div class="rc-sheet" data-charts='${chartDataJson}'>
     <div class="rc-header">
-          <div class="rc-logo">
-        <img src="${currentSchoolLogo || 'logo.png'}" alt="logo" onerror="this.outerHTML='🌸'">
+      <div class="rc-logo">
+        <img src="logo.png" alt="logo" onerror="this.outerHTML='🌸'">
       </div>
       <div class="rc-titles">
         <h1>دبیرستان دخترانه الهه مهر</h1>
@@ -3010,16 +3010,6 @@ function renderReportCardPreview() {
     area.innerHTML = '<div class="rc-empty">👆 لطفاً یک دانش‌آموز انتخاب کنید.</div>';
     return;
   }
-  // ⭐ اطمینان از لود شدن لوگو
-  if (!currentSchoolLogo) {
-    try {
-      const saved = localStorage.getItem('school_logo');
-      if (saved) currentSchoolLogo = saved;
-    } catch(e) {}
-  }
-  area.innerHTML = buildReportCardHTML(studentId, monthName, term);
-  setTimeout(() => renderReportCardCharts(area), 100);
-}
   area.innerHTML = buildReportCardHTML(studentId, monthName, term);
   // ⭐ رندر نمودارها بعد از insert در DOM
   setTimeout(() => renderReportCardCharts(area), 100);
@@ -3027,13 +3017,6 @@ function renderReportCardPreview() {
 
 function printReportCard() {
   const studentId = document.getElementById('rcStudentSelect').value;
-    // ⭐ اطمینان از لود شدن لوگو
-  if (!currentSchoolLogo) {
-    try {
-      const saved = localStorage.getItem('school_logo');
-      if (saved) currentSchoolLogo = saved;
-    } catch(e) {}
-  }
   const monthName = document.getElementById('rcMonthSelect').value;
   const term = document.getElementById('rcTermSelect').value;
   if (!studentId) { toast('لطفاً یک دانش‌آموز انتخاب کنید', 'warning'); return; }
@@ -3049,13 +3032,6 @@ function printReportCard() {
 }
 
 function printAllReportCards() {
-    // ⭐ اطمینان از لود شدن لوگو
-  if (!currentSchoolLogo) {
-    try {
-      const saved = localStorage.getItem('school_logo');
-      if (saved) currentSchoolLogo = saved;
-    } catch(e) {}
-  }
   const monthName = document.getElementById('rcMonthSelect').value;
   const term = document.getElementById('rcTermSelect').value;
   if (!db.students.length) { toast('دانش‌آموزی موجود نیست', 'warning'); return; }
@@ -3068,13 +3044,6 @@ function printAllReportCards() {
 
 async function downloadReportCardPDF() {
   const studentId = document.getElementById('rcStudentSelect').value;
-    // ⭐ اطمینان از لود شدن لوگو
-  if (!currentSchoolLogo) {
-    try {
-      const saved = localStorage.getItem('school_logo');
-      if (saved) currentSchoolLogo = saved;
-    } catch(e) {}
-  }
   const monthName = document.getElementById('rcMonthSelect').value;
   const term = document.getElementById('rcTermSelect').value;
 
