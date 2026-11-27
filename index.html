@@ -529,6 +529,16 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
   .chat-bubble { max-width: 85%; }
   .auth-tabs { grid-template-columns: 1fr; }
 }
+  /* 🖼️ استایل دکمه لوگو */
+#logoClickArea:hover .logo-overlay {
+  opacity: 1 !important;
+}
+#logoClickArea:hover img {
+  transform: scale(1.05);
+}
+#logoClickArea:active img {
+  transform: scale(0.95);
+}
 </style>
 </head>
 <body>
@@ -858,8 +868,13 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
 <!-- اپلیکیشن مدیر -->
 <div class="app" id="mainApp" style="display:none">
 <aside class="sidebar">
-  <div class="brand">
-    <img src="logo.png" alt="لوگو" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌸</text></svg>'">
+   <div class="brand">
+    <div style="position:relative;cursor:pointer" id="logoClickArea" title="کلیک کنید تا لوگو را تغییر دهید">
+      <img src="logo.png" alt="لوگو" id="sidebarLogo" style="transition:all 0.25s" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌸</text></svg>'">
+      <div style="position:absolute;inset:0;background:rgba(0,0,0,0.6);border-radius:16px;display:grid;place-items:center;opacity:0;transition:opacity 0.25s" class="logo-overlay">
+        <span style="font-size:20px">📷</span>
+      </div>
+    </div>
     <div><h2>الهه مهر</h2><small>مدیریت مالی مدرسه</small></div>
   </div>
   <nav class="nav" id="mainNav">
@@ -1729,6 +1744,7 @@ let activeChatType = 'student';
 let currentCalendarYear = null;
 let currentCalendarMonth = null;
 let __checkStudentId = null;
+  let currentSchoolLogo = null; // لوگوی مدرسه (Base64)
 
 let db = {
   settings: { ...DEFAULT_SETTINGS },
@@ -1900,6 +1916,143 @@ function translateError(error){
   if(msg.includes('email not confirmed')) return '📧 ایمیل تأیید نشده است.';
   if(msg.includes('invalid login')) return '🔑 ایمیل یا رمز اشتباه است.';
   return 'خطا: ' + (error.message || 'نامشخص');
+}
+/* ============================================================
+   🖼️ لوگوی مدرسه — آپلود و ذخیره در localStorage
+============================================================ */
+
+function loadSchoolLogo() {
+  try {
+    const saved = localStorage.getItem('school_logo');
+    if (saved) {
+      currentSchoolLogo = saved;
+      applySchoolLogo();
+    }
+  } catch(e) { console.warn('loadSchoolLogo:', e); }
+}
+
+function applySchoolLogo() {
+  if (!currentSchoolLogo) return;
+
+  // آپدیت همه‌ی لوگوها توی صفحه
+  const logos = [
+    '.brand img',                    // سایدبار
+    '.auth-logo',                    // صفحه ورود
+    '.parent-header .ph-brand img',  // پنل اولیا
+    '.teacher-header .th-brand img', // پنل استاد
+    '.rc-header .rc-logo img'        // کارنامه
+  ];
+
+  logos.forEach(sel => {
+    document.querySelectorAll(sel).forEach(img => {
+      if (img) {
+        img.src = currentSchoolLogo;
+        img.onerror = null; // جلوگیری از حلقه
+      }
+    });
+  });
+}
+
+function openLogoUploadModal() {
+  const html = `
+    <div class="form">
+      <div style="text-align:center;margin-bottom:20px">
+        <div style="font-size:14px;color:var(--text-soft);line-height:1.8;margin-bottom:16px">
+          🖼️ لوگوی مدرسه را انتخاب کنید.<br>
+          <small style="color:var(--muted)">فرمت‌های مجاز: PNG, JPG, SVG — حداکثر ۲ مگابایت</small>
+        </div>
+
+        <div id="logoPreviewBox" style="width:150px;height:150px;margin:0 auto 16px;border-radius:20px;border:3px dashed var(--line);display:grid;place-items:center;background:#f8fafc;overflow:hidden">
+          <div style="font-size:60px">🌸</div>
+        </div>
+
+        <input type="file" id="logoFileInput" accept="image/png,image/jpeg,image/svg+xml,image/webp" style="display:none">
+
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button class="btn primary" id="btnChooseLogo" style="padding:12px 24px">
+            📂 انتخاب لوگو
+          </button>
+          ${currentSchoolLogo ? `
+            <button class="btn red" id="btnRemoveLogo" style="padding:12px 24px">
+              🗑️ حذف لوگو
+            </button>
+          ` : ''}
+        </div>
+      </div>
+    </div>
+    <div class="modalfoot">
+      <button class="btn green" id="btnSaveLogo" style="display:none">💾 ذخیره لوگو</button>
+      <button class="btn" onclick="document.getElementById('modal').classList.remove('show')">انصراف</button>
+    </div>
+  `;
+
+  openModal('🖼️ تنظیم لوگوی مدرسه', html);
+
+  const fileInput = document.getElementById('logoFileInput');
+  const previewBox = document.getElementById('logoPreviewBox');
+  const btnChoose = document.getElementById('btnChooseLogo');
+  const btnSave = document.getElementById('btnSaveLogo');
+  const btnRemove = document.getElementById('btnRemoveLogo');
+  let selectedDataUrl = null;
+
+  // نمایش لوگوی فعلی اگه هست
+  if (currentSchoolLogo) {
+    previewBox.innerHTML = `<img src="${currentSchoolLogo}" style="width:100%;height:100%;object-fit:contain;padding:8px">`;
+  }
+
+  btnChoose.addEventListener('click', () => fileInput.click());
+
+  fileInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast('حجم فایل بیشتر از ۲ مگابایت است', 'error');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      selectedDataUrl = ev.target.result;
+      previewBox.innerHTML = `<img src="${selectedDataUrl}" style="width:100%;height:100%;object-fit:contain;padding:8px">`;
+      btnSave.style.display = 'inline-flex';
+      toast('✅ لوگو انتخاب شد — حالا ذخیره کنید', 'success');
+    };
+    reader.readAsDataURL(file);
+  });
+
+  if (btnSave) {
+    btnSave.addEventListener('click', () => {
+      if (!selectedDataUrl) return;
+      try {
+        localStorage.setItem('school_logo', selectedDataUrl);
+        currentSchoolLogo = selectedDataUrl;
+        applySchoolLogo();
+        toast('✅ لوگو با موفقیت ذخیره شد', 'success');
+        document.getElementById('modal').classList.remove('show');
+      } catch(e) {
+        toast('خطا در ذخیره: ' + e.message, 'error');
+      }
+    });
+  }
+
+  if (btnRemove) {
+    btnRemove.addEventListener('click', () => {
+      if (!confirm('لوگو حذف شود و به حالت اولیه برگردد؟')) return;
+      try {
+        localStorage.removeItem('school_logo');
+        currentSchoolLogo = null;
+        // برگردوندن به گل
+        document.querySelectorAll('.brand img, .auth-logo, .ph-brand img, .th-brand img').forEach(img => {
+          img.src = 'logo.png';
+        });
+        toast('✅ لوگو حذف شد', 'success');
+        document.getElementById('modal').classList.remove('show');
+      } catch(e) {
+        toast('خطا: ' + e.message, 'error');
+      }
+    });
+  }
 }
 
 function initSupabase(){
@@ -5804,6 +5957,13 @@ function bindThemeToggle() {
     btn.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
   });
 }
+  function bindLogoClick() {
+  const logoArea = document.getElementById('logoClickArea');
+  if (logoArea) {
+    logoArea.addEventListener('click', openLogoUploadModal);
+  }
+}
+
 function bindCrisisButton() {
   const btn = document.getElementById('btnCrisis');
   if (btn) {
@@ -5875,6 +6035,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   bindTeacherEvents();
     bindStaffEvents();
     bindCrisisButton();
+    bindLogoClick();
+  loadSchoolLogo();
   await checkExistingSession();
 });
 </script>
