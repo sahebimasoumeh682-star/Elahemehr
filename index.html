@@ -749,6 +749,7 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
       <button class="teacher-tab" data-ttab="students">👩🏻‍🎓 دانش‌آموزان</button>
       <button class="teacher-tab" data-ttab="messages">💬 پیام به اولیا</button>
       <button class="teacher-tab" data-ttab="salary">💰 فیش حقوقی</button>
+            <button class="teacher-tab" data-ttab="selfreport">📊 کارنامه استاد</button>
     </div>
 
        <div class="teacher-panel active" id="teacher-grades">
@@ -837,6 +838,11 @@ button { cursor: pointer; border: 0; transition: var(--transition); }
       <div class="card" style="margin-top:18px">
         <h3 style="margin-top:0">📋 پیام‌های ارسال‌شده</h3>
         <div id="teacherSentMessages"></div>
+      </div>
+    </div>
+    <div class="teacher-panel" id="teacher-selfreport">
+      <div id="teacherSelfReportContent">
+        <div class="empty">در حال بارگذاری...</div>
       </div>
     </div>
 
@@ -4523,6 +4529,328 @@ function setTeacherGradeTab(grade) {
   });
   renderTeacherGrades();
 }
+/* ============================================================
+   📊 کارنامه‌ی خود استاد (Self-Report)
+============================================================ */
+
+function getTeacherClasses(teacherId) {
+  // کلاس‌هایی که استاد توشون نمره ثبت کرده
+  const classes = {};
+  db.grades.forEach(g => {
+    const sid = g.student_id || g.studentId;
+    const s = studentById(sid);
+    if (!s) return;
+    // اگه استاد مشخصه، فقط نمرات خودش
+    if (teacherId && g.teacher_id && g.teacher_id != teacherId) return;
+    const key = `${s.grade || '-'}|${s.class || '-'}`;
+    if (!classes[key]) {
+      classes[key] = {
+        grade: s.grade || '-',
+        class: s.class || '-',
+        studentIds: new Set(),
+        grades: []
+      };
+    }
+    classes[key].studentIds.add(sid);
+    classes[key].grades.push(g);
+  });
+  
+  return Object.values(classes).map(c => {
+    const studentIds = [...c.studentIds];
+    const avg = c.grades.length ? c.grades.reduce((sum, g) => {
+      const sc = +g.score || 0;
+      const mx = +g.max_score || 20;
+      return sum + (mx > 0 ? (sc / mx) * 20 : 0);
+    }, 0) / c.grades.length : 0;
+    return {
+      grade: c.grade,
+      class: c.class,
+      studentCount: studentIds.length,
+      gradesCount: c.grades.length,
+      avg
+    };
+  }).filter(c => c.gradesCount > 0);
+}
+
+function getTeacherRatingStats(teacherId) {
+  if (!teacherId) return { avg: 0, count: 0, rank: 0, total: 0 };
+  const myRatings = db.teacherRatings.filter(r => (r.teacher_id || r.teacherId) == teacherId);
+  if (!myRatings.length) return { avg: 0, count: 0, rank: 0, total: 0 };
+  
+  const myAvg = myRatings.reduce((s, r) => s + (+r.rating || 0), 0) / myRatings.length;
+  
+  // محاسبه رتبه بین همه اساتید
+  const allGrouped = {};
+  db.teacherRatings.forEach(r => {
+    const tid = r.teacher_id || r.teacherId;
+    if (!tid) return;
+    if (!allGrouped[tid]) allGrouped[tid] = [];
+    allGrouped[tid].push(r);
+  });
+  const allAvgs = Object.entries(allGrouped).map(([tid, arr]) => ({
+    tid,
+    avg: arr.reduce((s, r) => s + (+r.rating || 0), 0) / arr.length
+  })).sort((a, b) => b.avg - a.avg);
+  
+  const myRank = allAvgs.findIndex(x => x.tid == teacherId) + 1;
+  
+  return {
+    avg: myAvg,
+    count: myRatings.length,
+    rank: myRank || 0,
+    total: allAvgs.length
+  };
+}
+
+function getTeacherMonthlyProgress(teacherId) {
+  // پیشرفت ماهانه بر اساس تاریخ نمرات
+  const monthlyGrades = {};
+  db.grades.forEach(g => {
+    const sid = g.student_id || g.studentId;
+    const s = studentById(sid);
+    if (!s) return;
+    if (teacherId && g.teacher_id && g.teacher_id != teacherId) return;
+    
+    const dateStr = g.date || g.exam_date || g.created_at || '';
+    if (!dateStr) return;
+    
+    let monthIdx = -1;
+    try {
+      const parts = String(dateStr).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).split(/[\/\-]/).map(Number);
+      if (parts.length >= 3) monthIdx = parts[1] - 1;
+      else {
+        const d = new Date(dateStr);
+        const j = d.toLocaleDateString('fa-IR', { numberingSystem: 'latn' }).split('/').map(Number);
+        monthIdx = j[1] - 1;
+      }
+    } catch { return; }
+    
+    if (monthIdx < 0 || monthIdx > 11) return;
+    const monthName = MONTHS[monthIdx];
+    if (!monthlyGrades[monthName]) monthlyGrades[monthName] = [];
+    monthlyGrades[monthName].push(g);
+  });
+  
+  return MONTHS.map(m => {
+    const arr = monthlyGrades[m];
+    if (!arr || !arr.length) return { month: m, avg: 0, count: 0 };
+    const avg = arr.reduce((s, g) => {
+      const sc = +g.score || 0;
+      const mx = +g.max_score || 20;
+      return s + (mx > 0 ? (sc / mx) * 20 : 0);
+    }, 0) / arr.length;
+    return { month: m, avg, count: arr.length };
+  }).filter(x => x.count > 0);
+}
+
+function getTeacherAchievements(teacherId, classes, ratingStats, monthlyProgress) {
+  const achievements = [];
+  
+  // نشان «استاد محبوب»
+  if (ratingStats.avg >= 4.5 && ratingStats.count >= 3) {
+    achievements.push({ icon: '❤️', label: 'استاد محبوب', desc: `امتیاز ${ratingStats.avg.toFixed(1)} از اولیا`, color: '#ef4444' });
+  }
+  
+  // نشان «پیشرفت‌ساز»
+  if (monthlyProgress.length >= 2) {
+    const first = monthlyProgress[0].avg;
+    const last = monthlyProgress[monthlyProgress.length - 1].avg;
+    if (last - first >= 1) {
+      achievements.push({ icon: '📈', label: 'پیشرفت‌ساز', desc: `میانگین کلاس ${(last - first).toFixed(1)}+ نمره رشد`, color: '#10b981' });
+    }
+  }
+  
+  // نشان «حضور کامل» (اگه هیچ غیبتی برای دانش‌آموزانش ثبت نشده)
+  const myStudentIds = new Set();
+  db.grades.forEach(g => {
+    const sid = g.student_id || g.studentId;
+    const s = studentById(sid);
+    if (!s) return;
+    if (teacherId && g.teacher_id && g.teacher_id != teacherId) return;
+    myStudentIds.add(sid);
+  });
+  const myAtts = db.attendance.filter(a => myStudentIds.has(a.student_id || a.studentId));
+  const absentCount = myAtts.filter(a => a.status === 'absent').length;
+  if (myAtts.length > 0 && absentCount === 0) {
+    achievements.push({ icon: '🎯', label: 'حضور کامل', desc: 'هیچ غیبتی در کلاس‌های شما ثبت نشده', color: '#6366f1' });
+  }
+  
+  // نشان «نمره‌آور» (میانگین بالای ۱۸)
+  const overallAvg = classes.length ? classes.reduce((s, c) => s + c.avg, 0) / classes.length : 0;
+  if (overallAvg >= 18) {
+    achievements.push({ icon: '🏆', label: 'نمره‌آور', desc: `میانگین کلاس‌ها ${overallAvg.toFixed(1)}`, color: '#f59e0b' });
+  }
+  
+  // نشان «فعال» (ثبت نمره زیاد)
+  const totalGrades = classes.reduce((s, c) => s + c.gradesCount, 0);
+  if (totalGrades >= 100) {
+    achievements.push({ icon: '🔥', label: 'استاد فعال', desc: `${totalGrades} نمره ثبت شده`, color: '#dc2626' });
+  }
+  
+  return achievements;
+}
+
+function renderTeacherSelfReport() {
+  if (!currentTeacher) return;
+  const container = document.getElementById('teacherSelfReportContent');
+  if (!container) return;
+  
+  const classes = getTeacherClasses(currentTeacher.id);
+  const ratingStats = getTeacherRatingStats(currentTeacher.id);
+  const monthlyProgress = getTeacherMonthlyProgress(currentTeacher.id);
+  const achievements = getTeacherAchievements(currentTeacher.id, classes, ratingStats, monthlyProgress);
+  
+  const overallAvg = classes.length ? classes.reduce((s, c) => s + c.avg, 0) / classes.length : 0;
+  const totalStudents = classes.reduce((s, c) => s + c.studentCount, 0);
+  const totalGrades = classes.reduce((s, c) => s + c.gradesCount, 0);
+  
+  // آمار کلی
+  const statsHTML = `
+    <div class="parent-stats" style="margin-bottom:20px">
+      <div class="parent-stat primary">
+        <div class="ps-ico">📚</div>
+        <div class="ps-label">کلاس‌های من</div>
+        <div class="ps-value">${classes.length}</div>
+      </div>
+      <div class="parent-stat success">
+        <div class="ps-ico">👩🏻‍🎓</div>
+        <div class="ps-label">کل دانش‌آموزان</div>
+        <div class="ps-value">${totalStudents}</div>
+      </div>
+      <div class="parent-stat warning">
+        <div class="ps-ico">📝</div>
+        <div class="ps-label">نمرات ثبت‌شده</div>
+        <div class="ps-value">${totalGrades}</div>
+      </div>
+      <div class="parent-stat primary">
+        <div class="ps-ico">📊</div>
+        <div class="ps-label">میانگین کلاس‌ها</div>
+        <div class="ps-value">${overallAvg.toFixed(2)}</div>
+      </div>
+    </div>
+  `;
+  
+  // کارت‌های کلاس
+  const classesHTML = classes.length ? `
+    <div class="card" style="margin-bottom:18px">
+      <h3 style="margin-top:0">📚 کلاس‌های من</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px">
+        ${classes.map(c => {
+          const avgColor = c.avg >= 17 ? '#059669' : c.avg >= 14 ? '#2563eb' : c.avg >= 12 ? '#d97706' : '#dc2626';
+          return `
+            <div style="padding:16px;background:linear-gradient(135deg,#fff,#fafbff);border:2px solid var(--line);border-radius:14px">
+              <div style="font-weight:900;font-size:15px;color:var(--primary-dark);margin-bottom:8px">${c.grade} — ${c.class}</div>
+              <div style="font-size:13px;color:var(--muted);margin-bottom:6px">👥 ${c.studentCount} دانش‌آموز</div>
+              <div style="font-size:13px;color:var(--muted);margin-bottom:8px">📝 ${c.gradesCount} نمره</div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px dashed var(--line)">
+                <span style="font-size:12px;color:var(--muted);font-weight:700">میانگین:</span>
+                <span style="font-size:18px;font-weight:900;color:${avgColor}">${c.avg.toFixed(2)}</span>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+  ` : '<div class="card" style="margin-bottom:18px"><div class="empty">هنوز در هیچ کلاسی نمره ثبت نکرده‌اید</div></div>';
+  
+  // امتیاز نظرسنجی
+  const ratingHTML = `
+    <div class="card" style="margin-bottom:18px;background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #fbbf24">
+      <h3 style="margin-top:0;color:#92400e">⭐ امتیاز من از اولیا</h3>
+      ${ratingStats.count > 0 ? `
+        <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+          <div style="text-align:center">
+            <div style="font-size:48px;font-weight:900;color:#d97706;line-height:1">${ratingStats.avg.toFixed(1)}</div>
+            <div style="font-size:13px;color:#92400e;font-weight:700;margin-top:4px">از ۵</div>
+          </div>
+          <div style="flex:1;min-width:200px">
+            <div style="font-size:24px;color:#f59e0b;margin-bottom:8px">${'⭐'.repeat(Math.round(ratingStats.avg))}${'☆'.repeat(5 - Math.round(ratingStats.avg))}</div>
+            <div style="font-size:13px;color:#92400e;font-weight:700">👥 ${ratingStats.count} رأی از اولیا</div>
+            ${ratingStats.rank > 0 ? `<div style="font-size:13px;color:#92400e;font-weight:700;margin-top:4px">🏆 رتبه ${ratingStats.rank} از ${ratingStats.total} استاد</div>` : ''}
+          </div>
+        </div>
+      ` : `
+        <div class="empty">هنوز نظرسنجی از اولیا ثبت نشده است</div>
+      `}
+    </div>
+  `;
+  
+  // پیشرفت ماهانه
+  const progressHTML = monthlyProgress.length >= 2 ? `
+    <div class="card" style="margin-bottom:18px">
+      <h3 style="margin-top:0">📈 پیشرفت ماهانه</h3>
+      <div style="position:relative;height:200px">
+        <canvas id="teacherProgressChart"></canvas>
+      </div>
+      <div style="margin-top:12px;display:flex;justify-content:center;gap:20px;flex-wrap:wrap">
+        ${monthlyProgress.map(m => `
+          <div style="text-align:center">
+            <div style="font-size:11px;color:var(--muted);font-weight:700">${m.month}</div>
+            <div style="font-size:14px;font-weight:900;color:var(--primary-dark)">${m.avg.toFixed(2)}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  ` : '';
+  
+  // افتخارات
+  const achievementsHTML = achievements.length ? `
+    <div class="card" style="margin-bottom:18px">
+      <h3 style="margin-top:0">🏆 افتخارات من</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px">
+        ${achievements.map(a => `
+          <div style="padding:16px;background:linear-gradient(135deg,#fff,#fafbff);border:2px solid ${a.color}33;border-radius:14px;text-align:center">
+            <div style="font-size:36px;margin-bottom:6px">${a.icon}</div>
+            <div style="font-size:15px;font-weight:900;color:${a.color};margin-bottom:4px">${a.label}</div>
+            <div style="font-size:11.5px;color:var(--muted)">${a.desc}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  ` : `
+    <div class="card" style="margin-bottom:18px">
+      <h3 style="margin-top:0">🏆 افتخارات من</h3>
+      <div class="empty">هنوز نشان خاصی کسب نکرده‌اید — با تلاش بیشتر بهش می‌رسید! 💪</div>
+    </div>
+  `;
+  
+  container.innerHTML = statsHTML + classesHTML + ratingHTML + progressHTML + achievementsHTML;
+  
+  // رسم نمودار پیشرفت
+  if (monthlyProgress.length >= 2) {
+    setTimeout(() => {
+      const ctx = document.getElementById('teacherProgressChart');
+      if (ctx && typeof Chart !== 'undefined') {
+        new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: monthlyProgress.map(m => m.month),
+            datasets: [{
+              label: 'میانگین نمرات',
+              data: monthlyProgress.map(m => m.avg),
+              borderColor: '#6366f1',
+              backgroundColor: 'rgba(99,102,241,0.1)',
+              fill: true,
+              tension: 0.4,
+              borderWidth: 2,
+              pointBackgroundColor: '#6366f1',
+              pointRadius: 5
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { beginAtZero: true, max: 20, ticks: { font: { size: 11 } } },
+              x: { ticks: { font: { size: 11 } }, grid: { display: false } }
+            }
+          }
+        });
+      }
+    }, 100);
+  }
+}
 
 function renderTeacherGrades() {
   if (!currentTeacher) return;
@@ -5403,6 +5731,7 @@ function bindAuthButtons() {
       کد ملی: ${t.nationalCode || '-'} <br>
       همراه: ${t.phone || '-'}
     `;
+        renderTeacherSelfReport();
     document.getElementById('teacherYear').textContent = db.settings.year;
 
     // پر کردن انتخاب‌گرها
@@ -5511,6 +5840,9 @@ function bindTeacherTabs() {
       const id = 'teacher-' + tab.dataset.ttab;
       const panel = document.getElementById(id);
       if (panel) panel.classList.add('active');
+      if (tab.dataset.ttab === 'selfreport') {
+        renderTeacherSelfReport();
+      }
     });
   });
 }
