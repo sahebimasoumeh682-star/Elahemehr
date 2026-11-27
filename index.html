@@ -2187,7 +2187,29 @@ function getStudentGradesForMonth(studentId, monthName, term) {
 ============================================================ */
 
 // ⭐ ستاره‌های عملکرد
-function getStars(score, maxScore) {
+// ⭐ محاسبه‌ی ستاره‌های بزرگ سه‌بعدی (فقط نمره ۲۰)
+function getBigStars(studentId, term) {
+  let gs = db.grades.filter(g => (g.student_id == studentId || g.studentId == studentId));
+  if (term) gs = gs.filter(g => (g.term || '') === term);
+  
+  // فقط درس‌هایی که توشون نمره ۲۰ گرفته
+  const perfectScores = gs.filter(g => {
+    const sc = +g.score || 0;
+    const mx = +g.max_score || 20;
+    return mx > 0 && sc >= mx; // نمره کامل (۲۰ از ۲۰)
+  });
+  
+  // هر درس فقط یه بار حساب می‌شه (اگه چند تا ۲۰ توی یه درس داشته، بازم ۱ ستاره)
+  const uniqueSubjects = [...new Set(perfectScores.map(g => g.subject).filter(Boolean))];
+  
+  return {
+    count: uniqueSubjects.length,
+    subjects: uniqueSubjects,
+    canClaimReward: uniqueSubjects.length >= 5
+  };
+}
+
+  function getStars(score, maxScore) {
   const pct = maxScore > 0 ? (score / maxScore) * 20 : 0;
   if (pct >= 18) return '⭐⭐⭐⭐⭐';
   if (pct >= 15) return '⭐⭐⭐⭐';
@@ -2403,6 +2425,7 @@ function buildReportCardHTML(studentId, monthName, term) {
   const { best, worst } = findBestWorstGrades(studentId, term);
 
   const classAvg = getClassAverage(student.grade, student.class, term);
+    const bigStars = getBigStars(studentId, term);
   const medal = getMedal(avg);
   const forecast = getForecast(avg, grades);
   const personalMsg = getPersonalMessage(student, avg, grades, term);
@@ -2660,6 +2683,47 @@ function buildReportCardHTML(studentId, monthName, term) {
     ${commentHTML}
     <div style="font-size:9px;font-weight:800;color:#3730a3;margin:2px 0 4px">💳 وضعیت مالی:</div>
     ${financeHTML}
+    <div style="padding:8px 10px;background:linear-gradient(135deg,#fffbeb 0%,#fef3c7 100%);border:2px dashed #f59e0b;border-radius:10px;margin-bottom:6px">
+      <div style="font-size:9px;font-weight:900;color:#92400e;margin-bottom:6px">⭐ ستاره‌های بزرگ سه‌بعدی این ماه</div>
+      ${bigStars.count > 0 ? `
+        <div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:6px">
+          ${bigStars.subjects.map(subj => `
+            <div style="display:inline-flex;align-items:center;gap:3px;padding:4px 8px;background:#fff;border:1.5px solid #fbbf24;border-radius:6px;font-size:8px;font-weight:800;color:#92400e">
+              <span style="font-size:14px;filter:drop-shadow(0 2px 3px rgba(245,158,11,0.5))">⭐</span>
+              ${subj}
+            </div>
+          `).join('')}
+        </div>
+        <div style="text-align:center;font-size:9px;font-weight:900;color:#92400e;margin-bottom:4px">
+          ${bigStars.canClaimReward 
+            ? `🎉 تبریک! تو این ماه <b style="font-size:12px">${bigStars.count}</b> ستاره‌ی بزرگ سه‌بعدی کسب کردی!<br>✨ برو از مدیر جایزه‌ت رو بگیر! 🎁`
+            : `تو این ماه <b style="font-size:11px">${bigStars.count}</b> ستاره‌ی بزرگ سه‌بعدی کسب کردی`
+          }
+        </div>
+        ${!bigStars.canClaimReward ? `
+          <div style="display:flex;align-items:center;gap:4px;justify-content:center;margin-bottom:4px">
+            ${[1,2,3,4,5].map(i => `
+              <span style="font-size:14px;${i <= bigStars.count ? 'filter:drop-shadow(0 2px 3px rgba(245,158,11,0.5))' : 'opacity:0.25;filter:grayscale(1)'}">⭐</span>
+            `).join('')}
+          </div>
+          <div style="text-align:center;font-size:8px;color:#a16207;font-weight:700">
+            🎁 ${5 - bigStars.count} ستاره‌ی دیگه تا جایزه‌ی کمد جوایز!
+          </div>
+        ` : ''}
+      ` : `
+        <div style="text-align:center;font-size:8.5px;color:#a16207;font-weight:700;line-height:1.8">
+          هنوز ستاره‌ی بزرگی کسب نکردی!<br>
+          💡 برای گرفتن ستاره‌ی بزرگ، توی یه درس نمره‌ی <b>۲۰</b> بگیر!
+        </div>
+      `}
+    </div>
+
+    <div style="padding:6px 8px;background:#f8fafc;border:1.5px solid #e2e8f0;border-radius:8px;margin-bottom:6px;font-size:7.5px;line-height:1.8;color:#475569">
+      <b style="color:#3730a3;font-size:8.5px">📖 قانون ستاره‌های بزرگ سه‌بعدی:</b><br>
+      • هر درسی که توش نمره‌ی <b style="color:#059669">۲۰</b> بگیری = <b>۱ ستاره‌ی بزرگ سه‌بعدی</b> ⭐<br>
+      • جمع ستاره‌های درس‌های مختلف <b style="color:#dc2626">قبول نیست</b> — فقط درس‌هایی که توشون ۲۰ گرفتی<br>
+      • اگه توی یه ماه <b style="color:#d97706">۵ ستاره‌ی بزرگ</b> جمع کنی، می‌تونی بری از <b>کمد جوایز</b> جایزه انتخاب کنی! 🎁
+    </div>
 
     <div class="rc-signatures">
       <div class="rc-signature">
